@@ -1,4 +1,7 @@
-import { Vector3, clampPose } from "@automovie/engine";
+import {
+  Vector3,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   IAutoMovieHumanDigitGoal,
   IAutoMovieJointPose,
@@ -60,7 +63,7 @@ export function fitPianoScoreContact(
     };
   const fitted: IAutoMoviePose = HumanDigitFit.fitted(
     body,
-    clampPose(fingering, body.skeleton),
+    AutoMovieEngineKinematics.clampPose(fingering, body.skeleton),
     goals,
   );
   if (notes.length > 1) {

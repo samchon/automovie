@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -248,8 +248,8 @@ export function prepareWalkReachSwing(
     // inside the unloaded limit (`walkReachStance`), so a quickly folding knee
     // cannot carry it past the limit while the reach ranges come in.
     const held: number = Math.min(
-      minimumJerk.share(Math.min(1, Math.max(0, share) / bounds.fade)),
-      minimumJerk.share(Math.min(1, Math.max(0, 1 - share) / bounds.fade)),
+      AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share) / bounds.fade)),
+      AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, 1 - share) / bounds.fade)),
     );
     let joined: IAutoMovieVector3 = Vector3.lerp(
       foot.placement.ankle,
@@ -279,7 +279,7 @@ export function prepareWalkReachSwing(
     // twice that height), it keeps the horizontal place the swing gave it,
     // so a foot the range turns still lifts before it travels.
     const contact: number = AutoMovieMotionHumanAuditContact.HEIGHT;
-    const risen: number = minimumJerk.share(
+    const risen: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(
         1,
         Math.max(

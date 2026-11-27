@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
@@ -149,7 +149,7 @@ export namespace look {
     const weight: (seconds: number, span: number) => number = (
       seconds: number,
       span: number,
-    ): number => minimumJerk.share((seconds - delay) / span);
+    ): number => AutoMovieEngineMotionSampling.minimumJerkShare((seconds - delay) / span);
     // The target's direction from a posture, on the side the look chose
     // when it began: a target straight behind, whose yaw crosses from +180
     // to -180 as the body sways, keeps the turn on that side.

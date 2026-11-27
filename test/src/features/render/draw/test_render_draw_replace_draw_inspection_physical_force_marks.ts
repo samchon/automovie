@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
-  replaceAutoMovieDrawInspection,
+  AutoMovieDrawPlacement,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -288,7 +288,7 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
     const falling: IAutoMovieMark[] = [];
     const contact: IAutoMovieMark[] = [...impact, ...strained];
     for (const marks of [falling, contact, falling, contact]) {
-      active = await replaceAutoMovieDrawInspection({
+      active = await AutoMovieDrawPlacement.replaceInspection({
         previous: active,
         scene,
         request: InspectionScene.ask({ marks: ["contact", "support/*"] }),

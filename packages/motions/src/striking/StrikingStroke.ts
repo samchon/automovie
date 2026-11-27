@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk, superposeMinimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingStroke,
   IAutoMovieSuperposeMinimumJerk,
@@ -72,7 +72,7 @@ export namespace StrikingStroke {
       begin = d.via.end - d.via.overlap;
     }
     const u: number = impactShare(d.speed);
-    const s: number = minimumJerk.share(u);
+    const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(u);
     let span: number = d.contact - begin;
     if (!(span > 0))
       throw new Error("A strike's delivery ends after it begins");
@@ -174,13 +174,13 @@ export namespace StrikingStroke {
       | readonly IAutoMovieSuperposeMinimumJerk.IUnit[]
       | undefined = preparedBack === undefined ? undefined : freeRecoil();
     const free = (seconds: number): IAutoMovieVector3 => {
-      const position: IAutoMovieVector3 = superposeMinimumJerk.position(
-        superposeMinimumJerk.position(input.origin, input.units, seconds),
+      const position: IAutoMovieVector3 = AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition(
+        AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition(input.origin, input.units, seconds),
         corrections(seconds),
         seconds,
       );
       return seconds > input.contact
-        ? superposeMinimumJerk.position(
+        ? AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition(
             position,
             preparedRecoil ?? freeRecoil(),
             seconds,
@@ -211,7 +211,7 @@ export namespace StrikingStroke {
         const at: number | undefined = stop(seconds);
         if (at === undefined) return free(seconds);
         const from: IAutoMovieVector3 = met ?? free(at);
-        return superposeMinimumJerk.position(
+        return AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition(
           from,
           preparedStop ?? recoil(from, at + DWELL),
           seconds,

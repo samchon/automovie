@@ -4,12 +4,9 @@ export * from "./anthropometry";
 export * from "./architecture";
 
 
-export * from "./autoMovieModelGaits";
-export * from "./autoMovieModelPartMatrices";
-export * from "./autoMovieModelPartPoints";
+export * from "./AutoMovieEngineModel";
 export * from "./composition";
 export * from "./constants";
-export * from "./createAutoMovieGeometryActorReader";
 
 export * from "./drawing";
 export * from "./effectRuntime";
@@ -19,21 +16,12 @@ export * from "./geometry";
 export * from "./kinematics";
 export * from "./material";
 export * from "./math";
-export * from "./measureAutoMovieGeometry";
-export * from "./measureAutoMovieGeometryCamera";
-export * from "./measureAutoMovieGeometryDistance";
-export * from "./measureAutoMovieGeometryEffect";
-export * from "./measureAutoMovieGeometryFilmTime";
-export * from "./measureAutoMovieGeometryFormation";
-export * from "./measureAutoMovieGeometryGround";
-export * from "./measureAutoMovieGeometryPose";
-export * from "./measureAutoMovieGeometryReach";
+export * from "./AutoMovieEngineGeometryObservation";
 export * from "./motion";
 export * from "./perform";
 export * from "./physics";
 export * from "./populationRuntime";
 export * from "./random";
-export * from "./readAutoMovieGeometryGround";
 export * from "./render";
 export * from "./resolve";
 export * from "./rom";

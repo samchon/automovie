@@ -1,9 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces as S } from "@automovie/engine";
-import type {
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieHumanoidSurfaces, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/vclose";
@@ -32,7 +29,7 @@ export function test_engine_surface_placement(): void {
   const half: number = Math.SQRT1_2;
   const rotation: IAutoMovieQuaternion = { x: 0, y: half, z: 0, w: half };
   const origin: IAutoMovieVector3 = { x: 10, y: 20, z: 30 };
-  const bone: Parameters<typeof S.place>[1] = { worldPosition: origin, worldRotation: rotation };
+  const bone: Parameters<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace>[1] = { worldPosition: origin, worldRotation: rotation };
   const local: IAutoMovieVector3 = { x: 2, y: 3, z: 4 };
   const frame: IAutoMovieHumanoidSurfaces.IFrame = { bone: "head", point: local, normal: { x: 1, y: 0, z: 0 }, forward: { x: 0, y: 0, z: 1 } };
   const pairFrame: IAutoMovieHumanoidSurfaces.IFrame = { ...frame,
@@ -46,13 +43,13 @@ export function test_engine_surface_placement(): void {
     get point(): never { throw new Error("normal does not demand point"); },
     get forward(): never { throw new Error("normal does not demand forward"); },
   };
-  const normalBone: Parameters<typeof S.place>[1] = { worldRotation: rotation,
+  const normalBone: Parameters<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace>[1] = { worldRotation: rotation,
     get worldPosition(): never { throw new Error("normal does not demand parent position"); },
   };
-  const normal: IAutoMovieVector3 = S.normal(normalFrame, normalBone);
-  const complete: ReturnType<typeof S.place> = S.place(frame, bone);
-  const pair: ReturnType<typeof S.pointNormal> = S.pointNormal(pairFrame, bone);
-  const point: IAutoMovieVector3 = S.point(pointFrame, bone);
+  const normal: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceNormal(normalFrame, normalBone);
+  const complete: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bone);
+  const pair: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal> = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(pairFrame, bone);
+  const point: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(pointFrame, bone);
   const expected: IAutoMovieVector3 = { x: 14, y: 23, z: 28 };
   TestValidator.predicate("actual surface fields follow the literal Y90 rigid transform",
     vclose(complete.point, expected, 1e-12) && vclose(pair.point, expected, 1e-12) && vclose(point, expected, 1e-12) &&
@@ -64,8 +61,8 @@ export function test_engine_surface_placement(): void {
   pair.normal.y = 888;
   normal.y = 555;
   complete.forward!.z = 999;
-  const again: ReturnType<typeof S.pointNormal> = S.pointNormal(pairFrame, bone);
-  const normalAgain: IAutoMovieVector3 = S.normal(normalFrame, normalBone);
+  const again: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal> = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(pairFrame, bone);
+  const normalAgain: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceNormal(normalFrame, normalBone);
   TestValidator.predicate("every placement owns its wrapper and nested values without repairing earlier outputs",
     again !== pair && again.point !== pair.point && again.normal !== pair.normal && point !== local &&
     normalAgain !== normal && normalAgain !== frame.normal && normalAgain !== again.normal &&
@@ -77,9 +74,9 @@ export function test_engine_surface_placement(): void {
   rotation.y = 0;
   rotation.w = 1;
   origin.x = -3;
-  const moved: ReturnType<typeof S.pointNormal> = S.pointNormal(pairFrame, bone);
+  const moved: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal> = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(pairFrame, bone);
   TestValidator.predicate("same-object current bone changes cannot replay a previous placed surface",
     vclose(moved.point, { x: -1, y: 23, z: 34 }, 1e-12) && vclose(moved.normal, { x: 1, y: 0, z: 0 }, 1e-12) &&
     vclose(again.point, expected, 1e-12) && vclose(normalAgain, { x: 0, y: 0, z: -1 }, 1e-12) &&
-    vclose(S.normal(normalFrame, normalBone), { x: 1, y: 0, z: 0 }, 1e-12));
+    vclose(AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceNormal(normalFrame, normalBone), { x: 1, y: 0, z: 0 }, 1e-12));
 }

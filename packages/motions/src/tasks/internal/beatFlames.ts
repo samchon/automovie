@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -88,7 +88,7 @@ function plan(
     AutoMovieMotionHumanHeld.point(held, "face");
   const rotation: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(
-      rotationBetween(
+      AutoMovieEngineMath.rotationBetween(
         Quaternion.rotateVector(entry, working.direction),
         Vector3.scale(region.normal, -1),
       ),

@@ -1,20 +1,5 @@
-import {
-  ANKLE_DORSIFLEXION,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanBodyFitTypes,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSupport,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { ANKLE_DORSIFLEXION, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { shankTilt } from "../../carrier/internal/shankTilt";
 import { crawl } from "../../floor/internal/crawl";
@@ -197,7 +182,7 @@ export function supportStep(props: supportStep.IProps): number {
       body,
       resolveHumanPosture(body, l === 0 ? start : landed!),
     );
-    const heel: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+    const heel: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
       socket,
       bones.get(socket.bone)!,
     );

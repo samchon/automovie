@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -40,7 +40,7 @@ export namespace KickRedirect {
    * @returns 0 to 1.
    */
   export function weight(seconds: number, cut: number, impact: number): number {
-    return minimumJerk.share((seconds - cut) / Math.max(1e-3, impact - cut));
+    return AutoMovieEngineMotionSampling.minimumJerkShare((seconds - cut) / Math.max(1e-3, impact - cut));
   }
 
   /**

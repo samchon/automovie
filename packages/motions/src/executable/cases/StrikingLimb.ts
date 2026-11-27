@@ -1,18 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/HumanColliders";
 import { StrikingRecord } from "../../striking/StrikingRecord";
@@ -247,7 +234,7 @@ export namespace StrikingLimb {
         {
           name: "foot",
           a: foot.worldPosition,
-          b: resolveAutoMovieHumanoidSurfaces.place(
+          b: AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             body.surfaces.sockets[s === "left" ? "ballLeft" : "ballRight"],
             foot,
           ).point,
@@ -259,7 +246,7 @@ export namespace StrikingLimb {
     const hand: IAutoMovieResolvedBone = bones.get(`${s}Hand`)!;
     const elbow: IAutoMovieVector3 = bones.get(`${s}LowerArm`)!.worldPosition;
     const reach: IAutoMovieVector3 = Vector3.subtract(
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         body.surfaces.sockets[s === "left" ? "fistLeft" : "fistRight"],
         hand,
       ).point,

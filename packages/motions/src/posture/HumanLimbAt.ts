@@ -1,8 +1,7 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  fitHingedChainAt,
-  readHingedChainSeed,
+  AutoMovieEngineMotionKinematics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -68,7 +67,11 @@ export namespace HumanLimbAt {
     // limb's in their mirror image, and the posed records are merged back.
     const read: IRead = mirrored(body, pose, limb, goal);
     const posed: (IAutoMovieSeededChainFit & IAtPosed) | null =
-      fitHingedChainAt(read.request, swivel, branch);
+      AutoMovieEngineMotionKinematics.fitHingedChainAt(
+        read.request,
+        swivel,
+        branch,
+      );
     return posed === null
       ? null
       : {
@@ -88,7 +91,8 @@ export namespace HumanLimbAt {
 
   /**
    * The limb's joint angles at a swivel and branch before the range of motion
-   * applies (`fitHingedChainAt.free`: Tolani, Goswami and Badler's theta_1 to
+   * applies (`AutoMovieEngineMotionKinematics.fitHingedChainAtFree`: Tolani,
+   * Goswami and Badler's theta_1 to
    * theta_7), with no placement: the request is `at`'s own. A left limb is read
    * as the right limb of its mirror image, so its angles are that right limb's,
    * read against the right bone's range (the ranges are mirror images).
@@ -111,8 +115,8 @@ export namespace HumanLimbAt {
     goal: IAutoMovieHumanLimbGoal,
     swivel: number,
     branch: number,
-  ): fitHingedChainAt.IFree | null {
-    return fitHingedChainAt.free(
+  ): AutoMovieEngineMotionKinematics.IHingedChainFreeFit | null {
+    return AutoMovieEngineMotionKinematics.fitHingedChainAtFree(
       mirrored(body, pose, limb, goal).request,
       swivel,
       branch,
@@ -167,7 +171,7 @@ export namespace HumanLimbAt {
       for (const j of image.joints) if (j.bone === bone) found = j;
       return found;
     };
-    return readHingedChainSeed(
+    return AutoMovieEngineMotionKinematics.readHingedChainSeed(
       request(body, image, side, {
         point: end.worldPosition,
         bend: end.worldPosition,

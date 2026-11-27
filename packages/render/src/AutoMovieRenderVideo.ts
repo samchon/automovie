@@ -1,9 +1,13 @@
 import { planAutoMovieVideoEncoding as planAutoMovieVideoEncodingImplementation } from "./delivery/internal/planAutoMovieVideoEncoding.js";
+import { autoMovieVideoFrameRate as autoMovieVideoFrameRateImplementation } from "./delivery/internal/autoMovieVideoFrameRate.js";
+import { planAutoMovieAlphaWrap as planAutoMovieAlphaWrapImplementation } from "./delivery/internal/planAutoMovieAlphaWrap.js";
 
-import { type IAutoMovieRenderSpec, type IAutoMovieRenderAndSeeResult, type IAutoMovieRenderAndSeeRequest, type IAutoMovieRenderResult, type IAutoMovieRenderAdapters, type IAutoMoviePlanVideoEncodingResult, type IAutoMoviePlanVideoEncodingProps } from "@automovie/interface";
+import { type IAutoMovieRenderSpec, type IAutoMovieDrawnVideoResult, type IAutoMovieRenderAndSeeResult, type IAutoMovieRenderAndSeeRequest, type IAutoMovieRenderResult, type IAutoMovieRenderAdapters, type IAutoMoviePlanVideoEncodingResult, type IAutoMoviePlanVideoEncodingProps, type IAutoMoviePlanAlphaWrapProps } from "@automovie/interface";
 import { ffmpegArgs as ffmpegArgsImplementation } from "./internal/ffmpegArgs.js";
 import { renderAndSee as renderAndSeeImplementation } from "./internal/renderAndSee.js";
 import { renderVideo as renderVideoImplementation } from "./internal/renderVideo.js";
+import { renderAutoMovieDrawnVideo as renderAutoMovieDrawnVideoImplementation } from "./draw/internal/renderAutoMovieDrawnVideo.js";
+import type { IAutoMovieRenderDrawnVideoProps } from "./draw/IAutoMovieRenderDrawnVideoProps.js";
 
 /** Public operations for Auto Movie Render Video. */
 export namespace AutoMovieRenderVideo {
@@ -61,6 +65,23 @@ export namespace AutoMovieRenderVideo {
     return renderVideoImplementation(spec, durationSeconds, dir, outputPath, adapters);
   }
 
+  /** Return FFmpeg's exact rational presentation rate for a numeric frame rate. */
+  export function frameRate(fps: number): IAutoMoviePlanVideoEncodingResult["frameRate"] {
+    return autoMovieVideoFrameRateImplementation(fps);
+  }
+
+
+  /** Render a drawn subject's frames and encode them through the supplied host. */
+  export function renderDrawnVideo(
+    props: IAutoMovieRenderDrawnVideoProps,
+  ): Promise<IAutoMovieDrawnVideoResult> {
+    return renderAutoMovieDrawnVideoImplementation(props);
+  }
+  /** Plan a lossless, silent QuickTime wrapper for transparent PNG frames. */
+  export function planAlphaWrap(props: IAutoMoviePlanAlphaWrapProps): string[] {
+    return planAutoMovieAlphaWrapImplementation(props);
+  }
+
   /**
    * Admit a drawn video's exact clock and raster and plan the one FFmpeg run that
    * encodes its frames, with an optional soundtrack.
@@ -85,4 +106,5 @@ export namespace AutoMovieRenderVideo {
   export function planVideoEncoding(props: IAutoMoviePlanVideoEncodingProps): IAutoMoviePlanVideoEncodingResult {
     return planAutoMovieVideoEncodingImplementation(props);
   }
+
 }

@@ -2,7 +2,7 @@ import {
   AutoMovieEnginePlanarHull,
   Quaternion,
   Vector3,
-  physicalShapeBounds,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -191,7 +191,7 @@ export namespace HumanObstacle {
     let bottom: number = Infinity;
     let top: number = -Infinity;
     for (const shape of shapes) {
-      const bounds: IObjectBounds = physicalShapeBounds(placed, shape);
+      const bounds: IObjectBounds = AutoMovieEnginePhysics.physicalShapeBounds(placed, shape);
       bottom = Math.min(bottom, bounds.min.y);
       top = Math.max(top, bounds.max.y);
       const centre: IAutoMovieVector3 = Vector3.add(

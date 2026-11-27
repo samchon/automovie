@@ -12,7 +12,18 @@ import type {
   IAutoMoviePose,
   IAutoMovieSceneNode,
 } from "@automovie/interface";
-import { type AutoMovieHumanPolygon, type IAutoMovieBuiltPropArticulation, type IAutoMovieDrawScene, type IAutoMovieInstanceSetViewerObject, type IAutoMovieModelObject, type IAutoMovieSceneObject, buildHumanPolygon, buildModel, buildScene, collectAutoMovieOwnedResources, AutoMovieRenderSceneMotion, AutoMovieRenderInstanceSet, AutoMovieRenderSceneLayout } from "@automovie/render";
+import {
+  AutoMovieHumanPolygon,
+  AutoMovieRenderSceneLayout,
+  AutoMovieSceneResource,
+  AutoMovieRenderSceneMotion,
+  AutoMovieRenderInstanceSet,
+  type IAutoMovieBuiltPropArticulation,
+  type IAutoMovieDrawScene,
+  type IAutoMovieInstanceSetViewerObject,
+  type IAutoMovieModelObject,
+  type IAutoMovieSceneObject,
+} from "@automovie/render";
 import * as THREE from "three";
 
 import { compileEnvironmentExample } from "./compileEnvironmentExample";
@@ -35,14 +46,14 @@ export function drawEnvironmentExample(
   );
   const modelObjects: Map<string, IAutoMovieModelObject> = new Map();
   const figures: Map<string, AutoMovieHumanPolygon.IDrawing> = new Map();
-  const prepared: IAutoMovieSceneObject = buildScene(
-    shot.source.scene,
-    (modelId: string): IAutoMovieModelObject | undefined => {
+  const prepared: IAutoMovieSceneObject = AutoMovieRenderSceneLayout.buildScene({
+    scene: shot.source.scene,
+    getModelObject: (modelId: string): IAutoMovieModelObject | undefined => {
       const node: IAutoMovieSceneNode | undefined =
         shot.source.scene.nodes[modelObjects.size];
       if (node === undefined) return undefined;
       if (modelId === body.skeleton.id) {
-        const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(
+        const drawing: AutoMovieHumanPolygon.IDrawing = AutoMovieHumanPolygon.build(
           AutoMovieHumanCanonicalBody.display(body),
         );
         const object: THREE.Group = new THREE.Group();
@@ -60,11 +71,11 @@ export function drawEnvironmentExample(
       }
       const model: IAutoMovieModel | undefined = modelTable.get(modelId);
       if (model === undefined) return undefined;
-      const object: IAutoMovieModelObject = buildModel(model);
+      const object: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(model);
       modelObjects.set(node.id, object);
       return object;
-    },
-  );
+    }
+  });
   prepared.scene.background = new THREE.Color("#e2e8ee");
   const cameraIndex: number = shot.source.scene.cameras.findIndex(
     (camera: IAutoMovieCamera): boolean =>
@@ -195,7 +206,7 @@ export function drawEnvironmentExample(
         figure.object.removeFromParent();
         figure.dispose();
       }
-      for (const resource of collectAutoMovieOwnedResources(prepared.scene))
+      for (const resource of AutoMovieSceneResource.collectOwnedResources(prepared.scene))
         resource.dispose();
       prepared.scene.clear();
     },

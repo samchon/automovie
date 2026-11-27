@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -57,7 +57,7 @@ interface ICandidate {
 function candidates(
   centre: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
-  shape: Exclude<Parameters<typeof physicalShapeBounds>[1], ICandidatesShape>,
+  shape: Exclude<Parameters<typeof AutoMovieEnginePhysics.physicalShapeBounds>[1], ICandidatesShape>,
   out: ICandidate[],
 ): void {
   const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
@@ -144,7 +144,7 @@ export function HumanFloorReading(
         shape.transform.rotation,
       );
       const found: ICandidate[] = [];
-      const box: IOfBox = physicalShapeBounds.fromFrame(
+      const box: IOfBox = AutoMovieEnginePhysics.physicalShapeBoundsFromFrame(
         centre,
         rotation,
         shape,

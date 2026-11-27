@@ -1,8 +1,5 @@
-import {
-  AutoMovieMotionBound,
-  Vector3,
-  physicalShapeGjk,
-} from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieMotionBound, Vector3 } from "@automovie/engine";
+
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
@@ -85,7 +82,7 @@ export namespace HumanArmTrajectorySweepBound {
       step: HumanArmTrajectoryLinks.IStep,
     ): IAutoMovieVector3[] =>
       (step.solids.get(part) ?? []).flatMap(
-        (solid: physicalShapeGjk.ISolid): IAutoMovieVector3[] =>
+        (solid: AutoMovieEnginePhysicsGjkTypes.ISolid): IAutoMovieVector3[] =>
           solid.points.map(
             (p: IAutoMovieVector3): IAutoMovieVector3 =>
               HumanArmTrajectoryHalfStep.carry(c, a, k, step.at, shape, p)

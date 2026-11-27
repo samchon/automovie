@@ -3,10 +3,9 @@ import type * as THREE from "three";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieFramebufferRenderer } from "../IAutoMovieFramebufferRenderer.js";
 import type { IAutoMovieShadowRetirementHost } from "../IAutoMovieShadowRetirementHost.js";
-import { guardAutoMovieSceneShadowRetirement } from "../guardAutoMovieSceneShadowRetirement.js";
-import { readAutoMovieCubeShadowDepth } from "../readAutoMovieCubeShadowDepth.js";
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
-import { retireAutoMovieCubeShadowDepth } from "../retireAutoMovieCubeShadowDepth.js";
+import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
+import { AutoMovieSceneShadow } from "../AutoMovieSceneShadow.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Retire every scene light's retained shadow attachment after a filter change.
@@ -77,7 +76,7 @@ export const resetAutoMovieSceneShadowTargets: (
       target.depthTexture.version !== 0
     ) {
       try {
-        const handle: WebGLTexture | null = readAutoMovieCubeShadowDepth(
+        const handle: WebGLTexture | null = AutoMovieSceneShadow.readCubeDepth(
           renderer,
           target,
         );
@@ -112,7 +111,7 @@ export const resetAutoMovieSceneShadowTargets: (
           nativeDepth,
           (handle: WebGLTexture): (() => void) =>
             (): void => {
-              retireAutoMovieCubeShadowDepth(renderer, handle);
+              AutoMovieSceneShadow.retireCubeDepth(renderer, handle);
             },
         ),
       ]),

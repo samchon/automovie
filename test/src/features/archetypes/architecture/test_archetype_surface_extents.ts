@@ -4,7 +4,7 @@ import type {
   IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { buildModel } from "@automovie/render";
+import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -247,7 +247,7 @@ function inspect(
     .transformDirection(frame)
     .normalize();
 
-  const built: ReturnType<typeof buildModel> = buildModel(model);
+  const built: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> = AutoMovieRenderSceneLayout.buildModel(model);
   const meshes: THREE.Mesh[] = [...built.parts.values()].filter(
     (part: THREE.Object3D): part is THREE.Mesh => part instanceof THREE.Mesh,
   );

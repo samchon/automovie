@@ -1,4 +1,4 @@
-import { Quaternion, minimumJerk } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -135,7 +135,7 @@ export namespace carryHang {
         projection,
       );
       if (sides.length === 0) return { posture, sides: [], held: {}, share: 1 };
-      const share: number = minimumJerk.share(Math.min(1, t / SETTLE));
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / SETTLE));
       const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         HumanTrunk.resolve(body, posture, undefined, resolution, shoulders);
       const heading: HumanFrame.IPrepared = HumanFrame.prepare({

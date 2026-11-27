@@ -30,6 +30,9 @@ export type { IAutoMovieSolveBoundedDisplacement } from "./IAutoMovieSolveBounde
 export type { IAutoMovieSolveHalfPlaneProgram } from "./IAutoMovieSolveHalfPlaneProgram";
 export type { IAutoMovieSolveQuadraticKernel } from "./IAutoMovieSolveQuadraticKernel";
 export type { IAutoMovieSolveQuadraticProgram } from "./IAutoMovieSolveQuadraticProgram";
-export type { IAutoMovieSwingTwist } from "./IAutoMovieSwingTwist";
-export type { IAutoMovieTetrahedralizeDelaunay } from "./IAutoMovieTetrahedralizeDelaunay";
+
+
 export type { IAutoMovieWeldMeshVertices } from "./IAutoMovieWeldMeshVertices";
+
+export type { IAutoMovieSwingTwistResult } from "./IAutoMovieSwingTwistResult";
+export type { IAutoMovieTetrahedralizedMesh } from "./IAutoMovieTetrahedralizedMesh";

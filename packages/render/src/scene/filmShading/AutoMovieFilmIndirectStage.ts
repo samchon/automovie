@@ -11,7 +11,7 @@ import { collectAutoMovieFilmOverlays } from "../filmResponse/internal/collectAu
 import { AUTOMOVIE_FILM_OCCLUSION_SHADERS } from "./AUTOMOVIE_FILM_OCCLUSION_SHADERS.js";
 import type { IAutoMovieFilmIndirectRenderer } from "./IAutoMovieFilmIndirectRenderer.js";
 import { applyFilmIndirectPatch } from "./internal/applyFilmIndirectPatch.js";
-import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
+import { AutoMovieRenderFilmShading } from "./AutoMovieRenderFilmShading.js";
 
 /**
  * The indirect light of a directly rendered film's beauty pass: measures what a
@@ -21,7 +21,7 @@ import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
  * `draw` with a shading that has `probes` or `occlusion`:
  *
  * 1. Patches every lit material in the scene once with `applyFilmIndirectPatch`;
- * 2. With `probes`, bakes them with `bakeAutoMovieFilmProbes` unless the last bake
+ * 2. With `probes`, bakes them with `AutoMovieRenderFilmShading.bakeProbes` unless the last bake
  *    had the same box, spacing, layer and revision, which by the contract's
  *    meaning of `revision` is exactly what a new bake would give, and stores
  *    the bake as a float texture of nine coefficient texels per probe;
@@ -279,7 +279,7 @@ export class AutoMovieFilmIndirectStage {
       probes.revision,
     ]);
     if (this.probes_?.key !== key) {
-      const volume: IAutoMovieIrradianceVolume = bakeAutoMovieFilmProbes({
+      const volume: IAutoMovieIrradianceVolume = AutoMovieRenderFilmShading.bakeProbes({
         renderer,
         scene,
         probes,

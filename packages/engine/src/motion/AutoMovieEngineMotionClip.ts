@@ -6,6 +6,7 @@ import { createDynamicActorPoseClip as createDynamicActorPoseClipImplementation 
 import { arrangeMotion as arrangeMotionImplementation } from "./internal/arrangeMotion";
 import { bindProfileGaits as bindProfileGaitsImplementation } from "./internal/bindProfileGaits";
 import { gaitMotion as gaitMotionImplementation } from "./internal/gaitMotion";
+import { gaitLimbFlexion as gaitLimbFlexionImplementation } from "./internal/gaitLimbFlexion";
 import { gestureMotion as gestureMotionImplementation } from "./internal/gestureMotion";
 import { holdMotion as holdMotionImplementation } from "./internal/holdMotion";
 import { reactMotion as reactMotionImplementation } from "./internal/reactMotion";
@@ -14,11 +15,20 @@ import { sequenceMotion as sequenceMotionImplementation } from "./internal/seque
 
 import { importedNodeClipToAutoMovieMotion as importedNodeClipToAutoMovieMotionImplementation } from "./internal/importedNodeClipToAutoMovieMotion";
 
-import { type IAutoMovieMotionClipBridge, type IAutoMovieMotionToClip, type IAutoMovieMotion, type IAutoMovieImportedNodeMotionProps, type IAutoMoviePose, type IAutoMovieCreateDynamicActorExtendClip, type IAutoMovieCreateDynamicActorJabClip, type IAutoMovieCreateDynamicActorPoseClip, type IAutoMoviePlacement, type IAutoMovieProfile, type IAutoMovieGait, type IAutoMovieSkeleton, type IAutoMovieRecoilPush, type AutoMovieHumanoidBone } from "@automovie/interface";
+import { type IAutoMovieMotionClipBridge, type IAutoMovieMotionToClip, type IAutoMovieMotion, type IAutoMovieImportedNodeMotionProps, type IAutoMoviePose, type IAutoMovieCreateDynamicActorExtendClip, type IAutoMovieCreateDynamicActorJabClip, type IAutoMovieCreateDynamicActorPoseClip, type IAutoMoviePlacement, type IAutoMovieProfile, type IAutoMovieGait, type IAutoMovieGaitLimb, type IAutoMovieSkeleton, type IAutoMovieRecoilPush, type AutoMovieHumanoidBone } from "@automovie/interface";
 import { motionToClip as motionToClipImplementation } from "./internal/motionToClip";
 
 /** Public operations for Auto Movie Engine Motion Clip. */
 export namespace AutoMovieEngineMotionClip {
+  /** Evaluate a gait limb's eased axis angle at a cycle time, in degrees. */
+  export function gaitLimbFlexion(
+    limb: IAutoMovieGaitLimb,
+    seconds: number,
+    period: number,
+  ): number {
+    return gaitLimbFlexionImplementation(limb, seconds, period);
+  }
+
   /**
    * Bake admitted clinical motion into general node tracks at a positive sample
    * rate, default24Hz, with matching rig clinical tables. Full local bone

@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, Quaternion, Vector3, swingTwist, AutoMovieEngineKinematics } from "@automovie/engine";
+import { HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieJointAxes,
@@ -128,7 +128,7 @@ export function AutoMovieMotionHumanBendStrain(
       const needed: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(Quaternion.inverse(lowerWorld()), rotation),
       );
-      const split: ReturnType<typeof swingTwist> = swingTwist(
+      const split: ReturnType<typeof AutoMovieEngineMath.decomposeSwingTwist> = AutoMovieEngineMath.decomposeSwingTwist(
         needed,
         lowerAxes.twist,
       );

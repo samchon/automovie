@@ -2,7 +2,7 @@ import {
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
-  fitHingedChainAt,
+  AutoMovieEngineMotionKinematics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -43,9 +43,10 @@ import { AutoMovieMotionHumanArmReachJoints } from "./AutoMovieMotionHumanArmRea
  * and abduction and the distal twist, which the rig takes in the forearm, so
  * the twist's range is the forearm's. The shoulder's and the wrist's angles
  * each have two families of solutions, the two Euler charts of one rotation
- * (`fitHingedChainAt.free`'s `charts`), so, as the paper does, four problems
- * are solved, one for each combination, and the least F among those meeting the
- * limits is taken. The flow is the paper's own (Tables 2 and 3, p. 379): a
+ * (`AutoMovieEngineMotionKinematics.fitHingedChainAtFree`'s `charts`), so, as
+ * the paper does, four problems are solved, one for each combination, and the
+ * least F among those meeting the limits is taken. The flow is the paper's own
+ * (Tables 2 and 3, p. 379): a
  * reachable goal with partial orientation and the limits on is solved by F's
  * unconstrained minimum over the two variables ("only involves two variables
  * with no constraints", section 3.3), taken where it meets the limits; since
@@ -194,14 +195,15 @@ export namespace AutoMovieMotionHumanArmReach {
       x: readonly number[],
       family: IFamily,
     ): AutoMovieMotionHumanArmReachJoints.IFreeAngles {
-      const free: fitHingedChainAt.IFree | null = HumanLimbAt.free(
-        request.body,
-        fitted.pose,
-        limb,
-        goal(x[1]!),
-        x[0]!,
-        branch,
-      );
+      const free: AutoMovieEngineMotionKinematics.IHingedChainFreeFit | null =
+        HumanLimbAt.free(
+          request.body,
+          fitted.pose,
+          limb,
+          goal(x[1]!),
+          x[0]!,
+          branch,
+        );
       if (free === null || free.charts.effector === null)
         throw new Error(`The ${limb} has no wrist to turn`);
       return {

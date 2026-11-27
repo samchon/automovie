@@ -24,7 +24,7 @@ import type {
  * geometry memory and frame-wide passes.
  */
 
-import { fluidDomainBudget } from "../../fluid/fluidDomainBudget";
+import { AutoMovieEngineFluid } from "../../fluid/AutoMovieEngineFluid";
 import { plantingBudget } from "../../soft/internal/plantingBudget";
 import { softBodyBudget } from "../../soft/internal/softBodyBudget";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
@@ -300,7 +300,7 @@ export function measureRenderSimulation(
     }
     // A bound domain states its own cost exactly, so nothing is copied by hand
     // and nothing can drift from the record it describes.
-    const budget: IAutoMovieFluidBudget = fluidDomainBudget(body.domain);
+    const budget: IAutoMovieFluidBudget = AutoMovieEngineFluid.fluidDomainBudget(body.domain);
     fluidCells += budget.cells;
     fluidParticles += budget.sprayParticleCap;
     add(owner, source, "fluidCells", budget.cells);

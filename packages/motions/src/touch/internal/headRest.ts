@@ -1,30 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanHeadRest,
-  IAutoMovieMotionHumanJoints,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRise,
-  IAutoMovieMotionHumanTarget,
-  IAutoMovieMotionManner,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHeadRest, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanTarget, IAutoMovieMotionManner, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
@@ -360,7 +335,7 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
  */
 function load(body: IAutoMovieMotionHumanActionContext["body"]): number {
   const model: IAutoMovieResolveCenterOfMass.IModel =
-    resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   const head: number = model.segments
     .filter(
       (s: IAutoMovieResolveCenterOfMass.ISegment): boolean =>

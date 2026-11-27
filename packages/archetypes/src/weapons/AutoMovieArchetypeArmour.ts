@@ -1,4 +1,4 @@
-import type { IAutoMovieBodyMeasure } from "@automovie/interface";
+import type { IAutoMovieBodyMeasure, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanProp } from "@automovie/interface";
 
 import {
   ArchetypeDraw,
@@ -9,6 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { armourBone } from "./internal/armourBone";
+import { assembleCostumeArmour as assembleCostumeArmourImplementation } from "./internal/assembleCostumeArmour";
 import { AutoMovieArchetypeCostumeCuirass } from "./AutoMovieArchetypeCostumeCuirass";
 import { AutoMovieArchetypeCostumeGauntlet } from "./AutoMovieArchetypeCostumeGauntlet";
 import { AutoMovieArchetypeCostumeGreave } from "./AutoMovieArchetypeCostumeGreave";
@@ -79,6 +80,69 @@ export function create(
     greave: (p, s) => AutoMovieArchetypeCostumeGreave.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22970", "met22276"] as const) }, s),
   };
   return variants[kind](params, seed);
+}
+
+/** Every wearer socket a costume piece can occupy, in declaration order. */
+const SLOTS: readonly assembleCostumeArmour.Slot[] = [
+  "head",
+  "chest",
+  "leftHand",
+  "rightHand",
+  "leftLowerArm",
+  "rightLowerArm",
+  "leftLowerLeg",
+  "rightLowerLeg",
+];
+
+/** The piece names each existing wearer socket can carry. */
+const PIECES: Readonly<
+  Record<assembleCostumeArmour.Slot, readonly AutoMovieArchetypeArmour.Kind[]>
+> = {
+  head: ["openHelmet", "closedHelmet", "brimmedHelmet"],
+  chest: ["cuirass", "mail"],
+  leftHand: ["gauntlet"],
+  rightHand: ["gauntlet"],
+  leftLowerArm: ["vambrace"],
+  rightLowerArm: ["vambrace"],
+  leftLowerLeg: ["greave"],
+  rightLowerLeg: ["greave"],
+};
+
+/** The rest body's up direction, world. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** The rest body's facing, world: the canonical body faces `+Z`. */
+const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+
+/**
+ * Bind separate digital costume pieces to one performer's named bones.
+ *
+ * Each piece remains its own model. Its `wear` socket, the centre of the body
+ * part it covers, is placed on that part's centre on the wearer's T-pose rest
+ * with `+Y` up the segment and `+Z` toward the body's front. The binding is
+ * that placement expressed in the slot bone's rest frame, so the piece rides
+ * the bone through every pose:
+ *
+ * - A forearm or shank piece centres between the slot joint and the next joint
+ *   down the limb (elbow and wrist, knee and ankle), `+Y` toward the upper
+ *   joint;
+ * - A gauntlet centres half the measured hand length from the wrist toward the
+ *   middle finger's base, `+Y` toward the wrist;
+ * - A helmet centres midway between the head joint and the vertex at stature;
+ * - A cuirass or mail shirt hangs from the shoulder height, its centre half the
+ *   piece's own height below it, over the chest joint.
+ *
+ * @param params The performer id and body, and up to one distinct costume model
+ *   per slot.
+ * @returns The models and their initial worn bindings for the scene.
+ * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id,
+ *   missing piece, a body without the slot's joints or a trunk piece without
+ *   its height.
+ */
+export function assembleCostumeArmour(
+  params: AutoMovieArchetypeArmour.IAssemblyParams,
+): readonly AutoMovieArchetypeArmour.IAssemblyPiece[] {
+  return assembleCostumeArmourImplementation(params);
 }
 }
 
@@ -365,4 +429,51 @@ export namespace AutoMovieArchetypeArmour {
 
   /** The bone a piece rides, by its kind and a limb piece's side: `armourBone`. */
   export const bone: typeof armourBone = armourBone;
+}
+
+/** Costume-piece selection and the binding consumed by a scene. */
+export namespace AutoMovieArchetypeArmour {
+  /** Bones supported by the existing head, chest, hand and limb costume pieces. */
+  export type IAssemblySlot =
+    | "head"
+    | "chest"
+    | "leftHand"
+    | "rightHand"
+    | "leftLowerArm"
+    | "rightLowerArm"
+    | "leftLowerLeg"
+    | "rightLowerLeg";
+
+  /** The shared measured costume model, retaining its wear socket. */
+  export type IAssemblyModel = AutoMovieArchetype<
+    AutoMovieArchetypeArmour.Affordance,
+    AutoMovieArchetypeArmour.Dimension
+  >;
+
+  /** The wearer's T-pose rest joints in canonical world metres, bones and measure. */
+  export type IAssemblyWearer = Pick<
+    IAutoMovieMotionHumanBody,
+    "rest" | "bones" | "measure"
+  >;
+
+  /** A selection of separate models and their wearer. */
+  export interface IAssemblyParams {
+    /** The performer's scene identity. */
+    subject: string;
+
+    /** The performer's body, read at its rest to find each covered segment. */
+    body: IAssemblyWearer;
+
+    /** At most one independent and anatomically corresponding model per bone. */
+    pieces: Readonly<Partial<Record<IAssemblySlot, IAssemblyModel>>>;
+  }
+
+  /** One source model and its initial bone binding. */
+  export interface IAssemblyPiece {
+    /** The original source model with its existing id and geometry. */
+    model: IAssemblyModel;
+
+    /** The resolved binding for the performance and renderer. */
+    worn: IAutoMovieMotionHumanProp.IWorn;
+  }
 }

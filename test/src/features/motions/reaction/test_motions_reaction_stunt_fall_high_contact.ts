@@ -1,4 +1,4 @@
-import { Quaternion, physicalShapeFaceContact } from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMoviePhysicalShape,
@@ -45,8 +45,8 @@ export function test_motions_reaction_stunt_fall_high_contact(): void {
     (
       seconds: number,
     ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined => {
-      const found: ReturnType<typeof physicalShapeFaceContact> =
-        physicalShapeFaceContact(
+      const found: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> =
+        AutoMovieEnginePhysics.physicalShapeFaceContact(
           {
             ...neutral,
             position: { x: seconds / 2, y: 1.3 - 5 * seconds ** 2, z: 0 },

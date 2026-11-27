@@ -1,4 +1,7 @@
-import { Quaternion, clampJointToSkeleton } from "@automovie/engine";
+import {
+  Quaternion,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -128,7 +131,7 @@ export namespace HumanClasp {
       const bone: AutoMovieHumanoidBone =
         `${side}Thumb${part}` as AutoMovieHumanoidBone;
       joints[bone] = [
-        clampJointToSkeleton(
+        AutoMovieEngineKinematics.clampJointToSkeleton(
           { bone, flexion: -180, abduction: 0, twist: 0 },
           body.skeleton,
         ).flexion ?? 0,

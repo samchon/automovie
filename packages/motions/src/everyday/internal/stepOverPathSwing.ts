@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -146,7 +146,7 @@ export function stepOverPathSwing(
       ? x >= b
         ? 1
         : 0
-      : minimumJerk.share(Math.min(1, Math.max(0, (x - a) / (b - a))));
+      : AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, (x - a) / (b - a))));
   // A foot that leaves pitched levels as its toe comes up to the near
   // side, or as it rises to the obstacle's top where its toe starts at the
   // near side and has no way along to level over: whichever is further.
@@ -264,7 +264,7 @@ export function stepOverPathSwing(
       );
     return (u: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const at: IAutoMovieMotionHumanClearance.IPoint = line(
-        minimumJerk.share(Math.min(1, Math.max(0, u))),
+        AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, u))),
       );
       return {
         ankle: framed.point({

@@ -1,9 +1,8 @@
 import {
   AutoMovieFrameGrid,
-  type AutoMovieHumanPolygon,
+  AutoMovieHumanPolygon,
+  AutoMovieRenderSceneLayout,
   type IAutoMovieModelObject,
-  buildHumanPolygon,
-  buildModel,
 } from "@automovie/render";
 import * as THREE from "three";
 
@@ -148,7 +147,7 @@ export namespace ScenePlayer {
     );
     const figures: AutoMovieHumanPolygon.IDrawing[] = take.figures.map(
       (figure: ITake.IFigure, i: number): AutoMovieHumanPolygon.IDrawing => {
-        const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon({
+        const drawing: AutoMovieHumanPolygon.IDrawing = AutoMovieHumanPolygon.build({
           bones: figure.bones,
           posed: first[i]!,
         });
@@ -175,7 +174,7 @@ export namespace ScenePlayer {
         const lights: ((seconds: number) => void)[] = [];
         if (placed !== undefined) {
           const archetype: SceneArchetype.Model = SceneArchetype.model(placed);
-          const model: IAutoMovieModelObject = buildModel(archetype);
+          const model: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(archetype);
           group.add(model.object);
           parts = model.parts;
           for (const light of record.practicalLights ?? [])

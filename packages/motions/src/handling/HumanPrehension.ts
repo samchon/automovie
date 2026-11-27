@@ -1,8 +1,8 @@
 import {
   Quaternion,
   Vector3,
-  minimumJerk,
-  superposeMinimumJerk,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -214,7 +214,7 @@ export namespace HumanPrehension {
     return {
       duration: seconds,
       wrist: (t: number): IAutoMovieVector3 =>
-        superposeMinimumJerk.position(
+        AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition(
           from,
           units,
           Math.min(seconds, Math.max(0, t)),
@@ -223,7 +223,7 @@ export namespace HumanPrehension {
         Quaternion.slerp(
           rotation.from,
           rotation.to,
-          minimumJerk.share(t / turning),
+          AutoMovieEngineMotionSampling.minimumJerkShare(t / turning),
         ),
     };
   }
@@ -259,11 +259,11 @@ export namespace HumanPrehension {
       number,
     ] =
       s <= peak
-        ? [shapes.entry, shapes.open, minimumJerk.share(s / peak)]
+        ? [shapes.entry, shapes.open, AutoMovieEngineMotionSampling.minimumJerkShare(s / peak)]
         : [
             shapes.open,
             shapes.closed,
-            minimumJerk.share((s - peak) / (1 - peak)),
+            AutoMovieEngineMotionSampling.minimumJerkShare((s - peak) / (1 - peak)),
           ];
     return prepareHumanShapeBlend(a, b)(w);
   }
@@ -290,8 +290,8 @@ export namespace HumanPrehension {
       const s: number = Math.min(1, Math.max(0, u));
       const opens: boolean = s <= peak;
       const w: number = opens
-        ? minimumJerk.share(s / peak)
-        : minimumJerk.share((s - peak) / (1 - peak));
+        ? AutoMovieEngineMotionSampling.minimumJerkShare(s / peak)
+        : AutoMovieEngineMotionSampling.minimumJerkShare((s - peak) / (1 - peak));
       const blend: ReturnType<typeof prepareHumanShapeBlend> = opens
         ? opening
         : closing;

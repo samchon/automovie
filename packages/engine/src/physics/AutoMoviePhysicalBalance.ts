@@ -14,17 +14,24 @@ import { type IAutoMoviePhysicalBalance, type IAutoMoviePhysicalSupportPatch, ty
 
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/internal/convexHull2D";
-import { physicalStanceSupport } from "./physicalStanceSupport";
+import { AutoMovieEnginePhysicalStanceSupport } from "./AutoMovieEnginePhysicalStanceSupport";
 import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
 import { physicalBalanceCandidate as Candidate } from "./physicalBalanceCandidate";
 import { physicalBalancePair as Pair } from "./physicalBalancePair";
+import { advancePhysicalBalance as advanceImplementation } from "./advancePhysicalBalance";
+import { physicalBalanceHandoff as handoffImplementation } from "./physicalBalanceHandoff";
+import { physicalBalanceRamp as rampImplementation } from "./physicalBalanceRamp";
+import { physicalBalancePlan as planImplementation } from "./physicalBalancePlan";
+import { physicalBalanceSettle as settleImplementation } from "./physicalBalanceSettle";
+import { physicalBalanceStance as stanceImplementation } from "./physicalBalanceStance";
+import { physicalBalanceSwing as swingPhaseImplementation } from "./physicalBalanceSwing";
 
 /**
  * Linear-inverted-pendulum capture-point balance over an arbitrary support
  * polygon (Pratt et al., 2006). It predicts horizontal recovery only; solved
  * contacts and the subsequent simulation decide whether a step actually lands.
  * Every body's plan assesses with it on the hull of its planted contacts
- * (`physicalBalancePlan`), whatever their number.
+ * (`AutoMoviePhysicalBalance.plan`), whatever their number.
  */
 export namespace AutoMoviePhysicalBalance {
   /**
@@ -46,6 +53,199 @@ export namespace AutoMoviePhysicalBalance {
   export const MINIMUM_SWING: number = 0.3;
 
   /**
+   * The balance controller's plan phase (`AutoMoviePhysicalBalance.advance`), one for every
+   * body whatever its contacts: the pendulum's rate, the plan's capture point and
+   * the assessment the settle phase reads. A step out of a fall is the prepared
+   * disturbance response's (`preparePhysicalDisturbanceSpan`), never this
+   * phase's.
+   *
+   * - The pendulum's rate is IHMC's omega0, sqrt(g / z0), z0 the authored centre of
+   *   mass's height over the floor at the controller's first update, held for the
+   *   run as IHMC holds it from its nominal height (201903
+   *   `HighLevelHumanoidControllerToolbox` l.155, l.204;
+   *   `WalkingControllerParameters.getOmega0` l.45-51), the authored motion being
+   *   this engine's nominal.
+   * - The plan's capture point is the authored motion's
+   *   (`physicalAuthoredCapture`), the authored motion playing the planner's
+   *   role, which the root's capture-point controller tracks
+   *   (`AutoMovieEnginePhysicalBipedPressure`).
+   * - The assessment is the capture point against the planted contacts' hull
+   *   (`AutoMovieEnginePhysicalSupportSpanContacts.hull`).
+   *
+   * @param input The recovery's state after the ramp phase, the body's readings,
+   *   the stance read from that state and the trace to record into, if any.
+   * @returns The state after the plan, a new one; no held goals; and the
+   *   assessment the settle phase reads. The input is never written.
+   */
+  export function plan(input: Parameters<typeof planImplementation>[0]): ReturnType<typeof planImplementation> {
+    return planImplementation(input);
+  }
+
+  /**
+   * The pendulum's rate, IHMC's omega0: sqrt(g / z0), z0 the authored centre of
+   * mass's height over the floor (`physicalAuthoredCapture.center`).
+   *
+   * @param sense The body's readings.
+   * @param state The recovery's state.
+   * @returns The rate, per second.
+   */
+  export function planOmega(
+    sense: Parameters<typeof planImplementation.omega>[0],
+    state: Parameters<typeof planImplementation.omega>[1],
+  ): ReturnType<typeof planImplementation.omega> {
+    return planImplementation.omega(sense, state);
+  }
+
+  /**
+   * The balance controller's settle phase (`AutoMoviePhysicalBalance.advance`): the
+   * endpoint goals of the limbs no step holds, and the root's tracking strength.
+   *
+   * A landed foot is held by the floor and its leg's joints alone: no endpoint
+   * servo pulls it toward its goal outside the support solve, which already
+   * holds it (Feng et al. 2013, Section III-D: no orientation tracking on a
+   * loaded foot); its goal is its landed place. Once a landing has moved the
+   * root, every other limb's goal is its authored endpoint moved by its own
+   * offset. The root's tracking is withdrawn once unrecoverable support loss
+   * has lasted its policy's duration (`physicalBalanceExhaustion`), or set by the
+   * bracing policy where one is declared (`physicalBalanceBracing`).
+   *
+   * @param input The recovery's state after the swing phase, the body's
+   *   readings, the goals the plan and swing phases set and the stance's
+   *   assessment.
+   * @returns The state with its loss timer advanced, a new one; every goal,
+   *   those given first; and the root's strength and bracing shift. The input is
+   *   never written.
+   */
+  export function settle(input: Parameters<typeof settleImplementation>[0]): ReturnType<typeof settleImplementation> {
+    return settleImplementation(input);
+  }
+
+  /**
+   * The stance the balance controller decides and swings from this substep
+   * (`AutoMoviePhysicalBalance.advance`), read once the steps that lift have lifted and
+   * shared by the plan and swing phases: the supports planted, the pendulum's
+   * floor and rate, the capture point's shift for the body's rotation, a landed
+   * foot's ramping share, the trunk's tilt and whether it asks for a step, the
+   * stance feet's heading, the step's timing, and the assessment the step choices
+   * ask of `AutoMoviePhysicalBalance.assess`.
+   *
+   * Support is what the controller has planted, not what touches this step: every
+   * planted limb, a limb asked to step among them until it lifts, bounds where
+   * the centre of pressure can return by its own outline, whether or not a
+   * tipping body has lifted it for a moment, so the classification does not
+   * flicker with momentary contact.
+   *
+   * @param input The recovery's state after the lift phase and the body's
+   *   readings.
+   * @returns The stance; nothing is written.
+   */
+  export function stance(input: Parameters<typeof stanceImplementation>[0]): ReturnType<typeof stanceImplementation> {
+    return stanceImplementation(input);
+  }
+
+  /**
+   * The balance controller's swing phase (`AutoMoviePhysicalBalance.advance`): each lifted
+   * limb's path sampled and its drive's feed-forward asked for. The landing is
+   * placed by the prepared span (`preparePhysicalDisturbanceSpan`).
+   *
+   * A biped's recovery swing's clearance is lowered to what the stance can carry
+   * at its peak in the swing's time (`AutoMovieEnginePhysicalStanceSwing.clearance`); a
+   * quadruped's step carries its own ground clearance (IHMC 201903
+   * `QuadrupedSwingState` l.357), which the path rises by. Either is the sole's:
+   * a foot pitched so its lowest point hangs further below its endpoint than when
+   * planted flat has the endpoint raised by the difference (Pratt et al., M2V2,
+   * Section VII-D1). The joints track the path with their own servos, within
+   * their caps; the drive adds only the path's feed-forward through J^T
+   * (`AutoMovieEnginePhysicalStanceSwing.swingForce`).
+   *
+   * The path is this phase's own, a known non-port: IHMC 201903 swings a biped by
+   * an optimized two-waypoint trajectory (`TwoWaypointSwingGenerator`) and a
+   * quadruped by a blended two-waypoint one (`QuadrupedSwingState`), each tracked
+   * by a whole-body task in space, which this engine does not have.
+   *
+   * @param input The recovery's state after the plan phase, the body's readings
+   *   and the trace to record into, if any.
+   * @returns The state, the input itself; each lifted limb's endpoint goal; the
+   *   drives to apply, in the swings' order; and the path the joints' reference
+   *   fits (`trackPhysicalBalanceTargets`), the first swing's and a second's as
+   *   `pair`. The input is never written.
+   */
+  export function swingPhase(input: Parameters<typeof swingPhaseImplementation>[0]): ReturnType<typeof swingPhaseImplementation> {
+    return swingPhaseImplementation(input);
+  }
+
+/**
+   * Advance one body's generic recovery controller from actual floor manifolds.
+   * Root tracking is withdrawn on unrecoverable support loss. Recovery requests
+   * use the shared support-swing interpolator and bounded endpoint motors; their
+   * completed placements remain offsets on subsequent authored goals, so the
+   * planner and physical support do not snap apart at landing.
+   *
+   * The controller is a machine of phases, each a function from the state and the
+   * body's readings (`physicalBalanceSense`) to the next state and its commands,
+   * none writing its input, run in this order: authored handoff
+   * (`AutoMoviePhysicalBalance.handoff`), the stance feet's seating
+   * (`AutoMoviePhysicalBalance.ramp`), the stance (`AutoMoviePhysicalBalance.stance`), the plan
+   * (`AutoMoviePhysicalBalance.plan`), the swing (`AutoMoviePhysicalBalance.swingPhase`) and settling
+   * (`AutoMoviePhysicalBalance.settle`). The swing's drives are applied here, and the
+   * caller's state becomes the last phase's.
+   *
+   * One machine serves every body whatever its contacts: the plan balances on the
+   * planted contacts' hull, and a step out of a fall is the disturbance's
+   * prepared response (`preparePhysicalDisturbanceSpan`), its inputs recorded
+   * here on the substep after a stated push.
+   */
+  export function advance(input: Parameters<typeof advanceImplementation>[0]): ReturnType<typeof advanceImplementation> {
+    return advanceImplementation(input);
+  }
+
+  /**
+   * The balance controller's handoff phase (`AutoMoviePhysicalBalance.advance`): authored
+   * motion taking endpoints back. A step under way on an endpoint the authored
+   * motion now owns cancels every step under way, counted neither as a landing
+   * nor as a fall; an endpoint's retained landing offset is handed back to the
+   * authored motion and the handoff recorded.
+   *
+   * @param input The recovery's state, the endpoints authored motion owns this
+   *   substep, the present local seconds and the trace to record into, if any.
+   * @returns The state after the handoff, a new one, or the input itself when
+   *   nothing is handed back; the input is never written.
+   */
+  export function handoff(input: Parameters<typeof handoffImplementation>[0]): ReturnType<typeof handoffImplementation> {
+    return handoffImplementation(input);
+  }
+
+  /**
+   * The balance controller's landing-ramp phase (`AutoMoviePhysicalBalance.advance`): each
+   * stance foot's seating advanced by one substep (`AutoMovieEnginePhysicalStanceSeat`), its
+   * sole's seating, its low-passed measured load, which decides lift-off and
+   * touchdown, and its bearing, flatness and entry shares by geometry, each
+   * ramping over `AutoMovieEnginePhysicalStanceBalance.FADE`; a landed foot starts full, as
+   * both of IHMC 201903's controllers seat it at touchdown,
+   * and a foot seated anew otherwise ramps in from nothing here. A first stance
+   * starts borne and flat. A foot's world
+   * orientation is latched where it actually stands when its stance begins, at
+   * the first step or on landing, its planted-foot hold
+   * (`AutoMovieEnginePhysicalStanceJointTarget`), and latched again when it touches again after
+   * leaving the holds, added with zero error where it stands as a landed foot is
+   * (design-4017-qp3, Section 3, rules 2 and 3).
+   *
+   * The sole's spread is how far the highest of the main foot carrier's sole
+   * vertices stands above the lowest, actual heights only, the toes (a jointed
+   * segment of their own) left out: a flat foot's sole lies level, an edge
+   * lifting raises the spread (Coros, Beaudoin and van de Panne 2010, Section
+   * 3.3). The plant only names which vertices form the sole.
+   *
+   * @param input The recovery's state and the body's readings.
+   * @returns The state with every limb not asked to step seated, a new one, or
+   *   the input itself when every limb is asked to step; the input is never
+   *   written.
+   */
+  export function ramp(input: Parameters<typeof rampImplementation>[0]): ReturnType<typeof rampImplementation> {
+    return rampImplementation(input);
+  }
+
+/**
    * The quickest swing over a distance with a clearance under an acceleration
    * bound, seconds: the longer of the minimum-jerk transfer's and the
    * clearance's, sqrt(max(MINIMUM_JERK d, CLEARANCE h) / a), and no shorter
@@ -112,7 +312,7 @@ export namespace AutoMoviePhysicalBalance {
     outline: IAutoMovieVector3[],
   ): IAutoMovieVector3[] {
     return scope.inset > 0
-      ? physicalStanceSupport.shrink(outline, scope.inset)
+      ? AutoMovieEnginePhysicalStanceSupport.shrink(outline, scope.inset)
       : outline;
   }
 
@@ -157,7 +357,7 @@ export namespace AutoMoviePhysicalBalance {
    * it can land, clamped to the reach. Young adults recover a lateral push
    * mostly by a single side step of the limb the push loaded (Mille et al.
    * 2005, Clinical Biomechanics), which the controller unloads over a short
-   * ramp before lifting (`advancePhysicalBalance`). A four-support body none of
+   * ramp before lifting (`AutoMoviePhysicalBalance.advance`). A four-support body none of
    * whose capturing steps can be unloaded at once steps the chosen limb with
    * its diagonal, when that pair captures (Chen et al. 2022, Section 2.1,
    * Example 1).
@@ -517,7 +717,7 @@ export namespace AutoMoviePhysicalBalance {
 
   /**
    * What the balance controller reads of one body this substep, shared by its
-   * phases (`advancePhysicalBalance`): the segments' actual state, the supports'
+   * phases (`AutoMoviePhysicalBalance.advance`): the segments' actual state, the supports'
    * measured loads, the authored placements and the policy's limbs. Every reading
    * is a function of the input alone; nothing here writes a body or the
    * recovery's state, and a reading that depends on the state takes the part of
@@ -530,7 +730,7 @@ export namespace AutoMoviePhysicalBalance {
    * @returns The readings: the mass centre's position and velocity and the root
    *   segment found now, the rest computed when asked for.
    */
-  export function sense(input: AutoMovieEnginePhysicalBalanceTypes.Sense.IInput): AutoMovieEnginePhysicalBalanceTypes.Sense.ISense {
+  export function sense(input: AutoMovieEnginePhysicalBalanceTypes.ISenseInput): AutoMovieEnginePhysicalBalanceTypes.ISense {
     return physicalBalanceSenseImplementation(input);
   }
 
@@ -552,7 +752,7 @@ export namespace AutoMoviePhysicalBalance {
    * @param input The body's segments, goals, gains and demands.
    * @returns The task: the mass center, the force and the moment.
    */
-  export function centroidalTask(input: AutoMovieEnginePhysicalBalanceTypes.CentroidalTask.IInput): AutoMovieXpbdWorld.IRootTask {
+  export function centroidalTask(input: AutoMovieEnginePhysicalBalanceTypes.ICentroidalTaskInput): AutoMovieXpbdWorld.IRootTask {
     return physicalCentroidalTaskImplementation(input);
   }
 
@@ -577,7 +777,7 @@ export namespace AutoMoviePhysicalBalance {
    *   already divided by the control period squared.
    * @returns The feedback pair, or null.
    */
-  export function icpControllerQp(input: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.ISolution | null {
+  export function icpControllerQp(input: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpInput): AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpSolution | null {
     return physicalIcpControllerQpImplementation(input);
   }
 
@@ -592,17 +792,17 @@ export namespace AutoMoviePhysicalBalance {
    *
    * - A push: the centre of mass's velocity jumps by the push's impulse over the
    *   mass, the capture point by that over omega. In double support the push
-   *   recovery's fall test runs (`physicalPushRecovery.doubleSupport`), and a
+   *   recovery's fall test runs (`AutoMovieEnginePhysicalPushRecovery.doubleSupport`), and a
    *   fall triggers a step the policy's reaction time after the capture point
    *   left the support; in single support the footstep is checked again against
    *   the capture region with the swing time left and, when it moves, the plan is
    *   made again from then (`WalkingSingleSupportState` l.136-163) and the swing
    *   foot's cubic re-aimed from where it is.
    * - The trigger: the footstep in the support foot's one-step capture region
-   *   (`physicalPushRecovery.checkAndUpdate`) and the single-support plan to it
-   *   (`physicalIcpPlanner.singleSupport`).
+   *   (`AutoMovieEnginePhysicalPushRecovery.checkAndUpdate`) and the single-support plan to it
+   *   (`AutoMovieEnginePhysicalIcpPlanner.singleSupport`).
    * - The touchdown, the swing time after the trigger (`ZULU.swingTime`): the
-   *   transfer to standing (`physicalIcpPlanner.toStanding`), done once its
+   *   transfer to standing (`AutoMovieEnginePhysicalIcpPlanner.toStanding`), done once its
    *   duration has run and the capture point is within `maxErrorToStanding` of
    *   its hold (`TransferToStandingState.isDone`), found in closed form from the
    *   error's decay.
@@ -610,13 +810,13 @@ export namespace AutoMoviePhysicalBalance {
    *   trigger or after a push in single support, ends the response there; the
    *   body is handed back to the physics, which takes the fall's contacts.
    * - Standing: the cubic to the authored capture point
-   *   (`physicalIcpPlanner.standing`), and at its end the authored capture point
+   *   (`AutoMovieEnginePhysicalIcpPlanner.standing`), and at its end the authored capture point
    *   at rest.
    *
    * Between them each plan's capture point xi_d is a chain of closed forms read
    * off the built plan on fixed soles: an exponential from a constant pivot, q +
    * r e^(omega t), or a cubic, a0 + a1 t + a2 t^2 + a3 t^3. The ICP controller
-   * acts on the error e = xi - xi_d (`physicalIcpController`, Zulu's gains):
+   * acts on the error e = xi - xi_d (`AutoMovieEnginePhysicalIcpController`, Zulu's gains):
    *
    * - Its proportional law, the pivot xi_d - xi_d' / omega + (1 + K_p) e, gives
    *   e(t) = e0 e^(-omega K_p t) along and across the plan's motion, split at
@@ -640,7 +840,7 @@ export namespace AutoMoviePhysicalBalance {
    * between them.
    *
    * A swing foot follows the planner's velocity-constrained cubic to its footstep
-   * at rest (`physicalIcpPlannerTools.cubic`), on the floor as the recovery
+   * at rest (`AutoMovieEnginePhysicalIcpPlannerTools.cubic`), on the floor as the recovery
    * step's clearance is zero.
    *
    * Points are world floor points (x, z), metres; times local seconds.
@@ -648,7 +848,7 @@ export namespace AutoMoviePhysicalBalance {
    * @param input The state just after the first push and the pushes after it.
    * @returns The prepared span.
    */
-  export function prepareDisturbanceSpan(input: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IInput): AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan {
+  export function prepareDisturbanceSpan(input: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanInput): AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult {
     return preparePhysicalDisturbanceSpanImplementation(input);
   }
 

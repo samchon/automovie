@@ -1,8 +1,8 @@
 import {
   Quaternion,
   Vector3,
-  minimumJerk,
-  physicalShapeBounds,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -151,7 +151,7 @@ export namespace regrasp {
         : { inHand: inHand(context, read.prop, frame, hand) }),
     };
     const profile: (seconds: number) => number = (seconds: number): number =>
-      minimumJerk.share(Math.min(1, Math.max(0, seconds / duration)));
+      AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, seconds / duration)));
 
     // A twist turns the hand rigidly about the object's axis line.
     const axis: OptionalAxis =
@@ -298,7 +298,7 @@ export namespace regrasp {
     const turning: ReturnType<typeof Quaternion.prepareSlerp> =
       Quaternion.prepareSlerp(Quaternion.identity(), arc);
     return (share: number): IAutoMovieRigidTransform => {
-      const s: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share)));
       const rotation: IAutoMovieQuaternion = turning(s);
       const position: IAutoMovieVector3 = Vector3.lerp(
         start.position,
@@ -415,8 +415,8 @@ const line: (
       rotation: inverse,
     };
     for (const shape of prop.shapes) {
-      const bounds: ReturnType<typeof physicalShapeBounds> =
-        physicalShapeBounds(relative, shape);
+      const bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> =
+        AutoMovieEnginePhysics.physicalShapeBounds(relative, shape);
       low = Math.min(low, bounds.min.x);
       high = Math.max(high, bounds.max.x);
     }

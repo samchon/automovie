@@ -1,4 +1,4 @@
-import { guardAutoMovieRenderModeRetirement, guardAutoMovieSceneShadowRetirement, restoreAutoMovieRenderModeState, AutoMovieSceneResource, AutoMovieSceneRenderMode } from "@automovie/render";
+import { AutoMovieSceneRenderMode, AutoMovieSceneResource, AutoMovieSceneShadow } from "@automovie/render";
 import * as THREE from "three";
 
 import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js";
@@ -84,8 +84,8 @@ export function mountViewer(
         const handled: unknown = onFrame(seconds);
         if (!running) return;
         if (handled !== true) {
-          guardAutoMovieRenderModeRetirement(scene);
-          guardAutoMovieSceneShadowRetirement(scene, renderer);
+          AutoMovieSceneRenderMode.guardRetirement(scene);
+          AutoMovieSceneShadow.guardRetirement(scene, renderer);
           renderer.render(scene, camera);
         }
         // Explicit handled redraws are admitted by the enclosing freshness
@@ -185,7 +185,7 @@ export function mountViewer(
         );
         if (running) scheduled = requestAnimationFrame(loop);
       } catch (error) {
-        restoreAutoMovieRenderModeState([stop], { error });
+        AutoMovieSceneRenderMode.restoreState([stop], { error });
       }
     }
     scheduled = requestAnimationFrame(loop);
@@ -203,7 +203,7 @@ export function mountViewer(
       stop,
     };
   } catch (error) {
-    restoreAutoMovieRenderModeState(
+    AutoMovieSceneRenderMode.restoreState(
       [
         (): void => {
           running = false;

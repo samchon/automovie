@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -302,7 +302,7 @@ export namespace walkPoleCarriage {
       const share: number =
         hold.drop === undefined
           ? 0
-          : minimumJerk.share(
+          : AutoMovieEngineMotionSampling.minimumJerkShare(
               hold.drop.to > 0
                 ? Math.min(1, Math.max(0, seconds / hold.drop.to))
                 : 1,

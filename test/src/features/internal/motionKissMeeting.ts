@@ -1,26 +1,8 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidSocket,
-  IAutoMovieBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanStance,
-  HumanChain,
-  HumanMutual,
-  HumanRefusal,
-} from "@automovie/motions";
-import {
-  AutoMovieMotionHumanAuditPartner,
-  AutoMovieMotionHumanLean,
-  HumanPerception,
-  poseBones,
-  resolveHumanPosture,
-} from "@automovie/motions/internal";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidSocket, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance, HumanChain, HumanMutual, HumanRefusal } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditPartner, AutoMovieMotionHumanLean, HumanPerception, poseBones, resolveHumanPosture } from "@automovie/motions/internal";
 
 import { MOTION_HUMAN_LAW_STAGES_TOUCH } from "./MOTION_HUMAN_LAW_STAGES_TOUCH";
 import { motionComplaints } from "./motionComplaints";
@@ -152,11 +134,11 @@ export function motionKissMeeting(region: KissRegion): string[] {
       );
     }
     for (const seconds of [contact, (contact + part) / 2, part]) {
-      const mouth: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      const mouth: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         mouthFrame,
         film.bones("a", seconds).get(mouthFrame.bone)!,
       ).point;
-      const target: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      const target: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         targetFrame,
         film.bones("b", seconds).get(targetFrame.bone)!,
       ).point;
@@ -168,11 +150,11 @@ export function motionKissMeeting(region: KissRegion): string[] {
     }
     if (region === "forehead") {
       const seconds: number = film.performance.segments("a").at(-1)!.end;
-      const lips = resolveAutoMovieHumanoidSurfaces.place(
+      const lips = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         mouthFrame,
         film.bones("a", seconds).get(mouthFrame.bone)!,
       ).point;
-      const forehead = resolveAutoMovieHumanoidSurfaces.place(
+      const forehead = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         targetFrame,
         film.bones("b", seconds).get(targetFrame.bone)!,
       ).point;
@@ -250,7 +232,7 @@ function leastForeheadSeparation(scene: motionHumanLawSweep.IScene): number {
     resolveHumanPosture(kissed.body, remained),
   );
   const frame: typeof mouth = kissed.body.surfaces.regions.forehead;
-  const height: number = resolveAutoMovieHumanoidSurfaces.place(
+  const height: number = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
     frame,
     bones.get(frame.bone)!,
   ).point.y;
@@ -293,7 +275,7 @@ function standingSite(
   );
   const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"] =
     person.body.surfaces.regions[region];
-  return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+  return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bones.get(frame.bone)!)
     .point;
 }
 

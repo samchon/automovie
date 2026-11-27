@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { minimumJerk } from "../minimumJerk";
+import { minimumJerk as minimumJerkImplementation } from "./minimumJerk";
 
 /** Rotations about the fixed world-up axis. */
 const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
@@ -34,7 +34,7 @@ export function warpRoot(
 ): IAutoMovieTransform {
   if (!(warp.end > warp.start))
     throw new Error("A root warp window moves forward");
-  const s: number = minimumJerk.share(
+  const s: number = minimumJerkImplementation.share(
     (seconds - warp.start) / (warp.end - warp.start),
   );
   return {

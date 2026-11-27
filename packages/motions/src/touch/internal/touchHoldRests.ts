@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -71,7 +71,7 @@ export function touchHoldRests(
           (
             shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
           ): boolean =>
-            physicalShapeSegmentDistance(segment.pose, shape, at, at) <= hand,
+            AutoMovieEnginePhysics.physicalShapeSegmentDistance(segment.pose, shape, at, at) <= hand,
         ));
   };
 }

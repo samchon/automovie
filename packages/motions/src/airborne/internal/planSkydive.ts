@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -163,7 +163,7 @@ export function planSkydive(
       if (t > from && t < to)
         w = Math.max(w, Math.min(1, (t - from) / PULL, (to - t) / PULL));
     }
-    return minimumJerk.share(w);
+    return AutoMovieEngineMotionSampling.minimumJerkShare(w);
   };
   const lying: IAutoMovieMotionHumanLieDown.IPose = lieDown.POSES.lateralLeft;
   const keys: skydivePoses.IKey[] = [
@@ -222,7 +222,7 @@ export function planSkydive(
       if (absorb !== undefined) {
         // The flare's bent knees straighten into the stand on the feet
         // planted where they touched down.
-        const w: number = minimumJerk.share(s / ABSORB);
+        const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(s / ABSORB);
         return absorb(stuntFallPose.blend(flared, rest, w, braceBlend(w)));
       }
       const u: number = s / PLF;
@@ -242,7 +242,7 @@ export function planSkydive(
       );
       const a: skydivePoses.IKey = keys[k]!;
       const b: skydivePoses.IKey = keys[k + 1]!;
-      const w: number = minimumJerk.share((u - a.at) / (b.at - a.at));
+      const w: number = AutoMovieEngineMotionSampling.minimumJerkShare((u - a.at) / (b.at - a.at));
       // The blend rests its own lowest bone on the ground.
       return floor(
         stuntFallPose.blend(
@@ -257,7 +257,7 @@ export function planSkydive(
     const at: skydivePath.IAt = path.at(t);
     switch (at.phase) {
       case "freefall": {
-        const w: number = minimumJerk.share(Math.min(1, t / EXIT_TURN));
+        const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / EXIT_TURN));
         const from: IAutoMovieMotionHumanPosture = stuntFallPose.at(
           { ...entry, yaw: at.heading },
           at.hips,
@@ -272,7 +272,7 @@ export function planSkydive(
       }
       case "opening": {
         // The arms spread out first, then rise to the risers, wide of the head.
-        const w: number = minimumJerk.share(
+        const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           at.share < 0.5 ? at.share * 2 : at.share * 2 - 1,
         );
         return at.share < 0.5
@@ -312,7 +312,7 @@ export function planSkydive(
         return { ...hang, joints };
       }
       case "flare": {
-        const w: number = minimumJerk.share(at.share);
+        const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(at.share);
         return stuntFallPose.blend(
           hanging(at.hips, at.heading),
           flare(at.hips, at.heading),

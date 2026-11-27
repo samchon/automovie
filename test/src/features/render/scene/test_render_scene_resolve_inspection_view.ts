@@ -24,8 +24,8 @@ export function test_render_scene_resolve_inspection_view(): void {
   const film: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(40, 2, 0.1, 100);
   const resolve = (
     text: string,
-    patch: Partial<AutoMovieRenderInspectionCamera.ResolveView.IProps> = {},
-  ): AutoMovieRenderInspectionCamera.ResolveView.IResult =>
+    patch: Partial<AutoMovieRenderInspectionCamera.IResolveViewProps> = {},
+  ): AutoMovieRenderInspectionCamera.IResolveViewResult =>
     AutoMovieRenderInspectionCamera.resolveView({
       view: AutoMovieRenderInspectionRequest.parseView(text),
       text,

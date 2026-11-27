@@ -42,7 +42,7 @@ export function test_engine_geometry_construction_view_girth(): void {
     (): [number, number, number, number] => [a, b, a, b],
     "open",
   );
-  const perimeter: number = ConstructionShapes.Oracle.perimeter(a, b);
+  const perimeter: number = ConstructionShapes.oraclePerimeter(a, b);
   const part: IAutoMovieConstructionView = {
     ...base,
     fullness: {

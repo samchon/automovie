@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -228,7 +228,7 @@ function nozzle(
   const at: IAutoMovieVector3 = context.aim(p.target, context.start).point;
   const aimed: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(
-      rotationBetween(stream, Vector3.subtract(at, outlet)),
+      AutoMovieEngineMath.rotationBetween(stream, Vector3.subtract(at, outlet)),
       hand.worldRotation,
     ),
   );

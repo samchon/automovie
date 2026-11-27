@@ -24,6 +24,10 @@ import { solveAutoMovieQuadraticStep } from "./solveAutoMovieQuadraticStep";
  * 4, never status 1. Finite arithmetic can refuse ill-conditioned inputs.
  * Caller-specific physical acceptance and subsequent transformations remain
  * independent obligations.
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/solver.rs}
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/variables.rs}
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/info.rs}
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
  */
 export function solveAutoMovieQuadraticInterior(
   data: IAutoMovieQuadraticConicProgram,

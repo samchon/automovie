@@ -188,7 +188,7 @@ export namespace AutoMovieMotionHumanThrowCatch {
    * Until then its grip window on the prop takes the hand over from the hold;
    * at `open` the prop is launched (`IHumanActionPlan.launches`) with the
    * hand's velocity there, the central difference of the carried grip point at
-   * the engine's plan-time step (`integrateMotionTrajectory.STEP`), so a drop
+   * the engine's plan-time step (`AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()`), so a drop
    * from a still hand falls and one from a moving carrier carries its speed.
    *
    * A prop that rests on something the hand held back (an arrow on a drawn

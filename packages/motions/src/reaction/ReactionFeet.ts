@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -261,7 +261,7 @@ export namespace ReactionFeet {
         );
         if (seconds >= until + FADE) return posture;
         const s: number =
-          seconds <= until ? 0 : minimumJerk.share((seconds - until) / FADE);
+          seconds <= until ? 0 : AutoMovieEngineMotionSampling.minimumJerkShare((seconds - until) / FADE);
         // The released foot follows the clamped authored shape through the
         // fade. Its bones are direct FK of that shape.
         const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined =

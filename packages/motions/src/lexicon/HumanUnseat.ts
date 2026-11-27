@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -148,7 +148,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const leave: number = release + (slumping ? HumanUnseatPose.SLUMP : 0);
   const slumpAt = (t: number): number =>
     slumping
-      ? minimumJerk.share(
+      ? AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.min(1, Math.max(0, (t - release) / HumanUnseatPose.SLUMP)),
         )
       : 0;
@@ -277,7 +277,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       standing ? HumanUnseatPose.STAND : lying,
       facing,
       HumanUnseatFlight.at(flight, u),
-      minimumJerk.share(flight.land === 0 ? 1 : Math.min(1, u / flight.land)),
+      AutoMovieEngineMotionSampling.minimumJerkShare(flight.land === 0 ? 1 : Math.min(1, u / flight.land)),
     );
   };
   // The falling hand meets the floor beside the hip at the first instant of the flight that brings it within the arm's reach, at the latest at the landing.

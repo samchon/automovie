@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -309,7 +309,7 @@ export namespace juggle {
             : home;
       const a: IAutoMovieVector3 = spot(before);
       const b: IAutoMovieVector3 = spot(after);
-      const u: number = minimumJerk.share(
+      const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.max(
           0,
           Math.min(1, (t - before.at) / Math.max(1e-9, after.at - before.at)),

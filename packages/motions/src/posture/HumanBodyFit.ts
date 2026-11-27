@@ -1,4 +1,6 @@
-import { clampJointToSkeleton } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanFitGoals,
@@ -188,8 +190,8 @@ export namespace HumanBodyFit {
     );
 
     // The joints' projection, prepared once for the fit's whole solve.
-    const projection: ReturnType<typeof clampJointToSkeleton.prepare> | null =
-      hasJointVariables ? clampJointToSkeleton.prepare(body.skeleton) : null;
+    const projection: ReturnType<typeof AutoMovieEngineKinematics.prepareClampJointToSkeleton> | null =
+      hasJointVariables ? AutoMovieEngineKinematics.prepareClampJointToSkeleton(body.skeleton) : null;
 
     // The interior-point solves of one linearisation share a session: its
     // scales, its scratch, and its last converged point as the start of the

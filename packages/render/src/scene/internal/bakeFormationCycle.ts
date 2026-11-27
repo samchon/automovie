@@ -1,4 +1,4 @@
-import { autoMovieModelGaits, AutoMovieEngineMotionClip } from "@automovie/engine";
+import { AutoMovieEngineModel, AutoMovieEngineMotionClip } from "@automovie/engine";
 import type {
   IAutoMovieFormationPoseTake,
   IAutoMovieGait,
@@ -13,7 +13,7 @@ import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
 import type { IBakeFormationCycleProps } from "../IBakeFormationCycleProps.js";
 import { applyPose } from "./applyPose.js";
-import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { formationCycleStride } from "./formationCycleStride.js";
 
 /**
@@ -54,7 +54,7 @@ export const bakeFormationCycle: (
     AUTOMOVIE_FORMATION_CYCLE_SAMPLES;
   const sources: readonly IAutoMovieFormationPoseTake[] =
     input.takes ??
-    autoMovieModelGaits(input.model).map(
+    AutoMovieEngineModel.gaits(input.model).map(
       (gait: IAutoMovieGait): IAutoMovieFormationPoseTake => ({
         gait: gait.name,
         periodSeconds: gait.period,

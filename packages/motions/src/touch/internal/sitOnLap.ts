@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -129,7 +129,7 @@ function planSitOnLap(
     current: ILap,
     correction: number,
   ): IAutoMovieMotionHumanPosture => {
-    const weight: number = entered <= 0 ? 1 : minimumJerk.share(time / entered);
+    const weight: number = entered <= 0 ? 1 : AutoMovieEngineMotionSampling.minimumJerkShare(time / entered);
     const now: IAutoMovieRigidTransform = {
       position: Vector3.lerp(
         start.frame.position,
@@ -148,7 +148,7 @@ function planSitOnLap(
       now,
     );
     shifted.root.y +=
-      correction * (full <= 0 ? 1 : minimumJerk.share(time / full));
+      correction * (full <= 0 ? 1 : AutoMovieEngineMotionSampling.minimumJerkShare(time / full));
     for (const leg of ["leftLeg", "rightLeg"] as const)
       if (source.limbs[leg]?.planted === true)
         shifted.limbs[leg] = source.limbs[leg];

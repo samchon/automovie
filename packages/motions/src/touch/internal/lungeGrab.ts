@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -234,7 +234,7 @@ export namespace lungeGrab {
           projection,
         );
         // The weight shifts onto the rear foot before the leading foot lifts.
-        const s: number = minimumJerk.share(
+        const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.min(1, Math.max(0, (t - SHIFT) / lunge)),
         );
         const lead: IAutoMovieVector3 = Vector3.add(Vector3.lerp(from, to, s), {

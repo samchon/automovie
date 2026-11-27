@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -167,11 +167,11 @@ export namespace crutchSitPath {
     share: number,
   ): IAutoMovieRigidTransform {
     const s: number = Math.min(1, Math.max(0, share));
-    const blend: number = minimumJerk.share(s);
+    const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(s);
     return {
       position: Vector3.add(
         Vector3.lerp(from.position, to.position, blend),
-        Vector3.scale(UP, LIFT * minimumJerk.share(2 * Math.min(s, 1 - s))),
+        Vector3.scale(UP, LIFT * AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(s, 1 - s))),
       ),
       rotation: Quaternion.slerp(from.rotation, to.rotation, blend),
     };

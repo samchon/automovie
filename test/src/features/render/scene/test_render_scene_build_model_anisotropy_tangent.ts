@@ -3,7 +3,7 @@ import type {
   IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
-import { AutoMovieThreeKind, buildModel } from "@automovie/render";
+import { AutoMovieThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -111,7 +111,7 @@ export function test_render_scene_build_model_anisotropy_tangent(): void {
       const original: string = JSON.stringify(part);
       for (const anisotropic of [true, false]) {
         const textures: THREE.Texture[] = [];
-        const output: ReturnType<typeof buildModel> = buildModel(
+        const output: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> = AutoMovieRenderSceneLayout.buildModel(
           {
             ...base,
             parts: [part],

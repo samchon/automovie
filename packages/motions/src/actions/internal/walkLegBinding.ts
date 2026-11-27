@@ -1,8 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeHull,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanColliders,
@@ -59,7 +58,7 @@ export namespace walkLegBinding {
       return (local: IAutoMovieVector3): number =>
         Math.max(
           0,
-          -physicalShapeSegmentDistance(
+          -AutoMovieEnginePhysics.physicalShapeSegmentDistance(
             walkLegCapsules.IDENTITY,
             shape,
             local,
@@ -69,7 +68,7 @@ export namespace walkLegBinding {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       shape.transform.rotation,
     );
-    const hull: ReturnType<typeof physicalShapeHull> = physicalShapeHull(shape);
+    const hull: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeHull> = AutoMovieEnginePhysics.physicalShapeHull(shape);
     return (local: IAutoMovieVector3, floor: number): number => {
       const point: IAutoMovieVector3 = Quaternion.rotateVector(
         inverse,

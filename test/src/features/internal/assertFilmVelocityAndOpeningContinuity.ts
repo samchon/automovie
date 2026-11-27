@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Vector3, makeActorSynthesizer, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
@@ -244,7 +244,7 @@ export function assertFilmVelocityAndOpeningContinuity(
     shot,
     context: undefined,
     runtime: {
-      synthesize: makeActorSynthesizer(contexts, nodes),
+      synthesize: AutoMovieEngineFilm.makeActorSynthesizer(contexts, nodes),
       skeleton: (node: string): IAutoMovieSkeleton | null =>
         node === "knightA" || node === "knightB" ? rig : null,
       hasActorContext: (node: string): boolean => node === "knightA",

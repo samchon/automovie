@@ -1,11 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanClimbLadder,
-  IAutoMovieMotionHumanLadder,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanClimbLadder, IAutoMovieMotionHumanLadder, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { climbLadder } from "../../climbing/internal/climbLadder";
@@ -78,7 +73,7 @@ export function climbCases(
     const grip = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
       const frame =
         who.body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
-      return resolveAutoMovieHumanoidSurfaces.place(
+      return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         frame,
         performance.bones("a", t).get(frame.bone)!,
       ).point;

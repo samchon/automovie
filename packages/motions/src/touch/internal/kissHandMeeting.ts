@@ -1,20 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanKiss,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRise,
-  IAutoMovieMotionHumanTarget,
-  IAutoMovieMotionHumanTouchEffector,
-  IAutoMovieMotionMeeting,
-  IAutoMovieMotionMeetingKind,
-  IAutoMovieMotionMeetingRole,
-  IAutoMovieMotionMeetingTiming,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanKiss, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionMeeting, IAutoMovieMotionMeetingKind, IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingTiming, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
@@ -168,7 +154,7 @@ export namespace kissHandMeeting {
   function neutralMouth(role: IAutoMovieMotionMeetingRole): IAutoMovieVector3 {
     const region: IAutoMovieMotionMeetingRole["body"]["surfaces"]["regions"]["mouth"] =
       role.body.surfaces.regions.mouth;
-    return resolveAutoMovieHumanoidSurfaces.point(
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
       region,
       role.bones.get(region.bone)!,
     );
@@ -201,7 +187,7 @@ export namespace kissHandMeeting {
     const region: IAutoMovieMotionMeetingRole["body"]["surfaces"]["regions"]["mouth"] =
       kisser.body.surfaces.regions.mouth;
     const initial: IAutoMovieMotionMeetingKind.ISurface =
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         region,
         kisser.bones.get(region.bone)!,
       );

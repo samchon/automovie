@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, jointRomOvershoot, AutoMovieEngineMath } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, AutoMovieEngineKinematics, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -317,7 +317,7 @@ export function handlingCases(
         for (const j of performance.pose("a", t).joints) {
           const c = DEFAULT_HUMANOID_ROM[j.bone];
           if (c !== undefined)
-            overshoot = Math.max(overshoot, jointRomOvershoot(j, c));
+            overshoot = Math.max(overshoot, AutoMovieEngineKinematics.jointRomOvershoot(j, c));
         }
       const trail: IAutoMovieVector3[] = [];
       const path: IAutoMovieVector3[] = [];

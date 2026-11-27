@@ -8,7 +8,7 @@ import { StringedConstruction } from "../StringedConstruction";
  * A violin with four bowed-string contacts and a neck grasp.
  *
  * The violin lies on its back with the neck along +X and string1 on its -Z
- * edge. The bow is made separately with createViolinBow.
+ * edge. The bow is made separately with AutoMovieArchetypeInstrument.createViolinBow.
  *
  * @param params The optional identifier and dimensions fixed within their
  *   recorded bands.

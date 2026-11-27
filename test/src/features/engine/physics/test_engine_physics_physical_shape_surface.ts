@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePreparePhysicalGeometry,
@@ -20,7 +20,7 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    witness.
  */
 export async function test_engine_physics_physical_shape_surface(): Promise<void> {
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const pose: IAutoMovieRigidTransform = {
     position: { x: 1, y: 2, z: 3 },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 55),

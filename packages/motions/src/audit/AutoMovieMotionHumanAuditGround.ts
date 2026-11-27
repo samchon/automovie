@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanAuditMeasure,
@@ -95,7 +95,7 @@ export namespace AutoMovieMotionHumanAuditGround {
             : undefined;
           const level: number | null = side === undefined ? floor : leg[side];
           if (level === null) continue;
-          const depth: number = level - physicalShapeBounds(pose, shape).min.y;
+          const depth: number = level - AutoMovieEnginePhysics.physicalShapeBounds(pose, shape).min.y;
           if (depth > worst.value)
             worst = { value: depth, seconds: t, where: bone };
         }

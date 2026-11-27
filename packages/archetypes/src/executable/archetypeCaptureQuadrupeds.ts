@@ -1,4 +1,4 @@
-import { rideQuadruped, AutoMovieArchetypeCamel, AutoMovieArchetypeDeer, AutoMovieArchetypeDog, AutoMovieArchetypeMule, AutoMovieArchetypePony, AutoMovieArchetypeDonkey, AutoMovieArchetypeHorse, AutoMovieArchetypeOx } from "../animals";
+import { AutoMovieArchetypeQuadruped, AutoMovieArchetypeCamel, AutoMovieArchetypeDeer, AutoMovieArchetypeDog, AutoMovieArchetypeMule, AutoMovieArchetypePony, AutoMovieArchetypeDonkey, AutoMovieArchetypeHorse, AutoMovieArchetypeOx } from "../animals";
 import type { AutoMovieArchetype } from "../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
@@ -28,7 +28,7 @@ export function archetypeCaptureQuadrupeds(): Readonly<
     const animal: AutoMovieArchetype = animals[name]!;
     entries[`ride-${name}-walk`] = archetypeCaptureSubject.moving(
       name,
-      rideQuadruped(
+      AutoMovieArchetypeQuadruped.ride(
         animal,
         {
           start: { x: 0, z: 0, heading: 0 },

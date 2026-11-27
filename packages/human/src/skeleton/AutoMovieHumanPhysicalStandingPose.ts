@@ -1,14 +1,6 @@
-import { Quaternion, Vector3, physicalShapeBounds, resolveAutoMovieCenterOfMass, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
-import type {
-  IAutoMovieFitHumanPhysicalStandingPose,
-  IAutoMoviePhysicalJoint,
-  IAutoMoviePhysicalJointAxis,
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalSegment,
-  IAutoMoviePhysicalShape,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
+import type { IAutoMovieFitHumanPhysicalStandingPose, IAutoMoviePhysicalJoint, IAutoMoviePhysicalJointAxis, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMoviePhysicalShape, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPhysicalArmRoom } from "./internal/HumanPhysicalArmRoom";
 import { HumanPhysicalSolePlant } from "./internal/HumanPhysicalSolePlant";
@@ -323,7 +315,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
       profile.segments.some((segment: IAutoMoviePhysicalSegment): boolean =>
         segment.shapes.some(
           (shape: IAutoMoviePhysicalShape): boolean =>
-            physicalShapeBounds.lowest(posed[segment.bone]!, shape) <
+            AutoMovieEnginePhysics.physicalShapeBoundsLowest(posed[segment.bone]!, shape) <
             floor - tolerance,
         ),
       )
@@ -346,7 +338,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
     );
     if (
       AutoMovieEngineMath.convexHull2D(base).length < 3 ||
-      resolveAutoMovieCenterOfMass.margin(center, base) < 0
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(center, base) < 0
     )
       return { kind: "unresolved", reason: "balance", residual };
     return { kind: "fitted", targets: posed, residual };

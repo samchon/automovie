@@ -1,4 +1,4 @@
-import { rideHorse, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeHorseRide, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -31,7 +31,7 @@ export namespace mountedHorseScene {
   export type Horse = ReturnType<typeof AutoMovieArchetypeHorse.create>;
 
   /** A horse's ride along a course. */
-  export type Ride = ReturnType<typeof rideHorse>;
+  export type Ride = ReturnType<typeof AutoMovieArchetypeHorseRide.ride>;
 
   /** The rider's chain once seated. */
   export type Seated = ReturnType<ReturnType<typeof HumanChain.subject>["sit"]>;
@@ -305,7 +305,7 @@ export namespace mountedHorseScene {
     const scale: number = Math.sqrt(horse.dimensions.withersHeight! / 1.38);
     const speed: number =
       ({ walk: 1.4, trot: 3, canter: 5, gallop: 8 } as const)[gait] * scale;
-    return rideHorse(
+    return AutoMovieArchetypeHorseRide.ride(
       horse,
       {
         start: { x: 0, z: 0, heading: 0 },

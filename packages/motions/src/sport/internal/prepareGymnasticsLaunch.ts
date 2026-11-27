@@ -1,16 +1,5 @@
-import {
-  AutoMovieGravity,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieGravity, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -70,7 +59,7 @@ export function prepareGymnasticsLaunch(
         undefined,
         projection,
       ).pose;
-      return resolveAutoMovieCenterOfMass.place(
+      return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
         model,
         readBones(pose, resolution()),
       );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -241,7 +241,7 @@ export function operateLongInsert(
     for (let k: number = 0; k < course.segments.length; ++k) {
       const seg: operateLongInsertCourse.ISegment = course.segments[k]!;
       if (seconds < starts[k]!) return s;
-      const u: number = minimumJerk.share(
+      const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(1, (seconds - starts[k]!) / Math.max(lengths[k]!, 1e-9)),
       );
       if (seconds < starts[k]! + lengths[k]!)

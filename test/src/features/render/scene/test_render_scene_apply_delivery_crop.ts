@@ -1,8 +1,5 @@
 import type { IAutoMovieDeliveryCrop } from "@automovie/interface";
-import {
-  applyAutoMovieDeliveryCrop,
-  AutoMovieRenderSceneDeliveryCrop,
-} from "@automovie/render";
+import { AutoMovieRenderSceneDeliveryCrop } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -10,8 +7,8 @@ import * as THREE from "three";
 const NDC_TOLERANCE: number = 1e-9;
 
 /**
- * `applyAutoMovieDeliveryCrop` installs a normalized window on a perspective
- * camera and `AutoMovieRenderSceneDeliveryCrop.read` recovers it.
+ * `AutoMovieRenderSceneDeliveryCrop.apply` installs a normalized window on a
+ * perspective camera and `AutoMovieRenderSceneDeliveryCrop.read` recovers it.
  *
  * Scenarios:
  *
@@ -29,13 +26,18 @@ export function test_render_scene_apply_delivery_crop(): void {
     1,
     10,
   );
-  applyAutoMovieDeliveryCrop(camera, undefined);
+  AutoMovieRenderSceneDeliveryCrop.apply(camera, undefined);
   TestValidator.equals(
     "omitted",
     AutoMovieRenderSceneDeliveryCrop.read(camera),
     undefined,
   );
-  applyAutoMovieDeliveryCrop(camera, { left: 0, top: 0, right: 1, bottom: 1 });
+  AutoMovieRenderSceneDeliveryCrop.apply(camera, {
+    left: 0,
+    top: 0,
+    right: 1,
+    bottom: 1,
+  });
   TestValidator.equals(
     "whole",
     AutoMovieRenderSceneDeliveryCrop.read(camera),
@@ -50,7 +52,7 @@ export function test_render_scene_apply_delivery_crop(): void {
       Math.abs(whole.y - 0.125) < NDC_TOLERANCE,
   );
 
-  applyAutoMovieDeliveryCrop(camera, {
+  AutoMovieRenderSceneDeliveryCrop.apply(camera, {
     left: 0.25,
     top: 0.1,
     right: 0.75,
@@ -73,7 +75,12 @@ export function test_render_scene_apply_delivery_crop(): void {
       Math.abs(read.bottom - 0.9) < NDC_TOLERANCE,
   );
 
-  applyAutoMovieDeliveryCrop(camera, { left: 0.5, top: 0, right: 1, bottom: 1 });
+  AutoMovieRenderSceneDeliveryCrop.apply(camera, {
+    left: 0.5,
+    top: 0,
+    right: 1,
+    bottom: 1,
+  });
   const left: number = new THREE.Vector3(0, 0, -2).project(camera).x;
   const right: number = new THREE.Vector3(4, 0, -2).project(camera).x;
   TestValidator.predicate(

@@ -1,4 +1,3 @@
-import { AutoMovieArchetypeOx } from "../AutoMovieArchetypeOx";
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
@@ -7,12 +6,13 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
+import { AutoMovieArchetypeOx } from "../AutoMovieArchetypeOx";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedEquipment } from "../AutoMovieArchetypeQuadrupedEquipment";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "../AutoMovieArchetypeQuadrupedHeadAttachment";
-import { createCohortQuadruped } from "./createCohortQuadruped";
 import { buildOxBody } from "../ox/internal/buildOxBody";
 import { OX_BODY_MEASURES } from "../ox/internal/constants/OX_BODY_MEASURES";
+import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
  * A coarse Kathani working-ox reference with horns and authored equipment,
@@ -71,9 +71,10 @@ export function createOx(
         ] as const) {
           const x: number = (sign * rig.headRadius) / 2;
           const y: number = rig.poll.y + rig.headRadius / 2;
-          const hornRadius: number = m.horn * AutoMovieArchetypeOx.CONSTRUCTION.hornRadius;
+          const hornRadius: number =
+            m.horn * AutoMovieArchetypeOx.CONSTRUCTION.hornRadius;
           const horn: IAutoMovieVector3 =
-            AutoMovieArchetypeQuadrupedHeadAttachment(
+            AutoMovieArchetypeQuadrupedHeadAttachment.attach(
               rig,
               { x, y, z: rig.poll.z },
               hornRadius,
@@ -90,9 +91,10 @@ export function createOx(
             },
             { color: "#c0ac7a" },
           );
-          const earRadius: number = m.ear * AutoMovieArchetypeOx.CONSTRUCTION.earRadius;
+          const earRadius: number =
+            m.ear * AutoMovieArchetypeOx.CONSTRUCTION.earRadius;
           const ear: IAutoMovieVector3 =
-            AutoMovieArchetypeQuadrupedHeadAttachment(
+            AutoMovieArchetypeQuadrupedHeadAttachment.attach(
               rig,
               { x: sign * rig.headRadius, y: rig.poll.y, z: rig.poll.z },
               earRadius,

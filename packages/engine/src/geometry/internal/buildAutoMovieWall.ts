@@ -5,7 +5,7 @@ import {
   type IAutoMovieWallOpening,
 } from "@automovie/interface";
 
-import { positive } from "../positive";
+import { positive } from "./positive";
 
 /**
  * Build a rectangular wall in local XY, depth along Z, with rectangular door

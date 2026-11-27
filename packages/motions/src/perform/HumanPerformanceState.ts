@@ -1,4 +1,4 @@
-import { integrateAirborneRotation, AutoMovieEngineSchedule } from "@automovie/engine";
+import { AutoMovieEngineMotionAirborneRotation, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieCheckLegality,
   IAutoMovieComposition,
@@ -289,7 +289,7 @@ export class HumanPerformanceState {
   public constructor(
     input: IAutoMovieMotionHumanPerformance.IInput,
     flight: NonNullable<IAutoMovieMotionHumanPerformance.IInput["flight"]>,
-    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
+    observation?: ReturnType<typeof AutoMovieEngineMotionAirborneRotation.observe>,
   ) {
     this.flight = flight;
     this.props = new Map(

@@ -20,7 +20,7 @@ export namespace AutoMovieRenderSceneEnvironment {
    * knows no delivery curve states none rather than imposing `none`, which is how
    * a pre-environment production keeps rendering what it always rendered.
    *
-   * This precedence governs the compiled-scene pass (`renderAutoMovieScenePass`)
+   * This precedence governs the compiled-scene pass (`AutoMovieRenderScenePass.render`)
    * and its budget projection, which draw straight to their target. On the draw
    * path a draw scene's `optics` owns exposure and curve instead:
    * `AutoMovieFilmResponseStage` holds the renderer's own curve at none and its

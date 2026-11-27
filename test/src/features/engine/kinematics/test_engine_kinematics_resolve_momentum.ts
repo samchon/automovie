@@ -1,18 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  integrateAirborneRotation,
-  resolveAutoMovieMomentum,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMomentum,
-  IAutoMovieIntegrateAirborneRotation,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieIntegrateAirborneRotation, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { AIRBORNE_CORE } from "../../internal/AIRBORNE_CORE";
@@ -68,7 +55,7 @@ const bones: (
 };
 
 /**
- * `resolveAutoMovieMomentum` reduces posed parts to a centre of mass, an
+ * `AutoMovieEngineKinematics.resolveAutoMovieMomentum` reduces posed parts to a centre of mass, an
  * inertia tensor and, between two poses, a linear and angular momentum.
  *
  * Scenarios, on the ring pair spinning about X at 0.25 rad/s:
@@ -86,15 +73,15 @@ const bones: (
  *    1e-3 relative at 20 instants.
  */
 export function test_engine_kinematics_resolve_momentum(): void {
-  const before: resolveAutoMovieMomentum.IPosed = resolveAutoMovieMomentum.pose(
+  const before: AutoMovieEngineKinematics.IPosedBody = AutoMovieEngineKinematics.resolveAutoMovieMomentumPose(
     MODEL,
     bones(0.25),
   );
-  const after: resolveAutoMovieMomentum.IPosed = resolveAutoMovieMomentum.pose(
+  const after: AutoMovieEngineKinematics.IPosedBody = AutoMovieEngineKinematics.resolveAutoMovieMomentumPose(
     MODEL,
     bones(0.75),
   );
-  const momentum: IAutoMovieBodyMomentum = resolveAutoMovieMomentum.between(
+  const momentum: IAutoMovieBodyMomentum = AutoMovieEngineKinematics.resolveAutoMovieMomentumBetween(
     MODEL,
     before,
     after,
@@ -109,7 +96,7 @@ export function test_engine_kinematics_resolve_momentum(): void {
         Vector3.subtract(momentum.angular, { x: 1, y: 0, z: 0 }),
       ) <= ROUNDING,
   );
-  const tensor: number[][] = resolveAutoMovieMomentum.inertia(
+  const tensor: number[][] = AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(
     MODEL,
     bones(0.5),
   );
@@ -126,7 +113,7 @@ export function test_engine_kinematics_resolve_momentum(): void {
   TestValidator.predicate(
     "zero seconds",
     throwsError((): void => {
-      resolveAutoMovieMomentum.between(MODEL, before, after, 0);
+      AutoMovieEngineKinematics.resolveAutoMovieMomentumBetween(MODEL, before, after, 0);
     }),
   );
 }
@@ -167,8 +154,8 @@ function readBack(): boolean {
     );
   const momentum: { x: number; y: number; z: number } = { x: 35, y: 6, z: -4 };
   const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-    integrateAirborneRotation({
-      history: integrateAirborneRotation.history(AIRBORNE_CORE, shape),
+    AutoMovieEngineMotionAirborneRotation.integrate({
+      history: AutoMovieEngineMotionAirborneRotation.history(AIRBORNE_CORE, shape),
       t0: 0,
       t1: 1,
       q0: IDENTITY,
@@ -178,7 +165,7 @@ function readBack(): boolean {
   let holds: boolean = true;
   for (let index: number = 1; index <= 20; ++index) {
     const t: number = index / 21;
-    const read: IAutoMovieVector3 = resolveAutoMovieMomentum(
+    const read: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieMomentum(
       AIRBORNE_CORE,
       turned(t - step, flight.orientation(t - step)),
       turned(t + step, flight.orientation(t + step)),

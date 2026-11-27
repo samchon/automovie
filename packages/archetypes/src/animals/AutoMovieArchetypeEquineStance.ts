@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -211,12 +215,12 @@ export namespace AutoMovieArchetypeEquineStance {
           return pose(plan.hold(seconds - held), seconds);
         const share: number =
           seconds < held
-            ? minimumJerk.share((seconds - cue.from) / cue.entry)
+            ? AutoMovieEngineMotionSampling.minimumJerkShare((seconds - cue.from) / cue.entry)
             : seconds < settle
               ? 1
               : plan.end === plan.start
-                ? minimumJerk.share((end - seconds) / cue.exit)
-                : 1 + minimumJerk.share((seconds - settle) / cue.exit);
+                ? AutoMovieEngineMotionSampling.minimumJerkShare((end - seconds) / cue.exit)
+                : 1 + AutoMovieEngineMotionSampling.minimumJerkShare((seconds - settle) / cue.exit);
         return pose(plan.goal(share), seconds);
       }
       if (current === rest) return ride.at(seconds);

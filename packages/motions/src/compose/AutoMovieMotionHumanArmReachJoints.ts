@@ -1,4 +1,8 @@
-import { ROM_TOLERANCE, clampJointToSkeleton, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  ROM_TOLERANCE,
+  AutoMovieEngineMath,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -13,7 +17,7 @@ import type {
  * section 3.3) read them for a free hand attitude: the shoulder's three angles,
  * the hinge, and the wrist's three as one spherical joint whose distal twist
  * the rig takes in the forearm; their ranges, the terms of F, and their check
- * by the rig's own clamp (`clampJointToSkeleton`), in the fit's frame (a left
+ * by the rig's own clamp (`AutoMovieEngineKinematics.clampJointToSkeleton`), in the fit's frame (a left
  * arm is solved as its mirror image's right) and named on the arm's own side.
  */
 export namespace AutoMovieMotionHumanArmReachJoints {
@@ -149,16 +153,16 @@ export namespace AutoMovieMotionHumanArmReachJoints {
   }
 
   /**
-   * The rig's clamps of the arm's joints (`clampJointToSkeleton.of`).
+   * The rig's clamps of the arm's joints (`AutoMovieEngineKinematics.clampJointToSkeletonOf`).
    *
    * @param body The body.
    * @returns The shoulder's, the forearm's and the hand's.
    */
   export function clampsOf(body: IAutoMovieMotionHumanBody): IClamps {
     return {
-      upper: clampJointToSkeleton.of(UPPER, body.skeleton),
-      lower: clampJointToSkeleton.of(LOWER, body.skeleton),
-      hand: clampJointToSkeleton.of(HAND, body.skeleton),
+      upper: AutoMovieEngineKinematics.clampJointToSkeletonOf(UPPER, body.skeleton),
+      lower: AutoMovieEngineKinematics.clampJointToSkeletonOf(LOWER, body.skeleton),
+      hand: AutoMovieEngineKinematics.clampJointToSkeletonOf(HAND, body.skeleton),
     };
   }
 

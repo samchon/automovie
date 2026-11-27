@@ -1,11 +1,2 @@
+export { AutoMovieEngineFluid } from "./AutoMovieEngineFluid";
 export * from "./constants";
-export * from "./fluidCourantNumber";
-export * from "./fluidDomainBudget";
-export * from "./fluidStateDigest";
-export * from "./fluidSurfaceGeometry";
-export * from "./lowerWaterFeature";
-export * from "./sampleFluidDomain";
-export * from "./sampleFluidSpray";
-export * from "./simulateFluidDomain";
-export * from "./validateFluidDomain";
-export * from "./validateWaterFeatures";

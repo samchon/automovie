@@ -2,7 +2,7 @@ import {
   Quaternion,
   Transform,
   Vector3,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -156,7 +156,7 @@ function fingerGaps(
   collider: Capsule,
   time: number,
 ): number[] {
-  const distance = physicalShapeSegmentDistance.prepare(take.prop("bottle", time), collider);
+  const distance = AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(take.prop("bottle", time), collider);
   const bones = take.bones(SUBJECT, time);
   const gap = (name: AutoMovieHumanoidBone): number => {
     const site = bones.get(name)!;

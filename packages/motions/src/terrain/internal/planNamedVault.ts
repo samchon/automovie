@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -360,7 +360,7 @@ function prepareVaultLayer(
       projection,
       evaluation,
     );
-    const ease: number = minimumJerk.share(
+    const ease: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.max(0, Math.min(1, seconds / EASE, (duration - seconds) / EASE)),
     );
     if (
@@ -384,7 +384,7 @@ function prepareVaultLayer(
     );
     // The palm approaches its point from the vault's start and leaves it
     // until the vault's end: its share of the way is 1 through its window.
-    const approach: number = minimumJerk.share(
+    const approach: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       palmWindows.length === 0
         ? 0
         : Math.min(
@@ -418,7 +418,7 @@ function prepareVaultLayer(
           0.16 *
           measure.forearm *
           palmWeight *
-          minimumJerk.share(Math.min(1, handGap / PALM_PEEL));
+          AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, handGap / PALM_PEEL));
         // On its way to and from the top the palm arcs over the edge: the arc
         // is zero at the displayed wrist and at contact, so it joins both.
         const arc: number =
@@ -439,7 +439,7 @@ function prepareVaultLayer(
       const gap: number = Math.max(deck.near - at.z, at.z - deck.far, 0);
       const weight: number =
         ease *
-        minimumJerk.share(Math.max(0, 1 - gap / (0.7 * measure.forearm)));
+        AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, 1 - gap / (0.7 * measure.forearm)));
       const raise: number =
         Math.max(0, deck.height + 0.65 * measure.forearm - at.y) * weight;
       if (raise > 0)

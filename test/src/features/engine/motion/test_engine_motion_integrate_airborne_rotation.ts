@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  integrateAirborneRotation,
+  AutoMovieEngineMotionAirborneRotation,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -41,7 +41,7 @@ const ROUNDING: number = 1e-12;
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
 /**
- * `integrateAirborneRotation` turns a body by its conserved angular momentum
+ * `AutoMovieEngineMotionAirborneRotation` turns a body by its conserved angular momentum
  * and its shape history, and reads the orientation and its sensitivities by
  * time.
  *
@@ -87,7 +87,7 @@ export function test_engine_motion_integrate_airborne_rotation(): void {
   };
   let reads: number = 0;
   const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-    integrateAirborneRotation({
+    AutoMovieEngineMotionAirborneRotation.integrate({
       history: (): IAutoMovieIntegrateAirborneRotation.IInstant => {
         ++reads;
         return spin;
@@ -143,7 +143,7 @@ export function test_engine_motion_integrate_airborne_rotation(): void {
   );
   TestValidator.predicate("gyrostat body rates", rates);
   TestValidator.predicate("gyrostat world momentum", momentum);
-  const needed: IAutoMovieVector3 = integrateAirborneRotation.rate(spin, {
+  const needed: IAutoMovieVector3 = AutoMovieEngineMotionAirborneRotation.rate(spin, {
     x: 0.01,
     y: 0.002,
     z: 0,
@@ -165,7 +165,7 @@ export function test_engine_motion_integrate_airborne_rotation(): void {
 
 /** The spherical counterspin of scenario 3. */
 function counterspin(): boolean {
-  const numeric: integrateAirborneRotation.ICachedHistory =
+  const numeric: AutoMovieEngineMotionAirborneRotation.ICachedHistory =
     airborneStillHistory(
       airbornePrimitive([
         { bone: "hips", mass: 1, inertia: { x: 2, y: 2, z: 2 } },
@@ -180,13 +180,13 @@ function counterspin(): boolean {
     return instant;
   };
   try {
-    const rate: IAutoMovieVector3 = integrateAirborneRotation.rate(history(0), {
+    const rate: IAutoMovieVector3 = AutoMovieEngineMotionAirborneRotation.rate(history(0), {
       x: 0,
       y: 0,
       z: 0,
     });
     const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-      integrateAirborneRotation({
+      AutoMovieEngineMotionAirborneRotation.integrate({
         history,
         t0: 0,
         t1: 1,
@@ -230,7 +230,7 @@ function frames(): boolean {
     let before: number = 0;
     let after: number = 0;
     const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-      integrateAirborneRotation({
+      AutoMovieEngineMotionAirborneRotation.integrate({
         history: (
           seconds: number,
         ): IAutoMovieIntegrateAirborneRotation.IInstant => {
@@ -308,7 +308,7 @@ function scaled(): boolean {
               Quaternion.rotateVector(basis, unit),
           );
           const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-            integrateAirborneRotation({
+            AutoMovieEngineMotionAirborneRotation.integrate({
               history: (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
                 inertia: {
                   moments: { x: 2 * scale, y: 2 * scale, z: 2 * scale },
@@ -389,7 +389,7 @@ function principalAxes(): boolean {
       z: axis === "z" ? 1 : 0,
     };
     const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-      integrateAirborneRotation({
+      AutoMovieEngineMotionAirborneRotation.integrate({
         history,
         t0: 0,
         t1: 1,
@@ -414,8 +414,8 @@ function principalAxes(): boolean {
 /** Scenario 7: the rate rises by I_layout / I_tuck after the tuck. */
 function tuck(): boolean {
   const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-    integrateAirborneRotation({
-      history: integrateAirborneRotation.history(
+    AutoMovieEngineMotionAirborneRotation.integrate({
+      history: AutoMovieEngineMotionAirborneRotation.history(
         AIRBORNE_CORE,
         (
           t: number,
@@ -456,7 +456,7 @@ function flip(): boolean {
   const lambda: number = w * Math.sqrt((1 * 1) / (1 * 3));
   const bound: number = (2 * Math.log(4 / epsilon)) / lambda;
   const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-    integrateAirborneRotation({
+    AutoMovieEngineMotionAirborneRotation.integrate({
       history: airborneStillHistory(body),
       t0: 0,
       t1: 3 * bound,

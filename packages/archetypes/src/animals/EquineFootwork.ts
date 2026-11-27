@@ -1,4 +1,7 @@
-import { Quaternion, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -17,7 +20,7 @@ import { EquineEdge } from "./EquineEdge";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /** Admission and sample goals for individually authored equine footwork. */
 export namespace EquineFootwork {
@@ -120,7 +123,7 @@ export namespace EquineFootwork {
    */
   export function prepare(
     archetype: string,
-    course: rideQuadruped.ICourse,
+    course: AutoMovieArchetypeQuadruped.IRideCourse,
     plan: AutoMovieArchetypeCourse.IPlan,
     gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
     hooves: Readonly<
@@ -141,7 +144,7 @@ export namespace EquineFootwork {
     let jump: EquineJump.IRequest | undefined;
     let slide: ISlide | undefined;
     for (let index: number = 0; index < course.legs.length; ++index) {
-      const leg: rideQuadruped.ILeg = course.legs[index]!;
+      const leg: AutoMovieArchetypeQuadruped.IRideLeg = course.legs[index]!;
       const technique: Technique | undefined = leg.equineFootwork;
       if (technique === undefined) continue;
       if (technique === null)
@@ -357,7 +360,7 @@ export namespace EquineFootwork {
     const amount: number =
       second >= slide.contact
         ? 1
-        : minimumJerk((second - slide.from) / (slide.contact - slide.from)).s;
+        : AutoMovieEngineMotionSampling.minimumJerk((second - slide.from) / (slide.contact - slide.from)).s;
     return {
       ...goal,
       ...(goal.x === undefined

@@ -1,6 +1,6 @@
-import { Vector3, tetrahedralizeAutoMovieDelaunay, AutoMovieEngineCurve } from "@automovie/engine";
+import { Vector3, AutoMovieEngineCurve, AutoMovieEngineMath } from "@automovie/engine";
 import type {
-  IAutoMovieTetrahedralizeDelaunay,
+  IAutoMovieTetrahedralizedMesh,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -37,18 +37,18 @@ export namespace HumanInteractionMeshSide {
    * @returns The sides.
    */
   export function record(
-    mesh: IAutoMovieTetrahedralizeDelaunay.IMesh,
+    mesh: IAutoMovieTetrahedralizedMesh,
     reference: readonly IAutoMovieVector3[],
     extent: number,
     accuracy: number,
   ): ISide[] {
     const joggle: number =
-      tetrahedralizeAutoMovieDelaunay.JOGGLE * Number.EPSILON * extent;
+      AutoMovieEngineMath.DELAUNAY_JOGGLE * Number.EPSILON * extent;
     const flat: number = 3 * (2 * Math.sqrt(3) * joggle) * (2 * extent) ** 2;
     return mesh.tetrahedra
       .filter(
         (t: readonly [number, number, number, number]): boolean =>
-          tetrahedralizeAutoMovieDelaunay.volume(reference, t) > flat,
+          AutoMovieEngineMath.delaunayVolume(reference, t) > flat,
       )
       .map((corners: ISide["corners"]): ISide => {
         const [a, b, c, d] = corners;

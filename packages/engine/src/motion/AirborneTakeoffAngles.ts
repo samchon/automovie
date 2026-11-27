@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
+import { AutoMovieEngineMotionTrajectory } from "./AutoMovieEngineMotionTrajectory";
 
 /** The lateral unit axis, read without mutation by quaternion operations. */
 const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
@@ -78,7 +78,7 @@ export namespace AirborneTakeoffAngles {
     let somersault: number = 0;
     let twist: number = 0;
     let tilt: number = 0;
-    const step: number = integrateMotionTrajectory.STEP;
+    const step: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
     const count: number = Math.ceil((flight.t1 - flight.t0) / step) + 1;
     for (let k: number = 0; k < count; k++) {
       const seconds: number =

@@ -1,4 +1,4 @@
-import { minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -276,7 +276,7 @@ export namespace sit {
       t: number,
     ): IAutoMovieMotionHumanPosture["limbs"] => {
       const share: number = crossed
-        ? minimumJerk.share((t - descent) / CROSS)
+        ? AutoMovieEngineMotionSampling.minimumJerkShare((t - descent) / CROSS)
         : 0;
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
         body,

@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry } from "@automovie/engine";
+import { AutoMoviePhysicalGeometry } from "@automovie/engine";
 import type {
   IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
@@ -47,8 +47,8 @@ export function subjectOfFilm(
 ): IAutoMovieDrawSubject {
   return {
     create: async (): Promise<IAutoMovieDrawScene> => {
-      const geometry: Awaited<ReturnType<typeof preparePhysicalGeometry>> =
-        await preparePhysicalGeometry();
+      const geometry: Awaited<ReturnType<typeof AutoMoviePhysicalGeometry.prepare>> =
+        await AutoMoviePhysicalGeometry.prepare();
       const production: IFilmProduction = await film.create();
       // One reader per mount: a capture or delivery run reads the whole
       // performance once, and the viewer never asks.

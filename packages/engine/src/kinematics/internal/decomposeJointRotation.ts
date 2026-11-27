@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../constants/DEFAULT_JOINT_AXES";
-import { decomposeJointRotationOnBasis } from "../decomposeJointRotationOnBasis";
+import { decomposeJointRotationOnBasis } from "./decomposeJointRotationOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
 /**
@@ -64,7 +64,7 @@ export const decomposeJointRotation: (
 ): IAutoMovieResolvedJointAngles =>
   // The extraction lives in `decomposeJointRotationOnBasis`, which a solver
   // calls directly on a basis it normalized once; this entry admits the basis.
-  decomposeJointRotationOnBasis(
+  decomposeJointRotationOnBasis.run(
     q,
     normalizeJointAxes(axes, "decomposeJointRotation axes"),
     frame,

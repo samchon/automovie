@@ -70,8 +70,8 @@ const PROBE_RENDERS: number = 12;
  * @returns What the stage adds to each total, null where it is unknown.
  */
 export function measureAutoMovieRenderFilmStage(
-  props: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IProps,
-): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IResult {
+  props: AutoMovieEngineRenderMeasureTypes.IFilmStageProps,
+): AutoMovieEngineRenderMeasureTypes.IFilmStageResult {
   const film: IAutoMovieRenderSubject["film"] = props.subject.film;
   if (film === undefined)
     return { targets: 0, bytes: 0, drawCalls: 0, triangles: 0 };
@@ -85,11 +85,11 @@ export function measureAutoMovieRenderFilmStage(
       ? NaN
       : Math.round(settings.height * settings.pixelRatio);
   const area: number = width * height;
-  const scene: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass = props.casters.reduce(
+  const scene: AutoMovieEngineRenderMeasureTypes.IFilmStagePass = props.casters.reduce(
     (
-      sum: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass,
-      caster: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.ICaster,
-    ): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass => ({
+      sum: AutoMovieEngineRenderMeasureTypes.IFilmStagePass,
+      caster: AutoMovieEngineRenderMeasureTypes.IFilmStageCaster,
+    ): AutoMovieEngineRenderMeasureTypes.IFilmStagePass => ({
       draws:
         sum.draws + props.drawCalls * caster.depthFaces + caster.filterDraws,
       triangles:
@@ -102,15 +102,15 @@ export function measureAutoMovieRenderFilmStage(
   const passes: (
     scenes: number,
     quads: number,
-  ) => AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass = (
+  ) => AutoMovieEngineRenderMeasureTypes.IFilmStagePass = (
     scenes: number,
     quads: number,
-  ): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass => ({
+  ): AutoMovieEngineRenderMeasureTypes.IFilmStagePass => ({
     draws: scenes * scene.draws + quads,
     triangles: scenes * scene.triangles + 2 * quads,
   });
   const samples: number = film.optics.samples ?? 1;
-  const rows: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow[] = [];
+  const rows: AutoMovieEngineRenderMeasureTypes.IFilmStageRow[] = [];
 
   // The response stage. Glare draws one quad into each target beyond the
   // linear frame and its depth: a pyramid level or a kernel's blur pass.
@@ -173,12 +173,12 @@ export function measureAutoMovieRenderFilmStage(
   const sized: boolean = settings !== undefined;
   const counted: boolean = sized || !glare;
   const write: (
-    entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow,
+    entry: AutoMovieEngineRenderMeasureTypes.IFilmStageRow,
     metric: AutoMovieRenderMetric,
     cost: number,
     kind: "runtime" | "pass",
   ) => void = (
-    entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow,
+    entry: AutoMovieEngineRenderMeasureTypes.IFilmStageRow,
     metric: AutoMovieRenderMetric,
     cost: number,
     kind: "runtime" | "pass",
@@ -209,36 +209,36 @@ export function measureAutoMovieRenderFilmStage(
         "pass the render target settings whose width, height and pixel ratio the beauty pass draws at",
     });
   const sum: (
-    read: (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow) => number,
+    read: (entry: AutoMovieEngineRenderMeasureTypes.IFilmStageRow) => number,
   ) => number = (
-    read: (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow) => number,
+    read: (entry: AutoMovieEngineRenderMeasureTypes.IFilmStageRow) => number,
   ): number =>
     rows.reduce(
-      (total: number, entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number =>
+      (total: number, entry: AutoMovieEngineRenderMeasureTypes.IFilmStageRow): number =>
         total + read(entry),
       0,
     );
   return {
     targets: sized
       ? sum(
-          (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number =>
+          (entry: AutoMovieEngineRenderMeasureTypes.IFilmStageRow): number =>
             entry.targets,
         )
       : null,
     bytes: sized
       ? sum(
-          (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number => entry.bytes,
+          (entry: AutoMovieEngineRenderMeasureTypes.IFilmStageRow): number => entry.bytes,
         )
       : null,
     drawCalls: counted
       ? sum(
-          (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number =>
+          (entry: AutoMovieEngineRenderMeasureTypes.IFilmStageRow): number =>
             entry.passes.draws,
         )
       : null,
     triangles: counted
       ? sum(
-          (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number =>
+          (entry: AutoMovieEngineRenderMeasureTypes.IFilmStageRow): number =>
             entry.passes.triangles,
         )
       : null,

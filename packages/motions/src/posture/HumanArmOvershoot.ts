@@ -1,4 +1,4 @@
-import { physicalShapeSegmentDistance, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEnginePhysics, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -94,7 +94,7 @@ type IShape = HumanArmOvershootRoom.IShape;
 type IRoom = HumanArmOvershootRoom.IRoom;
 
 /** An opaque fixed-geometry reader with no retained point or distance. */
-type IDistanceReader = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
+type IDistanceReader = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;
 
 /** Operation-local holder, populated only when a candidate needs exact geometry. */
 interface IQueries {
@@ -274,7 +274,7 @@ function distance(
   const queries: Map<IShape, IDistanceReader> = (shared.readers ??= new Map());
   let query: IDistanceReader | undefined = queries.get(shape);
   if (query === undefined) {
-    query = physicalShapeSegmentDistance.prepare(shape.pose, shape.shape);
+    query = AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(shape.pose, shape.shape);
     queries.set(shape, query);
   }
   return query(point, point);

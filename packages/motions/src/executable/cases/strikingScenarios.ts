@@ -1,4 +1,4 @@
-import { physicalShapeBounds } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -328,8 +328,8 @@ function touching(
       performance.bones(subject, seconds),
     ))
       for (const shape of shapes) {
-        const bounds: ReturnType<typeof physicalShapeBounds> =
-          physicalShapeBounds(pose, shape);
+        const bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> =
+          AutoMovieEnginePhysics.physicalShapeBounds(pose, shape);
         most = Math.max(most, sign === 1 ? bounds.max.z : -bounds.min.z);
       }
     return most;

@@ -7,7 +7,7 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
-import { autoMovieModelPartMatrices } from "../../autoMovieModelPartMatrices";
+import { AutoMovieEngineModel } from "../../AutoMovieEngineModel";
 import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQuery";
 import { measureAutoMovieMeshGap } from "./measureAutoMovieMeshGap";
 import { AutoMovieEngineMeshCrossingQuery } from "../mesh-crossing/AutoMovieEngineMeshCrossingQuery";
@@ -22,7 +22,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  *
  * Every part is realized through `realizeAutoMovieGeometry`, primitives
  * included, and carried into the model frame by `placeAutoMovieModelPartMesh`
- * with its `autoMovieModelPartMatrices` entry, as
+ * with its `AutoMovieEngineModel.partMatrices` entry, as
  * `measureAutoMovieModelCrossings` places its parts. One record follows for
  * every unordered pair, in model part order. A pair crosses when
  * `AutoMovieEngineMeshCrossingQuery.measure` finds a transverse or coplanar
@@ -63,7 +63,7 @@ export const measureAutoMovieModelContacts: (
       "Model contacts need a finite, nonnegative contact distance in metres.",
     );
   const matrices: Map<IAutoMovieModelPart, number[] | null> =
-    autoMovieModelPartMatrices(model);
+    AutoMovieEngineModel.partMatrices(model);
   const parts: IPlacedPart[] = model.parts.map(
     (part: IAutoMovieModelPart): IPlacedPart => {
       const label: string = `model contact part "${part.id}"`;

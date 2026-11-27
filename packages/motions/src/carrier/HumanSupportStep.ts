@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -331,7 +331,7 @@ export function HumanSupportStep(
       if (share < plant.window.from) {
         if (k === 0) return borne(plant, at, point);
         const before: IPlant = list[k - 1]!;
-        const weight: number = minimumJerk.share(
+        const weight: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           (share - before.window.to) / (plant.window.from - before.window.to),
         );
         return Vector3.lerp(
@@ -410,7 +410,7 @@ export function HumanSupportStep(
       if (share < plant.window.from) {
         if (k === 0) return turnedBy(plant, at);
         const before: IPlant = list[k - 1]!;
-        const weight: number = minimumJerk.share(
+        const weight: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           (share - before.window.to) / (plant.window.from - before.window.to),
         );
         return (

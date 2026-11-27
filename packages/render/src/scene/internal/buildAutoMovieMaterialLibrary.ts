@@ -8,9 +8,9 @@ import type {
 import type { IAutoMovieMaterialLibrary } from "../IAutoMovieMaterialLibrary.js";
 import type { IBuildAutoMovieMaterialLibraryProps } from "../IBuildAutoMovieMaterialLibraryProps.js";
 import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
-import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { materialTextureBindings } from "./materialTextureBindings.js";
-import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * Build the exact model material identities requested by simulated surfaces.

@@ -1,16 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanLimb,
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieMotionHumanChannel,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionWeaponContact,
-  IAutoMovieMotionWeaponPath,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanLimb, AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanChannel, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionWeaponContact, IAutoMovieMotionWeaponPath, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { poseBones } from "../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
@@ -142,7 +132,7 @@ export namespace StrikingWeapon {
     side: AutoMovieHumanSide,
   ): IAutoMovieVector3[] {
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-    const knuckles: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+    const knuckles: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       body.surfaces.sockets[side === "left" ? "fistLeft" : "fistRight"],
       hand,
     ).point;
@@ -198,7 +188,7 @@ export namespace StrikingWeapon {
       bones.get(`${side}UpperLeg`)!.worldPosition,
       bones.get(`${side}LowerLeg`)!.worldPosition,
       foot.worldPosition,
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         body.surfaces.sockets[side === "left" ? "ballLeft" : "ballRight"],
         foot,
       ).point,

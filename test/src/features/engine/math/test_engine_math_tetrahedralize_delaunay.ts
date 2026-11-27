@@ -1,6 +1,6 @@
-import { tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
-  IAutoMovieTetrahedralizeDelaunay,
+  IAutoMovieTetrahedralizedMesh,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -30,7 +30,7 @@ export function test_engine_math_tetrahedralize_delaunay(): void {
     z,
   });
   const volume = (
-    mesh: IAutoMovieTetrahedralizeDelaunay.IMesh,
+    mesh: IAutoMovieTetrahedralizedMesh,
     t: readonly [number, number, number, number],
   ): number => {
     const [a, b, c, d] = t.map(
@@ -46,7 +46,7 @@ export function test_engine_math_tetrahedralize_delaunay(): void {
       6
     );
   };
-  const filled = (mesh: IAutoMovieTetrahedralizeDelaunay.IMesh): number =>
+  const filled = (mesh: IAutoMovieTetrahedralizedMesh): number =>
     mesh.tetrahedra.reduce(
       (sum: number, t: readonly [number, number, number, number]): number =>
         sum + Math.abs(volume(mesh, t)),
@@ -59,15 +59,15 @@ export function test_engine_math_tetrahedralize_delaunay(): void {
     v(0, 1, 0),
     v(0, 0, 1),
   ];
-  const one: IAutoMovieTetrahedralizeDelaunay.IMesh =
-    tetrahedralizeAutoMovieDelaunay(corners);
+  const one: IAutoMovieTetrahedralizedMesh =
+    AutoMovieEngineMath.tetrahedralizeDelaunay(corners);
   TestValidator.equals(
     "four corners are one tetrahedron, each corner beside the others",
     {
       vertices: one.tetrahedra.map((t: readonly number[]): number[] =>
         [...t].sort((a: number, b: number): number => a - b),
       ),
-      neighbours: tetrahedralizeAutoMovieDelaunay.neighbours(one, 4),
+      neighbours: AutoMovieEngineMath.delaunayNeighbours(one, 4),
       volume: nclose(filled(one), 1 / 6, 1e-9),
     },
     {
@@ -82,8 +82,8 @@ export function test_engine_math_tetrahedralize_delaunay(): void {
     },
   );
 
-  const split: IAutoMovieTetrahedralizeDelaunay.IMesh =
-    tetrahedralizeAutoMovieDelaunay([...corners, v(0.25, 0.25, 0.25)]);
+  const split: IAutoMovieTetrahedralizedMesh =
+    AutoMovieEngineMath.tetrahedralizeDelaunay([...corners, v(0.25, 0.25, 0.25)]);
   TestValidator.predicate(
     "an interior point splits the tetrahedron into four",
     split.tetrahedra.length === 4 && nclose(filled(split), 1 / 6, 1e-9),
@@ -94,8 +94,8 @@ export function test_engine_math_tetrahedralize_delaunay(): void {
       [0, 1].map((z: number): IAutoMovieVector3 => v(x, y, z)),
     ),
   );
-  const filledCube: IAutoMovieTetrahedralizeDelaunay.IMesh =
-    tetrahedralizeAutoMovieDelaunay(cube);
+  const filledCube: IAutoMovieTetrahedralizedMesh =
+    AutoMovieEngineMath.tetrahedralizeDelaunay(cube);
   const signs: number[] = filledCube.tetrahedra.map(
     (t: readonly [number, number, number, number]): number =>
       Math.sign(volume(filledCube, t)),

@@ -1,7 +1,7 @@
 import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeQuadrupedBody,
-  type rideHorse,
+  AutoMovieArchetypeHorseRide,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
@@ -22,7 +22,7 @@ export namespace archetypeHorseRide {
    * @returns The seconds.
    */
   export function footfalls(
-    ride: ReturnType<typeof rideHorse>,
+    ride: ReturnType<typeof AutoMovieArchetypeHorseRide.ride>,
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
   ): number[] {
     return ride.instants
@@ -39,7 +39,7 @@ export namespace archetypeHorseRide {
    * @returns The point.
    */
   export function hoof(
-    ride: ReturnType<typeof rideHorse>,
+    ride: ReturnType<typeof AutoMovieArchetypeHorseRide.ride>,
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
     seconds: number,
   ): IAutoMovieVector3 {
@@ -73,7 +73,7 @@ export namespace archetypeHorseRide {
    * @param ride The ride.
    * @returns The worst slide, metres, and where.
    */
-  export function slide(ride: ReturnType<typeof rideHorse>): {
+  export function slide(ride: ReturnType<typeof AutoMovieArchetypeHorseRide.ride>): {
     worst: number;
     at: string;
   } {

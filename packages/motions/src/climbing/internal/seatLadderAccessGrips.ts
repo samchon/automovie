@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -222,7 +222,7 @@ export function seatLadderAccessGrips(
         limbs[arm] = { ...target, planted: true };
         continue;
       }
-      const weight: number = minimumJerk.share(
+      const weight: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         seconds < active.from
           ? 1 - (active.from - seconds) / active.prepare
           : 1 - (seconds - active.to) / active.leave,

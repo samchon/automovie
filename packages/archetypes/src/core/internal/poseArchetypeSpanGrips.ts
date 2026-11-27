@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -123,7 +123,7 @@ export function poseArchetypeSpanGrips(
         frame: {
           translation: { ...contact.frame.translation },
           rotation: Quaternion.normalize(
-            Quaternion.multiply(rotationBetween(old, next), q),
+            Quaternion.multiply(AutoMovieEngineMath.rotationBetween(old, next), q),
           ),
           scale: { ...contact.frame.scale },
         },

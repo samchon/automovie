@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -168,7 +168,7 @@ export namespace AquaticLiftOut {
         const target: IAutoMovieVector3 = Vector3.lerp(
           path[leg]!,
           path[leg + 1]!,
-          minimumJerk.share(
+          AutoMovieEngineMotionSampling.minimumJerkShare(
             Math.min(1, (u - marks[leg]!) / (marks[leg + 1]! - marks[leg]!)),
           ),
         );
@@ -381,10 +381,10 @@ export namespace AquaticLiftOut {
         // the planted feet as the legs straighten.
         const depth: number =
           u < FACE
-            ? minimumJerk.share(u / FACE)
+            ? AutoMovieEngineMotionSampling.minimumJerkShare(u / FACE)
             : u < LIFT
-              ? 1 - 0.7 * minimumJerk.share((u - FACE) / (LIFT - FACE))
-              : 0.3 * (1 - minimumJerk.share((u - LIFT) / (1 - LIFT)));
+              ? 1 - 0.7 * AutoMovieEngineMotionSampling.minimumJerkShare((u - FACE) / (LIFT - FACE))
+              : 0.3 * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((u - LIFT) / (1 - LIFT)));
         const target: IAutoMovieVector3 = Vector3.add(
           Vector3.subtract(hips0, Vector3.scale(forward, BACK * size * depth)),
           { x: 0, y: -SQUAT * size * depth, z: 0 },

@@ -1,4 +1,4 @@
-import { AutoMovieEngineViolationCollector, appendGraphCycles } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import type {
   IAutoMovieAppendGraphCycles,
   IAutoMovieConstraintViolation,
@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
  * cycle returns to, by a depth-first walk that skips links to undeclared nodes
  * and revisits no finished node.
  *
- * Graph: a → b → c → a, d → a, e → (undeclared), f → f.
+ * Graph: a ??b ??c ??a, d ??a, e ??(undeclared), f ??f.
  *
  * Scenarios:
  *

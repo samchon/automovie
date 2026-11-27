@@ -5,7 +5,7 @@ import {
   type IAutoMovieDrawScene,
   type IAutoMovieDrawSubject,
   type IAutoMovieModelObject,
-  buildModel,
+  AutoMovieRenderSceneLayout,
 } from "@automovie/render";
 import * as THREE from "three";
 
@@ -96,7 +96,9 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
   let cursor: number = 0;
   let depth: number = 0;
   for (const member of entry.members) {
-    const probe: IAutoMovieModelObject = buildModel(member.at(0).archetype);
+    const probe: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(
+      member.at(0).archetype,
+    );
     const box: THREE.Box3 = new THREE.Box3().setFromObject(probe.object);
     offsets.push(
       entry.members.length === 1
@@ -158,7 +160,9 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
               arrows[index]!,
             ),
           ];
-          const built: IAutoMovieModelObject = buildModel(posed.archetype);
+          const built: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(
+            posed.archetype,
+          );
           built.object.name = member.name;
           built.object.position.set(
             placement.translation.x,

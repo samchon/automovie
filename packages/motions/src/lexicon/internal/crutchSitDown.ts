@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -258,7 +258,7 @@ export function crutchSitDown(
     const t: number = Math.min(duration, Math.max(0, seconds));
     const under: IAutoMovieMotionHumanPosture =
       t < lower ? entry : plan.posture(t - lower);
-    const k: number = minimumJerk.share(
+    const k: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (t - lower) / descent)),
     );
     const moved = (side: AutoMovieHumanSide): IAutoMovieRigidTransform =>

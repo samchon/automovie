@@ -164,5 +164,5 @@ export namespace AutoMovieArchetypeDog {
     rig: AutoMovieArchetypeQuadrupedBody.IRig,
     tack: ICollar,
   ): void {
-    AutoMovieArchetypeQuadrupedLead(builder, rig, "lead", tack, "dog");
+    AutoMovieArchetypeQuadrupedLead.lay(builder, rig, "lead", tack, "dog");
   }}

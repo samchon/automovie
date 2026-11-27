@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, resolveMorphTargetWeights } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineSkinning } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   type IAutoMovieJointAxes,
@@ -83,7 +83,7 @@ export const applyPose: (
       mesh.morphTargetInfluences === undefined
     )
       return;
-    for (const [name, weight] of resolveMorphTargetWeights(drivers, pose)) {
+    for (const [name, weight] of AutoMovieEngineSkinning.resolveMorphTargetWeights(drivers, pose)) {
       const index: number | undefined = mesh.morphTargetDictionary[name];
       if (index !== undefined) mesh.morphTargetInfluences[index] = weight;
     }

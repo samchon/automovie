@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -164,7 +164,7 @@ export namespace streetDance {
               ? 0
               : t <= s
                 ? Math.pow((t - (s - rise)) / rise, 3)
-                : 1 - minimumJerk.share((t - s) / fall);
+                : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - s) / fall);
           best = Math.max(best, v);
         }
         return best;

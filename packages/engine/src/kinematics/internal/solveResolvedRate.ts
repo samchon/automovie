@@ -1,5 +1,5 @@
 import { addAutoMovieQuadraticProduct } from "../../math/internal/addAutoMovieQuadraticProduct";
-import { prepareLinearSystem } from "../../math/prepareLinearSystem";
+import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 
 /**
@@ -37,7 +37,7 @@ export function solveResolvedRate(
   jacobian: readonly (readonly number[])[],
   goalRate: readonly number[],
   rowScale: readonly number[],
-): AutoMovieEngineKinematicsTypes.SolveResolvedRate.IResult {
+): AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsSolveResolvedRateResult {
   const size: number = jacobian.length;
   if (size === 0 || goalRate.length !== size || rowScale.length !== size)
     return { status: "unsupported" };
@@ -59,8 +59,8 @@ export function solveResolvedRate(
       if (jacobian[row]![column] !== 0 && scaled[row]![column] === 0)
         return { status: "unrepresentable" };
   }
-  const solve: ReturnType<typeof prepareLinearSystem> =
-    prepareLinearSystem(scaled);
+  const solve: ReturnType<typeof AutoMovieEngineMath.prepareLinearSystem> =
+    AutoMovieEngineMath.prepareLinearSystem(scaled);
   if (solve === null) return { status: "singular" };
   const velocity: number[] = solve(right);
   const inverse: number[][] = [];

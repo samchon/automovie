@@ -1,12 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { HumanPropHold, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -147,7 +141,7 @@ export async function test_motions_perform_prop_hold(): Promise<void> {
       worn.rotation === head.worldRotation &&
       near(
         left.position,
-        resolveAutoMovieHumanoidSurfaces.place(socket, bones.get(socket.bone)!)
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(socket, bones.get(socket.bone)!)
           .point,
       ) &&
       left.rotation === bones.get(socket.bone)!.worldRotation &&

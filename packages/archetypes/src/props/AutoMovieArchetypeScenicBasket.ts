@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createScenicBasket as createScenicBasketImplementation } from "./internal/createScenicBasket";
-import { type createScenicContainer } from "./createScenicContainer";
+import { type createScenicContainer } from "./internal/createScenicContainer";
 
 /** Public operations for Auto Movie Archetype Scenic Basket. */
 export namespace AutoMovieArchetypeScenicBasket {

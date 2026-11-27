@@ -1,7 +1,6 @@
 import {
   Vector3,
-  physicalShapeNormal,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
@@ -57,7 +56,7 @@ export function HumanArmTrajectoryLiftTurn(
   for (const s of at.shapes)
     for (const p of hand) {
       if (Vector3.distance(p, s.centre) - s.radius > reach) continue;
-      const gap: number = physicalShapeSegmentDistance(s.pose, s.shape, p, p);
+      const gap: number = AutoMovieEnginePhysics.physicalShapeSegmentDistance(s.pose, s.shape, p, p);
       if (gap < nearest) {
         nearest = gap;
         point = p;
@@ -66,7 +65,7 @@ export function HumanArmTrajectoryLiftTurn(
     }
   if (shape === undefined || point === undefined) return 0;
   const normal: IAutoMovieVector3 = Vector3.normalize(
-    physicalShapeNormal(
+    AutoMovieEnginePhysics.physicalShapeNormal(
       shape.pose,
       shape.shape,
       point,

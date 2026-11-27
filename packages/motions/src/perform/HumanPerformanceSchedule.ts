@@ -1,22 +1,6 @@
-import { AutoMovieEngineScheduleCut, AutoMovieScheduleError, Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath, AutoMovieEngineSchedule } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieIntent,
-  IAutoMovieIntentTiming,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionHumanRefusal,
-  IAutoMovieMotionHumanResponse,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionMeeting,
-  IAutoMovieSchedule,
-  IAutoMovieScheduleAlignment,
-  IAutoMovieScheduleContext,
-  IAutoMovieScheduleCue,
-  IAutoMovieScheduleEntry,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineScheduleCut, AutoMovieScheduleError, Vector3, AutoMovieEngineMath, AutoMovieEngineSchedule } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieIntent, IAutoMovieIntentTiming, IAutoMovieMotionEvent, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanRefusal, IAutoMovieMotionHumanResponse, IAutoMovieMotionHumanSegment, IAutoMovieMotionMeeting, IAutoMovieSchedule, IAutoMovieScheduleAlignment, IAutoMovieScheduleContext, IAutoMovieScheduleCue, IAutoMovieScheduleEntry, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanResponse } from "../skill/HumanResponse";
@@ -385,7 +369,7 @@ export namespace HumanPerformanceSchedule {
     const demanded: ReadonlySet<AutoMovieHumanoidBone> = new Set([frame.bone]);
     const gap = (seconds: number): number => {
       const effector: IAutoMovieVector3 =
-        resolveAutoMovieHumanoidSurfaces.place(
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           HumanPerformanceRead.bones(
             self,

@@ -1,5 +1,5 @@
 /** Host-only adaptation of the retained reference-experiments realization, SHA-256 5859b65144d933c1393344f3834e60582b6b8a0e8b70fb947dc3a7895905c13b. Numerical owners, options, ordering and coefficient evaluation are unchanged. */
-import { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieLocalHermiteStream64,
@@ -311,7 +311,7 @@ export async function ReferenceRuledRealization(
             reversals[i]!,
           ),
       );
-      iterator = T({
+      iterator = AutoMovieEngineCurve.tessellateLocalHermite64({
         name: id,
         topologyDomain: id,
         stations: nodes.map(

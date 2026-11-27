@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -195,7 +195,7 @@ export function planProneOpening(
     const scaled: number = share * strokes;
     const index: number = Math.min(strokes - 1, Math.floor(scaled));
     const phase: number = scaled - index;
-    const progress: number = (index + minimumJerk.share(phase)) / strokes;
+    const progress: number = (index + AutoMovieEngineMotionSampling.minimumJerkShare(phase)) / strokes;
     const root: IAutoMovieVector3 = frame.point(
       Vector3.lerp(from, finish, progress),
     );
@@ -212,7 +212,7 @@ export function planProneOpening(
     const hand: IAutoMovieResolvedBone = rest.get(`${side}Hand`)!;
     const offset: IAutoMovieVector3 = Vector3.subtract(root, entry.root);
     const lifted: number = LIFT * Math.sin(Math.PI * mount);
-    const weight: number = minimumJerk.share(mount);
+    const weight: number = AutoMovieEngineMotionSampling.minimumJerkShare(mount);
     const point: IAutoMovieVector3 = Vector3.lerp(
       Vector3.add(hand.worldPosition, offset),
       wrist.point,

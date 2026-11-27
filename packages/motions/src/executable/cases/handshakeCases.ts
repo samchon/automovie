@@ -1,14 +1,5 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  Vector3,
-  jointRomOvershoot,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { DEFAULT_HUMANOID_ROM, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
@@ -160,7 +151,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
         for (const j of performance.pose(subject, t).joints) {
           const c = DEFAULT_HUMANOID_ROM[j.bone];
           if (c !== undefined)
-            overshoot = Math.max(overshoot, jointRomOvershoot(j, c));
+            overshoot = Math.max(overshoot, AutoMovieEngineKinematics.jointRomOvershoot(j, c));
         }
     }
     const meet: number = Vector3.distance(
@@ -171,7 +162,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
       subject: string,
       body: IAutoMovieMotionHumanBody,
     ): IAutoMovieVector3 =>
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         body.surfaces.regions.sternum,
         performance
           .bones(subject, clasp)

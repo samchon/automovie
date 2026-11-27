@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -164,7 +164,7 @@ export function climbStairsRail(
         posture: gripped,
         sides: [side],
         held: entry,
-        share: minimumJerk.share(weight),
+        share: AutoMovieEngineMotionSampling.minimumJerkShare(weight),
         planned: bodyPose,
       },
       resolution,

@@ -6,7 +6,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { prepareLinearSystem } from "../math/prepareLinearSystem";
+import { AutoMovieEngineMath } from "../math/AutoMovieEngineMath";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
@@ -14,7 +14,7 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { limitPhysicalSwingTwist } from "./internal/limitPhysicalSwingTwist";
 import { projectPhysicalJointRotation } from "./internal/projectPhysicalJointRotation";
-import { solveXpbdArticulation } from "./solveXpbdArticulation";
+import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import { solveXpbdJointTree } from "./internal/solveXpbdJointTree";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
@@ -52,8 +52,8 @@ export namespace solveXpbdJoints {
     joints: readonly AutoMovieXpbdJoint[],
     h: number,
   ): void {
-    const kept: solveXpbdArticulation.IForest =
-      solveXpbdArticulation.forest(joints);
+    const kept: AutoMovieXpbdArticulation.IForest =
+      AutoMovieXpbdArticulation.forest(joints);
     for (const node of kept.nodes.values())
       if (node.parent === undefined && node.children.length !== 0)
         solveXpbdJointTree.project(node, h);
@@ -126,7 +126,7 @@ export namespace solveXpbdJoints {
     tasks: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdWorld.IRootTask>,
     warm: Map<AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm>,
   ): void {
-    for (const joint of solveXpbdArticulation.motors(
+    for (const joint of AutoMovieXpbdArticulation.motors(
       joints,
       h,
       contacts,
@@ -360,7 +360,7 @@ export namespace solveXpbdJoints {
         row === undefined ? -present[i]! : row.motor.speed - present[i]!,
       );
     }
-    return prepareLinearSystem.solve(matrix, right);
+    return AutoMovieEngineMath.solveLinearSystem(matrix, right);
   }
 
   /** A body-frame anchor's world arm from the body's centre. */

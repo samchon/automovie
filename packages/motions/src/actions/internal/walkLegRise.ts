@@ -1,4 +1,4 @@
-import { minimumJerk, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {AutoMovieEngineMotionSampling} from "@automovie/engine";
 
 import { walkLegLow } from "./walkLegLow";
 
@@ -150,7 +150,7 @@ export function walkLegRise(
   if (!folds) return low;
   const share: number =
     width > 0 ? Math.min(1, Math.max(0, (width - asked) / width)) : 1;
-  return pitch + (low - pitch) * minimumJerk.share(share);
+  return pitch + (low - pitch) * AutoMovieEngineMotionSampling.minimumJerkShare(share);
 }
 
 /**

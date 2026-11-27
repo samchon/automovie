@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
@@ -246,11 +246,11 @@ export namespace roll {
       contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= CROUCH) return crouched(minimumJerk.share(t / CROUCH), ankles);
+        if (t <= CROUCH) return crouched(AutoMovieEngineMotionSampling.minimumJerkShare(t / CROUCH), ankles);
         if (t <= CROUCH + TURN)
-          return rolled(360 * minimumJerk.share((t - CROUCH) / TURN));
+          return rolled(360 * AutoMovieEngineMotionSampling.minimumJerkShare((t - CROUCH) / TURN));
         return crouched(
-          1 - minimumJerk.share((t - CROUCH - TURN) / CROUCH),
+          1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - CROUCH - TURN) / CROUCH),
           end,
         );
       },
@@ -276,7 +276,7 @@ export namespace roll {
             entry.digits === undefined
               ? {
                   posture: crouched(
-                    minimumJerk.share(seconds / CROUCH),
+                    AutoMovieEngineMotionSampling.minimumJerkShare(seconds / CROUCH),
                     ankles,
                     blend,
                     observe,
@@ -289,7 +289,7 @@ export namespace roll {
           to: CROUCH + TURN,
           sample: (seconds) => ({
             posture: rolled(
-              360 * minimumJerk.share((seconds - CROUCH) / TURN),
+              360 * AutoMovieEngineMotionSampling.minimumJerkShare((seconds - CROUCH) / TURN),
               blend,
             ),
           }),
@@ -301,7 +301,7 @@ export namespace roll {
             entry.digits === undefined
               ? {
                   posture: crouched(
-                    1 - minimumJerk.share((seconds - CROUCH - TURN) / CROUCH),
+                    1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - CROUCH - TURN) / CROUCH),
                     end,
                     blend,
                     observe,

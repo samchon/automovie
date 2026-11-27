@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -341,7 +341,7 @@ export namespace EquineExpressionPose {
     return about(
       frame,
       start(part, frame),
-      Quaternion.slerp(IDENTITY, rotationBetween(now, wanted), channel.share),
+      Quaternion.slerp(IDENTITY, AutoMovieEngineMath.rotationBetween(now, wanted), channel.share),
     );
   }
 

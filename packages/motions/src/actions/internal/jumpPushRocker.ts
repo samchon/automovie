@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, carriedRate, minimumJerk } from "@automovie/engine";
+import { ROM_TOLERANCE, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -98,7 +98,7 @@ export function jumpPushRocker(
     )[takeoff];
     const asked: number =
       Math.min(start, -jumpPush.HEEL) *
-      minimumJerk.share((phase.seconds - lowered) / span);
+      AutoMovieEngineMotionSampling.minimumJerkShare((phase.seconds - lowered) / span);
     const stood: IAutoMovieVector3 | undefined = jumpPush.standing(
       hip,
       ballAt(asked).ankle,
@@ -144,18 +144,18 @@ export function jumpPushRocker(
   const gap: number = start - edge.met;
   const excess: number = edge.excess;
   const carried: number =
-    excess > 0 ? Math.min(span, -start / (carriedRate.PEAK * excess)) : span;
+    excess > 0 ? Math.min(span, -start / (AutoMovieEngineMotionSampling.carriedRatePeak() * excess)) : span;
   const pitchAt: (
     phase: jumpPush.IPhase,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
   ) => number = (phase: jumpPush.IPhase): number => {
     const t: number = phase.seconds;
     return t < lowered
-      ? supportPitch * (1 - minimumJerk.share(t / lowered)) +
-          rolling * carriedRate(lowered, t)
+      ? supportPitch * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(t / lowered)) +
+          rolling * AutoMovieEngineMotionSampling.carriedRate(lowered, t)
       : rule(t)[0]! +
-          gap * (1 - minimumJerk.share((t - lowered) / span)) +
-          (carried > CARRY ? excess * carriedRate(carried, t - lowered) : 0);
+          gap * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - lowered) / span)) +
+          (carried > CARRY ? excess * AutoMovieEngineMotionSampling.carriedRate(carried, t - lowered) : 0);
   };
 
   return { lowered, heelAt, ballAt, heelContact, ballContact, pitchAt };

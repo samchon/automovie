@@ -8,7 +8,7 @@ import type { AutoMovieArchetypeQuadrupedJoints } from "./AutoMovieArchetypeQuad
 import { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * Admission of a quadruped ride's requested gaits and speeds before any stride
@@ -42,7 +42,7 @@ export namespace QuadrupedRideAdmission {
    */
   export function admit(
     species: AutoMovieArchetypeQuadruped.ISpecies,
-    course: rideQuadruped.ICourse,
+    course: AutoMovieArchetypeQuadruped.IRideCourse,
     plan: AutoMovieArchetypeCourse.IPlan,
     gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
     tempo: number,
@@ -67,11 +67,11 @@ export namespace QuadrupedRideAdmission {
     if (
       gait === undefined &&
       course.legs.some(
-        (leg: rideQuadruped.ILeg): boolean => leg.gait === undefined,
+        (leg: AutoMovieArchetypeQuadruped.IRideLeg): boolean => leg.gait === undefined,
       )
     )
       speed(undefined, course.cruise);
-    course.legs.forEach((leg: rideQuadruped.ILeg, k: number): void => {
+    course.legs.forEach((leg: AutoMovieArchetypeQuadruped.IRideLeg, k: number): void => {
       const fastest: number = plan.legSpans[k]!.fastest;
       const which: AutoMovieArchetypeQuadrupedGait.Gait =
         leg.gait ??

@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -25,7 +25,7 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  */
 export async function test_engine_physics_physical_self_avoidance(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
     profile.segments.map(
       (

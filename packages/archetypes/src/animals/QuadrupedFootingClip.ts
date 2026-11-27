@@ -1,8 +1,5 @@
-import {
-  Quaternion,
-  physicalHullFaces,
-  physicalShapeFaceContact,
-} from "@automovie/engine";
+import { type AutoMovieEnginePhysicsFaceContactTypes, AutoMovieEnginePhysics, Quaternion, AutoMoviePhysicalHullFaces } from "@automovie/engine";
+
 import type {
   IAutoMovieModelPart,
   IAutoMovieRigidTransform,
@@ -43,8 +40,8 @@ export namespace QuadrupedFootingClip {
           z,
         }),
       );
-    const read: ReturnType<typeof physicalShapeFaceContact.prepare> =
-      physicalShapeFaceContact.prepare(
+    const read: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContactPrepare> =
+      AutoMovieEnginePhysics.physicalShapeFaceContactPrepare(
         {
           position: plane.origin,
           rotation: Quaternion.inverse(frame.rotation),
@@ -54,13 +51,13 @@ export namespace QuadrupedFootingClip {
       );
     const known: WeakMap<
       IAutoMovieModelPart["geometry"],
-      physicalShapeFaceContact.Shape
+      AutoMovieEnginePhysicsFaceContactTypes.Shape
     > = new WeakMap();
     return (
       part: IAutoMovieModelPart,
       cells?: AutoMovieArchetypeConvexCell.Table,
     ): number => {
-      let solid: physicalShapeFaceContact.Shape | undefined = known.get(
+      let solid: AutoMovieEnginePhysicsFaceContactTypes.Shape | undefined = known.get(
         part.geometry,
       );
       if (solid === undefined) {
@@ -85,7 +82,7 @@ export namespace QuadrupedFootingClip {
 function shape(
   part: IAutoMovieModelPart,
   cells: AutoMovieArchetypeConvexCell.Table | undefined,
-): physicalShapeFaceContact.Shape | undefined {
+): AutoMovieEnginePhysicsFaceContactTypes.Shape | undefined {
   const transform: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: Quaternion.identity(),
@@ -98,7 +95,7 @@ function shape(
     if (cell === undefined || cell.geometry !== part.geometry)
       throw new RangeError("Footing requires a matching convex cell");
     const points: IAutoMovieVector3[] = [...cell.points];
-    return { ...base, kind: "hull", points, hull: physicalHullFaces(points) };
+    return { ...base, kind: "hull", points, hull: AutoMoviePhysicalHullFaces.build(points) };
   }
   const primitive = part.geometry.shape;
   if (primitive.type === "plane") return undefined;

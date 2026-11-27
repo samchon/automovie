@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -379,7 +379,7 @@ export function HumanCrutchWalkPlan(
         Vector3.lerp(
           gripAt(side, move.from),
           gripAt(side, move.to),
-          minimumJerk.share((seconds - move.from) / (move.to - move.from)),
+          AutoMovieEngineMotionSampling.minimumJerkShare((seconds - move.from) / (move.to - move.from)),
         ),
       );
     };

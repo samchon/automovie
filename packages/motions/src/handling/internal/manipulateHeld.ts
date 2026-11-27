@@ -1,4 +1,4 @@
-import { AffordanceArticulation, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Transform, Vector3, indexSkeletonTopology, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AffordanceArticulation, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Transform, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -152,7 +152,7 @@ export function manipulateHeld(
           : bone,
     ),
   };
-  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton);
+  const topology: IAutoMovieSkeletonTopology = AutoMovieEngineKinematics.indexSkeletonTopology(skeleton);
   const grip: IAutoMovieVector3 = HumanHand.offset(
     context.body,
     side,

@@ -1,20 +1,15 @@
-import type {
-  IAutoMovieCombinePhysicalMassProperties,
-  IAutoMovieIntegrateAirborneRotation,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
+import type { IAutoMovieCombinePhysicalMassProperties, IAutoMovieIntegrateAirborneRotation, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
-import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
+
+
 import { Quaternion } from "../math/Quaternion";
 import { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
-import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
+import { AutoMoviePhysicalInertiaTensor } from "../physics/AutoMoviePhysicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
-import type { integrateAirborneRotation } from "./integrateAirborneRotation";
+import type { AutoMovieEngineMotionAirborneRotation } from "./AutoMovieEngineMotionAirborneRotation";
 import { AutoMovieEngineMotionSampling } from "./AutoMovieEngineMotionSampling";
 import { tabulateAirborneShapeKnots } from "./internal/tabulateAirborneShapeKnots";
 
@@ -83,7 +78,7 @@ const MAX_KNOTS: number = Math.floor(0xffff_ffff / WIDTH);
  *   copy of its reduced root-frame centre in metres. Refined knots do not
  *   supply playback centres.
  * @param observation Optional native work counter
- *   (`integrateAirborneRotation.observe`); omitted, nothing is counted.
+ *   (`AutoMovieEngineMotionAirborneRotation.observe`); omitted, nothing is counted.
  * @returns The history, with `clear` releasing the table and the issued
  *   instants; a later query builds the table again.
  * @throws {Error} For a span that is not finite and increasing, a step that is
@@ -94,12 +89,12 @@ const MAX_KNOTS: number = Math.floor(0xffff_ffff / WIDTH);
 export function AirborneTabulatedShapeHistory(
   model:
     | IAutoMovieResolveCenterOfMass.IModel
-    | prepareAutoMovieMassModel.IPrepared,
+    | AutoMovieEngineKinematics.IPreparedMassModel,
   shape: (seconds: number) => AirborneShapeReduction.IBones,
   span: { from: number; to: number; step: number; turn?: number },
   observation?: AirborneShapeStatistics.IObserver,
   uniformCentre?: (index: number, centre: IAutoMovieVector3) => void,
-): integrateAirborneRotation.ICachedHistory {
+): AutoMovieEngineMotionAirborneRotation.ICachedHistory {
   const { from, to, step }: { from: number; to: number; step: number } = span;
   if (!(to > from))
     throw new Error("A tabulated shape history needs a finite increasing span");
@@ -129,9 +124,9 @@ export function AirborneTabulatedShapeHistory(
         (
           seconds: number,
           uniformIndex?: number,
-        ): resolveAutoMovieMomentum.IPosed => {
+        ): AutoMovieEngineKinematics.IPosedBody => {
           if (statistics !== undefined) statistics.uniqueNumericNodes++;
-          const posed: resolveAutoMovieMomentum.IPosed = reduction.pose(
+          const posed: AutoMovieEngineKinematics.IPosedBody = reduction.pose(
             shape(seconds),
           );
           if (uniformCentre !== undefined && uniformIndex !== undefined)
@@ -445,11 +440,11 @@ function derivative(
  * velocity of the centre drops out, as the parts' offsets from it sum to zero.
  */
 function pointMomentum(
-  knots: readonly resolveAutoMovieMomentum.IPosed[],
+  knots: readonly AutoMovieEngineKinematics.IPosedBody[],
   stencil: IStencil,
   k: number,
 ): IAutoMovieVector3 {
-  const at: resolveAutoMovieMomentum.IPosed = knots[k]!;
+  const at: AutoMovieEngineKinematics.IPosedBody = knots[k]!;
   let x: number = 0;
   let y: number = 0;
   let z: number = 0;
@@ -481,7 +476,7 @@ function pointMomentum(
     const rx: number = part.centerOfMass.x - at.centre.x;
     const ry: number = part.centerOfMass.y - at.centre.y;
     const rz: number = part.centerOfMass.z - at.centre.z;
-    const spin: IAutoMovieVector3 = physicalInertiaTensor.spin(
+    const spin: IAutoMovieVector3 = AutoMoviePhysicalInertiaTensor.spin(
       part,
       part.inertiaRotation,
       {

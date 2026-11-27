@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { twoBoneChainArticulation } from "../../kinematics/twoBoneChainArticulation";
+import { twoBoneChainArticulation } from "../../kinematics/internal/twoBoneChainArticulation";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { physicalJointPoint } from "./physicalJointPoint";
@@ -118,7 +118,7 @@ export function seedPhysicalChainTarget(
     ? { ...input.targets[tip]!.rotation }
     : undefined;
   const solution: IAutoMovieTwoBoneArticulation | null =
-    twoBoneChainArticulation({
+    twoBoneChainArticulation.run({
       upper: { worldPosition: point(first), worldRotation: originalUpper },
       lower: { worldPosition: point(middle), worldRotation: originalLower },
       end: tipPoint,

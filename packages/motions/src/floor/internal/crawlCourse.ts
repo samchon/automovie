@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanCrawl,
   IAutoMovieVector3,
@@ -69,7 +69,7 @@ export function crawlCourse(
     const at: IAutoMovieVector3 = Vector3.lerp(
       course.points[lo]!,
       course.points[lo + 1]!,
-      minimumJerk.share(p),
+      AutoMovieEngineMotionSampling.minimumJerkShare(p),
     );
     return { ...at, y: at.y + 4 * course.height * p * (1 - p) };
   };

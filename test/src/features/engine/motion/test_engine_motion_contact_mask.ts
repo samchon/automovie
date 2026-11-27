@@ -1,4 +1,4 @@
-import { contactMask } from "@automovie/engine";
+import { AutoMovieEngineMotionPlanting } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieResolvedBone,
@@ -32,7 +32,7 @@ const foot: (
 export function test_engine_motion_contact_mask(): void {
   TestValidator.equals(
     "against the tolerance",
-    contactMask({
+    AutoMovieEngineMotionPlanting.contactMask({
       effector: "leftFoot",
       resolved: [foot(0.04), foot(0.05), foot(0.06)],
       groundAt: (): number => 0,
@@ -42,7 +42,7 @@ export function test_engine_motion_contact_mask(): void {
   );
   TestValidator.equals(
     "a missing effector",
-    contactMask({
+    AutoMovieEngineMotionPlanting.contactMask({
       effector: "rightFoot",
       resolved: [foot(0)],
       groundAt: (): number => 0,
@@ -54,7 +54,7 @@ export function test_engine_motion_contact_mask(): void {
     "a negative tolerance",
     throwsError(
       () =>
-        contactMask({
+        AutoMovieEngineMotionPlanting.contactMask({
           effector: "leftFoot",
           resolved: [foot(0)],
           groundAt: (): number => 0,

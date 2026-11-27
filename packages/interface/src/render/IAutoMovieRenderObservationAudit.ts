@@ -3,7 +3,7 @@ import type { IAutoMovieRenderObservationBreach } from "./IAutoMovieRenderObserv
 
 /**
  * Comparison of submitted-work observations with a declared report.
- * auditAutoMovieRenderObservation returns agreement only when all observable
+ * AutoMovieRenderBudgetPreflight.auditObservation returns agreement only when all observable
  * metrics have numeric bounds and none exceeds them; unchecked names expose
  * missing, invalid or duplicated bounds and unavailable/invalid observations.
  */

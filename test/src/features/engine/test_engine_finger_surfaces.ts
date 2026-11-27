@@ -1,15 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { HumanHand, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,7 +27,7 @@ const placed = (
   const frame: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions[region];
   const bone: IAutoMovieResolvedBone = poseBones(body, pose).get(frame.bone)!;
-  return resolveAutoMovieHumanoidSurfaces.place(frame, bone);
+  return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bone);
 };
 
 /** A pose holding one hand shape. */

@@ -1,27 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidSocket,
-  IAutoMovieAffordance,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBicycleEffort,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidSocket, IAutoMovieAffordance, IAutoMovieHumanLimbGoal, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBicycleEffort, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/internal/seated";
@@ -206,7 +184,7 @@ function planHumanBicycleEffort(
     ): void => {
       const socket: (typeof sockets)[AutoMovieHumanoidSocket] = sockets[name];
       const displayed: IAutoMovieVector3 =
-        resolveAutoMovieHumanoidSurfaces.point(socket, bones.get(socket.bone)!);
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(socket, bones.get(socket.bone)!);
       const gap: number = Vector3.distance(displayed, expected);
       if (gap <= FIT) return;
       throw new HumanRefusal({
@@ -239,8 +217,8 @@ function planHumanBicycleEffort(
       postureWithFrame(at);
 
     const share: number =
-      minimumJerk.share((at - seatOff) / (up - seatOff)) *
-      (1 - minimumJerk.share((at - lower) / (seatOn - lower)));
+      AutoMovieEngineMotionSampling.minimumJerkShare((at - seatOff) / (up - seatOff)) *
+      (1 - AutoMovieEngineMotionSampling.minimumJerkShare((at - lower) / (seatOn - lower)));
     const height: number = share * lift;
     const incline: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
       seated.joints,

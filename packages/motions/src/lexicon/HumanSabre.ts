@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
@@ -200,7 +200,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
       ? 1
       : from === undefined
         ? 0
-        : minimumJerk.share(
+        : AutoMovieEngineMotionSampling.minimumJerkShare(
             Math.min(1, Math.max(0, (t - from) / params.transition)),
           );
   // The engage: a station toward the target when one is named, read where it is as the engage completes and moved into the seat frame; straight ahead along the seat's forward otherwise.
@@ -302,13 +302,13 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
     "grip",
   ).point;
   const loose = (t: number): number =>
-    minimumJerk.share(
+    AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, t / Math.min(HumanSabreForm.REACH, duration)),
     ) *
     (from === undefined
       ? 1
       : 1 -
-        minimumJerk.share(
+        AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.min(1, Math.max(0, (t - from) / (params.transition / 2))),
         ));
   const inHand = (at: number): IAutoMovieRigidTransform => {

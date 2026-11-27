@@ -1,21 +1,5 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  Transform,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanTrunk,
-  IAutoMovieMotionHumanTurnHumanPosture,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { DEFAULT_HUMANOID_ROM, Transform, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTrunk, IAutoMovieMotionHumanTurnHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/internal/poseBones";
@@ -315,7 +299,7 @@ export namespace HumanTrunk {
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IAutoMovieVector3 => {
       const bones: ReturnType<typeof read> = read(posture, resolution);
-      return resolveAutoMovieHumanoidSurfaces.point(
+      return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
         frame,
         bones.get(frame.bone)!,
       );
@@ -485,7 +469,7 @@ function surfaceOf(
   frame: IAutoMovieHumanoidSurfaces.IFrame,
   bone: IAutoMovieResolvedBone,
 ): HumanTrunk.ISurface {
-  const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-    resolveAutoMovieHumanoidSurfaces.place(frame, bone);
+  const placed: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> =
+    AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bone);
   return { point: placed.point, normal: placed.normal };
 }

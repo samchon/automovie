@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 /**
  * Prepare a racket stance's weight transfer between two feet over a window: the
@@ -117,6 +117,6 @@ export namespace racketStanceTransfer {
    * @returns The share, in [0, 1].
    */
   export function ease(window: Window, seconds: number): number {
-    return minimumJerk.share(share(window, seconds));
+    return AutoMovieEngineMotionSampling.minimumJerkShare(share(window, seconds));
   }
 }

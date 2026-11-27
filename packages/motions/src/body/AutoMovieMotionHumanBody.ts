@@ -1,13 +1,5 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, clampPose, indexSkeletonTopology, measureAutoMovieHumanoidBody, prepareChainConstants, prepareSkeletonPoseResolution, resolveAutoMovieCenterOfMass, AutoMovieEnginePhysics } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePhysicalProfile,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, AutoMovieEngineKinematics, AutoMovieEngineMotionPlanting, AutoMovieEnginePhysics, AutoMovieEngineSkeletonPose } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalProfile, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 
 import { stand } from "../actions/internal/stand";
 import { standRelaxed } from "../actions/internal/standRelaxed";
@@ -55,11 +47,11 @@ export namespace AutoMovieMotionHumanBody {
       measure,
       surfaces,
     }: Pick<IAutoMovieMotionHumanBody, CreateHumanBody> =
-      measureAutoMovieHumanoidBody.withSurfaces(skeleton, profile);
+      AutoMovieEngineKinematics.measureAutoMovieHumanoidBodyWithSurfaces(skeleton, profile);
     const topology: IAutoMovieMotionHumanBody["topology"] =
-      indexSkeletonTopology(skeleton);
+      AutoMovieEngineKinematics.indexSkeletonTopology(skeleton);
     const poseResolution: IAutoMovieMotionHumanBody["poseResolution"] =
-      prepareSkeletonPoseResolution(
+      AutoMovieEngineSkeletonPose.prepareSkeletonPoseResolution(
         skeleton,
         HUMANOID_JOINT_AXES,
         HUMANOID_REST_FRAME,
@@ -68,7 +60,7 @@ export namespace AutoMovieMotionHumanBody {
     const chains: Partial<
       Record<
         keyof IAutoMovieMotionHumanBody["chains"],
-        prepareChainConstants.IConstants
+        AutoMovieEngineMotionPlanting.IChainConstants
       >
     > = {};
     for (const side of ["left", "right"] as const)
@@ -76,8 +68,8 @@ export namespace AutoMovieMotionHumanBody {
         ["Arm", "UpperArm", "LowerArm", "Hand"],
         ["Leg", "UpperLeg", "LowerLeg", "Foot"],
       ] as const) {
-        const constants: prepareChainConstants.IConstants | null =
-          prepareChainConstants({
+        const constants: AutoMovieEngineMotionPlanting.IChainConstants | null =
+          AutoMovieEngineMotionPlanting.prepareChainConstants({
             skeleton,
             chain: {
               upper: `${side}${upper}`,
@@ -93,7 +85,7 @@ export namespace AutoMovieMotionHumanBody {
         if (constants !== null) chains[`${side}${limb}`] = constants;
       }
     const massModel: IAutoMovieMotionHumanBody["massModel"] =
-      resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFromRig(poseResolution, profile);
 
     // The colliders at rest, mirrored left from right once here, and the bones
     // they ride, read off the rig, its rest joints and the profile alone.
@@ -107,7 +99,7 @@ export namespace AutoMovieMotionHumanBody {
     for (const record of skeleton.bones)
       if (!bones.has(record.bone)) bones.set(record.bone, record);
     const projection: IAutoMovieMotionHumanBody["projection"] =
-      clampPose.prepare(skeleton);
+      AutoMovieEngineKinematics.prepareClampPose(skeleton);
     const settled: IAutoMovieMotionHumanBody["settled"] =
       humanSettledJoints(skeleton);
     const reads: IAutoMovieMotionHumanBody["reads"] = humanLimbReads(

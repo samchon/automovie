@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -281,8 +281,8 @@ function stroke(total: number): IStroke {
   return {
     drive:
       at <= EXTRACTION
-        ? minimumJerk.share(at / EXTRACTION)
-        : 1 - minimumJerk.share(recovery),
+        ? AutoMovieEngineMotionSampling.minimumJerkShare(at / EXTRACTION)
+        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare(recovery),
     lift: Math.sin(Math.PI * recovery),
   };
 }

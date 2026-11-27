@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -45,7 +45,7 @@ export function AutoMovieMotionHumanFootSwing(
   time: number,
 ): IAutoMovieMotionHumanFoot.IPlacement {
   const u: number = Math.min(1, Math.max(0, time));
-  const s: number = minimumJerk.share(u);
+  const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(u);
   const ankle: IAutoMovieVector3 = Vector3.lerp(from.ankle, to.ankle, s);
   const rotation: IAutoMovieQuaternion = Quaternion.slerp(
     from.rotation,

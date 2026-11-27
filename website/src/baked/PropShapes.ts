@@ -1,4 +1,4 @@
-import { buildModel } from "@automovie/render";
+import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import * as THREE from "three";
 
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
@@ -50,8 +50,8 @@ export namespace PropShapes {
       const parts: IPart[] = [];
       let model: THREE.Object3D;
       try {
-        model = buildModel(
-          SceneArchetype.model(placed) as Parameters<typeof buildModel>[0],
+        model = AutoMovieRenderSceneLayout.buildModel(
+          SceneArchetype.model(placed) as Parameters<typeof AutoMovieRenderSceneLayout.buildModel>[0],
         ).object;
       } catch {
         return { subject: placed.subject, parts };

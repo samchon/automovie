@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createPlankCoffer as createPlankCofferImplementation } from "./internal/createPlankCoffer";
-import { type createScenicContainer } from "./createScenicContainer";
+import { type createScenicContainer } from "./internal/createScenicContainer";
 
 /** Public operations for Auto Movie Archetype Plank Coffer. */
 export namespace AutoMovieArchetypePlankCoffer {

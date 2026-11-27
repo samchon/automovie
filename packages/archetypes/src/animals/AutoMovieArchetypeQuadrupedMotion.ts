@@ -1,4 +1,6 @@
-import { minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
@@ -65,5 +67,5 @@ export namespace AutoMovieArchetypeQuadrupedMotion {
 
 /** Sample the existing quintic by its first-half value and exact time symmetry. */
 function progress(u: number): number {
-  return u <= 0.5 ? minimumJerk(u).s : 1 - minimumJerk(1 - u).s;
+  return u <= 0.5 ? AutoMovieEngineMotionSampling.minimumJerk(u).s : 1 - AutoMovieEngineMotionSampling.minimumJerk(1 - u).s;
 }

@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createMoldedCrate as createMoldedCrateImplementation } from "./internal/createMoldedCrate";
-import { type createScenicContainer } from "./createScenicContainer";
+import { type createScenicContainer } from "./internal/createScenicContainer";
 
 /** Public operations for Auto Movie Archetype Molded Crate. */
 export namespace AutoMovieArchetypeMoldedCrate {

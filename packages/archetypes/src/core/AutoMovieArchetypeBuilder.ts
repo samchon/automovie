@@ -1,4 +1,4 @@
-import { Vector3, rotationBetween } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieBodyContact,
@@ -127,7 +127,7 @@ export class AutoMovieArchetypeBuilder<
         height: Vector3.length(span),
       },
       Vector3.scale(Vector3.add(from, to), 0.5),
-      rotationBetween({ x: 0, y: 1, z: 0 }, span),
+      AutoMovieEngineMath.rotationBetween({ x: 0, y: 1, z: 0 }, span),
       options,
     );
   }

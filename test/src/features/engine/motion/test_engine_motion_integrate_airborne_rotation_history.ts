@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  integrateAirborneRotation,
+  AutoMovieEngineMotionAirborneRotation,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -88,7 +88,7 @@ const values: (
 ];
 
 /**
- * `integrateAirborneRotation.history` reads a shape history from posed bones:
+ * `AutoMovieEngineMotionAirborneRotation.history` reads a shape history from posed bones:
  * the body's inertia and its relative angular momentum at any time.
  *
  * Two unit masses, a hip at rest and a head at (0, 1, t^3), have relative
@@ -118,9 +118,9 @@ const values: (
 export function test_engine_motion_integrate_airborne_rotation_history(): void {
   rings();
   TestValidator.predicate("the span of the flight", span());
-  const history: integrateAirborneRotation.ICachedHistory =
-    integrateAirborneRotation.history(MODEL, bones, SPAN);
-  const delta: number = integrateAirborneRotation.DELTA;
+  const history: AutoMovieEngineMotionAirborneRotation.ICachedHistory =
+    AutoMovieEngineMotionAirborneRotation.history(MODEL, bones, SPAN);
+  const delta: number = AutoMovieEngineMotionAirborneRotation.DELTA;
   const epsilon: number = Number.EPSILON;
   const gamma2: number = (2 * epsilon) / (1 - 2 * epsilon);
   // Rounding of three weighted moments of cubes (see the stencil's error
@@ -206,8 +206,8 @@ function rings(): void {
       ),
     );
   };
-  const history: integrateAirborneRotation.ICachedHistory =
-    integrateAirborneRotation.history(model, posed, { from: 0, to: 1 });
+  const history: AutoMovieEngineMotionAirborneRotation.ICachedHistory =
+    AutoMovieEngineMotionAirborneRotation.history(model, posed, { from: 0, to: 1 });
   try {
     const instant: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.5);
     TestValidator.predicate(
@@ -257,7 +257,7 @@ function span(): boolean {
     at: number,
     within?: { from: number; to: number },
   ): IAutoMovieVector3 =>
-    integrateAirborneRotation.history(AIRBORNE_CORE, shape, within)(at)
+    AutoMovieEngineMotionAirborneRotation.history(AIRBORNE_CORE, shape, within)(at)
       .relative;
   const pushed = nodding((t: number): number => 0.3 * Math.min(0, t - 0.5));
   const landed = nodding((t: number): number => 0.3 * Math.max(0, t - 1));
@@ -270,7 +270,7 @@ function span(): boolean {
     const central: IAutoMovieVector3 = lag(smooth, at);
     holds &&=
       Vector3.length(Vector3.subtract(lag(smooth, at, sides), central)) <=
-      integrateAirborneRotation.DELTA ** 2 * Vector3.length(central);
+      AutoMovieEngineMotionAirborneRotation.DELTA ** 2 * Vector3.length(central);
   }
   return holds;
 }

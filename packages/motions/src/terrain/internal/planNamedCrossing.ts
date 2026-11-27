@@ -1,4 +1,4 @@
-import { Quaternion, physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -250,7 +250,7 @@ function obstacleLanding(
   };
   const extents: IAutoMoviePhysicalShapeBounds.IResult[] = shapes.map(
     (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShapeBounds.IResult =>
-      physicalShapeBounds(placed, shape),
+      AutoMovieEnginePhysics.physicalShapeBounds(placed, shape),
   );
   const far: number = Math.max(
     ...extents.map(

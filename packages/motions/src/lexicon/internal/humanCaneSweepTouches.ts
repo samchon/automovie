@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
@@ -119,7 +119,7 @@ export namespace humanCaneSweepTouches {
     const s: number = (seconds - a.at) / (b.at - a.at);
     return {
       lateral:
-        (sideOf(a) + (sideOf(b) - sideOf(a)) * minimumJerk.share(s)) * wide,
+        (sideOf(a) + (sideOf(b) - sideOf(a)) * AutoMovieEngineMotionSampling.minimumJerkShare(s)) * wide,
       height: twoPoint ? LIFT * Math.sin(Math.PI * s) : 0,
     };
   }

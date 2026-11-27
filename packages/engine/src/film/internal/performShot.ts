@@ -29,7 +29,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
+import { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { compilePerformance } from "../../perform/internal/compilePerformance";
 import { scenePlacements } from "../../perform/internal/scenePlacements";
 import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/formation/AutoMovieEnginePopulationFormation";

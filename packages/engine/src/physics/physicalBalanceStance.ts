@@ -12,9 +12,9 @@ import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
 import { physicalRecoveryLifted } from "./internal/physicalRecoveryLifted";
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
-import { physicalStanceBalance } from "./physicalStanceBalance";
-import { physicalStanceHip } from "./physicalStanceHip";
-import { physicalStanceSwing } from "./physicalStanceSwing";
+import { AutoMovieEnginePhysicalStanceBalance } from "./AutoMovieEnginePhysicalStanceBalance";
+import { AutoMovieEnginePhysicalStanceHip } from "./AutoMovieEnginePhysicalStanceHip";
+import { AutoMovieEnginePhysicalStanceSwing } from "./AutoMovieEnginePhysicalStanceSwing";
 
 /**
  * The stance the balance controller decides and swings from this substep
@@ -37,17 +37,17 @@ import { physicalStanceSwing } from "./physicalStanceSwing";
  */
 export function physicalBalanceStance(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
+  sense: AutoMovieEnginePhysicalBalanceTypes.ISense;
 }): physicalBalanceStance.IStance {
   const { state, sense } = input;
   const lifted: string[] = physicalRecoveryLifted(state);
   const planted: IAutoMoviePhysicalSupportPatch[] = sense.limbs
     .filter(
-      (limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): boolean =>
+      (limb: AutoMovieEnginePhysicalBalanceTypes.ILimb): boolean =>
         !lifted.includes(limb.bone),
     )
     .map(
-      (limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): IAutoMoviePhysicalSupportPatch =>
+      (limb: AutoMovieEnginePhysicalBalanceTypes.ILimb): IAutoMoviePhysicalSupportPatch =>
         sense.footprint(limb, state),
     );
   const plane: number =
@@ -62,30 +62,30 @@ export function physicalBalanceStance(input: {
       : sense.floor;
 
   // The swing's peak acceleration: the hip's declared torque at the endpoint
-  // (`physicalStanceSwing.swingBound`), under the policy's force bound over
+  // (`AutoMovieEnginePhysicalStanceSwing.swingBound`), under the policy's force bound over
   // the heaviest leg less its weight; the swing lasts at least
   // `Balance.MINIMUM_SWING`.
   const heaviest: number = Math.max(
-    ...sense.limbs.map((limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): number =>
+    ...sense.limbs.map((limb: AutoMovieEnginePhysicalBalanceTypes.ILimb): number =>
       sense.legMass(limb),
     ),
   );
-  const legs = sense.limbs.map((limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb) =>
-    physicalStanceSwing.swingLeg(sense.profile, sense.segments, limb),
+  const legs = sense.limbs.map((limb: AutoMovieEnginePhysicalBalanceTypes.ILimb) =>
+    AutoMovieEnginePhysicalStanceSwing.swingLeg(sense.profile, sense.segments, limb),
   );
   const leg = legs.reduce((a, b) => (b.mass > a.mass ? b : a));
   const omega: number = Math.sqrt(
     sense.gravity / Math.max(1e-6, sense.center.y - plane),
   );
 
-  // The body's rotation counts in its capture point (`physicalStanceBalance`
+  // The body's rotation counts in its capture point (`AutoMovieEnginePhysicalStanceBalance`
   // `.momentum`, `.spin`).
-  const angular: IAutoMovieVector3 = physicalStanceSwing.momentum(
+  const angular: IAutoMovieVector3 = AutoMovieEnginePhysicalStanceSwing.momentum(
     sense.profile,
     sense.segments,
     sense.center,
   );
-  const spin: IAutoMovieVector3 = physicalStanceSwing.spin(
+  const spin: IAutoMovieVector3 = AutoMovieEnginePhysicalStanceSwing.spin(
     angular,
     omega,
     sense.profile.mass,
@@ -93,7 +93,7 @@ export function physicalBalanceStance(input: {
   );
   const peak: number = Math.min(
     sense.policy.maximumForce / heaviest - sense.gravity,
-    physicalStanceSwing.swingBound({
+    AutoMovieEnginePhysicalStanceSwing.swingBound({
       effective: leg.mass,
       length: leg.length,
       torque: leg.torque,
@@ -101,7 +101,7 @@ export function physicalBalanceStance(input: {
   );
 
   // The landed foot's bearing share while it ramps in after a step: until it
-  // is in, the next step is not decided (`physicalStanceBalance.ready`). A
+  // is in, the next step is not decided (`AutoMovieEnginePhysicalStanceBalance.ready`). A
   // foot whose share never ramps in stops holding the decision back after
   // `UNLOAD`.
   const landing: number | undefined = (() => {
@@ -110,7 +110,7 @@ export function physicalBalanceStance(input: {
     return last &&
       seat &&
       (seat.bearing ?? 1) < 1 &&
-      sense.seconds - last.seconds < physicalStanceBalance.UNLOAD
+      sense.seconds - last.seconds < AutoMovieEnginePhysicalStanceBalance.UNLOAD
       ? (seat.bearing ?? 0)
       : undefined;
   })();
@@ -118,7 +118,7 @@ export function physicalBalanceStance(input: {
   // The tilt guard: a step is asked for once the trunk would pass the hip
   // strategy's range within a pendulum time, even with the capture point
   // inside, read from the centroidal momentum at the same time as the
-  // capture point (`physicalStanceBalance.tipping`).
+  // capture point (`AutoMovieEnginePhysicalStanceBalance.tipping`).
   const upNow: IAutoMovieVector3 = Quaternion.rotateVector(
     sense.root.body.rotation(),
     { x: 0, y: 1, z: 0 },
@@ -132,10 +132,10 @@ export function physicalBalanceStance(input: {
   );
   const tipping: boolean =
     landing === undefined &&
-    physicalStanceBalance.tipping({
+    AutoMovieEnginePhysicalStanceBalance.tipping({
       tilt,
       momentum: angular,
-      inertia: physicalStanceHip.inertia(
+      inertia: AutoMovieEnginePhysicalStanceHip.inertia(
         sense.profile,
         sense.segments,
         sense.center,
@@ -183,14 +183,14 @@ export function physicalBalanceStance(input: {
   // swing its hip allows, and the landed foot's ramp-in after it, the same
   // fade, before the new foot bears (Herzog et al. 2016, Section 5.3). The
   // clearance is lowered to fit the transfer's time
-  // (`physicalStanceSwing.clearance`), so the transfer sets it.
+  // (`AutoMovieEnginePhysicalStanceSwing.clearance`), so the transfer sets it.
   const timing: physicalBalanceStance.ITiming | undefined =
     peak > 0
       ? {
-          ramp: physicalStanceBalance.FADE,
+          ramp: AutoMovieEnginePhysicalStanceBalance.FADE,
           acceleration: peak,
           height: 0,
-          landing: physicalStanceBalance.FADE,
+          landing: AutoMovieEnginePhysicalStanceBalance.FADE,
         }
       : undefined;
   const command: { x: number; z: number } | undefined = state.pressure?.command;
@@ -229,7 +229,7 @@ export function physicalBalanceStance(input: {
         heading,
         ...(forced ? { force: true } : {}),
         ...(swing ? { swing } : {}),
-        inset: physicalStanceBalance.MARGIN,
+        inset: AutoMovieEnginePhysicalStanceBalance.MARGIN,
         ...(state.landings?.length
           ? { recent: state.landings[state.landings.length - 1]!.bone }
           : {}),

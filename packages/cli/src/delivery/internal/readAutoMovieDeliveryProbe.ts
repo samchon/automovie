@@ -28,6 +28,9 @@ import { AutoMovieMp4Boxes } from "../../AutoMovieMp4Boxes";
  * and the edit list, with the priming samples taken as a single edit's media
  * time.
  *
+ * @see https://www.iso.org/standard/85596.html
+ * @see https://www.iso.org/standard/79110.html
+ *
  * It throws naming the box when the file has no movie box, no video track, a
  * second track of one kind, a video track that is not `avc1` or a malformed or
  * truncated box.
@@ -96,6 +99,7 @@ const {
 /**
  * MPEG-4 audio sampling-frequency table, by `samplingFrequencyIndex` (ISO/IEC
  * 14496-3 Table 1.18).
+ * @see https://www.iso.org/standard/76383.html
  */
 const AAC_SAMPLE_RATES: readonly number[] = [
   96_000, 88_200, 64_000, 48_000, 44_100, 32_000, 24_000, 22_050, 16_000,
@@ -429,11 +433,12 @@ function readAudio(
 }
 
 /**
- * Read the AudioSpecificConfig inside an `esds` box (ISO/IEC 14496-1 §7.2.6):
- * the ES descriptor (tag 3), its decoder configuration (tag 4) and the
- * decoder-specific information (tag 5), whose first bits are the audio object
- * type, the sampling-frequency index and the channel configuration (ISO/IEC
- * 14496-3 §1.6.2.1).
+ * Read the AudioSpecificConfig inside an `esds` box: the ES descriptor (tag 3),
+ * decoder configuration (tag 4), and decoder-specific information (tag 5).
+ * The first bits of the decoder-specific information give the audio object
+ * type, sampling-frequency index, and channel configuration.
+ * @see https://www.iso.org/standard/85595.html
+ * @see https://www.iso.org/standard/76383.html
  */
 function aacDescription(
   movie: Buffer,

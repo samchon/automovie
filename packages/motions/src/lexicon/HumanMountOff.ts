@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import {Quaternion, Vector3, AutoMovieEngineMotionSampling} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -278,20 +278,20 @@ export namespace HumanMountOff {
           joints: enteredJoints,
         };
       }
-      const across: number = minimumJerk.share(
+      const across: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         (t - crossing[0]) / (crossing[1] - crossing[0]),
       );
       const socket: IAutoMovieVector3 = {
         x: start.x + (goal.x - start.x) * across,
         y:
           start.y +
-          hop * minimumJerk.share((t - seatOff) / (0.2 * duration)) +
+          hop * AutoMovieEngineMotionSampling.minimumJerkShare((t - seatOff) / (0.2 * duration)) +
           (goal.y - start.y - hop) *
-            minimumJerk.share((t - 0.35 * duration) / (0.5 * duration)),
+            AutoMovieEngineMotionSampling.minimumJerkShare((t - 0.35 * duration) / (0.5 * duration)),
         z: start.z + (goal.z - start.z) * across,
       };
       if (carriedSeat !== undefined && t < leanAt) {
-        const share: number = minimumJerk.share(
+        const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           (t - seatOff) / (leanAt - seatOff),
         );
         const rotation: IAutoMovieQuaternion = Quaternion.slerp(
@@ -323,9 +323,9 @@ export namespace HumanMountOff {
       }
       const lean: number =
         t < leanAt
-          ? pitch0 + (HumanMount.LEAN - pitch0) * minimumJerk.share(t / leanAt)
+          ? pitch0 + (HumanMount.LEAN - pitch0) * AutoMovieEngineMotionSampling.minimumJerkShare(t / leanAt)
           : HumanMount.LEAN *
-            (1 - minimumJerk.share((t - leanAt) / (0.6 * duration)));
+            (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - leanAt) / (0.6 * duration)));
       const tilt: IPlanFrameAtTilt = HumanTrunk.incline(relaxed, lean);
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
@@ -526,11 +526,11 @@ export namespace HumanMountOff {
             hip,
             HumanMount.leg(body, side, holds[side], entry.feet[side].planted),
             entry.feet[side].planted
-              ? minimumJerk.share(t / departs)
+              ? AutoMovieEngineMotionSampling.minimumJerkShare(t / departs)
               : 1,
           );
         else {
-          const share: number = minimumJerk.share(
+          const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
             (t - departs) / (arrives - departs),
           );
           const flightGoal: IAutoMovieHumanLimbGoal = HumanMount.leg(
@@ -695,8 +695,8 @@ export namespace HumanMountOff {
       posture: IAutoMovieMotionHumanPosture,
     ): IAutoMovieMotionHumanPosture => {
       const share: number =
-        minimumJerk.share(t / firstRelease) *
-        (1 - minimumJerk.share((t - settle) / (duration - settle)));
+        AutoMovieEngineMotionSampling.minimumJerkShare(t / firstRelease) *
+        (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - settle) / (duration - settle)));
       return share === 0
         ? posture
         : HumanArmSwing.carry(posture, {
@@ -714,7 +714,7 @@ export namespace HumanMountOff {
           seated.arms(
             body,
             hung(t, swung.posture(t)),
-            1 - minimumJerk.share(t / handRelease),
+            1 - AutoMovieEngineMotionSampling.minimumJerkShare(t / handRelease),
             undefined,
             undefined,
             palms,

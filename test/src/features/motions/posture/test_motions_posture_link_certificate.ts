@@ -1,4 +1,5 @@
-import { physicalShapeGjk } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanAuditTangleModel,
   IAutoMovieMotionHumanColliders,
@@ -61,15 +62,15 @@ function part(offset: number): IAutoMovieMotionHumanAuditTangleModel.IPart {
  *    0.2 m apart, overlapping by 0.1, −0.18; at one centre, negative infinity.
  */
 export function test_motions_posture_link_certificate(): void {
-  const a: physicalShapeGjk.ISolid = physicalShapeGjk.solid(
+  const a: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
     at({ x: 0, y: 0, z: 0 }),
     sphere("a", 0.1),
   );
-  const near: physicalShapeGjk.ISolid = physicalShapeGjk.solid(
+  const near: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
     at({ x: 0.5, y: 0, z: 0 }),
     sphere("n", 0.1),
   );
-  const b: physicalShapeGjk.ISolid = physicalShapeGjk.solid(
+  const b: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
     at({ x: 1, y: 0, z: 0 }),
     sphere("b", 0.2),
   );

@@ -12,6 +12,7 @@ import { gatherSoftBodyCorrections as gatherSoftBodyCorrectionsImplementation } 
 import { productionSoftBodyUsesMovingBoundary as productionSoftBodyUsesMovingBoundaryImplementation } from "./internal/productionSoftBodyUsesMovingBoundary";
 import { projectSoftCordSelfContact as projectSoftCordSelfContactImplementation } from "./internal/projectSoftCordSelfContact";
 import { readProductionLiveWearableSoftBodies as readProductionLiveWearableSoftBodiesImplementation } from "./internal/readProductionLiveWearableSoftBodies";
+import { selectProductionLiveWearableSoftBodies as selectProductionLiveWearableSoftBodiesImplementation } from "./internal/selectProductionLiveWearableSoftBodies";
 import { shortestRestLength as shortestRestLengthImplementation } from "./internal/shortestRestLength";
 import { simulateAutoMovieWearableSoftBody as simulateAutoMovieWearableSoftBodyImplementation } from "./internal/simulateAutoMovieWearableSoftBody";
 import { softBodyBudget as softBodyBudgetImplementation } from "./internal/softBodyBudget";
@@ -402,5 +403,21 @@ export namespace AutoMovieEngineSoftBody {
    */
   export function softBodyRestConfiguration(domain: IAutoMovieSoftBodyDomain, state?: string | null): number[] {
     return softBodyRestConfigurationImplementation(domain, state);
+  }
+  /**
+   * Resolve a shot's share of the authored production-wide live-soft order.
+   * Absent selected domains contribute nothing; present static selections and
+   * unselected moving domains throw.
+   */
+  export function selectProductionLiveWearableSoftBodies<
+    Domain extends Pick<IAutoMovieSoftBodyDomain, "id" | "anchors" | "colliders">,
+  >(
+    domains: readonly Domain[],
+    selected: readonly string[],
+  ): { domain: Domain; subjectIndex: number; maxSubjects: number }[] {
+    return selectProductionLiveWearableSoftBodiesImplementation(
+      domains,
+      selected,
+    );
   }
 }

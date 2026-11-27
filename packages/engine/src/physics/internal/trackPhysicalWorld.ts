@@ -17,15 +17,15 @@ import { Vector3 } from "../../math/Vector3";
 import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
-import { advancePhysicalOwnership } from "../advancePhysicalOwnership";
-import { collectPhysicalSupports } from "../collectPhysicalSupports";
+import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
+import { AutoMoviePhysicalSupportCollector } from "../AutoMoviePhysicalSupportCollector";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { physicalGravityTorques } from "./physicalGravityTorques";
-import { physicalIcpController } from "../physicalIcpController";
+import { AutoMovieEnginePhysicalIcpController } from "../AutoMovieEnginePhysicalIcpController";
 import { physicalRecoveryLifted } from "./physicalRecoveryLifted";
 import { physicalRecoveryRequested } from "./physicalRecoveryRequested";
-import { physicalSpanPose } from "../physicalSpanPose";
+import { AutoMoviePhysicalSpanPose } from "../AutoMoviePhysicalSpanPose";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
 import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
@@ -33,13 +33,13 @@ import { readPhysicalScene } from "./readPhysicalScene";
 import { releasePhysicalTracking } from "./releasePhysicalTracking";
 import { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
-import { trackPhysicalBalanceTargets } from "../trackPhysicalBalanceTargets";
-import { trackPhysicalContactTargets } from "../trackPhysicalContactTargets";
-import { trackPhysicalRoot } from "../trackPhysicalRoot";
-import { trackPhysicalRootSupportTargets } from "../trackPhysicalRootSupportTargets";
-import { trackPhysicalSupports } from "../trackPhysicalSupports";
-import { trackPhysicalWorldBalance } from "../trackPhysicalWorldBalance";
-import { trackPhysicalWorldJoints } from "../trackPhysicalWorldJoints";
+
+
+import { AutoMoviePhysicalRootTracking } from "../AutoMoviePhysicalRootTracking";
+
+import { AutoMoviePhysicalSupportTracking } from "../AutoMoviePhysicalSupportTracking";
+import { AutoMoviePhysicalWorldBalanceTracking } from "../AutoMoviePhysicalWorldBalanceTracking";
+import { AutoMoviePhysicalWorldJointTracking } from "../AutoMoviePhysicalWorldJointTracking";
 
 /**
  * Apply bounded PD forces and equal-opposite joint torques before the fixed
@@ -72,13 +72,13 @@ export function trackPhysicalWorld(
 
     // A biped's prepared disturbance response plays between its branch
     // points: the body is authored from it, every segment kinematic
-    // (`preparePhysicalDisturbanceSpan`, `physicalSpanPose`).
-    const played: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample | undefined =
+    // (`preparePhysicalDisturbanceSpan`, `AutoMoviePhysicalSpanPose`).
+    const played: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanSample | undefined =
       body.mode.kind === "kinematic"
         ? undefined
-        : physicalSpanPose.play(bound, body, recovery[body.id], seconds);
+        : AutoMoviePhysicalSpanPose.play(bound, body, recovery[body.id], seconds);
     const target: IAutoMoviePhysicalSimulationInput.ITarget = played
-      ? { ...sampled, dynamicSegments: physicalSpanPose.KINEMATIC }
+      ? { ...sampled, dynamicSegments: AutoMoviePhysicalSpanPose.KINEMATIC }
       : sampled;
     // Fully dynamic withdrawal has no authored pose authority. Retain native
     // contacts, passive constraints and force cleanup without rebuilding goals.
@@ -105,7 +105,7 @@ export function trackPhysicalWorld(
       input.rate,
     );
     if (!played)
-      physicalSpanPose.hand(
+      AutoMoviePhysicalSpanPose.hand(
         bound,
         body,
         recovery[body.id],
@@ -118,7 +118,7 @@ export function trackPhysicalWorld(
       target.dynamicSegments !== undefined ||
       hasPhysicalHandoff(bound.handoffs.get(body.id));
     const goals: typeof authoredGoals = played
-      ? physicalSpanPose({ body, goals: authoredGoals, sample: played })
+      ? AutoMoviePhysicalSpanPose.pose({ body, goals: authoredGoals, sample: played })
       : { ...authoredGoals };
     // The root's intent, an owned copy of its authored goal: the trackers
     // write into it.
@@ -135,7 +135,7 @@ export function trackPhysicalWorld(
       angularVelocity: { ...intent.angularVelocity },
     };
     if (earlyFit)
-      scene = trackPhysicalContactTargets(
+      scene = AutoMovieEnginePhysics.trackPhysicalContactTargets(
         input,
         body,
         target,
@@ -148,7 +148,7 @@ export function trackPhysicalWorld(
         recovery[body.id],
         { contacts, recovery },
       );
-    const dynamic: Set<string> = advancePhysicalOwnership({
+    const dynamic: Set<string> = AutoMovieEnginePhysics.advancePhysicalOwnership({
       body,
       target,
       bound,
@@ -184,7 +184,7 @@ export function trackPhysicalWorld(
       pattern: IAutoMovieFootfallPattern,
     ): IAutoMovieCollectPhysicalSupports.ISupport[] =>
       (actuation || body.balance) && rootDynamic
-        ? collectPhysicalSupports({
+        ? AutoMoviePhysicalSupportCollector.collect({
             world,
             body: body.id,
             profile: body.profile,
@@ -210,7 +210,7 @@ export function trackPhysicalWorld(
       : balanceSupports;
 
     const assessment: IAutoMovieAdvancePhysicalBalance.IResult | undefined =
-      trackPhysicalWorldBalance({
+      AutoMoviePhysicalWorldBalanceTracking.track({
         world,
         input,
         bound,
@@ -270,7 +270,7 @@ export function trackPhysicalWorld(
       }
     if (assessment && body.balance) {
       const lowering: IAutoMovieTrackPhysicalBalanceTargets.IResult =
-        trackPhysicalBalanceTargets({
+        AutoMovieEnginePhysics.trackPhysicalBalanceTargets({
           settings: input,
           body,
           bound,
@@ -305,7 +305,7 @@ export function trackPhysicalWorld(
             ),
           )
         : { joints: new Map(), root: { x: 0, y: 0, z: 0 } };
-    trackPhysicalSupports({
+    AutoMoviePhysicalSupportTracking.track({
       body,
       target: effort,
       goals: endpointGoals,
@@ -325,7 +325,7 @@ export function trackPhysicalWorld(
     const base: AutoMovieXpbdBody = bound.bodies.get(
       `${body.id}/${root.bone}`,
     )!;
-    const rooted: trackPhysicalRoot.IResult = trackPhysicalRoot({
+    const rooted: AutoMoviePhysicalRootTracking.IResult = AutoMoviePhysicalRootTracking.track({
       world,
       goals,
       settings: input,
@@ -350,11 +350,11 @@ export function trackPhysicalWorld(
 
       // A balancing body, whatever its contacts, balances by IHMC's
       // capture-point feedback controller on their hull, its state kept with
-      // the recovery's (`physicalBipedPressure`).
+      // the recovery's (`AutoMovieEnginePhysicalBipedPressure`).
       ...(assessment
         ? {
             icp: (assessment.state.icp ??= {
-              ...physicalIcpController.create(),
+              ...AutoMovieEnginePhysicalIcpController.create(),
               key: "",
             }),
           }
@@ -401,7 +401,7 @@ export function trackPhysicalWorld(
     const posture: ReadonlySet<string> = assessment
       ? bound.posture.get(body.id)!
       : NO_POSTURE;
-    trackPhysicalRootSupportTargets({
+    AutoMovieEnginePhysics.trackPhysicalRootSupportTargets({
       body,
       bound,
       target,
@@ -419,7 +419,7 @@ export function trackPhysicalWorld(
       },
     });
     if (!earlyFit)
-      scene = trackPhysicalContactTargets(
+      scene = AutoMovieEnginePhysics.trackPhysicalContactTargets(
         input,
         body,
         effort,
@@ -432,7 +432,7 @@ export function trackPhysicalWorld(
         assessment?.state,
         { contacts, recovery },
       );
-    trackPhysicalWorldJoints({
+    AutoMoviePhysicalWorldJointTracking.track({
       world,
       input,
       bound,

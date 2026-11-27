@@ -1,4 +1,4 @@
-import { physicalShapePairDistance } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -274,7 +274,7 @@ function nearest(
   let least: number = Infinity;
   for (const shapeA of shapes(a, boneA).filter(keep))
     for (const shapeB of shapes(b, boneB)) {
-      const distance: number = physicalShapePairDistance(
+      const distance: number = AutoMovieEnginePhysics.physicalShapePairDistance(
         posesA[boneA]!,
         shapeA,
         posesB[boneB]!,

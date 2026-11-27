@@ -1,9 +1,14 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { prepareLinearSystem } from "../math/prepareLinearSystem";
+import { AutoMovieEngineMath } from "../math/AutoMovieEngineMath";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
+import type { AutoMovieXpbdSupportRows } from "./AutoMovieXpbdSupportRows";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import { solveXpbdArticulation as Articulation } from "./solveXpbdArticulation";
+import { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
+import { solveXpbdArticulationTask as Task } from "./solveXpbdArticulationTask";
 
 /**
  * One articulation's impulse response by the articulated-body algorithm
@@ -200,7 +205,7 @@ export namespace AutoMovieXpbdArticulation {
       const solve: Solve | null =
         edge.axes.length === 0
           ? (right: readonly number[]): number[] => [...right]
-          : prepareLinearSystem(
+          : AutoMovieEngineMath.prepareLinearSystem(
               edge.axes.map((row: IAxis, k: number): number[] =>
                 row.locked === true
                   ? u.map((_: number[], l: number): number => (k === l ? 1 : 0))
@@ -231,7 +236,7 @@ export namespace AutoMovieXpbdArticulation {
       );
     }
     if (!tree.free) return { edges };
-    const root: Solve | null = prepareLinearSystem(
+    const root: Solve | null = AutoMovieEngineMath.prepareLinearSystem(
       SIX.map((r: number): number[] => inertia[0]!.slice(r * 6, r * 6 + 6)),
     );
     return root === null ? null : { edges, root };
@@ -422,4 +427,266 @@ export namespace AutoMovieXpbdArticulation {
 
   /** The 3x3 identity's columns, concatenated. */
   const IDENTITY: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+
+  /** Every jointed body's node and the joints outside the articulated forest. */
+  export interface IForest {
+    /** Every jointed body's node. */
+    nodes: ReadonlyMap<AutoMovieXpbdBody, INode>;
+    /** The joints outside the forest, in creation order. */
+    loops: readonly AutoMovieXpbdJoint[];
+  }
+
+  /** One body's position in the articulated forest. */
+  export interface INode {
+    /** The world's body. */
+    body: AutoMovieXpbdBody;
+    /** The joint to its parent; absent at a root. */
+    edge?: AutoMovieXpbdJoint;
+    /** Its parent node; absent at a root. */
+    parent?: INode;
+    /** Its child nodes, in joint creation order. */
+    children: INode[];
+  }
+
+  /** Inputs for the support impulse room left by contact passes. */
+  export interface IRoomInput {
+    /** The support force bound, newtons. */
+    force: number;
+    /** The substep, seconds. */
+    h: number;
+    /** The impulse already given by contact passes, newton seconds. */
+    given: number;
+  }
+
+  /** An actuated axis between a pressed support and the tree root. */
+  export type IActuator = Contacts.IActuator;
+
+  /** A solved support response and the impulses to record. */
+  export type IHeld = Contacts.IHeld;
+
+  /** One support impulse to record on a contact. */
+  export type IRecord = Contacts.IRecord;
+
+  /** One contact row acting on a body in the tree. */
+  export type IRow = Contacts.IRow;
+
+  /** The rows and friction of one participating support patch. */
+  export type IPatch = Contacts.IPatch;
+
+  /** All support rows and patches for a tree. */
+  export type ISet = Contacts.ISet;
+
+  /** Two tangential values on a support patch. */
+  export type ISlip = Contacts.ISlip;
+  /**
+   * The normal impulse a bounded support group's rows may still add over a
+   * substep, newton seconds: its force bound over the substep less what the
+   * contact passes already gave its patches, and never less than nothing. The
+   * bound ramps the force the controller asks of a contact (Herzog et al. 2016,
+   * Section 5.3); what the floor's contact gave, as a landing foot's impact, is
+   * the floor's, and the controller cannot take it back through the other
+   * supports (unilateral contact).
+   *
+   * @param input The bound, newtons; the substep, seconds; and the impulse the
+   *   contact passes gave the group, newton seconds.
+   * @returns The impulse left, newton seconds.
+   */
+  export function room(input: IRoomInput): number {
+    return Contacts.room(input);
+  }
+
+  /**
+   * One support row's unit impulse in IHMC's whole-body objective
+   * (`AutoMovieXpbdWorld.IObjective`): its force, its moment about the vertical
+   * through the centre of mass when the yaw rate is commanded (develop
+   * `LinearMomentumRateControlModule` l.421), and, when its body's contacts
+   * count (`WrenchMatrixCalculator.getNextCenterOfPressureInput` l.269-281),
+   * its moment about the desired centre of pressure, the two horizontal rows
+   * `CoPObjectiveCalculator.computeTask` builds from the wrench in the plane
+   * frame (l.24-46: `x_cop J_fz + J_ty` and `y_cop J_fz - J_tx`, the moment
+   * about the point on the plane). A torsional row's unit impulse is a moment.
+   *
+   * @param row The support row.
+   * @param point Its point, world metres.
+   * @param body The tree body it acts on.
+   * @param objective The objective.
+   * @returns Its column, the force, the yaw moment if any, then the centre of
+   *   pressure's two moments if any.
+   */
+  export function objectiveRow(
+    row: Pick<IRow, "direction" | "moment">,
+    point: IAutoMovieVector3,
+    body: AutoMovieXpbdBody,
+    objective: AutoMovieXpbdWorld.IObjective,
+  ): number[] {
+    return Contacts.objectiveRow(row, point, body, objective);
+  }
+
+  /**
+   * The motors' response with the tree held at its pressed supports.
+   *
+   * @param tree The tree.
+   * @param factored Its factor for this substep.
+   * @param base The motors' response as if the tree floated.
+   * @param contacts The step's contacts.
+   * @param h The substep, seconds.
+   * @param task The root's momentum task, when the supports should meet one.
+   * @param warm The tree's active sets from the previous substep, for the
+   *   task's cascade.
+   * @returns The combined response with the impulses to record; `base` itself,
+   *   recording nothing, when no support takes part or the rows are singular.
+   */
+  export function solve(
+    tree: ITree,
+    factored: IFactor,
+    base: IResponse,
+    contacts: readonly AutoMovieXpbdWorld.IContact[],
+    h: number,
+    task?: AutoMovieXpbdWorld.IRootTask,
+    warm?: AutoMovieXpbdSupportRows.IWarm,
+  ): IHeld {
+    return Contacts.solve(tree, factored, base, contacts, h, task, warm);
+  }
+
+  /**
+   * The base response plus each unknown's response times its impulse, and the
+   * support rows' records.
+   */
+  export function combine(
+    base: IResponse,
+    responses: readonly IResponse[],
+    x: readonly number[],
+    set: ISet,
+  ): IHeld {
+    return Contacts.combine(base, responses, x, set);
+  }
+
+  /**
+   * Record the supports' impulses on their contacts, so the step's receipts
+   * carry the momentum they gave: a normal row's impulse joins its point's
+   * velocity impulse, a patch's tangential impulse joins its dynamic friction
+   * impulse.
+   *
+   * @param held The solve to record.
+   */
+  export function commit(held: IHeld): void {
+    Contacts.commit(held);
+  }
+
+  /**
+   * The supports and the motors solved with the root's task, the whole-body
+   * contact-wrench quadratic program of humanoid control (Herzog, Rotella,
+   * Mason, Grimminger, Schaal and Righetti 2016, "Momentum control with
+   * hierarchical inverse dynamics on a torque-controlled humanoid", eqs. 1 to
+   * 4; Wensing and Orin 2013, "Generation of dynamic humanoid behaviors through
+   * task-space control with conic optimization"), restricted to the root task
+   * and solved in factored form: the operational-space responses come from unit
+   * test impulses through the articulated-body factor, as Lilly and Orin's
+   * direct use of the articulated-body algorithm and Mirtich 1996 compute them
+   * (Wensing, Featherstone and Orin 2012 survey the family), not from the
+   * joint-space mass matrix.
+   *
+   * The unknowns are the support rows' impulses and one joint impulse per
+   * actuated axis between a pressed support, or a stance body the task names,
+   * and the root, each within its motor's cap on either direction. The support
+   * chains' own motor impulses leave the base response; what their PDs ask
+   * becomes motion instead, each axis's rate after the substep at its servo's
+   * speed, with the root's spin at the task's when it asks one. A bounded
+   * group's patches give at most its force over the substep. The cascade first
+   * brings the ground reaction, the contact passes' impulses plus the rows', as
+   * near the task's wrench over the substep as the contacts, cones, caps and
+   * bounds allow, then brings the motion as near its targets as it can without
+   * giving any of that up (`solveXpbdSupportCascade`).
+   *
+   * @returns The response with the impulses to record, or null when the cascade
+   *   has no feasible point.
+   */
+  export function solveTask(
+    tree: ITree,
+    factored: IFactor,
+    base: IResponse,
+    set: ISet,
+    h: number,
+    task: AutoMovieXpbdWorld.IRootTask,
+    warm: AutoMovieXpbdSupportRows.IWarm,
+  ): IHeld | null {
+    return Task.solveTask(tree, factored, base, set, h, task, warm);
+  }
+
+  /**
+   * Solve every motor-driven tree's motors at once and return the joints
+   * outside the forest (closing a loop or with a kinematic child), which the
+   * caller solves pair by pair.
+   *
+   * @param joints The world's joints, in creation order.
+   * @param h The substep, seconds.
+   * @param contacts The step's contacts, for the trees' supports.
+   * @param tasks The root tasks the trees' supports should meet, by root body.
+   * @param warm Each tree's warm start for its supports' cascade, by root body;
+   *   a tree's entry is created on its first task.
+   * @returns The joints outside the forest, in creation order.
+   */
+  export function motors(
+    joints: readonly AutoMovieXpbdJoint[],
+    h: number,
+    contacts: readonly AutoMovieXpbdWorld.IContact[],
+    tasks: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdWorld.IRootTask>,
+    warm: Map<AutoMovieXpbdBody, AutoMovieXpbdSupportRows.IWarm>,
+  ): readonly AutoMovieXpbdJoint[] {
+    return Articulation.motors(joints, h, contacts, tasks, warm);
+  }
+
+  /**
+   * Apply a linear impulse at a point of a body through its whole articulation:
+   * the impulse form of the articulated-body algorithm (Featherstone 2008,
+   * section 7.5; Mirtich 1996, "Impulse-based dynamic simulation of rigid body
+   * systems", chapter 4) gives every body of the body's tree the velocity
+   * change that keeps each attachment's anchors together and moves each joint
+   * only along its free axes, so a blow on the chest moves the body it is
+   * attached to at once, as the joints' impulses carry it, where an impulse on
+   * the chest alone sets it moving away from its limbs and leaves the joints'
+   * position pass to drag them after it. A body no joint attaches is its own
+   * tree, and the change is the rigid body's own.
+   *
+   * @param joints The world's joints, in creation order.
+   * @param body The struck body.
+   * @param point The world point the impulse acts at, metres.
+   * @param impulse The world linear impulse, newton seconds.
+   * @throws {Error} When the struck body's tree has a singular inertia.
+   */
+  export function impulse(
+    joints: readonly AutoMovieXpbdJoint[],
+    body: AutoMovieXpbdBody,
+    point: IAutoMovieVector3,
+    impulse: IAutoMovieVector3,
+  ): void {
+    Articulation.impulse(joints, body, point, impulse);
+  }
+
+  /**
+   * The world's forest: each joint whose child is dynamic, has no parent edge
+   * yet and lies in another tree than its parent becomes a tree edge.
+   *
+   * @param joints The world's joints, in creation order.
+   * @returns The forest's nodes and the joints outside it.
+   */
+  export function forest(joints: readonly AutoMovieXpbdJoint[]): IForest {
+    return Articulation.forest(joints);
+  }
+
+  /** The node's root. */
+  export function root(node: INode): INode {
+    return Articulation.root(node);
+  }
+
+  /**
+   * A tree's states and edges, depth-first from its root so every edge follows
+   * its parent's.
+   */
+  export function build(
+    top: INode,
+    joints?: AutoMovieXpbdJoint[],
+  ): ITree {
+    return Articulation.build(top, joints);
+  }
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -169,7 +169,7 @@ export function HumanMountOnPlan(
     const at = placedFrame(t);
     return pitchChange === 0
       ? at
-      : { ...at, pitch: at.pitch + pitchChange * minimumJerk.share(t / climb) };
+      : { ...at, pitch: at.pitch + pitchChange * AutoMovieEngineMotionSampling.minimumJerkShare(t / climb) };
   };
   let frameAt = authoredFrame;
   const hipsAt = (t: number): Record<AutoMovieHumanSide, IAutoMovieVector3> => {
@@ -332,7 +332,7 @@ export function HumanMountOnPlan(
         const hip = Vector3.lerp(
           pushStart,
           pushEnd,
-          minimumJerk.share((t - leadLeaves) / (nearCapture - leadLeaves)),
+          AutoMovieEngineMotionSampling.minimumJerkShare((t - leadLeaves) / (nearCapture - leadLeaves)),
         );
         return {
           ...nominal,
@@ -343,7 +343,7 @@ export function HumanMountOnPlan(
         };
       }
       if (t <= leadReady) return captured;
-      const share = minimumJerk.share((t - leadReady) / (contact - leadReady));
+      const share = AutoMovieEngineMotionSampling.minimumJerkShare((t - leadReady) / (contact - leadReady));
       const frame: Frame = {
         ...nominal,
         root: Vector3.lerp(captured.root, nominal.root, share),
@@ -557,7 +557,7 @@ export function HumanMountOnPlan(
       // An empty swing is a step at its one instant.
       const eased: number =
         landing > leaves
-          ? minimumJerk.share((t - leaves) / (landing - leaves))
+          ? AutoMovieEngineMotionSampling.minimumJerkShare((t - leaves) / (landing - leaves))
           : t >= landing
             ? 1
             : 0;
@@ -584,7 +584,7 @@ export function HumanMountOnPlan(
         places[side].rests && t >= bearing[side]
           ? climb > bearing[side]
             ? 1 -
-              minimumJerk.share((t - bearing[side]) / (climb - bearing[side]))
+              AutoMovieEngineMotionSampling.minimumJerkShare((t - bearing[side]) / (climb - bearing[side]))
             : 0
           : 1,
       );
@@ -762,7 +762,7 @@ export function HumanMountOnPlan(
           ...HumanSwungLeg.at(
             body,
             keys,
-            minimumJerk.share((t - keys.start) / (keys.end - keys.start)),
+            AutoMovieEngineMotionSampling.minimumJerkShare((t - keys.start) / (keys.end - keys.start)),
           ),
         },
       };

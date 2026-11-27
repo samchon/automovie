@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieVector3,
@@ -116,7 +116,7 @@ export function staggerLean(
       z: xi.z - (walk.centre.z + travel.z),
     };
     const size: number = Vector3.length(lead);
-    const ease: number = minimumJerk.share(
+    const ease: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (seconds - onset) / rise)),
     );
     const angle: number =

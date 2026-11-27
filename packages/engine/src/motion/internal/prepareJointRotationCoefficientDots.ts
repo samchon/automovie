@@ -7,11 +7,11 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import type { jointToQuaternionOnBasis } from "../../kinematics/jointToQuaternionOnBasis";
+import type { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { Quaternion } from "../../math/Quaternion";
 import { bilinearQuaternionSwivelRoots } from "../../math/internal/bilinearQuaternionSwivelRoots";
 import { prepareFiniteQuaternionDot } from "../../math/internal/prepareFiniteQuaternionDot";
-import { toRigAngle } from "../../rom/toRigAngle";
+import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 
 /**
  * The inverse owner's three clinical coordinates, with no alternate axis
@@ -98,7 +98,7 @@ export function prepareJointRotationCoefficientDots(
     if (!props.mobile.includes(axis)) {
       const direction: IAutoMovieJointAxes[ClinicalAxis] = props.basis[axis];
       const angle: number =
-        toRigAngle(props.fixed[axis], props.frame?.[axis]) ?? 0;
+        AutoMovieEngineRigAngle.toRigAngle(props.fixed[axis], props.frame?.[axis]) ?? 0;
       const factor: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         direction,
         angle,

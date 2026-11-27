@@ -1,4 +1,4 @@
-import { carriedRate, minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGymnasticsMat,
@@ -80,14 +80,14 @@ export namespace GymnasticsMat {
     );
     const blend: (weight: number) => IAutoMovieMotionHumanPosture["joints"] =
       prepareHumanShapeBlend(from.joints, lain.joints);
-    const settledProgress: number = minimumJerk.share(1);
-    const settledCarry: number = carriedRate(SETTLE, SETTLE);
+    const settledProgress: number = AutoMovieEngineMotionSampling.minimumJerkShare(1);
+    const settledCarry: number = AutoMovieEngineMotionSampling.carriedRate(SETTLE, SETTLE);
     const pose = (seconds: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(SETTLE, Math.max(0, seconds));
       const resting: boolean = t === SETTLE;
       const u: number = resting
         ? settledProgress
-        : minimumJerk.share(t / SETTLE);
+        : AutoMovieEngineMotionSampling.minimumJerkShare(t / SETTLE);
       const joints: IAutoMovieMotionHumanPosture["joints"] = blend(
         resting ? 1 : u,
       );
@@ -107,7 +107,7 @@ export namespace GymnasticsMat {
 
       // The centre's floor place, carried out from the touchdown.
       const carry: number =
-        t === SETTLE ? settledCarry : carriedRate(SETTLE, t);
+        t === SETTLE ? settledCarry : AutoMovieEngineMotionSampling.carriedRate(SETTLE, t);
       const frame: IPreparedGymnasticsFrame = prepareFrame(
         posed,
         {

@@ -1,13 +1,4 @@
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaceRays,
-  IAutoMovieHumanoidSurfaceReader,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalSegment,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRays, IAutoMovieHumanoidSurfaceReader, IAutoMovieHumanoidSurfaces, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 

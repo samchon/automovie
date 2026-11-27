@@ -8,7 +8,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
+import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { appendBuiltRegionDefects } from "./appendBuiltRegionDefects";
 import { builtOutlineIsClosed } from "./builtOutlineIsClosed";
 import { outlineHull } from "./outlineHull";

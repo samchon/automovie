@@ -1,13 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFoot } from "../HumanFoot";
 
@@ -64,7 +57,7 @@ export function readHumanFoot(
         if (corners === undefined) {
           corners = HumanFoot.outline(body, side).map(
             (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
-              resolveAutoMovieHumanoidSurfaces.point(
+              AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
                 frame,
                 bones.get(frame.bone)!,
               ),

@@ -1,17 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanDefend,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { StrikingBody } from "../StrikingBody";
 import { StrikingQuality } from "../StrikingQuality";
@@ -172,7 +161,7 @@ export namespace defendGoals {
     const regionPoint = (): IAutoMovieVector3 => {
       const frame: IAutoMovieHumanoidSurfaces.IFrame =
         props.frame ?? StrikingBody.frame(body, props.region, props.aimed);
-      return resolveAutoMovieHumanoidSurfaces.point(
+      return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
         frame,
         bones.get(frame.bone)!,
       );
@@ -180,7 +169,7 @@ export namespace defendGoals {
     const region = (): ReturnType<typeof StrikingBody.region> =>
       props.frame === undefined
         ? StrikingBody.region(body, bones, props.region, props.aimed)
-        : resolveAutoMovieHumanoidSurfaces.place(
+        : AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             props.frame,
             bones.get(props.frame.bone)!,
           );

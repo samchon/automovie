@@ -1,25 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeSegmentDistance,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanAidWalk,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanMountRider,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePhysicalShape,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanAidWalk, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanMountRider, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalShape, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanHand } from "../../posture/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -142,8 +122,8 @@ export namespace humanAidWalkGrip {
       >(
         (best, shape): IAutoMoviePhysicalShape =>
           best === undefined ||
-          physicalShapeSegmentDistance(start, shape, center, center) <
-            physicalShapeSegmentDistance(start, best, center, center)
+          AutoMovieEnginePhysics.physicalShapeSegmentDistance(start, shape, center, center) <
+            AutoMovieEnginePhysics.physicalShapeSegmentDistance(start, best, center, center)
             ? shape
             : best,
         undefined,
@@ -178,11 +158,11 @@ export namespace humanAidWalkGrip {
               requested,
             ).get(`${side}Hand`)!;
             const contact: IAutoMovieVector3 =
-              resolveAutoMovieHumanoidSurfaces.point(palm, wrist);
+              AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(palm, wrist);
             worst = Math.max(
               worst,
               Math.abs(
-                physicalShapeSegmentDistance(
+                AutoMovieEnginePhysics.physicalShapeSegmentDistance(
                   station.frame,
                   solid,
                   contact,

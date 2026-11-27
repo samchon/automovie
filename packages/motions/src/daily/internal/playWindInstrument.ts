@@ -1,18 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanHeld,
-  IAutoMovieMotionHumanPlayWindInstrument,
-  IAutoMovieMotionHumanPosture,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanHeld, IAutoMovieMotionHumanPlayWindInstrument, IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
@@ -104,7 +91,7 @@ export namespace playWindInstrument {
         lips,
       ).get(region.bone)!;
       return {
-        ...resolveAutoMovieHumanoidSurfaces.place(region, bone),
+        ...AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(region, bone),
         rotation: bone.worldRotation,
       };
     };

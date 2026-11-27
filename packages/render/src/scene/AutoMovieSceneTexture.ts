@@ -4,6 +4,7 @@ import type * as THREE from "three";
 import { type IAutoMovieRenderTextureSource, type IAutoMovieRenderTextureTarget, type AutoMovieTextureBinding } from "@automovie/interface";
 import { readAutoMovieTextureSource as readAutoMovieTextureSourceImplementation } from "./internal/readAutoMovieTextureSource.js";
 import { readAutoMovieRenderTextureTarget as readAutoMovieRenderTextureTargetImplementation } from "./internal/readAutoMovieRenderTextureTarget.js";
+import { readAutoMovieTransmissionTextureTarget as readTransmissionTargetImplementation } from "./internal/readAutoMovieTransmissionTextureTarget.js";
 
 /** Public operations for Auto Movie Scene Texture. */
 export namespace AutoMovieSceneTexture {
@@ -52,5 +53,45 @@ export namespace AutoMovieSceneTexture {
    */
   export function bindingAsset(binding: AutoMovieTextureBinding): string {
     return textureBindingAssetImplementation(binding);
+  }
+  /**
+   * Inputs for estimating the native transmission target created for a scene
+   * camera by the current renderer host.
+   */
+  export interface ITransmissionTargetProps {
+    /** Stable identity of the scene or viewer that owns this target. */
+    owner: string;
+    /** Identity of the render pass within the owner. */
+    transmissionScope: string;
+    /** Current renderer viewport, transmission scale, sample count and extensions. */
+    renderer: {
+      getCurrentViewport: THREE.WebGLRenderer["getCurrentViewport"];
+      transmissionResolutionScale: number;
+      capabilities: Pick<THREE.WebGLRenderer["capabilities"], "samples">;
+      extensions: Pick<THREE.WebGLRenderer["extensions"], "has">;
+    };
+    /** Camera whose structural viewport takes precedence when present. */
+    camera: THREE.Camera;
+  }
+
+  /**
+   * Bound the r186 scene/camera transmission target from the current host state.
+   * The native factory uses the physical viewport times transmission scale, a
+   * half-float color attachment when supported, full mips and at least four
+   * requested samples. D24/D24S8 depth is bounded by four bytes per sample. This
+   * is a conservative factory profile, not a driver allocation measurement. The
+   * host retains one record per live native scene/camera target, including
+   * earlier cameras whose cache survives material removal, until context
+   * release.
+   */
+  export function readTransmissionTarget(
+    props: ITransmissionTargetProps,
+  ): IAutoMovieRenderTextureTarget {
+    return readTransmissionTargetImplementation(
+      props.owner,
+      props.transmissionScope,
+      props.renderer,
+      props.camera,
+    );
   }
 }

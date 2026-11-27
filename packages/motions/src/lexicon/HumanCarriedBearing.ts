@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -156,7 +156,7 @@ export namespace HumanCarriedBearing {
         : clock.progress(AutoMovieMotionClock.START, "held", at)) *
       (released >= seconds
         ? 1
-        : 1 - minimumJerk.share((at - released) / (seconds - released)));
+        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((at - released) / (seconds - released)));
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     const anchorBones: ReadonlySet<AutoMovieHumanoidBone> | undefined =
       coupled === null

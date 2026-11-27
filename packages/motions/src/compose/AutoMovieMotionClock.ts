@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
@@ -189,7 +189,7 @@ export namespace AutoMovieMotionClock {
       seconds <= b || arrested
         ? k * clock.linear(window[0], window[1], seconds)
         : k + (1 - k) * clock.linear(window[1], window[2], seconds);
-    return minimumJerk.share(u) / minimumJerk.share(k);
+    return AutoMovieEngineMotionSampling.minimumJerkShare(u) / AutoMovieEngineMotionSampling.minimumJerkShare(k);
   }
 
   /** The original clock-driven oscillation, owned by AutoMovieMotionWave.sample. */

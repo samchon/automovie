@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -173,7 +173,7 @@ export namespace wardrobeHands {
     to: IAutoMovieRigidTransform,
     fraction: number,
   ): IAutoMovieRigidTransform {
-    const u: number = minimumJerk(Math.min(1, Math.max(0, fraction))).s;
+    const u: number = AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, Math.max(0, fraction))).s;
     return {
       position: Vector3.lerp(from.position, to.position, u),
       rotation: Quaternion.slerp(from.rotation, to.rotation, u),
@@ -289,7 +289,7 @@ export namespace wardrobeHands {
       rotation: Quaternion.slerp(
         STILL.rotation,
         turn,
-        minimumJerk.share(fraction),
+        AutoMovieEngineMotionSampling.minimumJerkShare(fraction),
       ),
     };
   }
@@ -495,7 +495,7 @@ export namespace wardrobeHands {
                 limit,
                 base +
                   (terminal - base) *
-                    minimumJerk.share((seconds - take) / slide),
+                    AutoMovieEngineMotionSampling.minimumJerkShare((seconds - take) / slide),
               ),
             ),
         },

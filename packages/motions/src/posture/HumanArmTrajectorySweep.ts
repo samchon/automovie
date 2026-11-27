@@ -1,4 +1,5 @@
-import { AutoMovieMotionBound, Quaternion, Vector3, physicalShapeGjk, AutoMovieEnginePhysics } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieMotionBound, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMoviePhysicalShapeNearest,
@@ -362,11 +363,11 @@ export namespace HumanArmTrajectorySweep {
             at,
             solids:
               i === 0
-                ? new Map<number, physicalShapeGjk.ISolid[]>(
+                ? new Map<number, AutoMovieEnginePhysicsGjkTypes.ISolid[]>(
                     parts.map(
                       (
                         link: HumanArmTrajectoryLinks.ILink,
-                      ): [number, physicalShapeGjk.ISolid[]] => [
+                      ): [number, AutoMovieEnginePhysicsGjkTypes.ISolid[]] => [
                         link.part,
                         link.solids,
                       ],
@@ -388,10 +389,10 @@ export namespace HumanArmTrajectorySweep {
         // A declared rest touches its shape by design: no cast certifies it,
         // and its probes are read on every step.
         const rested: boolean = c.rested(a, k, link.probes[0]!, s.bone);
-        const solid: physicalShapeGjk.ISolid | undefined =
+        const solid: AutoMovieEnginePhysicsGjkTypes.ISolid | undefined =
           rested || link.solids.length === 0
             ? undefined
-            : physicalShapeGjk.solid(s.pose, s.shape);
+            : AutoMovieEnginePhysics.physicalShapeGjkSolid(s.pose, s.shape);
 
         // The cast's certified clearance, metres; negative infinity where
         // no cast is read.
@@ -508,7 +509,7 @@ function certifiesTip(
   sweep: HumanArmTrajectorySweep.ISwept,
   start: HumanArmTrajectoryLinks.IStep,
   end: HumanArmTrajectoryLinks.IStep,
-  obstacle: physicalShapeGjk.ISolid,
+  obstacle: AutoMovieEnginePhysicsGjkTypes.ISolid,
 ): boolean {
   const frames: M.IContext["frames"][number] = c.frames[a]!;
   const shape: IAutoMovieMotionHumanArmGeometry.IShape =
@@ -538,9 +539,9 @@ function certifiesTip(
     own.shapes.some((shape, i) => shape !== next.shapes[i])
   )
     return false;
-  const first: physicalShapeGjk.ISolid[] | undefined =
+  const first: AutoMovieEnginePhysicsGjkTypes.ISolid[] | undefined =
     start.solids.get(link.part);
-  const last: physicalShapeGjk.ISolid[] | undefined = end.solids.get(link.part);
+  const last: AutoMovieEnginePhysicsGjkTypes.ISolid[] | undefined = end.solids.get(link.part);
   if (
     first?.length !== own.shapes.length ||
     last?.length !== next.shapes.length

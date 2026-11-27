@@ -1,18 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieInteractionEvent,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionHumanPropFlight,
-  IAutoMovieMotionHumanPropOutcome,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieInteractionEvent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanPropOutcome, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingWeapon } from "../striking/StrikingWeapon";
@@ -387,7 +375,7 @@ export namespace HumanPerformanceHits {
     for (const [region, frame] of regionFrames(body)) {
       const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
       if (bone === undefined) continue;
-      const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+      const at: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
         frame,
         bone,
       );

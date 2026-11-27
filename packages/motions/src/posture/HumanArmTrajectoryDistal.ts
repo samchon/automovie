@@ -1,7 +1,8 @@
 import {
   HUMANOID_REST_FRAME,
   Quaternion,
-  solveDistalTwist,
+  AutoMovieEngineMotionDistalTwist,
+  AutoMovieEngineKinematicsJointRotation,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
@@ -20,8 +21,8 @@ export function HumanArmTrajectoryDistal(
 ): void {
   // Pronation belongs to the forearm. Assigning all the axial turn
   // to the wrist would reject even the first small approach step.
-  const split: ReturnType<typeof solveDistalTwist.withProjection> =
-    solveDistalTwist.withProjection({
+  const split: ReturnType<typeof AutoMovieEngineMotionDistalTwist.withProjection> =
+    AutoMovieEngineMotionDistalTwist.withProjection({
       joint: {
         bone: setup.bones.lower,
         flexion: c[3]!,
@@ -44,7 +45,7 @@ export function HumanArmTrajectoryDistal(
       skeleton: setup.body.skeleton,
     });
   // A null clinical axis contributes the rest rotation in
-  // jointToQuaternionOnBasis. The arm chart stores clinical degrees,
+  // AutoMovieEngineKinematicsJointRotation.jointToQuaternionOnBasis. The arm chart stores clinical degrees,
   // so its representation of that same rotation is the frame neutral.
   c[5] =
     split.joint.twist ??

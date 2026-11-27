@@ -9,7 +9,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../../kinematics/index";
+import { AutoMovieEngineKinematics } from "../../kinematics/index";
+import { indexSkeletonTopology } from "../../kinematics/internal/indexSkeletonTopology";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { pointHullDistance } from "../../math/internal/pointHullDistance";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";

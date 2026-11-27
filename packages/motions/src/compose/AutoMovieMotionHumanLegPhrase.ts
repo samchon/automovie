@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanContactWindow,
@@ -141,7 +141,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * the foot is already over its landing place and comes down onto it. On
    * leaving, the same third lifts it before it travels.
    */
-  const TERMINAL: number = minimumJerk.share(1 / 3);
+  const TERMINAL: number = AutoMovieEngineMotionSampling.minimumJerkShare(1 / 3);
 
   /**
    * A foot in transit between its stance and a moving placement at a share of
@@ -159,7 +159,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
   ): IAutoMovieMotionHumanFoot.IPlacement => {
     const stance: IAutoMovieMotionHumanFoot.IPlacement = props.stance;
     const lifted: number = Math.min(1, Math.max(0, share));
-    const across: number = minimumJerk.share(
+    const across: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (lifted - TERMINAL) / (1 - TERMINAL))),
     );
     const placement: IAutoMovieMotionHumanFoot.IPlacement = {

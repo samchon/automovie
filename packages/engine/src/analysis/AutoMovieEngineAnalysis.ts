@@ -35,6 +35,8 @@ import type {
   IAutoMovieViolationCollector,
   IAutoMovieHalfSpacePlane,
   IAutoMovieWarnAnalysisTargetKeys,
+  IAutoMovieSkyIlluminance,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 
@@ -43,6 +45,7 @@ import { analyzeAutoMovieAcoustics } from "./internal/analyzeAutoMovieAcoustics"
 import { analyzeAutoMovieDaylight } from "./internal/analyzeAutoMovieDaylight";
 import { analyzeAutoMovieEnvelope } from "./internal/analyzeAutoMovieEnvelope";
 import { analyzeAutoMovieSpaceAir } from "./internal/analyzeAutoMovieSpaceAir";
+import { autoMovieSkyIlluminance as autoMovieSkyIlluminanceImplementation } from "./internal/autoMovieSkyIlluminance";
 
 /** Deterministic analyses for declared acoustic, daylight, envelope and air studies. */
 export namespace AutoMovieEngineAnalysis {
@@ -376,4 +379,9 @@ export namespace AutoMovieEngineAnalysis {
   export function warnAnalysisTargetKeys(props: IAutoMovieWarnAnalysisTargetKeys.IProps): void {
     warnAutoMovieAnalysisTargetKeysImplementation(props);
   }
+  /** Prepare the isotropic sky term and measure it at world points. */
+  export function skyIlluminance(props: IAutoMovieSkyIlluminance.IProps): (point: IAutoMovieVector3) => number {
+    return autoMovieSkyIlluminanceImplementation(props);
+  }
+
 }

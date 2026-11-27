@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  solvePhysicalFloorChainTarget,
+  AutoMovieEnginePhysicalFloorChainTarget,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile,
@@ -133,8 +133,8 @@ export function test_engine_physics_solve_physical_floor_chain_target(): void {
       | "iterations"
     >,
   ): number {
-    const result: ReturnType<typeof solvePhysicalFloorChainTarget> =
-      solvePhysicalFloorChainTarget({
+    const result: ReturnType<typeof AutoMovieEnginePhysicalFloorChainTarget.solve> =
+      AutoMovieEnginePhysicalFloorChainTarget.solve({
         profile,
         targets,
         chain,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPerformanceHold,
@@ -150,7 +150,7 @@ export function HumanPerformanceHoldKit(
       rotation: Quaternion.multiply(receiving.rotation, set.rotation),
     };
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
-    const k: number = minimumJerk.share(
+    const k: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (at - w.from) / (w.to - w.from))),
     );
     return {

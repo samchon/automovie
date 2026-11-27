@@ -138,7 +138,7 @@ export async function renderAutoMovieVideo(
               installed: path.join(out, "controls"),
             };
       if (controls !== null) await fs.mkdir(controls.staged);
-      const result = await props.host.render.renderAutoMovieDrawnVideo({
+      const result = await props.host.render.AutoMovieRenderVideo.renderDrawnVideo({
         session,
         spec: SPEC,
         frameDir: scratch.split(path.sep).join("/"),
@@ -421,7 +421,7 @@ interface IDeliveryReport {
 }
 
 /** Delivery encoding uses the drawn subject's own clock and raster. */
-const SPEC: Parameters<typeof Render.renderAutoMovieDrawnVideo>[0]["spec"] = {
+const SPEC: Parameters<typeof Render.AutoMovieRenderVideo.renderDrawnVideo>[0]["spec"] = {
   target: "production",
   toneMapping: "none",
   codec: "h264",

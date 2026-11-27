@@ -5,6 +5,7 @@ import * as fs from "node:fs/promises";
  * Reading ISO/IEC 14496-12 (ISO base media) boxes from an MP4 file: the
  * top-level file-type and movie boxes, then child boxes and their fields inside
  * the movie box's bytes.
+ * @see https://www.iso.org/standard/85596.html
  *
  * Every reader refuses, by throwing an `Error` that names the box, a header
  * that overruns its parent, a field past its box's end and, where one box is

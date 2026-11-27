@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -185,7 +185,7 @@ export function pickUpAdjustStepped(
             (pickUpAdjust.STEPPING[1] - pickUpAdjust.STEPPING[0]),
         ),
       );
-      const moved: number = length * minimumJerk.share(u);
+      const moved: number = length * AutoMovieEngineMotionSampling.minimumJerkShare(u);
       const shifted: IAutoMovieVector3 = Vector3.add(
         posture.root,
         Vector3.scale(toward, (length * share) / 2),

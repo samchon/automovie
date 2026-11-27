@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -115,7 +115,7 @@ export namespace DanceFootwork {
             dwelt(key, key.leave),
             dwelt(next, next.at),
             next.clearance,
-            minimumJerk.share(Math.min(1, Math.max(0, u))),
+            AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, u))),
           );
     }
     function gesture(t: number): boolean {

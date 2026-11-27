@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 /**
  * The signals a gesture's stroke rides, each a function of the stroke's share
@@ -19,7 +19,7 @@ export namespace gestureSignal {
     if (!(u > 0 && u < 1)) return 0;
     return (
       Math.sin(2 * Math.PI * cycles * u) *
-      Math.min(minimumJerk.share(u / 0.15), minimumJerk.share((1 - u) / 0.15))
+      Math.min(AutoMovieEngineMotionSampling.minimumJerkShare(u / 0.15), AutoMovieEngineMotionSampling.minimumJerkShare((1 - u) / 0.15))
     );
   }
 
@@ -41,6 +41,6 @@ export namespace gestureSignal {
    * @returns The signal in [0, 1]; 1 from 60 % of the stroke on.
    */
   export function rise(u: number): number {
-    return minimumJerk.share(u / 0.6);
+    return AutoMovieEngineMotionSampling.minimumJerkShare(u / 0.6);
   }
 }

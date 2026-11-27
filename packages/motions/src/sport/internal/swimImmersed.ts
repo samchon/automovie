@@ -1,4 +1,4 @@
-import { Vector3, resolveHydrodynamicForce } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionHydrodynamics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieIntegrateMotionTrajectory,
@@ -78,7 +78,7 @@ function planSwimImmersed(
   const water: IAutoMovieMotionHumanWater = params.water;
   const density: number = HumanBound.above(
     "water.density",
-    water.density ?? resolveHydrodynamicForce.WATER,
+    water.density ?? AutoMovieEngineMotionHydrodynamics.WATER,
     0,
     "kg/m³",
   );

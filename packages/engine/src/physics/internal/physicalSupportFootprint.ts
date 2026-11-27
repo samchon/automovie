@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import { physicalShapeBounds } from "../physicalShapeBounds";
-import { physicalStanceBalance } from "../physicalStanceBalance";
+import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
+import { AutoMovieEnginePhysicalStanceBalance } from "../AutoMovieEnginePhysicalStanceBalance";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
@@ -42,7 +42,7 @@ export function physicalSupportFootprint(
   const out: IAutoMovieVector3[] = [];
   const carriers: readonly string[] = limb.contacts ?? [limb.bone];
   // Only the face the patch bears on: its vertices within the foot-lift
-  // bound of its lowest (`physicalStanceBalance.LIFT`). A rounded or rolled
+  // bound of its lowest (`AutoMovieEnginePhysicalStanceBalance.LIFT`). A rounded or rolled
   // sole and toes held off the floor do not widen where the centre of
   // pressure can go.
   const heights: number[] = [];
@@ -63,7 +63,7 @@ export function physicalSupportFootprint(
           heights.push(world.y);
         }
       else {
-        const box: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(
+        const box: ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> = physicalShapeBoundsImplementation.physicalShapeBounds(
           pose,
           shape,
         );
@@ -78,7 +78,7 @@ export function physicalSupportFootprint(
   const lowest: number = Math.min(...heights);
   return out.filter(
     (_, index: number): boolean =>
-      heights[index]! <= lowest + physicalStanceBalance.LIFT,
+      heights[index]! <= lowest + AutoMovieEnginePhysicalStanceBalance.LIFT,
   );
 }
 
@@ -87,7 +87,7 @@ export namespace physicalSupportFootprint {
   /**
    * Whether a limb is grounded: a point of one of its contact carriers'
    * colliders lies within the contact skin of the floor, `LIFT` above it
-   * (`physicalStanceBalance.LIFT`). A foot rolled onto an edge is grounded; a
+   * (`AutoMovieEnginePhysicalStanceBalance.LIFT`). A foot rolled onto an edge is grounded; a
    * lifted one is not.
    *
    * @param profile The body's profile.
@@ -116,8 +116,8 @@ export namespace physicalSupportFootprint {
         pose !== undefined &&
         colliders(segment).some(
           (shape: IAutoMoviePhysicalShape): boolean =>
-            physicalShapeBounds.lowest(pose, shape) <=
-            floor + physicalStanceBalance.LIFT,
+            physicalShapeBoundsImplementation.physicalShapeBoundsLowest(pose, shape) <=
+            floor + AutoMovieEnginePhysicalStanceBalance.LIFT,
         )
       );
     });

@@ -2,7 +2,7 @@ import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  rotationBetween,
+  AutoMovieEngineMath,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -164,11 +164,11 @@ export function poleVaultSwinging(
     );
     const heading: IAutoMovieVector3 = towards(chord);
     const orientation: IAutoMovieQuaternion = Quaternion.multiply(
-      rotationBetween(towards(chord0), heading),
+      AutoMovieEngineMath.rotationBetween(towards(chord0), heading),
       plantRotation,
     );
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-      rotationBetween(Quaternion.rotateVector(orientation, local), heading),
+      AutoMovieEngineMath.rotationBetween(Quaternion.rotateVector(orientation, local), heading),
       orientation,
     );
     const frame: IAutoMovieRigidTransform = {

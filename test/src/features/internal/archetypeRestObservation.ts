@@ -48,7 +48,7 @@ export namespace archetypeRestObservation {
   ): void {
     const original: string = JSON.stringify(animal);
     const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<string, string> =
-      AutoMovieArchetypeQuadrupedRest(animal, params);
+      AutoMovieArchetypeQuadrupedRest.plan(animal, params);
     const source: Map<string, IAutoMovieModelPart> = new Map(
       animal.parts.map(
         (part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [

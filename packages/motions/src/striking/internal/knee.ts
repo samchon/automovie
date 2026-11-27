@@ -1,29 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieMotionHumanActionName,
-  AutoMovieMotionHumanChannel,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanKnee,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanStrikingRecord,
-  IAutoMovieMotionWeaponContact,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, AutoMovieMotionHumanChannel, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanKnee, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionWeaponContact, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionPrepared } from "../../compose/AutoMovieMotionPrepared";
 import { HumanPerception } from "../../law/HumanPerception";
@@ -234,14 +210,14 @@ export namespace knee {
       const lift: number = KneeForm.LIFT_SHARE * span;
       const lower: number = KneeForm.LIFT_SHARE * recoil;
       const whole: number =
-        minimumJerk.share((t - prep) / span) -
-        minimumJerk.share((t - impact) / recoil);
+        AutoMovieEngineMotionSampling.minimumJerkShare((t - prep) / span) -
+        AutoMovieEngineMotionSampling.minimumJerkShare((t - impact) / recoil);
       const rise: number =
-        minimumJerk.share((t - prep) / lift) -
-        minimumJerk.share((t - (duration - lower)) / lower);
+        AutoMovieEngineMotionSampling.minimumJerkShare((t - prep) / lift) -
+        AutoMovieEngineMotionSampling.minimumJerkShare((t - (duration - lower)) / lower);
       const drive: number =
-        minimumJerk.share((t - (impact - lift)) / lift) -
-        minimumJerk.share((t - impact) / lower);
+        AutoMovieEngineMotionSampling.minimumJerkShare((t - (impact - lift)) / lift) -
+        AutoMovieEngineMotionSampling.minimumJerkShare((t - impact) / lower);
       const posture: IAutoMovieMotionHumanPosture = carriage(
         g.thrust,
         g.turn,
@@ -420,7 +396,7 @@ export namespace knee {
           new Set<AutoMovieHumanoidBone>([frame.bone]),
         );
         const reached: IAutoMovieVector3 =
-          resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
+          AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(frame, bones.get(frame.bone)!);
         return {
           limb: side === "left" ? "leftFoot" : "rightFoot",
           offset: { x: 0, y: 0, z: 0 },
@@ -470,7 +446,7 @@ export namespace knee {
         // lets go at the contact: the hands withdraw from where the nape was
         // at the stop, since the struck body reels out of the arms' reach.
         const s: number = at - t0;
-        const w: number = minimumJerk.share(
+        const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           (t - s - StrikingStroke.DWELL) /
             Math.max(1e-3, duration - s - StrikingStroke.DWELL),
         );

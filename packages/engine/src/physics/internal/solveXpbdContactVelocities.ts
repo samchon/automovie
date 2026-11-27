@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../../math/Vector3";
 import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 import { AutoMovieXpbdMath } from "../AutoMovieXpbdMath";
-import { solveXpbdContacts } from "../solveXpbdContacts";
+import { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 
 /**
  * The velocity pass over the contacts that pressed this step (Mueller, Macklin,
@@ -16,21 +16,21 @@ import { solveXpbdContacts } from "../solveXpbdContacts";
  * @param gravity The world gravity's magnitude, metres per second squared.
  */
 export function solveXpbdContactVelocities(
-  contacts: readonly solveXpbdContacts.IContact[],
+  contacts: readonly AutoMovieXpbdWorld.IContact[],
   h: number,
   gravity: number,
 ): void {
-  for (const patch of solveXpbdContacts.manifolds(contacts)) {
-    const pressedPoints: solveXpbdContacts.IContact[] = patch.filter(
-      (contact: solveXpbdContacts.IContact): boolean =>
+  for (const patch of AutoMovieXpbdWorld.manifolds(contacts)) {
+    const pressedPoints: AutoMovieXpbdWorld.IContact[] = patch.filter(
+      (contact: AutoMovieXpbdWorld.IContact): boolean =>
         contact.normalLambda > 0,
     );
     if (pressedPoints.length === 0) continue;
-    const head: solveXpbdContacts.IContact = patch[0]!;
+    const head: AutoMovieXpbdWorld.IContact = patch[0]!;
     const first: AutoMovieXpbdBody = head.a.body;
     const second: AutoMovieXpbdBody = head.b.body;
     const pressed: number = pressedPoints.reduce(
-      (sum: number, contact: solveXpbdContacts.IContact): number =>
+      (sum: number, contact: AutoMovieXpbdWorld.IContact): number =>
         sum + contact.normalLambda,
       0,
     );
@@ -38,20 +38,20 @@ export function solveXpbdContactVelocities(
     // Dynamic friction on the patch: an impulse against the centroid's
     // slip, at most what the cone mu * sum(lambda_n) leaves after the
     // positional friction, over h, and at most what stops the slip.
-    const localA: IAutoMovieVector3 = solveXpbdContacts.centroid(
+    const localA: IAutoMovieVector3 = AutoMovieXpbdWorld.centroid(
       pressedPoints.map(
-        (contact: solveXpbdContacts.IContact): IAutoMovieVector3 =>
+        (contact: AutoMovieXpbdWorld.IContact): IAutoMovieVector3 =>
           contact.localA,
       ),
     );
-    const localB: IAutoMovieVector3 = solveXpbdContacts.centroid(
+    const localB: IAutoMovieVector3 = AutoMovieXpbdWorld.centroid(
       pressedPoints.map(
-        (contact: solveXpbdContacts.IContact): IAutoMovieVector3 =>
+        (contact: AutoMovieXpbdWorld.IContact): IAutoMovieVector3 =>
           contact.localB,
       ),
     );
-    const centreA: IAutoMovieVector3 = solveXpbdContacts.arm(first, localA);
-    const centreB: IAutoMovieVector3 = solveXpbdContacts.arm(second, localB);
+    const centreA: IAutoMovieVector3 = AutoMovieXpbdWorld.arm(first, localA);
+    const centreB: IAutoMovieVector3 = AutoMovieXpbdWorld.arm(second, localB);
     const v: IAutoMovieVector3 = Vector3.subtract(
       first.velocityAtPoint(Vector3.add(first.center, centreA)),
       second.velocityAtPoint(Vector3.add(second.center, centreB)),
@@ -95,11 +95,11 @@ export function solveXpbdContactVelocities(
     // approach before the step, which also removes the velocity the
     // position correction left (Mueller et al. 2020, eq. 34).
     for (const contact of pressedPoints) {
-      const armA: IAutoMovieVector3 = solveXpbdContacts.arm(
+      const armA: IAutoMovieVector3 = AutoMovieXpbdWorld.arm(
         first,
         contact.localA,
       );
-      const armB: IAutoMovieVector3 = solveXpbdContacts.arm(
+      const armB: IAutoMovieVector3 = AutoMovieXpbdWorld.arm(
         second,
         contact.localB,
       );

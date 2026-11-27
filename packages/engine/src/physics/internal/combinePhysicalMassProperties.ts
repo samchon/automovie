@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalInertiaTensor } from "../physicalInertiaTensor";
+import { AutoMoviePhysicalInertiaTensor } from "../AutoMoviePhysicalInertiaTensor";
 import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 
 /**
@@ -58,7 +58,7 @@ export function combinePhysicalMassProperties(
     z += part.centerOfMass.z * weight;
   }
   const centerOfMass: IAutoMovieVector3 = { x, y, z };
-  const tensor: number[][] = physicalInertiaTensor(parts, centerOfMass);
+  const tensor: number[][] = AutoMoviePhysicalInertiaTensor.compute(parts, centerOfMass);
   const axes3: IAutoMoviePrincipalTensorFrame = physicalPrincipalAxes(tensor);
   const inertia: IAutoMovieVector3 = axes3.moments;
   const inertiaRotation: IAutoMovieQuaternion = axes3.rotation;

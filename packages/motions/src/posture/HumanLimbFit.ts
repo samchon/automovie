@@ -1,4 +1,4 @@
-import { Quaternion, placeChainPlant } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionPlanting } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -335,7 +335,7 @@ export namespace HumanLimbFit {
       readResolution(),
       constants === undefined
         ? undefined
-        : (): ReturnType<typeof placeChainPlant> | null => {
+        : (): ReturnType<typeof AutoMovieEngineMotionPlanting.placeChainPlant> | null => {
             const parent:
               | Pick<IAutoMovieResolvedBone, SolvedFitterParent>
               | undefined =
@@ -351,7 +351,7 @@ export namespace HumanLimbFit {
                 : readAuthored().get(constants.parent);
             return parent === undefined
               ? null
-              : placeChainPlant(constants, parent);
+              : AutoMovieEngineMotionPlanting.placeChainPlant(constants, parent);
           },
     );
     const fitted: IAutoMovieSeededChainFit = fitHumanLimbContact(

@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbReference,
@@ -78,7 +78,7 @@ export function handshakePlayback(track: ITrack): IHandshakePlaybackResult {
     wrist: out.wrist(seconds),
     rotation: out.turn(seconds),
     digits: shapeAt(seconds / reach),
-    ...(seconds >= reach ? {} : { weight: minimumJerk.share(seconds / reach) }),
+    ...(seconds >= reach ? {} : { weight: AutoMovieEngineMotionSampling.minimumJerkShare(seconds / reach) }),
   });
   const pump: HandAt = (seconds: number): IHandMotion => {
     const elapsed: number = seconds - reach;
@@ -94,7 +94,7 @@ export function handshakePlayback(track: ITrack): IHandshakePlaybackResult {
   };
   const returning: HandAt = (seconds: number): IHandMotion => {
     const elapsed: number = seconds - reach - shake;
-    const share: number = minimumJerk.share(elapsed / back);
+    const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(elapsed / back);
     return {
       wrist: home.wrist(elapsed),
       rotation: home.turn(elapsed),

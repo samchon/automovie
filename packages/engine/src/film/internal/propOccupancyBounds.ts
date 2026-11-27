@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { builtPlacedPartBoxes } from "../../architecture/internal/builtPlacedPartBoxes";
-import { transformedBoxBounds } from "../../math/transformedBoxBounds";
+import { transformedBoxBounds } from "../../math/internal/transformedBoxBounds";
 import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 

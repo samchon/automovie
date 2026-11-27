@@ -10,15 +10,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { jointToQuaternionOnBasis } from "../../kinematics/jointToQuaternionOnBasis";
+import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
-import { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
+import { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
-import { twoBoneChainArticulation } from "../../kinematics/twoBoneChainArticulation";
+import { twoBoneChainArticulation } from "../../kinematics/internal/twoBoneChainArticulation";
 import { Quaternion } from "../../math/Quaternion";
 import { prepareChainFitRig } from "./prepareChainFitRig";
 import { prepareChainPlant } from "../prepareChainPlant";
-import { resolveBoneMap } from "../resolveBoneMap";
+import { resolveBoneMap } from "./resolveBoneMap";
 
 /**
  * Prepare the unchanged dependencies of several target fits for one chain. The
@@ -143,7 +143,7 @@ export function prepareChainFit(
       let reference: IAutoMovieQuaternion | undefined = prior.get(bone);
       if (reference === undefined) {
         reference = Quaternion.normalize(
-          jointToQuaternionOnBasis(
+          jointToQuaternionOnBasis.run(
             workspace.read().referenceAngles.get(bone) ?? {
               bone,
               flexion: null,
@@ -168,7 +168,7 @@ export function prepareChainFit(
       ): number =>
         workspace.continuity(
           bone,
-          jointToQuaternionOnBasis(
+          jointToQuaternionOnBasis.run(
             angles.get(bone) ?? {
               bone,
               flexion: null,

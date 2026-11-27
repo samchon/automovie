@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalInertiaTensor, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMoviePhysicalInertiaTensor, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieQuaternion,
@@ -90,7 +90,7 @@ export function test_engine_mass_tensor_spin(): void {
             `${label}: tensor ${i},${j} is ${actual[i]![j]}, expected ${expected[i]![j]}`,
           );
   };
-  const first: number[][] = physicalInertiaTensor([part], about);
+  const first: number[][] = AutoMoviePhysicalInertiaTensor.compute([part], about);
   checkTensor("dense shifted box", first);
   if (first[0] === first[1] || first[1] === first[2] || first[0] === first[2])
     findings.push("tensor rows share mutable storage");
@@ -100,19 +100,19 @@ export function test_engine_mass_tensor_spin(): void {
   };
   checkTensor(
     "rigid translation",
-    physicalInertiaTensor([shifted], { x: 11, y: -6, z: -1 }),
+    AutoMoviePhysicalInertiaTensor.compute([shifted], { x: 11, y: -6, z: -1 }),
   );
   first[0]![1] = NaN;
   if (!nclose(first[1]![0]!, expected[1]![0]!, 1e-12))
     findings.push("editing one owned tensor row changed another");
   checkTensor(
     "after returned tensor mutation",
-    physicalInertiaTensor([part], about),
+    AutoMoviePhysicalInertiaTensor.compute([part], about),
   );
 
   part.inertiaRotation = Quaternion.identity();
   const velocity: IAutoMovieVector3 = { x: 2, y: -3, z: 5 };
-  const spin: IAutoMovieVector3 = physicalInertiaTensor.spin(
+  const spin: IAutoMovieVector3 = AutoMoviePhysicalInertiaTensor.spin(
     part,
     rotation,
     velocity,
@@ -131,7 +131,7 @@ export function test_engine_mass_tensor_spin(): void {
       findings.push(`${label}: spin is ${JSON.stringify(actual)}`);
   };
   checkSpin("supplied dense principal rotation", spin);
-  const straight: IAutoMovieVector3 = physicalInertiaTensor.spin(
+  const straight: IAutoMovieVector3 = AutoMoviePhysicalInertiaTensor.spin(
     part,
     Quaternion.identity(),
     velocity,
@@ -150,7 +150,7 @@ export function test_engine_mass_tensor_spin(): void {
   spin.z = -Infinity;
   checkSpin(
     "after returned spin mutation",
-    physicalInertiaTensor.spin(part, rotation, velocity),
+    AutoMoviePhysicalInertiaTensor.spin(part, rotation, velocity),
   );
 
   for (const dense of [true, false]) {

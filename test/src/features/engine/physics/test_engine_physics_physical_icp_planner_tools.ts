@@ -1,4 +1,4 @@
-import { physicalIcpPlannerTools } from "@automovie/engine";
+import { AutoMovieEnginePhysicalIcpPlannerTools } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -27,7 +27,7 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  *    fallback's axis for coincident soles.
  */
 export function test_engine_physics_physical_icp_planner_tools(): void {
-  const tools = physicalIcpPlannerTools;
+  const tools = AutoMovieEnginePhysicalIcpPlannerTools;
   const omega: number = Math.sqrt(9.81 / 0.9);
   const near = (
     title: string,
@@ -65,7 +65,7 @@ export function test_engine_physics_physical_icp_planner_tools(): void {
   );
 
   // 3. The cubic.
-  const cubic: physicalIcpPlannerTools.ICubic = {
+  const cubic: AutoMovieEnginePhysicalIcpPlannerTools.ICubic = {
     duration: 0.4,
     initial: { x: 0.1, z: -0.2 },
     initialVelocity: { x: 0.3, z: 0.1 },

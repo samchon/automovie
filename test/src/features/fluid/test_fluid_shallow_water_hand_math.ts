@@ -1,4 +1,6 @@
-import { simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { exactArray, fluidDomain } from "../internal/fluidFixtures";
@@ -40,7 +42,7 @@ import { nclose } from "../internal/predicates";
 export function test_fluid_shallow_water_hand_math(): void {
   const domain: ReturnType<typeof fluidDomain> = fluidDomain();
 
-  const initial: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const initial: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     domain,
     0,
   );
@@ -70,7 +72,7 @@ export function test_fluid_shallow_water_hand_math(): void {
     Object.is(initial.time, 0) && nclose(initial.time, 0, 0),
   );
 
-  const first: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const first: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     domain,
     1,
   );
@@ -102,7 +104,7 @@ export function test_fluid_shallow_water_hand_math(): void {
     Object.is(first.time, 0.125) && nclose(first.time, 0.125, 0),
   );
 
-  const second: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const second: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     domain,
     2,
   );

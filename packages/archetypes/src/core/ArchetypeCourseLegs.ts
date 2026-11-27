@@ -1,4 +1,4 @@
-import { Quaternion, speedProfile } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieSpeedProfile,
@@ -15,7 +15,7 @@ import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
  * `ArchetypeCoursePath`, its speed marks admitted and handed to the engine's
  * speed profile, and each second's state read back from the leg that holds it.
  *
- * `AutoMovieArchetypeCourse.plan` reads the full course plan, and `rowBoat`
+ * `AutoMovieArchetypeCourse.plan` reads the full course plan, and `AutoMovieArchetypeBoat.row`
  * also reads its travelled distance to locate catches.
  */
 export namespace ArchetypeCourseLegs {
@@ -216,7 +216,7 @@ export namespace ArchetypeCourseLegs {
         before = mark;
       });
     }
-    const profile: IAutoMovieSpeedProfile.IProfile = speedProfile({
+    const profile: IAutoMovieSpeedProfile.IProfile = AutoMovieEngineMotionTrajectory.speedProfile({
       start: at,
       speed: startSpeed,
       ...(course.acceleration === undefined

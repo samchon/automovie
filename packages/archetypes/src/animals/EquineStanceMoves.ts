@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../core";
@@ -128,12 +132,12 @@ export namespace EquineStanceMoves {
         {
           label: `${limb}Off`,
           entry: true,
-          time: minimumJerk.time((s + LOAD) * piece),
+          time: AutoMovieEngineMotionSampling.minimumJerkTime((s + LOAD) * piece),
         },
         {
           label: `${limb}On`,
           entry: true,
-          time: minimumJerk.time((s + 1) * piece),
+          time: AutoMovieEngineMotionSampling.minimumJerkTime((s + 1) * piece),
         },
       );
     }
@@ -170,7 +174,7 @@ export namespace EquineStanceMoves {
             ),
             limbs: EquineStanceSupport.placed(before.anchors),
           };
-        const swing: number = minimumJerk.share((local - LOAD) / (1 - LOAD));
+        const swing: number = AutoMovieEngineMotionSampling.minimumJerkShare((local - LOAD) / (1 - LOAD));
         const anchor: IAutoMovieVector3 = Vector3.add(
           Vector3.lerp(
             before.anchors[limb],
@@ -219,11 +223,11 @@ export namespace EquineStanceMoves {
     for (let k: number = 0; k < cue.count; ++k)
       for (const event of hop.events) {
         const rise: number =
-          Math.asin(Math.sqrt(minimumJerk.share(event.time))) / Math.PI;
+          Math.asin(Math.sqrt(AutoMovieEngineMotionSampling.minimumJerkShare(event.time))) / Math.PI;
         events.push({
           label: event.label,
           entry: true,
-          time: minimumJerk.time(
+          time: AutoMovieEngineMotionSampling.minimumJerkTime(
             (k + (event.entry ? rise : 1 - rise)) / cue.count,
           ),
         });

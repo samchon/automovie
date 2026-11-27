@@ -1,3 +1,4 @@
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieHumanoidRegion } from "../skeleton/AutoMovieHumanoidRegion";
@@ -5,7 +6,7 @@ import type { AutoMovieHumanoidSocket } from "../skeleton/AutoMovieHumanoidSocke
 
 /**
  * Body contact frames produced from skeleton and physical-profile geometry and
- * placed by resolveAutoMovieHumanoidSurfaces. Frames are mutable records;
+ * placed by AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaces. Frames are mutable records;
  * callers preserve unit directions and matching bone identity when reusing
  * them.
  */

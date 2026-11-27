@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -211,7 +211,7 @@ export function planBendStrategy(
   // and up again over as long.
   const share: (seconds: number) => number = (seconds: number): number => {
     const t: number = Math.min(moving, Math.max(0, seconds));
-    return 1 - minimumJerk.share(Math.max(down - t, t - rise, 0) / down);
+    return 1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(down - t, t - rise, 0) / down);
   };
 
   const free: AutoMovieHumanSide = side === "left" ? "right" : "left";

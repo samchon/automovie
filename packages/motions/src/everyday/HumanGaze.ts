@@ -2,7 +2,7 @@ import {
   DEFAULT_HUMANOID_ROM,
   Quaternion,
   Vector3,
-  gazeChainJoints,
+  AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -43,7 +43,7 @@ import { readHumanGazeBones } from "./internal/readHumanGazeBones";
  * gaze too far behind the body is visibly short; turning the feet is the `look`
  * action's step-turn.
  *
- * The head and neck angles come from the engine's `gazeChainJoints`, which
+ * The head and neck angles come from the engine's `AutoMovieEngineKinematics.gazeChainJoints`, which
  * splits one aim over the neck and the head inside their ranges; the eyes are
  * then solved exactly: each eye's direction to the target is read in its head's
  * frame by forward kinematics of the trunk and head, and turned into the eye's
@@ -255,7 +255,7 @@ export namespace HumanGaze {
       y: -Math.sin(headPitch),
       z: cosine * Math.cos(headYaw),
     });
-    const chain: IAutoMovieJointPose[] = gazeChainJoints.prepare(body.skeleton)(
+    const chain: IAutoMovieJointPose[] = AutoMovieEngineKinematics.prepareGazeChainJoints(body.skeleton)(
       (Math.atan2(-facing.y, Math.hypot(facing.x, facing.z)) * 180) / Math.PI,
       (Math.atan2(facing.x, facing.z) * 180) / Math.PI,
     );

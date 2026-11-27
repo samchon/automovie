@@ -3,7 +3,10 @@ import type {
   IAutoMovieConstructionCurve,
   IAutoMovieMark,
 } from "@automovie/interface";
-import { type IAutoMovieInspectionHandle, readAutoMovieBufferAttribute, AutoMovieRenderInspection } from "@automovie/render";
+import {
+  AutoMovieRenderInspection,
+  type IAutoMovieInspectionHandle,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -70,10 +73,11 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
     [0, 0, -1, 0, 0, 1],
     true,
   );
-  const marks: IAutoMovieMark[] = AutoMovieEngineConstruction.markConstructionCurves(
-    [ring, guide, axis],
-    "panel",
-  );
+  const marks: IAutoMovieMark[] =
+    AutoMovieEngineConstruction.markConstructionCurves(
+      [ring, guide, axis],
+      "panel",
+    );
   TestValidator.equals(
     "each curve becomes one anchored polyline mark",
     marks.map((mark: IAutoMovieMark) => [
@@ -123,10 +127,9 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   );
   TestValidator.equals(
     "a form at the root anchors to the empty path",
-    AutoMovieEngineConstruction.markConstructionCurves([guide], "").map((mark: IAutoMovieMark) => [
-      mark.path,
-      mark.anchor,
-    ]),
+    AutoMovieEngineConstruction.markConstructionCurves([guide], "").map(
+      (mark: IAutoMovieMark) => [mark.path, mark.anchor],
+    ),
     [["torso/guide/0", ""]],
   );
 
@@ -206,10 +209,9 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   );
 
   // 4. The marks follow a moved vertex.
-  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
-    open.geometry,
+  const position: THREE.BufferAttribute = open.geometry.getAttribute(
     "position",
-  );
+  ) as THREE.BufferAttribute;
   const corner: number[] = [
     position.getX(0),
     position.getY(0),

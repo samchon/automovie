@@ -6,7 +6,7 @@ import type {
   IAutoMovieSemanticMask,
 } from "@automovie/interface";
 
-import { guidePassFrameName } from "../guidePassFrameName.js";
+import { guidePassFrameName } from "../internal/guidePassFrameName.js";
 import { guidePassFramePattern } from "../internal/guidePassFramePattern.js";
 import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
 import { autoMovieControlConvention } from "./internal/autoMovieControlConvention.js";

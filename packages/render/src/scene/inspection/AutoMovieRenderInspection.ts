@@ -1,12 +1,20 @@
-import { type IAutoMovieMark, type IAutoMovieInspectionTrail, type IAutoMovieInspectionDiagnostics, type IAutoMovieInspectionLegendEntry, type IAutoMovieInspectionLabelPlacement, type IAutoMoviePlanInspectionTrailTimesProps, type IAutoMovieVector3, type IAutoMovieInspectionFocus, type AutoMovieInspectionShade, type IAutoMovieSectionPlane } from "@automovie/interface";
+import type { IObserveAutoMoviePlacedSceneResult } from "./IObserveAutoMoviePlacedSceneResult.js";
+import type { IObserveAutoMoviePlacedSceneProps } from "./IObserveAutoMoviePlacedSceneProps.js";
+import type { IObserveAutoMoviePlacedSceneCheck } from "./IObserveAutoMoviePlacedSceneCheck.js";
+import type { ISelectAutoMoviePlacedChecksProps } from "./ISelectAutoMoviePlacedChecksProps.js";
+import { type IAutoMovieMark, type IAutoMovieInspectionTrail, type IAutoMovieInspectionDiagnostics, type IAutoMovieInspectionLegendEntry, type IAutoMovieInspectionLabelPlacement, type IAutoMoviePlanInspectionTrailTimesProps, type IAutoMovieVector3, type IAutoMovieInspectionFocus, type AutoMovieInspectionShade, type IAutoMovieSectionPlane, type IAutoMovieSceneCollision, type IAutoMoviePreparePhysicalGeometry, type IAutoMovieSweptCapsuleCollision } from "@automovie/interface";
 
 import type * as THREE from "three";
 import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
-import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
-import type { ISelectAutoMoviePlacedChecks } from "./ISelectAutoMoviePlacedChecks.js";
+import type { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
+import type { IAutoMovieObservedRenderResult } from "@automovie/interface";
+import type { IAutoMovieRendererFrameCounters } from "../IAutoMovieRendererFrameCounters.js";
+import { observeAutoMovieRendererFrameImplementation } from "./internal/observeAutoMovieRendererFrameImplementation.js";
 import { selectAutoMoviePlacedChecks as selectAutoMoviePlacedChecksImplementation } from "./internal/selectAutoMoviePlacedChecks.js";
 import { observeAutoMoviePlacedSceneImplementation } from "./internal/observeAutoMoviePlacedSceneImplementation.js";
+import { observeAutoMovieSceneCollisionImplementation } from "./internal/observeAutoMovieSceneCollisionImplementation.js";
+import { observeAutoMovieCollisionMotionImplementation } from "./internal/observeAutoMovieCollisionMotionImplementation.js";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { focusAutoMovieInspection as focusAutoMovieInspectionImplementation } from "./internal/focusAutoMovieInspection.js";
 import { applyAutoMovieInspectionSectionImplementation } from "./internal/applyAutoMovieInspectionSectionImplementation.js";
@@ -25,10 +33,39 @@ import { placeAutoMovieInspectionLabels as placeAutoMovieInspectionLabelsImpleme
 
 /** Public operations for Auto Movie Render Inspection. */
 export namespace AutoMovieRenderInspection {
+  /** Props for observing renderer-confirmed work from one complete frame. */
+  export interface IObserveRendererFrameProps<Output> {
+    /** Renderer submission counters for the drawn frame. */
+    renderer: IAutoMovieRendererFrameCounters;
+    /** Draw one complete frame. */
+    draw: () => Output;
+  }
+
+  /**
+   * Draw one complete frame while measuring renderer-confirmed submissions.
+   *
+   * `WebGLRenderer.info` is the authority for calls and triangles because it is
+   * updated after camera layers, frustum culling, geometry groups, draw ranges,
+   * and material visibility have selected the work that reaches the renderer.
+   * Disabling its per-render reset makes the measurement frame-wide: a dissolve
+   * therefore includes the outgoing draw, incoming draw, and composite pass.
+   *
+   * The remaining budget dimensions deliberately stay `null`. Three exposes
+   * renderer-lifetime allocations for some of them and no post-culling frame
+   * count for the rest; a scene traversal would be an estimate, not an
+   * observation.
+   */
+  export function observeRendererFrame<Output>(
+    props: IObserveRendererFrameProps<Output>,
+  ): IAutoMovieObservedRenderResult<Output> {
+    return observeAutoMovieRendererFrameImplementation(
+      props.renderer,
+      props.draw,
+    );
+  }
   /** Named input contract for applying a clipping section to a scene. */
-  export namespace ApplySection {
     /** Scene, renderer and clipping plane for the inspection section. */
-    export interface IProps {
+    export interface IApplySectionProps {
       /** Scene whose drawn materials receive the section plane. */
       scene: THREE.Scene;
       /** Renderer whose local clipping switch is borrowed. */
@@ -36,36 +73,32 @@ export namespace AutoMovieRenderInspection {
       /** Half-space removed from the scene. */
       section: IAutoMovieSectionPlane;
     }
-  }
   /** Named input and result contracts for applying an inspection shade. */
-  export namespace ApplyShade {
     /** Scene and shade to apply to its materials. */
-    export interface IProps {
+    export interface IApplyShadeProps {
       /** Scene whose materials are shaded. */
       scene: THREE.Scene;
       /** Inspection shade to apply. */
       shade: AutoMovieInspectionShade;
     }
     /** Controls for updating the shade and restoring the scene. */
-    export interface IResult {
+    export interface IApplyShadeResult {
       /** Bring the shade up to date before drawing. */
       update: () => void;
       /** Restore the scene's original materials. */
       restore: () => void;
     }
-  }
   /** Cut drawn scene materials and return a restoration callback. */
-  export function applySection(props: ApplySection.IProps): () => void {
+  export function applySection(props: IApplySectionProps): () => void {
     return applyAutoMovieInspectionSectionImplementation(props);
   }
   /** Apply a named inspection shade and return update and restore operations. */
-  export function applyShade(props: ApplyShade.IProps): ApplyShade.IResult {
+  export function applyShade(props: IApplyShadeProps): IApplyShadeResult {
     return applyAutoMovieInspectionShadeImplementation(props.scene, props.shade);
   }
   /** Named input contract for the focus operation. */
-  export namespace Focus {
     /** A mark and the object whose frame it belongs to, when anchored. */
-    export interface IMark {
+    export interface IFocusMark {
       /** Inspection mark to frame or highlight. */
       mark: IAutoMovieMark;
       /** Scene-space point used to anchor the mark. */
@@ -73,16 +106,14 @@ export namespace AutoMovieRenderInspection {
     }
 
     /** What to frame and the drawn geometry from which its bounds are measured. */
-    export interface IProps {
+    export interface IFocusProps {
       /** What to frame. */
       focus: IAutoMovieInspectionFocus;
       /** The drawn, selected objects. */
       objects: readonly IAutoMovieInspectionPath[];
       /** The drawn marks with the objects their frames belong to. */
-      marks: readonly IMark[];
+      marks: readonly IFocusMark[];
     }
-  }
-
   /**
    * Measure the world-space box a view's focus frames: the drawn objects and
    * marks a path pattern matches, or every drawn flagged mark, so a close-up on a
@@ -92,14 +123,120 @@ export namespace AutoMovieRenderInspection {
    * one. It throws when a pattern matches nothing drawn, and when the flagged
    * focus finds no flagged mark, saying no mark is flagged.
    */
-  export function focus(props: Focus.IProps): IAutoMovieViewerSubjectBounds {
+  export function focus(props: IFocusProps): IAutoMovieViewerSubjectBounds {
     return focusAutoMovieInspectionImplementation(props);
   }
   /** Operations for production policy active on a placed scene. */
-  export namespace PlacedScene {
+    /** Named inputs for checking collisions between consecutive placed frames. */
+      /** A collision layer readable at any placed instant. */
+      export interface IPlacedSceneCollisionMotionLayer extends AutoMovieRenderInspectionGeometry.ILayer {
+        /** Distinct layer identity, shared with placed-frame rows. */
+        readonly id: string;
+        /** Layer-local seconds at this instant. */
+        readonly localSeconds: number;
+        /** Whether delivery requires this layer's collision obligations. */
+        readonly required?: boolean;
+        /** Named permitted contact. */
+        readonly allowances?: readonly IAutoMovieSceneCollision.IAllowance[];
+      }
+
+      /** Work the observation may spend. */
+      export interface IPlacedSceneCollisionMotionLimits {
+        /** Extra instants that may be placed, including the preceding one. */
+        placements: number;
+        /** Halvings of the span allowed for one pair. */
+        depth: number;
+        /** Pair and witness comparisons. */
+        comparisons: number;
+        /** Posed surface vertices read for witnesses. */
+        posedVertices: number;
+        /** Triangle visits spent on closed surfaces. */
+        surfaceTriangles: number;
+        /** Collected parts over every placed instant, when bounded. */
+        parts?: number;
+      }
+
+      /** The span, placement, layers and limits of one motion observation. */
+      export interface IPlacedSceneCollisionMotionProps {
+        /** The drawn sample's clock. */
+        readonly time: IAutoMovieInspectionDiagnostics.ITime;
+        /** Film seconds of the preceding output instant. */
+        readonly fromSeconds: number;
+        /** Whether the span between the two instants has a physical path. */
+        readonly continuous: boolean;
+        /** Places the scene at a film second through the playback placement. */
+        readonly place: (filmSeconds: number) => void;
+        /** Collision layers of the placed scene at a film second. */
+        readonly layers: (filmSeconds: number) => readonly IPlacedSceneCollisionMotionLayer[];
+        /** The initialized convex contact query. */
+        readonly geometry: Pick<IAutoMoviePreparePhysicalGeometry.IQueries, "contact">;
+        /** Work the observation may spend. */
+        readonly limits: IPlacedSceneCollisionMotionLimits;
+        /** Filled at return with the work spent. */
+        readonly spent?: IPlacedSceneCollisionMotionLimits;
+      }
+    /** Named inputs and result for placed-scene collision observation. */
+      /** Work one observation may spend, by kind. */
+      export interface IPlacedSceneCollisionLimits {
+        /** Group, region, part, shape and witness comparisons. */
+        comparisons: number;
+        /** Posed surface vertices read for witnesses. */
+        posedVertices: number;
+        /** Triangle visits spent testing points against closed surfaces. */
+        surfaceTriangles: number;
+        /** Elementary motion intervals. */
+        sweptCells: number;
+        /** Collected parts, when bounded; a frame that runs out defers its layer. */
+        parts?: number;
+      }
+
+      /** Source-certified motion cell between two named parts. */
+      export interface IPlacedSceneCollisionSweptCell {
+        /** The two part paths. */
+        readonly paths: readonly [string, string];
+        /** The Engine cell, without the depth the layer's windows decide. */
+        readonly props: Omit<IAutoMovieSweptCapsuleCollision.IProps, "maxPenetration">;
+        /** Film seconds minus layer seconds. */
+        readonly filmOffset: number;
+      }
+
+      /** One source-owned layer after placement and world-matrix update. */
+      export interface IPlacedSceneCollisionLayer extends AutoMovieRenderInspectionGeometry.ILayer {
+        /** Distinct layer identity, the first element of every coverage key. */
+        id: string;
+        /** Layer-local seconds of this placement. */
+        localSeconds: number;
+        /** The layer's shot path, when known. */
+        shotPath?: string;
+        /** Whether delivery requires every collision obligation of this layer. */
+        required?: boolean;
+        /** Named permitted contact for placed frames and motion cells. */
+        allowances?: readonly IAutoMovieSceneCollision.IAllowance[];
+        /** Source-certified motion cells with permitted depth from allowances. */
+        sweeps?: readonly IPlacedSceneCollisionSweptCell[];
+      }
+
+      /** The placed frame, layers, initialized contact query and work limits. */
+      export interface IPlacedSceneCollisionProps {
+        /** The sample clock. */
+        time: IAutoMovieInspectionDiagnostics.ITime;
+        /** The placed layers. */
+        layers: readonly IPlacedSceneCollisionLayer[];
+        /** The initialized convex contact query. */
+        geometry: Pick<IAutoMoviePreparePhysicalGeometry.IQueries, "contact">;
+        /** Broad-phase refinement of overlapping groups. */
+        refinement?: IAutoMovieSceneCollision.IProps["refinement"];
+        /** Work the observation may spend. */
+        limits: IPlacedSceneCollisionLimits;
+        /** Filled at return with the work actually spent, for budget measurement. */
+        spent?: IPlacedSceneCollisionLimits;
+      }
+
+      /** Collision findings and coverage rows for the frame. */
+      export type IPlacedSceneCollisionResult = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
     /**
      * Select the production's declared checks active at one placed sample, for
-     * `AutoMovieRenderInspection.PlacedScene.observe`.
+     * `AutoMovieRenderInspection.observePlacedScene`.
      *
      * A support or grip contributes its phase or window containing the sample
      * second. Custody contributes the holder its schedule allows at that second and
@@ -117,9 +254,9 @@ export namespace AutoMovieRenderInspection {
      * @param props The placed sample, the output rate and the declarations.
      * @returns The observer's checks for this sample, in declaration order.
      */
-    export function selectChecks(
-      props: ISelectAutoMoviePlacedChecks.IProps,
-    ): IObserveAutoMoviePlacedScene.ICheck[] {
+    export function selectPlacedChecks(
+      props: ISelectAutoMoviePlacedChecksProps,
+    ): IObserveAutoMoviePlacedSceneCheck[] {
       return selectAutoMoviePlacedChecksImplementation(props);
     }
     /**
@@ -130,12 +267,50 @@ export namespace AutoMovieRenderInspection {
      * @param props The original scene, delivery camera, placed clock and checks.
      * @returns Findings and coverage for this placed observation.
      */
-    export function observe(
-      props: IObserveAutoMoviePlacedScene.IProps,
-    ): IObserveAutoMoviePlacedScene.IResult {
+    export function observePlacedScene(
+      props: IObserveAutoMoviePlacedSceneProps,
+    ): IObserveAutoMoviePlacedSceneResult {
       return observeAutoMoviePlacedSceneImplementation(props);
     }
-  }
+    /**
+     * Observe one already placed scene frame for external contact and certified
+     * interval violations. Every drawn object of a layer is collected once; the
+     * result reports confirmed findings and unresolved coverage under the
+     * supplied work limits.
+     *
+     * @param props The clock, layers, contact query, refinement and work limits.
+     * @returns Findings and coverage rows for the frame.
+     */
+    export function observePlacedSceneCollisions(
+      props: IPlacedSceneCollisionProps,
+    ): IPlacedSceneCollisionResult {
+      return observeAutoMovieSceneCollisionImplementation(props);
+    }
+    /**
+     * Check the motion between the preceding output instant and the placed one for
+     * crossings that neither placed frame shows, by bounded subdivision.
+     *
+     * Both endpoints are placed through the subject's own synchronous placement. A
+     * pair is examined when it is external, neither endpoint confirms it, its
+     * motion exceeds half the thinner part's thickness, and its conservative swept
+     * bounds overlap: each endpoint box enlarged by half of the part's largest
+     * feature displacement, which covers a rotation of up to half a turn. The
+     * interval is bisected at placed instants until a midpoint confirms the pair,
+     * every remaining span moves less than that half-thickness or leaves the swept
+     * bounds apart, or the placement or depth limit is reached. No interval
+     * crossing a cut or a declared break is examined. The drawn instant is placed
+     * again before returning, so every host keeps drawing it.
+     *
+     * @param props The span, its continuity, the placement and layer readers, the
+     *   contact query and the work limits.
+     * @returns Sub-frame findings with their bracketing span, and one coverage row
+     *   per layer and per unresolved pair.
+     */
+    export function observePlacedSceneCollisionMotion(
+      props: IPlacedSceneCollisionMotionProps,
+    ): IPlacedSceneCollisionResult {
+      return observeAutoMovieCollisionMotionImplementation(props);
+    }
   /**
    * Draw sampled trails as marks for one drawn second: each moving object's path
    * as a line through its samples with a tick at every sample, and the sample of

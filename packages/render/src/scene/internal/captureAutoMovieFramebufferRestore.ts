@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import type { IAutoMovieFramebufferContext } from "../IAutoMovieFramebufferContext.js";
 import type { IAutoMovieFramebufferRenderer } from "../IAutoMovieFramebufferRenderer.js";
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Capture the public framebuffer selection and raster rectangle state. A target

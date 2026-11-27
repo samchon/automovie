@@ -1,16 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanJacobian,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFitBalanceBase } from "./HumanFitBalanceBase";
 import { HumanFoot } from "./HumanFoot";
@@ -125,7 +114,7 @@ export function HumanFitBalance(
  * half-planes along the floor's axes that meet only there. So the centre is
  * held over the base however few points bear, never over a line past the
  * segment's ends or nowhere at all. The centre of mass is the engine's mass
- * model's (`resolveAutoMovieCenterOfMass`) and its Jacobian the mass-weighted
+ * model's (`AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass`) and its Jacobian the mass-weighted
  * sum of its segments' centres' point columns (`HumanJacobian.velocity`). Where
  * the bearing points' bones are given, the base's corners ride them: a row's
  * slope is the exact derivative of its half-plane's signed distance, the
@@ -347,7 +336,7 @@ export namespace HumanFitBalance {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
-    return resolveAutoMovieCenterOfMass.place(body.massModel, bones);
+    return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(body.massModel, bones);
   }
 
   /**

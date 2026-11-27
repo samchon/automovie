@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
-import { physicalShapeBounds } from "../../physics/physicalShapeBounds";
+import { physicalShapeBoundsImplementation } from "../../physics/internal/physicalShapeBoundsImplementation";
 
 /** A finite world box prepared once for this part. */
 interface IPreparedPart {
@@ -309,7 +309,7 @@ function preparePart(part: Collision.IPart): IPreparedPart | null {
     bounds =
       source.kind === "envelope"
         ? source.bounds
-        : physicalShapeBounds(source.collider.pose, source.collider.shape);
+        : physicalShapeBoundsImplementation.physicalShapeBounds(source.collider.pose, source.collider.shape);
   } catch (_error) {
     return null;
   }

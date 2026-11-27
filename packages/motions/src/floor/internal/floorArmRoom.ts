@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmClearance,
@@ -234,7 +234,7 @@ function reaches(
     for (const shape of profile.segments.find(
       (segment): boolean => segment.bone === bone,
     )!.shapes) {
-      const box = physicalShapeBounds(pose(bone), shape);
+      const box = AutoMovieEnginePhysics.physicalShapeBounds(pose(bone), shape);
       for (const x of [box.min.x, box.max.x])
         for (const y of [box.min.y, box.max.y])
           for (const z of [box.min.z, box.max.z])

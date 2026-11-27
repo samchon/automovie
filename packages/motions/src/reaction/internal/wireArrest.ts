@@ -1,4 +1,4 @@
-import { AutoMovieGravity, minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionContext,
@@ -142,7 +142,7 @@ export namespace wireArrest {
         return top - params.drop - (speed * u - 0.5 * needed * u * u);
       }
       if (t <= held) return params.stop;
-      return params.stop * (1 - minimumJerk.share((t - held) / lower));
+      return params.stop * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - held) / lower));
     };
     return {
       duration,

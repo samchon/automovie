@@ -1,21 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanTouchEffector,
-  IAutoMoviePhysicalShape,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanTouchEffector, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanColliders } from "../../posture/HumanColliders";
@@ -84,7 +68,7 @@ export namespace TouchVerdicts {
     seconds: number,
   ): IPlaceResult {
     const frame = region.body.surfaces.regions[region.region];
-    const placed = resolveAutoMovieHumanoidSurfaces.place(
+    const placed = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       frame,
       performance.bones(region.subject, seconds).get(frame.bone)!,
     );

@@ -4,7 +4,7 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
-import { physicalShapeBounds } from "../physics/physicalShapeBounds";
+import { physicalShapeBoundsImplementation } from "../physics/internal/physicalShapeBoundsImplementation";
 
 /**
  * Operation-owned exact neutral segment bounds for sequential body derivation.
@@ -76,7 +76,7 @@ function calculate(
     max: { x: -Infinity, y: -Infinity, z: -Infinity },
   };
   for (const shape of segment.shapes) {
-    const next: AutoMovieHumanoidNeutralBounds.IBounds = physicalShapeBounds(
+    const next: AutoMovieHumanoidNeutralBounds.IBounds = physicalShapeBoundsImplementation.physicalShapeBounds(
       segment.neutral,
       shape,
     );

@@ -1,11 +1,8 @@
-import type {
-  IAutoMovieMark,
-  IAutoMovieMarkBalance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieMark, IAutoMovieMarkBalance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { convexHull2D } from "../../math/internal/convexHull2D";
-import { resolveAutoMovieCenterOfMass } from "../resolveAutoMovieCenterOfMass";
+import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
+
 
 /**
  * Turn a body's balance at one instant into inspection marks: the centre of

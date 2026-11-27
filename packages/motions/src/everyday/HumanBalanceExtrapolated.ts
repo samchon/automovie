@@ -1,10 +1,6 @@
-import { Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -140,10 +136,10 @@ function observed(
     frames === undefined
       ? poseBones(body, pose, resolution())
       : frames(pose, resolution());
-  const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(
-    resolveAutoMovieCenterOfMass.place(body.massModel, bones),
+  const xcom: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassExtrapolate(
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(body.massModel, bones),
     velocity,
-    resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
   );
-  return resolveAutoMovieCenterOfMass.margin(xcom, HumanFoot.base(body, bones));
+  return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(xcom, HumanFoot.base(body, bones));
 }

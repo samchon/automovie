@@ -13,6 +13,8 @@ import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
  * Stable Euclidean norms retain the preceding solver's residual definitions.
  * Product/addition corrections remain through sparse residuals and costs; the
  * gap is formed before the two reported costs round to individual numbers.
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/residuals.rs}
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/info.rs}
  */
 export function measureAutoMovieQuadraticState(
   data: IAutoMovieQuadraticConicProgram,

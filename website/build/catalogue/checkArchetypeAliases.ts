@@ -1,4 +1,4 @@
-import { AutoMovieArchetype, AutoMovieArchetypeBicycle, AutoMovieArchetypeBoat, AutoMovieArchetypeCamera, AutoMovieArchetypeCar, AutoMovieArchetypeCarriage, AutoMovieArchetypeChariot, AutoMovieArchetypeDinghy, AutoMovieArchetypeFrame, AutoMovieArchetypeHorseCart, AutoMovieArchetypeKayak, AutoMovieArchetypeLimber, AutoMovieArchetypeMotorcycle, AutoMovieArchetypePhone, AutoMovieArchetypeRemote, AutoMovieArchetypeRickshaw, AutoMovieArchetypeShoppingTrolley, AutoMovieArchetypeTablet, AutoMovieArchetypeWagon, AutoMovieArchetypeWheelbarrow, AutoMovieArchetypeDiscus, AutoMovieArchetypeHammerThrow, AutoMovieArchetypeJavelin, AutoMovieArchetypeOvalBall, AutoMovieArchetypePuck, AutoMovieArchetypeShot, AutoMovieArchetypeShuttlecock, AutoMovieArchetypeSphericalBall, rideQuadruped, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
+import { AutoMovieArchetype, AutoMovieArchetypeBicycle, AutoMovieArchetypeBoat, AutoMovieArchetypeCamera, AutoMovieArchetypeCar, AutoMovieArchetypeCarriage, AutoMovieArchetypeChariot, AutoMovieArchetypeDinghy, AutoMovieArchetypeFrame, AutoMovieArchetypeHorseCart, AutoMovieArchetypeKayak, AutoMovieArchetypeLimber, AutoMovieArchetypeMotorcycle, AutoMovieArchetypePhone, AutoMovieArchetypeRemote, AutoMovieArchetypeRickshaw, AutoMovieArchetypeShoppingTrolley, AutoMovieArchetypeTablet, AutoMovieArchetypeWagon, AutoMovieArchetypeWheelbarrow, AutoMovieArchetypeDiscus, AutoMovieArchetypeHammerThrow, AutoMovieArchetypeJavelin, AutoMovieArchetypeOvalBall, AutoMovieArchetypePuck, AutoMovieArchetypeShot, AutoMovieArchetypeShuttlecock, AutoMovieArchetypeSphericalBall, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import * as archetypes from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
@@ -764,7 +764,10 @@ export function checkArchetypeAliases(): void {
     cavalry,
     SceneChainNames.read(cavalry),
   );
-  assert.match(mountedCode, /const h0Ride = archetypes\.rideQuadruped\(h0,/);
+  assert.match(
+    mountedCode,
+    /const h0Ride = archetypes\.AutoMovieArchetypeQuadruped\.ride\(h0,/,
+  );
   assert.match(mountedCode, /cues\["h0:gaits"\] = h0Gaits/);
   assert.match(mountedCode, /^  cues,$/m);
   const fitted = GalleryArchetype.build(
@@ -802,15 +805,15 @@ export function checkArchetypeAliases(): void {
       `${kind} rest contacts`,
     );
     assert(legacy.body !== null && named.body !== null);
-    const course: rideQuadruped.ICourse = {
+    const course: AutoMovieArchetypeQuadruped.IRideCourse = {
       start: { x: 0, z: 0, heading: 0 },
       legs: [{ kind: "straight", length: 9 }],
       cruise: speed,
       startSpeed: speed,
       endSpeed: speed,
     };
-    const oldRide = rideQuadruped(legacy as AutoMovieArchetype, course, gait);
-    const newRide = rideQuadruped(named as AutoMovieArchetype, course, gait);
+    const oldRide = AutoMovieArchetypeQuadruped.ride(legacy as AutoMovieArchetype, course, gait);
+    const newRide = AutoMovieArchetypeQuadruped.ride(named as AutoMovieArchetype, course, gait);
     assert.deepEqual(newRide.instants, oldRide.instants, `${kind} gait events`);
     const landings = newRide.instants.filter(
       (event) => event.label === "leftForeOn" && event.seconds > 0,

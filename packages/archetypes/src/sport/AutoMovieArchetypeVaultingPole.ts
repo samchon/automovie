@@ -1,4 +1,4 @@
-import { Vector3, pinnedElastica } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -102,8 +102,8 @@ export function create(
   )
     n *= 2;
   const link: number = top / n;
-  const deepest: number = pinnedElastica.curvature(
-    pinnedElastica.parameter(AutoMovieArchetypeVaultingPole.BREAK),
+  const deepest: number = AutoMovieEngineMath.pinnedElasticaCurvature(
+    AutoMovieEngineMath.pinnedElasticaParameter(AutoMovieArchetypeVaultingPole.BREAK),
     top,
   );
   const at: (k: number) => number = (k: number): number => k * link;

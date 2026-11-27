@@ -1,5 +1,5 @@
 import {
-  preparePhysicalGeometry as Geometry,
+  AutoMoviePhysicalGeometry as Geometry,
   Quaternion,
 } from "@automovie/engine";
 import type {
@@ -36,7 +36,7 @@ const NATIVE_DISTANCE: number = 1e-7;
  *    than measured.
  */
 export async function test_engine_physics_prepare_physical_geometry_boundary(): Promise<void> {
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const sphere: IAutoMoviePhysicalShape =
     PhysicalFixtures.sphere().segments[0]!.shapes[0]!;
   const make: (

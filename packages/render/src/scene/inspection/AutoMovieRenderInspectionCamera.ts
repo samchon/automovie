@@ -15,9 +15,8 @@ import { observeAutoMoviePlacedCamera } from "./internal/observeAutoMoviePlacedC
 /** Public operations for Auto Movie Render Inspection Camera. */
 export namespace AutoMovieRenderInspectionCamera {
   /** Named input and result contracts for resolving one inspection view. */
-  export namespace ResolveView {
     /** Inputs used to resolve an inspection camera and its record. */
-    export interface IProps {
+    export interface IResolveViewProps {
       /** The view, as `parseAutoMovieInspectionView` read it. */
       view: IAutoMovieInspectionView;
       /** The view's text, kept in the record. */
@@ -48,17 +47,15 @@ export namespace AutoMovieRenderInspectionCamera {
     }
 
     /** Resolved camera and its serializable inspection camera record. */
-    export interface IResult {
+    export interface IResolveViewResult {
       /** Resolved camera used to draw the inspection view. */
       camera: PerspectiveCamera | OrthographicCamera;
       /** Serializable camera and view record for the inspection result. */
       record: IAutoMovieInspectionCamera;
     }
-  }
   /** Named public input and result contracts for near-clip measurement. */
-  export namespace NearClip {
     /** The delivery camera and a required subject's admitted meshes. */
-    export interface IProps {
+    export interface INearClipProps {
       /**
        * Delivery camera with its world matrices and projection, crop included,
        * already current.
@@ -79,7 +76,7 @@ export namespace AutoMovieRenderInspectionCamera {
     }
 
     /** Clear, clipped with its deepest witness, or unmeasured with a reason. */
-    export type IResult =
+    export type INearClipResult =
       | {
           /** Every examined triangle stays on or beyond the near plane inside the frame. */
           status: "clear";
@@ -124,12 +121,10 @@ export namespace AutoMovieRenderInspectionCamera {
           /** Why the check cannot run. */
           reason: string;
         };
-  }
 
   /** Named public input and result contracts for original-camera observation. */
-  export namespace Observe {
     /** The delivered camera and one source-resolved requirement, after placement. */
-    export interface IProps {
+    export interface IObserveProps {
       /** Original displayed scene, before inspection overlays are installed. */
       scene: Scene;
       /** Output camera with delivery aspect and crop already applied. */
@@ -147,13 +142,11 @@ export namespace AutoMovieRenderInspectionCamera {
     }
 
     /** Independent framing and occlusion grades. */
-    export type IResult = IAutoMovieCameraInspection.IResult;
-  }
+    export type IObserveResult = IAutoMovieCameraInspection.IResult;
 
   /** Named public input and result contracts for placed-camera observation. */
-  export namespace ObservePlaced {
     /** A source requirement active in the placed sample. */
-    export interface IRequirement {
+    export interface IObservePlacedRequirement {
       /** Stable path of the authored subject within its source scope. */
       readonly path: string;
       /** Source-resolved displayed object, absent when resolution failed. */
@@ -165,16 +158,15 @@ export namespace AutoMovieRenderInspectionCamera {
     }
 
     /** Settled sample and its active source requirements. */
-    export interface IProps {
+    export interface IObservePlacedProps {
       /** Settled original scene and delivery projection, before inspection effects. */
       sample: IAutoMovieDrawScene.IPlacedSample;
       /** Source-owned requirements active at this sample's exact time. */
-      targets: readonly IRequirement[];
+      targets: readonly IObservePlacedRequirement[];
     }
 
     /** Independent diagnostic rows emitted by placed camera observation. */
-    export type IResult = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
-  }
+    export type IObservePlacedResult = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
 
   /**
    * Measure how far a required subject's drawn surface reaches in front of the
@@ -196,14 +188,14 @@ export namespace AutoMovieRenderInspectionCamera {
    *   checked.
    */
   export function measureNearClip(
-    props: NearClip.IProps,
-  ): NearClip.IResult {
+    props: INearClipProps,
+  ): INearClipResult {
     return measureAutoMovieCameraNearClip(props);
   }
   /** Observes required-subject framing from the original delivered projection. */
   export function observe(
-    props: Observe.IProps,
-  ): Observe.IResult {
+    props: IObserveProps,
+  ): IObserveResult {
     return observeAutoMovieCameraInspection(props);
   }
 
@@ -225,8 +217,8 @@ export namespace AutoMovieRenderInspectionCamera {
    * @returns Findings and one coverage row per check and requirement.
    */
   export function observePlaced(
-    props: ObservePlaced.IProps,
-  ): ObservePlaced.IResult {
+    props: IObservePlacedProps,
+  ): IObservePlacedResult {
     return observeAutoMoviePlacedCamera(props);
   }
   /**
@@ -253,15 +245,14 @@ export namespace AutoMovieRenderInspectionCamera {
    *   the reason the bounds or projection cannot be read.
    */
   export function measureFrameEdge(
-    props: FrameEdge.IProps,
-  ): FrameEdge.IResult {
+    props: IFrameEdgeProps,
+  ): IFrameEdgeResult {
     return measureAutoMovieCameraFrameEdge(props);
   }
 
   /** Frame-edge input and outcome types shared by the camera evaluator. */
-  export namespace FrameEdge {
     /** The delivery camera and a required subject's bounds and admitted meshes. */
-    export interface IProps {
+    export interface IFrameEdgeProps {
       /**
        * Delivery camera with its world matrices and projection, crop included,
        * already current.
@@ -282,12 +273,12 @@ export namespace AutoMovieRenderInspectionCamera {
     }
 
     /** A side of the delivered frame. */
-    export type Side = "left" | "right" | "bottom" | "top";
+    export type IAutoMovieRenderInspectionFrameEdgeSide = "left" | "right" | "bottom" | "top";
 
     /** One side plane the subject's bounds cross. */
-    export interface ICrossing {
+    export interface IFrameEdgeCrossing {
       /** The crossed side. */
-      side: Side;
+      side: IAutoMovieRenderInspectionFrameEdgeSide;
       /**
        * How far the bounds beyond the near plane reach past this edge, in
        * normalized device units; absent when only the part before the near plane
@@ -297,13 +288,13 @@ export namespace AutoMovieRenderInspectionCamera {
     }
 
     /** Inside every side, crossing some side, or unmeasured. */
-    export type IResult =
+    export type IFrameEdgeResult =
       | { /** The bounds lie inside all four side planes. */ status: "inside" }
       | {
           /** The bounds cross at least one side plane. */
           status: "crossed";
           /** Crossed sides in right, left, bottom, top order. */
-          crossings: ICrossing[];
+          crossings: IFrameEdgeCrossing[];
           /** The surface check of the cut, or clear when no crossing has extent. */
           surface: IFrameEdgeSurfaceResult;
         }
@@ -313,7 +304,6 @@ export namespace AutoMovieRenderInspectionCamera {
           /** Why the check cannot run. */
           reason: string;
         };
-  }
   /** Inputs for one required subject's camera frame-edge surface check. */
   export interface IFrameEdgeSurfaceProps {
     /** Admitted meshes with current world matrices and poses. */
@@ -427,8 +417,8 @@ export namespace AutoMovieRenderInspectionCamera {
    * ```
    */
   export function resolveView(
-    props: ResolveView.IProps,
-  ): ResolveView.IResult {
+    props: IResolveViewProps,
+  ): IResolveViewResult {
     return resolveViewImplementation(props);
   }
 

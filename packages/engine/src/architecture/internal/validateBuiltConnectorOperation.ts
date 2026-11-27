@@ -8,7 +8,7 @@ import {
   type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
-import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
+import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { builtConnectorStops } from "./builtConnectorStops";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";

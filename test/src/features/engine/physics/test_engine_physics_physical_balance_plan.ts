@@ -1,4 +1,4 @@
-import { physicalBalancePlan } from "@automovie/engine";
+import { AutoMoviePhysicalBalance } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalRecoveryState,
   IAutoMovieVector3,
@@ -18,7 +18,7 @@ const HALF: number = 0.125;
 
 /**
  * The plan phase keeps a body supported while its capture point stands over its
- * planted soles (`physicalBalancePlan`).
+ * planted soles (`AutoMoviePhysicalBalance.plan`).
  *
  * Two soles 0.1 by 0.25 m stand 0.1 m either side of the mass center, 0.9 m up,
  * the authored mass center at rest above it.
@@ -48,7 +48,7 @@ export function test_engine_physics_physical_balance_plan(): void {
         (ahead: number): IAutoMovieVector3 => ({ x: across, y: 0, z: ahead }),
       ),
     );
-  const stance: Parameters<typeof physicalBalancePlan>[0]["stance"] = {
+  const stance: Parameters<typeof AutoMoviePhysicalBalance.plan>[0]["stance"] = {
     planted: [
       { bone: "leftFoot", points: sole(0.1), position: { x: 0.1, y: 0, z: 0 } },
       {
@@ -63,11 +63,11 @@ export function test_engine_physics_physical_balance_plan(): void {
   const plan = (
     state: IAutoMoviePhysicalRecoveryState,
     velocity: number,
-  ): physicalBalancePlan.IResult => {
+  ): ReturnType<typeof AutoMoviePhysicalBalance.plan> => {
     const center: IAutoMovieVector3 = { x: 0, y: HEIGHT, z: 0 };
     const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     // The authored command's centre stands in for the profile's segments.
-    const sense: physicalBalancePlan.ISense = {
+    const sense: Parameters<typeof AutoMoviePhysicalBalance.plan>[0]["sense"] = {
       center,
       velocity: { x: 0, y: 0, z: velocity },
       gravity: GRAVITY,
@@ -77,7 +77,7 @@ export function test_engine_physics_physical_balance_plan(): void {
       profile: { segments: [], mass: 1 },
       targets: {},
     };
-    return physicalBalancePlan({ state, sense, stance });
+    return AutoMoviePhysicalBalance.plan({ state, sense, stance });
   };
   const stale = (failed: boolean): IAutoMoviePhysicalRecoveryState => ({
     last: "supported",
@@ -89,7 +89,7 @@ export function test_engine_physics_physical_balance_plan(): void {
 
   // 1. Quiet.
   const given: IAutoMoviePhysicalRecoveryState = stale(true);
-  const quiet: physicalBalancePlan.IResult = plan(given, 0);
+  const quiet: ReturnType<typeof AutoMoviePhysicalBalance.plan> = plan(given, 0);
   if (
     quiet.state.last !== "supported" ||
     quiet.assessment.state !== "supported"
@@ -111,7 +111,7 @@ export function test_engine_physics_physical_balance_plan(): void {
   near("quiet capture z", quiet.assessment.capturePoint.z, 0);
 
   // 2. Pushed, at a held rate.
-  const pushed: physicalBalancePlan.IResult = plan(
+  const pushed: ReturnType<typeof AutoMoviePhysicalBalance.plan> = plan(
     { ...stale(false), omega: 3 },
     1,
   );
@@ -123,7 +123,7 @@ export function test_engine_physics_physical_balance_plan(): void {
     failures.push("pushed: the outside clock was cleared");
 
   // 3. Failed landing.
-  const failed: physicalBalancePlan.IResult = plan(
+  const failed: ReturnType<typeof AutoMoviePhysicalBalance.plan> = plan(
     { ...stale(true), omega: 3 },
     1,
   );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -126,7 +126,7 @@ export function climbStairsCarry(
       borne(before, at),
       borne(next, at),
       anchor,
-      minimumJerk.share((share - before.to) / (next.from - before.to)),
+      AutoMovieEngineMotionSampling.minimumJerkShare((share - before.to) / (next.from - before.to)),
     );
   };
   // The weight passes onto the prop from the first tread touchdown to the
@@ -188,7 +188,7 @@ export function climbStairsCarry(
       const share: number = at / duration;
       const weight: number =
         last > first
-          ? minimumJerk.share(
+          ? AutoMovieEngineMotionSampling.minimumJerkShare(
               Math.max(0, Math.min(1, (share - first) / (last - first))),
             )
           : share >= first
@@ -197,7 +197,7 @@ export function climbStairsCarry(
       // The root moves with the weight onto the prop; the trunk turns with it
       // only once the floor foot has lifted, so a planted floor leg is not
       // twisted under a trunk the disc turns.
-      const turning: number = minimumJerk.share(
+      const turning: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.max(0, Math.min(1, (share - last) / Math.max(1e-9, 1 - last))),
       );
       const now: IAutoMovieMotionHumanSupportCarry.ICarry = carried(at, 0);

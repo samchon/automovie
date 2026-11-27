@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, ROM_TOLERANCE, Vector3, physicalShapeSegmentDistance, AutoMovieEngineKinematics } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, ROM_TOLERANCE, Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -359,8 +359,8 @@ export namespace HumanDigitFit {
                   ),
                 };
           const segmentDistance: ReturnType<
-            typeof physicalShapeSegmentDistance.prepare
-          > = physicalShapeSegmentDistance.prepare(pose, item.shape);
+            typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance
+          > = AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(pose, item.shape);
           for (const digit of hand.digits)
             for (let i: number = 1; i < digit.points.length; ++i) {
               const depth: number =

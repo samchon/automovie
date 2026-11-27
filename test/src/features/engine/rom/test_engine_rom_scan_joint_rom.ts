@@ -1,4 +1,6 @@
-import { scanJointRom } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
@@ -6,7 +8,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `scanJointRom` reports each axis fault in axis order with its distance past
+ * `AutoMovieEngineKinematics.scanJointRom` reports each axis fault in axis order with its distance past
  * the limit; `overshoot` sums them.
  *
  * Constraint: flexion [-10, 20], abduction [0, 30], twist immobile.
@@ -38,7 +40,7 @@ export function test_engine_rom_scan_joint_rom(): void {
     joint: IAutoMovieJointPose,
   ): [string, number, number | undefined][] => {
     const faults: [string, number, number | undefined][] = [];
-    scanJointRom(joint, constraint, (part, actual, overshoot) => {
+    AutoMovieEngineKinematics.scanJointRom(joint, constraint, (part, actual, overshoot) => {
       faults.push([part, actual, overshoot]);
     });
     return faults;
@@ -52,7 +54,7 @@ export function test_engine_rom_scan_joint_rom(): void {
   ]);
   TestValidator.equals(
     "sum",
-    scanJointRom.overshoot(pose(50, -5, 7), constraint),
+    AutoMovieEngineKinematics.scanJointRomOvershoot(pose(50, -5, 7), constraint),
     42,
   );
 }

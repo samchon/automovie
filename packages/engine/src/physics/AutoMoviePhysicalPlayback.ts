@@ -15,7 +15,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { decodePhysicalPlayback } from "./internal/playback/decodePhysicalPlayback";
-import { encodePhysicalPlayback } from "./encodePhysicalPlayback";
+import { encodePhysicalPlayback } from "./internal/encodePhysicalPlayback";
 import { samplePhysicalOwnership } from "./internal/samplePhysicalOwnership";
 
 /**

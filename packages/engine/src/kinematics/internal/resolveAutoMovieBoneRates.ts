@@ -35,18 +35,18 @@ export function resolveAutoMovieBoneRates(
   topology: IAutoMovieSkeletonTopology,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   localBodyAngularRates: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
-  root: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRoot,
-): Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate> | undefined {
-  const resolved: Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate> =
+  root: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsRootRate,
+): Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate> | undefined {
+  const resolved: Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate> =
     new Map();
   const walk: (
     definition: IAutoMovieBone,
     parentPosition: IAutoMovieVector3,
-    parentRate: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate,
+    parentRate: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate,
   ) => boolean = (
     definition: IAutoMovieBone,
     parentPosition: IAutoMovieVector3,
-    parentRate: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate,
+    parentRate: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate,
   ): boolean => {
     const bone: IAutoMovieResolvedBone | undefined = bones.get(definition.bone);
     if (bone === undefined) return true;
@@ -74,7 +74,7 @@ export function resolveAutoMovieBoneRates(
       Quaternion.rotateVector(bone.worldRotation, local),
     );
 
-    const rate: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate = { linear, angular };
+    const rate: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate = { linear, angular };
     resolved.set(definition.bone, rate);
     for (const child of topology.childrenByParent.get(definition.bone) ?? [])
       if (!walk(child, bone.worldPosition, rate)) return false;

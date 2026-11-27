@@ -19,7 +19,7 @@ import type {
 } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_AXES";
-import { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
+import { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { compileAttach } from "./compileAttach";
@@ -53,7 +53,7 @@ interface ICoupleContext {
    * Optional genuine static-rig producer supplied after the owning shot's
    * admission.
    */
-  prepareRig?: typeof prepareSkeletonPoseResolution;
+  prepareRig?: typeof prepareSkeletonPoseResolution.run;
 
   /** The shot's length in seconds. */
   duration: number;

@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  carriedAcceleration,
-  carriedRate,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -73,7 +67,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
   const P: number = props.push;
   // What an entry rate adds to a push-off path that starts at rest: the
   // rate times this term, whose slope is one at the cut.
-  const carry: (t: number) => number = (t: number): number => carriedRate(P, t);
+  const carry: (t: number) => number = (t: number): number => AutoMovieEngineMotionSampling.carriedRate(P, t);
   const stride: IAutoMovieVector3 = entry.feet[reaching].velocity;
   const spin: IAutoMovieVector3 = entry.feet[reaching].spin;
   const spinRate: number = Math.hypot(spin.x, spin.y, spin.z);
@@ -108,14 +102,14 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
       reachingCarry = Math.min(
         reachingCarry,
         Math.max(0, entry.feet[reaching].ankle.y + arm.y) /
-          (carriedRate.PEAK * falling),
+          (AutoMovieEngineMotionSampling.carriedRatePeak() * falling),
       );
   }
   // The reaching ankle's entry acceleration fades over the same carry, so
   // the leg continues what the root's carried acceleration asks of it.
   const surge: IAutoMovieVector3 = entry.feet[reaching].acceleration;
   const reachBend: (t: number) => number = (t: number): number =>
-    reachingCarry > CARRY ? carriedAcceleration(reachingCarry, t) : 0;
+    reachingCarry > CARRY ? AutoMovieEngineMotionSampling.carriedAcceleration(reachingCarry, t) : 0;
   // The take-off foot's pitch rate about its lateral axis, degrees per
   // second, positive lifting the toes.
   const lateral: IAutoMovieVector3 = Quaternion.rotateVector(support.rotation, {
@@ -151,7 +145,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
   const sample: (t: number) => jumpPush.IPhase = (
     t: number,
   ): jumpPush.IPhase => {
-    const s: number = minimumJerk.share(t / P);
+    const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / P);
     const k: number = carry(t);
     return {
       seconds: t,
@@ -249,7 +243,7 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
         reachingCarry > CARRY
           ? reachingCarry === P
             ? phase.carry
-            : carriedRate(reachingCarry, t)
+            : AutoMovieEngineMotionSampling.carriedRate(reachingCarry, t)
           : 0;
       const b: number = reachBend(t);
       const from: IAutoMovieVector3 = entry.feet[reaching].ankle;

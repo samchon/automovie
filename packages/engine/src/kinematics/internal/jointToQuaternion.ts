@@ -7,7 +7,7 @@ import {
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../constants/DEFAULT_JOINT_AXES";
-import { jointToQuaternionOnBasis } from "../jointToQuaternionOnBasis";
+import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
 /**
@@ -59,7 +59,7 @@ export const jointToQuaternion: (
   axes: IAutoMovieJointAxes = DEFAULT_JOINT_AXES,
   frame?: IAutoMovieRestFrame,
 ): IAutoMovieQuaternion =>
-  jointToQuaternionOnBasis(
+  jointToQuaternionOnBasis.run(
     joint,
     normalizeJointAxes(axes, "jointToQuaternion axes"),
     frame,

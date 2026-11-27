@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMovieModelPartMatrices } from "../../autoMovieModelPartMatrices";
+import { AutoMovieEngineModel } from "../../AutoMovieEngineModel";
 import { buildAutoMovieConvexHull } from "./buildAutoMovieConvexHull";
 import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQuery";
 import { measureAutoMovieMeshPieces } from "./measureAutoMovieMeshPieces";
@@ -122,7 +122,7 @@ const merged: (model: IAutoMovieModel) => IAutoMovieMesh = (
   model: IAutoMovieModel,
 ): IAutoMovieMesh => {
   const matrices: Map<IAutoMovieModelPart, number[] | null> =
-    autoMovieModelPartMatrices(model);
+    AutoMovieEngineModel.partMatrices(model);
   const positions: number[] = [];
   const indices: number[] = [];
   for (const part of model.parts) {

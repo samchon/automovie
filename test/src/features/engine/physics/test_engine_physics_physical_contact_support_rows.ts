@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry as Geometry, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalGeometry as Geometry, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieLinearizePhysicalTargetRows,
   IAutoMoviePhysicalContactSupportRows,
@@ -30,7 +30,7 @@ import { nclose } from "../../internal/predicates";
  */
 export async function test_engine_physics_physical_contact_support_rows(): Promise<void> {
   const profile: P = PhysicalFixtures.sphere(0.1);
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const targets: Record<string, IAutoMovieRigidTransform> = {
     root: structuredClone(profile.segments[0]!.neutral),
   };

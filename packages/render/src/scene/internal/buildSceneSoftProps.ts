@@ -10,7 +10,7 @@ import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowPartici
 import { buildSoftBodyObject } from "./buildSoftBodyObject.js";
 import { AutoMovieCollisionSource } from "../inspection/AutoMovieCollisionSource.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { softPropCordSurface } from "./softPropCordSurface.js";
 
 /**

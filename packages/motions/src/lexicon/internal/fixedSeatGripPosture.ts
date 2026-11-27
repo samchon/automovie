@@ -3,8 +3,7 @@ import {
   HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
-  toClinicalAngle,
-  toRigAngle,
+  AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -68,8 +67,8 @@ interface ITarget {
   best: Pair;
 }
 function range(axis: OptionalRange, frame: OptionalFrame): Pair {
-  const a: number = (toRigAngle(axis?.min ?? 0, frame) ?? 0) * RAD,
-    b: number = (toRigAngle(axis?.max ?? 0, frame) ?? 0) * RAD;
+  const a: number = (AutoMovieEngineKinematics.toRigAngle(axis?.min ?? 0, frame) ?? 0) * RAD,
+    b: number = (AutoMovieEngineKinematics.toRigAngle(axis?.max ?? 0, frame) ?? 0) * RAD;
   return [Math.min(a, b), Math.max(a, b)];
 }
 /** Maximum of a_cos(t)+b_sin(t) on one clinical interval. */
@@ -279,8 +278,8 @@ export function fixedSeatGripPosture(
       const joints: Joints = {};
       for (const t of targets(angle, station * share, points)) {
         const arm: IClavicle = t.arm,
-          f: number = (toRigAngle(arm.entry[0], arm.flexFrame) ?? 0) * RAD,
-          a: number = (toRigAngle(arm.entry[1], arm.abductFrame) ?? 0) * RAD;
+          f: number = (AutoMovieEngineKinematics.toRigAngle(arm.entry[0], arm.flexFrame) ?? 0) * RAD,
+          a: number = (AutoMovieEngineKinematics.toRigAngle(arm.entry[1], arm.abductFrame) ?? 0) * RAD;
         const demand: number =
           (Vector3.dot(t.local, t.local) +
             arm.length * arm.length -
@@ -303,11 +302,11 @@ export function fixedSeatGripPosture(
           }
         }
         joints[arm.bone] = [
-          toClinicalAngle(
+          AutoMovieEngineKinematics.toClinicalAngle(
             (f + (t.best[0] - f) * high * share) / RAD,
             arm.flexFrame,
           ) ?? 0,
-          toClinicalAngle(
+          AutoMovieEngineKinematics.toClinicalAngle(
             (a + (t.best[1] - a) * high * share) / RAD,
             arm.abductFrame,
           ) ?? 0,

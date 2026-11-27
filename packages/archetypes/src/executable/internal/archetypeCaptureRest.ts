@@ -59,7 +59,7 @@ export function archetypeCaptureRest(): Readonly<
   const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
     AutoMovieArchetypeDog.Affordance,
     AutoMovieArchetypeQuadrupedBody.Dimension
-  > = AutoMovieArchetypeQuadrupedRest(dog, {
+  > = AutoMovieArchetypeQuadrupedRest.plan(dog, {
     ...params,
     ...dogCarriers,
     folded: { fore: [-120, -50], hind: [-95, 80] },
@@ -78,7 +78,7 @@ export function archetypeCaptureRest(): Readonly<
   const horseClip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
-  > = AutoMovieArchetypeQuadrupedRest(horse, {
+  > = AutoMovieArchetypeQuadrupedRest.plan(horse, {
     ...params,
     ...carriers,
     folded: { fore: [-110, 5], hind: [-105, 55] },

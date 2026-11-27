@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -107,8 +107,8 @@ export function throwObjectBalance(
         };
       },
       weight: (seconds: number): number =>
-        minimumJerk.share(clock.linear("windup", "cocked", seconds)) *
-        (1 - minimumJerk.share(clock.linear("recover", "end", seconds))),
+        AutoMovieEngineMotionSampling.minimumJerkShare(clock.linear("windup", "cocked", seconds)) *
+        (1 - AutoMovieEngineMotionSampling.minimumJerkShare(clock.linear("recover", "end", seconds))),
     }),
   ];
 }

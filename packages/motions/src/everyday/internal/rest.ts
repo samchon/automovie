@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -361,7 +361,7 @@ export namespace rest {
       );
       if (sides.length === 0)
         return { ...posture, joints: { ...posture.joints } };
-      const s: number = minimumJerk.share(t / arrive);
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / arrive);
       const kept: Pick<IAutoMovieMotionHumanPosture, PlanWriteKept> =
         holding(posture);
       const joints: IAutoMovieMotionHumanPosture["joints"] = kept.joints;

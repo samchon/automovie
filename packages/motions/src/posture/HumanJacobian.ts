@@ -1,4 +1,10 @@
-import { DEFAULT_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  DEFAULT_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -76,7 +82,7 @@ export namespace HumanJacobian {
    * @param bones The same candidate's actual resolved bone frames.
    * @param variables Requested variables, including duplicates, in output
    *   order.
-   * @param projection Only clampJointToSkeleton.prepare for this same unchanged
+   * @param projection Only AutoMovieEngineKinematics.prepareClampJointToSkeleton for this same unchanged
    *   skeleton and canonical axes, borrowed from the current synchronous
    *   operation; omitted, angle demand prepares it locally.
    * @returns Fresh motions and a map of the actual clamped joints used for
@@ -154,7 +160,7 @@ export namespace HumanJacobian {
           const set: readonly [number, number, number] = posture.joints[
             bone
           ] ?? [0, 0, 0];
-          clamp ??= clampJointToSkeleton.prepare(body.skeleton);
+          clamp ??= AutoMovieEngineKinematics.prepareClampJointToSkeleton(body.skeleton);
           const joint: IAutoMovieJointPose = clamp({
             bone,
             flexion: set[0],

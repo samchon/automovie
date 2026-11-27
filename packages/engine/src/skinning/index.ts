@@ -1,2 +1,1 @@
-export * from "./resolveMorphTargetWeights";
-export * from "./skinAutoMovieMesh";
+export * from "./AutoMovieEngineSkinning";

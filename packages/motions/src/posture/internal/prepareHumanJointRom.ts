@@ -1,4 +1,4 @@
-import { jointRomOvershoot, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -42,7 +42,7 @@ export function prepareHumanJointRom(
       record = readHumanBone(body, bone) ?? null;
       records.set(bone, record);
     }
-    return jointRomOvershoot(
+    return AutoMovieEngineKinematics.jointRomOvershoot(
       joint,
       AutoMovieEngineKinematics.getConstraint(bone, record?.constraint ?? null),
     );

@@ -1,7 +1,7 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  fitSeededChainToTarget,
+  AutoMovieEngineMotionKinematics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -31,10 +31,10 @@ export function prepareHumanLimbFit(
   goal: IAutoMovieHumanLimbGoal,
   obstruction?: IAutoMovieFitChainToTargetProps["obstruction"],
   near?: IAutoMovieSwivelNear,
-  readAuthored?: Parameters<typeof fitSeededChainToTarget.prepare>[1],
-  resolution?: Parameters<typeof fitSeededChainToTarget.prepare>[2],
-  plant?: Parameters<typeof fitSeededChainToTarget.prepare>[4],
-): fitSeededChainToTarget.IWorkspace {
+  readAuthored?: AutoMovieEngineMotionKinematics.ISeededChainReadAuthored,
+  resolution?: AutoMovieEngineMotionKinematics.ISeededChainFitPoseResolution,
+  plant?: AutoMovieEngineMotionKinematics.ISeededChainPlantReader,
+): AutoMovieEngineMotionKinematics.ISeededChainFitWorkspace {
   // A continued fit keeps its seed's basin. An uncontinued arm may instead
   // rank its own legal swivels by the same joint strain as Bend.solve.
   const strain: ReturnType<typeof AutoMovieMotionHumanBend.strainOf> =
@@ -79,7 +79,7 @@ export function prepareHumanLimbFit(
     jointAxes: HUMANOID_JOINT_AXES,
     restFrames: HUMANOID_REST_FRAME,
   };
-  return fitSeededChainToTarget.prepare(
+  return AutoMovieEngineMotionKinematics.prepareSeededChainFit(
     source,
     readAuthored,
     resolution,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFitHumanPhysicalStandingPose,
   IAutoMoviePhysicalJoint,
@@ -211,7 +211,7 @@ export namespace HumanPhysicalSolePlant {
           Vector3.scale(lift, thigh * Math.sin(angle)),
         ),
       );
-      const turnUpper: IAutoMovieQuaternion = rotationBetween(
+      const turnUpper: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
         bend,
         Vector3.subtract(bent, hip),
       );
@@ -241,7 +241,7 @@ export namespace HumanPhysicalSolePlant {
       );
       knee = bent;
     }
-    const turnLower: IAutoMovieQuaternion = rotationBetween(
+    const turnLower: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
       Vector3.subtract(ankle, knee),
       Vector3.subtract(target, knee),
     );

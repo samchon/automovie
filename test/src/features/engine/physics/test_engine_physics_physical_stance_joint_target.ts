@@ -1,4 +1,4 @@
-import { Quaternion, physicalStanceJointTarget, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysicalStanceJointTarget, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMovieQuaternion,
@@ -61,7 +61,7 @@ export function test_engine_physics_physical_stance_joint_target(): void {
     Quaternion.multiply(goalShank, frame),
   );
   for (const knee of [10, 70]) {
-    const target: IAutoMovieQuaternion = physicalStanceJointTarget({
+    const target: IAutoMovieQuaternion = AutoMovieEnginePhysicalStanceJointTarget.compute({
       role: "posture",
       parentFrame: frame,
       childFrame: frame,
@@ -87,7 +87,7 @@ export function test_engine_physics_physical_stance_joint_target(): void {
     { x: 1, y: 0, z: 0 },
     -10,
   );
-  const hip: IAutoMovieQuaternion = physicalStanceJointTarget({
+  const hip: IAutoMovieQuaternion = AutoMovieEnginePhysicalStanceJointTarget.compute({
     role: "hip",
     parentFrame: frame,
     childFrame: frame,
@@ -164,7 +164,7 @@ export function test_engine_physics_physical_stance_joint_target(): void {
       { x: 1, y: 0, z: 0 },
       lean,
     );
-    const ankle: IAutoMovieQuaternion = physicalStanceJointTarget({
+    const ankle: IAutoMovieQuaternion = AutoMovieEnginePhysicalStanceJointTarget.compute({
       role: "planted",
       parentFrame: frame,
       childFrame: frame,
@@ -196,7 +196,7 @@ export function test_engine_physics_physical_stance_joint_target(): void {
     pitched,
   );
   const axis: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-  const released = physicalStanceJointTarget({
+  const released = AutoMovieEnginePhysicalStanceJointTarget.compute({
     role: "hip",
     parentFrame: frame,
     childFrame: frame,

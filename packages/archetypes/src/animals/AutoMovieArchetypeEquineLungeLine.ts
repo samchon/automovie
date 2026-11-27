@@ -1,4 +1,7 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeRide } from "../core";
@@ -74,9 +77,9 @@ export namespace AutoMovieArchetypeEquineLungeLine {
       if (change === undefined) return sign;
       const local: number = (seconds - change.from) / change.phase;
       if (local <= 0) return sign;
-      if (local < 1) return sign * (1 - minimumJerk.share(local));
+      if (local < 1) return sign * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(local));
       if (local < 2) return 0;
-      return -sign * minimumJerk.share(Math.min(1, local - 2));
+      return -sign * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, local - 2));
     };
     return EquineLine.layer(
       ride,

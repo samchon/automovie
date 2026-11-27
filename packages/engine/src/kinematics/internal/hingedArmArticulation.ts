@@ -130,7 +130,7 @@ const EDGE_BISECTIONS: number = 20;
  * change the span ({@link armChainFault} reports that rig).
  */
 export function hingedArmArticulation(
-  props: AutoMovieEngineKinematicsTypes.HingedArmArticulation.IProps,
+  props: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps,
 ): IAutoMovieHingedArticulation | null {
   // The bend branches toward the target, each stopped inside the mid joint's
   // own range (`hingedArmSwivel.branches`): a hinge angle outside the range
@@ -615,7 +615,7 @@ export function hingedArmArticulation(
 
 /**
  * A legal candidate a placed pole's walk reached and its distance from the
- * pole, degrees (`AutoMovieEngineKinematicsTypes.HingedArmArticulation.IProps.placed`).
+ * pole, degrees (`AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps.placed`).
  */
 interface IPlacedEdge {
   /** The candidate at the pole or at the legality edge nearest it. */

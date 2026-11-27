@@ -1,4 +1,4 @@
-import { jointRomOvershoot, swingTwistRange } from "@automovie/engine";
+import { AutoMovieEngineKinematics, swingTwistRange } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
@@ -33,7 +33,7 @@ export function test_engine_kinematics_joint_rom_overshoot(): void {
     twist: { min: -5, max: 5 },
   };
   const score: (value: IAutoMovieJointPose) => number =
-    jointRomOvershoot.prepare("leftLowerArm", box);
+    AutoMovieEngineKinematics.prepareJointRomOvershoot("leftLowerArm", box);
   for (const [value, expected] of [
     [joint("leftLowerArm"), 0],
     [joint("leftLowerArm", { flexion: 0 }), 10],
@@ -47,7 +47,7 @@ export function test_engine_kinematics_joint_rom_overshoot(): void {
       nclose(score(value), expected, 1e-12),
     );
   const coupled: (value: IAutoMovieJointPose) => number =
-    jointRomOvershoot.prepare("leftUpperArm", {
+    AutoMovieEngineKinematics.prepareJointRomOvershoot("leftUpperArm", {
       flexion: { min: -45, max: 45 },
       abduction: { min: -90, max: 90 },
       twist: null,
@@ -83,7 +83,7 @@ export function test_engine_kinematics_joint_rom_overshoot(): void {
       range,
     );
   const physical: (value: IAutoMovieJointPose) => number =
-    jointRomOvershoot.prepare("leftUpperArm", range, rig);
+    AutoMovieEngineKinematics.prepareJointRomOvershoot("leftUpperArm", range, rig);
   for (const [flexion, twist, expected] of [
     [20, 10, 0],
     [60, 10, 15],
@@ -101,7 +101,7 @@ export function test_engine_kinematics_joint_rom_overshoot(): void {
     );
 
   const absent: (value: IAutoMovieJointPose) => number =
-    jointRomOvershoot.prepare("leftUpperArm", null, rig);
+    AutoMovieEngineKinematics.prepareJointRomOvershoot("leftUpperArm", null, rig);
   const unread: IAutoMovieJointPose = {
     bone: "leftUpperArm",
     /** An unconstrained score has no dependency on this clinical coordinate. */

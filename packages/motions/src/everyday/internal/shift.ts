@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -271,7 +271,7 @@ export namespace shift {
       seconds: number,
       corrected: boolean = true,
     ): IAutoMovieMotionHumanPosture {
-      const s: number = minimumJerk.share(seconds / slide);
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(seconds / slide);
       const socket: IAutoMovieVector3 = {
         x: start.x + travelX * s,
         y: start.y + (corrected ? (correction?.(seconds)[0] ?? 0) : 0),

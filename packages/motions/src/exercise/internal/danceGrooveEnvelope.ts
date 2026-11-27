@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanDanceBeats } from "@automovie/interface";
 
 /**
@@ -19,8 +19,8 @@ export function danceGrooveEnvelope(
   const first: number = beats.at(1);
   const last: number = beats.at(beats.count);
   if (t <= first)
-    return minimumJerk.share(Math.max(0, t) / Math.max(1e-9, first));
+    return AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, t) / Math.max(1e-9, first));
   if (t >= last)
-    return 1 - minimumJerk.share((t - last) / Math.max(1e-9, end - last));
+    return 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - last) / Math.max(1e-9, end - last));
   return 1;
 }

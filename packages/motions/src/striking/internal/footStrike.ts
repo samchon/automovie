@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -151,8 +151,8 @@ export namespace footStrike {
     ]);
     const share = (seconds: number): number =>
       seconds <= shown
-        ? minimumJerk.share(seconds / shown)
-        : 1 - minimumJerk.share((seconds - shown) / recoil);
+        ? AutoMovieEngineMotionSampling.minimumJerkShare(seconds / shown)
+        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - shown) / recoil);
 
     // The geometry reads the target as the placed performance shows it: the
     // plan solves it when it is prepared, as the close strike's is, and each
@@ -191,7 +191,7 @@ export namespace footStrike {
       const whole: number = p.spin === true ? 360 * sign : 0;
       const spun = (seconds: number): number =>
         whole *
-          minimumJerk.share(
+          AutoMovieEngineMotionSampling.minimumJerkShare(
             Math.min(1, seconds / Math.max(1e-6, spinTime * strike)),
           ) +
         away * share(seconds);
@@ -394,7 +394,7 @@ export namespace footStrike {
         folded,
         Vector3.scale(
           Vector3.subtract(ankle, folded),
-          1 / minimumJerk.share(MEET),
+          1 / AutoMovieEngineMotionSampling.minimumJerkShare(MEET),
         ),
       );
       const knee: IAutoMovieVector3 = hinted(ankle);

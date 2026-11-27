@@ -1,4 +1,4 @@
-import { speedProfile } from "@automovie/engine";
+import { AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanFormation,
   IAutoMovieSpeedProfile,
@@ -18,7 +18,7 @@ type IAtResult = { at: IAutoMovieVector3; heading: number };
  * faces at any second, read in closed form.
  *
  * The origin's distance along the path comes from the engine's speed profile
- * (`speedProfile`, P13, one owner of travel timing): a single cruising speed is
+ * (`AutoMovieEngineMotionTrajectory.speedProfile`, P13, one owner of travel timing): a single cruising speed is
  * one stretch that accelerates, cruises and brakes to a stop at the path's end;
  * speed marks are held stretches and constant-rate changes at the frame's
  * acceleration, the last speed held until the frame brakes onto the end. The
@@ -172,7 +172,7 @@ export namespace HumanFormationPath {
         profiled.push({ kind: "distance", length: left, speed: 0, cap: v });
       }
     }
-    const profile: IAutoMovieSpeedProfile.IProfile = speedProfile({
+    const profile: IAutoMovieSpeedProfile.IProfile = AutoMovieEngineMotionTrajectory.speedProfile({
       start,
       speed: 0,
       acceleration,

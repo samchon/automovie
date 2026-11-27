@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -399,7 +399,7 @@ export namespace lineWalk {
       // Step k carries the hips one step on along the line.
       const k: number = Math.min(steps - 1, Math.floor(t / PERIOD));
       const s: number =
-        start + step * (k + minimumJerk.share(Math.min(1, t / PERIOD - k)));
+        start + step * (k + AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / PERIOD - k)));
       const sway: number =
         SWAY * body.measure.stature * Math.sin((Math.PI * t) / PERIOD);
       return Vector3.add(

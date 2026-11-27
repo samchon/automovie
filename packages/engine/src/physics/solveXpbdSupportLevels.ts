@@ -5,7 +5,7 @@ import type {
 
 import { solveAutoMovieQuadraticProgram } from "../math/internal/solveAutoMovieQuadraticProgram";
 import { AutoMovieXpbdSupportRows as Rows } from "./AutoMovieXpbdSupportRows";
-import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
+import { AutoMovieEnginePhysics } from "./AutoMovieEnginePhysics";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
 /**
@@ -21,13 +21,13 @@ export namespace solveXpbdSupportLevels {
   export function level(
     diagonal: number[],
     linear: number[],
-    equalities: ActiveSet.IRow[],
-    inequalities: ActiveSet.IRow[],
+    equalities: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow[],
+    inequalities: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow[],
     keys: readonly string[],
     warm: string[],
   ): number[] | null {
     const known: ReadonlySet<string> = new Set(warm);
-    const solved: ActiveSet.IResult | null = ActiveSet({
+    const solved: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetResult | null = AutoMovieEnginePhysics.solveXpbdDualActiveSet({
       diagonal,
       linear,
       equalities,
@@ -47,7 +47,7 @@ export namespace solveXpbdSupportLevels {
         linear,
         rows: [
           ...equalities.map(
-            (row: ActiveSet.IRow): IAutoMovieQuadraticRow => ({
+            (row: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow): IAutoMovieQuadraticRow => ({
               indices: row.indices,
               weights: row.weights,
               lower: row.value,
@@ -55,7 +55,7 @@ export namespace solveXpbdSupportLevels {
             }),
           ),
           ...inequalities.map(
-            (row: ActiveSet.IRow): IAutoMovieQuadraticRow => ({
+            (row: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow): IAutoMovieQuadraticRow => ({
               indices: row.indices,
               weights: row.weights,
               lower: row.value,

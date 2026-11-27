@@ -5,7 +5,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { physicalShapeBounds } from "../physicalShapeBounds";
+import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
 
 /**
  * Refuse a nonfinite or out-of-domain shape before it can leave the declared
@@ -16,7 +16,7 @@ export function inPhysicalFloorBounds(
   shape: IAutoMoviePhysicalShape,
   floor: IAutoMoviePhysicalSimulationInput.IInput["floorBounds"],
 ): boolean {
-  const bounds: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBounds(
+  const bounds: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBoundsImplementation.physicalShapeBounds(
     pose,
     shape,
   );

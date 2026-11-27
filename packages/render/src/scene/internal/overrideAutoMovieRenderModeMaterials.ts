@@ -5,9 +5,9 @@ import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.j
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
 import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
 import { AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
-import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
+import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Swap every mesh material for `make`'s, restoring the originals and disposing

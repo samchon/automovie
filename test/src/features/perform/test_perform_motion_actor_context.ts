@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, Quaternion, makeActorSynthesizer, AutoMovieEngineFilm, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Quaternion, AutoMovieEngineFilm, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActorContext,
@@ -51,7 +51,7 @@ function gaitPeriod(): void {
     to: { kind: "node", node: "unplaced" },
   };
   const resume = (given: IAutoMovieActorContext): IAutoMovieMotion =>
-    makeActorSynthesizer(new Map([["runner", given]]), new Map())(
+    AutoMovieEngineFilm.makeActorSynthesizer(new Map([["runner", given]]), new Map())(
       call,
       "runner",
     )!;
@@ -117,7 +117,7 @@ export function test_perform_motion_actor_context(): void {
       ["reader", other.position],
       ["walker", rig.position],
     ]);
-  const make = makeActorSynthesizer(actors, nodes);
+  const make = AutoMovieEngineFilm.makeActorSynthesizer(actors, nodes);
   const to = { kind: "node", node: "reader" } as const;
   const walk: IAutoMovieActionCall = {
     verb: "locomote",
@@ -179,7 +179,7 @@ export function test_perform_motion_actor_context(): void {
   TestValidator.predicate(
     "ambiguous gait name",
     throwsError(() =>
-      makeActorSynthesizer(
+      AutoMovieEngineFilm.makeActorSynthesizer(
         new Map([["walker", { ...rig, gaits: [...rig.gaits, ...rig.gaits] }]]),
         nodes,
       )(walk, "walker"),
@@ -209,7 +209,7 @@ export function test_perform_motion_actor_context(): void {
     AutoMovieEngineKinematics.resolveActorWorldFrame(rig, undefined, 0),
     null,
   );
-  const moving = makeActorSynthesizer(
+  const moving = AutoMovieEngineFilm.makeActorSynthesizer(
     actors,
     nodes,
     undefined,

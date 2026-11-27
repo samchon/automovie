@@ -34,7 +34,7 @@ import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing"
  */
 export function physicalBalanceSettle(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
+  sense: AutoMovieEnginePhysicalBalanceTypes.ISense;
   goals: Readonly<Record<string, IAutoMovieVector3>>;
   assessment: IAutoMoviePhysicalBalance.IResult;
 }): physicalBalanceSettle.IResult {

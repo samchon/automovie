@@ -11,11 +11,11 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
-import { physicalStanceBalance } from "../physicalStanceBalance";
-import type { physicalStanceSeat } from "../physicalStanceSeat";
+import { AutoMovieEnginePhysicalStanceBalance } from "../AutoMovieEnginePhysicalStanceBalance";
+import type { AutoMovieEnginePhysicalStanceSeat } from "../AutoMovieEnginePhysicalStanceSeat";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
-import { physicalSwingReference } from "../physicalSwingReference";
+import { AutoMovieEnginePhysicalSwingReference } from "../AutoMovieEnginePhysicalSwingReference";
 
 /**
  * What the balance controller reads of one body this substep, shared by its
@@ -33,9 +33,9 @@ import { physicalSwingReference } from "../physicalSwingReference";
  *   segment found now, the rest computed when asked for.
  */
 export function physicalBalanceSense(
-  input: AutoMovieEnginePhysicalBalanceTypes.Sense.IInput,
-): AutoMovieEnginePhysicalBalanceTypes.Sense.ISense {
-  const limbs: readonly AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb[] =
+  input: AutoMovieEnginePhysicalBalanceTypes.ISenseInput,
+): AutoMovieEnginePhysicalBalanceTypes.ISense {
+  const limbs: readonly AutoMovieEnginePhysicalBalanceTypes.ILimb[] =
     input.policy.pattern.limbs;
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -71,9 +71,9 @@ export function physicalBalanceSense(
       !input.profile.joints.some((joint) => joint.child === segment.bone),
   )!;
 
-  const limb = (bone: string): AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb =>
+  const limb = (bone: string): AutoMovieEnginePhysicalBalanceTypes.ILimb =>
     limbs.find(
-      (candidate: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): boolean =>
+      (candidate: AutoMovieEnginePhysicalBalanceTypes.ILimb): boolean =>
         candidate.bone === bone,
     )!;
   const authored = (bone: string): IAutoMovieVector3 =>
@@ -86,7 +86,7 @@ export function physicalBalanceSense(
     );
   };
   const footprint = (
-    of: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb,
+    of: AutoMovieEnginePhysicalBalanceTypes.ILimb,
     state: Readonly<
       Pick<IAutoMoviePhysicalRecoveryState, "seating" | "offsets">
     >,
@@ -94,7 +94,7 @@ export function physicalBalanceSense(
   ): IAutoMoviePhysicalSupportPatch => {
     // A seated foot bears with its outline where it is planted: its authored
     // pose moved by its landed offset. An unseated one bears on its face at
-    // its present pose, the edge it rolled onto (`physicalStanceBalance
+    // its present pose, the edge it rolled onto (`AutoMovieEnginePhysicalStanceBalance
     // .support`).
     const seat = state.seating?.[of.bone];
     const offset: IAutoMovieVector3 =
@@ -164,7 +164,7 @@ export function physicalBalanceSense(
         (support: IAutoMovieCollectPhysicalSupports.ISupport): boolean =>
           support.bone === bone,
       )?.samples.length ?? 0) > 0,
-    grounded: (of: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): boolean =>
+    grounded: (of: AutoMovieEnginePhysicalBalanceTypes.ILimb): boolean =>
       physicalSupportFootprint.grounded(
         input.profile,
         input.segments,
@@ -199,7 +199,7 @@ export function physicalBalanceSense(
       const heights: number[] = vertices
         .filter(
           (_: IAutoMovieVector3, index: number): boolean =>
-            planted[index]! <= lowest + physicalStanceBalance.LIFT,
+            planted[index]! <= lowest + AutoMovieEnginePhysicalStanceBalance.LIFT,
         )
         .map(
           (vertex: IAutoMovieVector3): number =>
@@ -210,12 +210,12 @@ export function physicalBalanceSense(
     authored,
     actual,
     latch: (
-      of: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb,
-    ): NonNullable<physicalStanceSeat.ISeat["anchor"]> => ({
+      of: AutoMovieEnginePhysicalBalanceTypes.ILimb,
+    ): NonNullable<AutoMovieEnginePhysicalStanceSeat.ISeat["anchor"]> => ({
       point: actual(of.bone),
       rotation: { ...input.segments.get(of.bone)!.rotation() },
     }),
-    legMass: (of: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): number =>
+    legMass: (of: AutoMovieEnginePhysicalBalanceTypes.ILimb): number =>
       [...new Set([...of.chain, ...(of.contacts ?? [])])].reduce(
         (sum: number, bone: string): number =>
           sum +
@@ -225,10 +225,10 @@ export function physicalBalanceSense(
           )?.mass ?? 0),
         0,
       ),
-    hang: (of: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): number => {
+    hang: (of: AutoMovieEnginePhysicalBalanceTypes.ILimb): number => {
       const at: IAutoMovieVector3 = actual(of.bone);
       const shift: IAutoMovieVector3 = Vector3.subtract(at, authored(of.bone));
-      return physicalSwingReference.hang({
+      return AutoMovieEnginePhysicalSwingReference.hang({
         profile: input.profile,
         carriers: of.contacts ?? [of.bone],
         planned: (bone: string): IAutoMovieRigidTransform | undefined => {

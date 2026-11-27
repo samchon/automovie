@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -445,10 +445,10 @@ export namespace armWrestle {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const envelope: number =
           t < arrive
-            ? minimumJerk.share(t / arrive)
+            ? AutoMovieEngineMotionSampling.minimumJerkShare(t / arrive)
             : t <= relax
               ? 1
-              : 1 - minimumJerk.share((t - relax) / arrive);
+              : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - relax) / arrive);
         const degrees: number =
           t <= go
             ? 0
@@ -457,13 +457,13 @@ export namespace armWrestle {
               : t <= pin
                 ? SWAY * Math.sin((2 * Math.PI * struggle) / 1.5) +
                   (asked - SWAY * Math.sin((2 * Math.PI * struggle) / 1.5)) *
-                    minimumJerk.share((t - turn) / (pin - turn))
+                    AutoMovieEngineMotionSampling.minimumJerkShare((t - turn) / (pin - turn))
                 : asked;
         const pinned: number =
           t <= turn
             ? 0
             : t <= pin
-              ? minimumJerk.share((t - turn) / (pin - turn))
+              ? AutoMovieEngineMotionSampling.minimumJerkShare((t - turn) / (pin - turn))
               : 1;
         const posed: IAutoMovieMotionHumanPosture = set(
           base.posture(t, undefined, source, projection),

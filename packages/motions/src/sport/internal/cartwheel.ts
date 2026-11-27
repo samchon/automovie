@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
@@ -120,7 +120,7 @@ export namespace cartwheel {
    * @returns The shape's share, 0 to 1.
    */
   export function shapeShare(angle: number): number {
-    return minimumJerk.share(
+    return AutoMovieEngineMotionSampling.minimumJerkShare(
       angle <= 180 ? angle / SHAPE : (360 - angle) / SHAPE,
     );
   }
@@ -146,7 +146,7 @@ export namespace cartwheel {
       .plan({ ...context, params: { hold: 1 } })
       .posture(0);
     const ease: (x: number) => number = (x: number): number =>
-      minimumJerk.share(x);
+      AutoMovieEngineMotionSampling.minimumJerkShare(x);
     // The shape leaves the body as the entry shows it, its stance and its
     // feet, and closes on the relaxed stand.
     const entering: ReturnType<typeof ExerciseKey.prepareBlend> =

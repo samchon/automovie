@@ -9,7 +9,7 @@ import {
   type IAutoMovieViolationAppendPositiveTextSink,
 } from "@automovie/interface";
 
-import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
+import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
 

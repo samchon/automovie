@@ -1,4 +1,4 @@
-import { createAutoMovieLoudnessMeter } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieLoudnessMeter } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -63,7 +63,7 @@ export function test_engine_sound_loudness_meter(): void {
     chunks: readonly Float32Array[],
   ): IAutoMovieLoudnessMeter.IMeasurement => {
     const meter: IAutoMovieLoudnessMeter =
-      createAutoMovieLoudnessMeter(channels);
+      AutoMovieEngineSound.createLoudnessMeter(channels);
     for (const chunk of chunks) meter.push(chunk);
     return meter.measure();
   };

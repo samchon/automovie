@@ -1,7 +1,7 @@
 import {
   Quaternion,
-  fitSeededChainToTarget,
-  indexSkeletonTopology,
+  AutoMovieEngineMotionKinematics,
+  AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
@@ -82,7 +82,8 @@ export function test_engine_kinematics_prescribed_twist_fallback(): void {
     Quaternion.fromAxisAngle(axes.twist, turn),
     Quaternion.fromAxisAngle(axes.abduction, 0.277 * degrees),
   );
-  const fit: fitSeededChainToTarget.IWorkspace = fitSeededChainToTarget.prepare({
+  const fit: AutoMovieEngineMotionKinematics.ISeededChainFitWorkspace =
+    AutoMovieEngineMotionKinematics.prepareSeededChainFit({
     skeleton,
     pose: { skeleton: skeleton.id, root: null, joints: [] },
     chain: {
@@ -90,7 +91,7 @@ export function test_engine_kinematics_prescribed_twist_fallback(): void {
       lower: "rightLowerArm",
       effector: "rightHand",
     },
-    topology: indexSkeletonTopology(skeleton),
+    topology: AutoMovieEngineKinematics.indexSkeletonTopology(skeleton),
     jointAxes: {
       rightUpperArm: axes,
       rightLowerArm: { ...axes, twistPlacement: "distal" },

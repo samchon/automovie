@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -331,19 +331,19 @@ export function planPickUpGrasp(
       if (t < reach) {
         if (lowered !== null)
           base = lowered.at(
-            minimumJerk.share(t / reach),
+            AutoMovieEngineMotionSampling.minimumJerkShare(t / reach),
             resolution,
             projection,
           );
       } else if (t <= end) {
         const k: number =
           rising && rise > 0
-            ? minimumJerk.share(Math.min(1, Math.max(0, (t - liftOff) / rise)))
+            ? AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, (t - liftOff) / rise)))
             : 0;
         if (k > 0)
           base = raisedAt(1 - (1 - raise.share) * k, k, resolution, projection);
       } else {
-        const m: number = 1 - minimumJerk.share((t - end) / up);
+        const m: number = 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - end) / up);
         base = rising
           ? raisedAt(raise.share * m, m, resolution, projection)
           : lowered!.at(m, resolution, projection);
@@ -359,7 +359,7 @@ export function planPickUpGrasp(
                   grasp.point.y +
                   (rise > 0
                     ? lift *
-                      minimumJerk.share(Math.min(1, (at - liftOff) / rise))
+                      AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (at - liftOff) / rise))
                     : 0),
               };
         return interception === undefined

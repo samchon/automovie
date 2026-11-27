@@ -14,7 +14,7 @@ import { applyAutoMovieSectionPlanes } from "../../internal/applyAutoMovieSectio
  * so the prior state of every material under the scene is recorded first. A
  * material whose plane count changes back is marked for recompilation.
  */
-export function applyAutoMovieInspectionSectionImplementation(props: AutoMovieRenderInspection.ApplySection.IProps): () => void {
+export function applyAutoMovieInspectionSectionImplementation(props: AutoMovieRenderInspection.IApplySectionProps): () => void {
   const enabled: boolean = props.renderer.localClippingEnabled;
   const clipping: Map<
     THREE.Material,

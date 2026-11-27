@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -158,7 +158,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           for (const shape of p.shapes)
             near = Math.min(
               near,
-              physicalShapeSegmentDistance(ORIGIN, shape, probe, probe),
+              AutoMovieEnginePhysics.physicalShapeSegmentDistance(ORIGIN, shape, probe, probe),
             );
           if (near < Infinity) offset = Math.max(offset, near);
         }

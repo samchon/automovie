@@ -1,7 +1,7 @@
 import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
 
 import { AutoMovieSolidVector } from "../../geometry/construction/AutoMovieSolidVector";
-import { prepareLinearSystem } from "../../math/prepareLinearSystem";
+import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 
 /**
  * Execute the digit task-priority descent and retain the actual primary
@@ -194,7 +194,7 @@ export function descendDigitTasks(
     // The primary's damped step and its damped null space.
     const A1: number[][] = damped(G, mu);
     const solvePrimary: ((right: readonly number[]) => number[]) | null =
-      prepareLinearSystem(A1);
+      AutoMovieEngineMath.prepareLinearSystem(A1);
     if (solvePrimary === null) break;
     const h1: number[] = solvePrimary(right);
     let h: number[] = h1;

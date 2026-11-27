@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { captureAutoMovieFramebufferRestore } from "../../internal/captureAutoMovieFramebufferRestore.js";
-import { restoreAutoMovieRenderModeState } from "../../restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "../../internal/restoreAutoMovieRenderModeState.js";
 import { countAutoMovieCameraOcclusionPixels } from "./countAutoMovieCameraOcclusionPixels.js";
 import type { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraOcclusionPixels.js";
 

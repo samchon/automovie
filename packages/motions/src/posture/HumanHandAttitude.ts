@@ -1,4 +1,11 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  swingTwistRange,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -170,7 +177,7 @@ export namespace HumanHandAttitude {
       along,
     );
     if (!(Math.abs(rate) > 1e-6)) return written(forearm, first);
-    const turned: IAutoMovieJointPose = clampJointToSkeleton(
+    const turned: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointToSkeleton(
       {
         bone: lower,
         flexion: forearm[0],
@@ -220,7 +227,7 @@ function wrist(
     constraint: AutoMovieEngineKinematics.getConstraint(hand, found?.constraint ?? null),
   };
   const clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
-    clampJointToSkeleton.resolved(
+    AutoMovieEngineKinematics.clampJointToSkeletonResolved(
       hand,
       found,
       (): IAutoMovieJointRotationFrame | undefined =>

@@ -66,7 +66,7 @@ export interface IAutoMovieMotionHumanBody {
   >;
 
   /**
-   * The rig's range-of-motion projection of a whole pose (`clampPose.prepare`),
+   * The rig's range-of-motion projection of a whole pose (`AutoMovieEngineKinematics.prepareClampPose`),
    * built once on this body's rig: every joint of the given pose clamped in
    * order into a new pose, carrying its one-joint clamp and that clamp's
    * angle-taking form (`joints`, `values`). Every consumer of the body's

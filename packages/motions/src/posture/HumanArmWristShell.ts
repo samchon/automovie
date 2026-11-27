@@ -2,7 +2,7 @@ import {
   HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
-  toRigAngle,
+  AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
@@ -34,15 +34,15 @@ export function HumanArmWristShell(
     setup.bones.lower;
   const frame = HUMANOID_REST_FRAME[bone];
   const fixed: number = G.clamped(setup, bone, [0, 0, 0])[1];
-  if (toRigAngle(fixed, frame?.abduction) !== 0) return 0;
+  if (AutoMovieEngineKinematics.toRigAngle(fixed, frame?.abduction) !== 0) return 0;
   const basis: IAutoMovieJointAxes = setup.basis(bone, "wrist reach shell");
   if (
     basis.rotationOrder !== "flexion-abduction-twist" &&
     basis.twistPlacement !== "distal"
   )
     return 0;
-  const from: number = toRigAngle(flexion.min, frame?.flexion)!;
-  const to: number = toRigAngle(flexion.max, frame?.flexion)!;
+  const from: number = AutoMovieEngineKinematics.toRigAngle(flexion.min, frame?.flexion)!;
+  const to: number = AutoMovieEngineKinematics.toRigAngle(flexion.max, frame?.flexion)!;
   return HumanArmWristShell.radius(
     Quaternion.rotateVector(
       Quaternion.inverse(setup.rest.lower.rotation),

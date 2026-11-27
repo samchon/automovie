@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, projectileFirstContact, AutoMovieEnginePhysics, AutoMovieAir } from "@automovie/engine";
+import { AutoMoviePhysicalProjectile, Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMoviePhysicalShape,
@@ -116,7 +116,7 @@ export namespace HumanPropSweepColliders {
       return undefined;
     const seconds: number =
       contact.from +
-      projectileFirstContact.step(
+      AutoMoviePhysicalProjectile.contactStep(
         projectile,
         { from: contact.from, to: contact.to },
         options,

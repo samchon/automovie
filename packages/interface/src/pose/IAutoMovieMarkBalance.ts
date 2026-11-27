@@ -1,3 +1,4 @@
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /** World-space balance geometry read by markAutoMovieBalance. */
@@ -9,7 +10,7 @@ export namespace IAutoMovieMarkBalance {
    * plane.
    *
    * The base of support is the convex hull of the support points in the
-   * horizontal XZ plane, as `resolveAutoMovieCenterOfMass.margin` measures
+   * horizontal XZ plane, as `AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin` measures
    * balance on it, drawn as a closed polyline through the hull's points at
    * their own heights; one support point is drawn as a point and two as a
    * segment. The centre is flagged when its margin of stability on that base is

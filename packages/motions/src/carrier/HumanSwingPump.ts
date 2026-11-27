@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -142,7 +142,7 @@ export function HumanSwingPump(
   const pumped = (at: number): number => {
     let share: number = first;
     for (const turn of turns) {
-      const progress: number = minimumJerk.share(
+      const progress: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         (at - (turn - TURN / 2)) / TURN,
       );
       if (progress <= 0) break;
@@ -156,7 +156,7 @@ export function HumanSwingPump(
     // The pumping posture grows from the seated entry while the hands take
     // the chains, so the ride begins where the sit ended.
     const share: number =
-      pumped(at) * minimumJerk.share(Math.min(1, at / HumanRide.TAKE));
+      pumped(at) * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, at / HumanRide.TAKE));
     const spine: readonly [number, number, number] = posture.joints.spine ?? [
       0, 0, 0,
     ];

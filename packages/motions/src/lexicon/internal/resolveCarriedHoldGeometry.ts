@@ -1,21 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionCoupling,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCarried,
-  IAutoMovieMotionHumanCarriedCouplingPose,
-  IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../../everyday/HumanTrunk";
 import { HumanColliders } from "../../posture/HumanColliders";
@@ -124,7 +108,7 @@ export function resolveCarriedHoldGeometry(
     const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       borne.surfaces.regions[contact.region];
     const placed: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
-      resolveAutoMovieHumanoidSurfaces.pointNormal(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(
         surface,
         mine.get(surface.bone)!,
       );

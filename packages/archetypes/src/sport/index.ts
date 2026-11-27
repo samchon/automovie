@@ -1,6 +1,6 @@
+export * from "./AutoMovieArchetypeBowlingPin";
 export { AutoMovieArchetypeBall } from "./AutoMovieArchetypeBall";
 export { AutoMovieArchetypeBowlingLane } from "./AutoMovieArchetypeBowlingLane";
-export * from "./createBowlingPin";
 export { AutoMovieArchetypeCricketWicket } from "./AutoMovieArchetypeCricketWicket";
 export { AutoMovieArchetypeCue } from "./AutoMovieArchetypeCue";
 export { AutoMovieArchetypeCueTable } from "./AutoMovieArchetypeCueTable";

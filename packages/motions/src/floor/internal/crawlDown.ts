@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -390,7 +390,7 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
     );
     if (seconds >= s.ends[s.ends.length - 1]!)
       return props.kneeling(base, 0, 1);
-    const u: number = minimumJerk.share(
+    const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       (seconds - s.ends[k - 1]!) / (s.ends[k]! - s.ends[k - 1]!),
     );
     const lerp = (a: number, b: number): number => a + (b - a) * u;
@@ -418,7 +418,7 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
     // the palms, over the whole way to them; the body sits onto the knees
     // from standing, then leans from them.
     const landing: number = s.ends[s.ends.length - 2]!;
-    const reach: number = minimumJerk.share(seconds / landing);
+    const reach: number = AutoMovieEngineMotionSampling.minimumJerkShare(seconds / landing);
     if (k === 1)
       return carriedArms(
         fromStanding(base, heldKneeling(base, sat, 0), u),

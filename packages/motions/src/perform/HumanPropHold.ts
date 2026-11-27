@@ -1,17 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 /** The record of `IFrameGrip`'s site. */
 type IFrameGrip = { side: AutoMovieHumanSide; bone?: AutoMovieHumanoidBone };
@@ -153,7 +141,7 @@ export namespace HumanPropHold {
       body.surfaces.sockets[grip.side === "left" ? "gripLeft" : "gripRight"];
     const bone: IAutoMovieResolvedBone = bones.get(socket.bone)!;
     return {
-      position: resolveAutoMovieHumanoidSurfaces.place(socket, bone).point,
+      position: AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(socket, bone).point,
       rotation: bone.worldRotation,
     };
   }

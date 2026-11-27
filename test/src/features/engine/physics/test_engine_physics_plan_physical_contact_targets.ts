@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -35,7 +35,7 @@ type Poses = Record<string, IAutoMovieRigidTransform>;
  *    stay as they were.
  */
 export async function test_engine_physics_plan_physical_contact_targets(): Promise<void> {
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
 
   /** The fold: upper-0 and its descendants turn -85 degrees about Z. */
   const fold = (model: P): Poses => {

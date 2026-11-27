@@ -6,7 +6,7 @@ import type {
   IAutoMoviePatternTexturing,
 } from "@automovie/interface";
 
-import { positive } from "../../geometry/positive";
+import { positive } from "../../geometry/internal/positive";
 import { Quaternion } from "../../math/Quaternion";
 
 /** Greatest relative skew a UV transform is still counted as free of. */

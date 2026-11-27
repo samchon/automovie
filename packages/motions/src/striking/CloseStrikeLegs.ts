@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -278,7 +278,7 @@ export namespace CloseStrikeLegs {
     return (
       Math.sign(angle) *
       360 *
-      minimumJerk.share((u - ROUND[0]) / (ROUND[1] - ROUND[0]))
+      AutoMovieEngineMotionSampling.minimumJerkShare((u - ROUND[0]) / (ROUND[1] - ROUND[0]))
     );
   }
 

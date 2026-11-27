@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -284,7 +284,7 @@ export namespace throwObject {
               : Quaternion.slerp(
                   lever.rotation(carried),
                   finished,
-                  minimumJerk.share(
+                  AutoMovieEngineMotionSampling.minimumJerkShare(
                     clock.linear("release", "followThrough", seconds),
                   ),
                 ),
@@ -301,7 +301,7 @@ export namespace throwObject {
           rotation: Quaternion.slerp(
             carriedOut,
             finished,
-            minimumJerk.share(
+            AutoMovieEngineMotionSampling.minimumJerkShare(
               clock.linear("release", "followThrough", seconds),
             ),
           ),

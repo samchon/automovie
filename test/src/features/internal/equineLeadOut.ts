@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeEquine, AutoMovieArchetypeQuadrupedDatumRide, type AutoMovieArchetypeQuadrupedFooting, type AutoMovieArchetypeRide, rideHorse, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeEquine, AutoMovieArchetypeQuadrupedDatumRide, type AutoMovieArchetypeQuadrupedFooting, type AutoMovieArchetypeRide, AutoMovieArchetypeHorseRide, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -163,7 +163,7 @@ export namespace equineLeadOut {
    */
   export interface ILed {
     /** The led ride, from the halt. */
-    ride: ReturnType<typeof rideHorse>;
+    ride: ReturnType<typeof AutoMovieArchetypeHorseRide.ride>;
 
     /** The film second it starts. */
     start: number;
@@ -217,7 +217,7 @@ export namespace equineLeadOut {
     const ride: AutoMovieArchetypeRide.IRide<
       AutoMovieArchetypeEquine.Affordance,
       AutoMovieArchetypeEquine.Dimension
-    > = AutoMovieArchetypeQuadrupedDatumRide(
+    > = AutoMovieArchetypeQuadrupedDatumRide.ride(
       horse,
       {
         start: { x: 0, z: 0, heading: 0 },
@@ -289,7 +289,7 @@ export namespace equineLeadOut {
     const halt: IAutoMovieVector3 = staged.place(staged.halt).position;
     return {
       start: walking.start,
-      ride: rideHorse(
+      ride: AutoMovieArchetypeHorseRide.ride(
         staged.horse,
         {
           start: { x: halt.x, z: halt.z, heading: 0 },

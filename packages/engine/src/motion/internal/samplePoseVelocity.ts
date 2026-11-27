@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { poseJointCodec } from "../../kinematics/poseJointCodec";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { Quaternion } from "../../math/Quaternion";
 import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
 
@@ -34,7 +34,7 @@ export namespace samplePoseVelocity {
    *
    * Each joint's angular velocity (`spins`) is read the way the root's is, from
    * the rotation vectors of its articulation at the same samples
-   * ({@link poseJointCodec}), never from the angle rates: at an angle chart's
+   * ({@link AutoMovieEngineKinematics.poseJointCodec}), never from the angle rates: at an angle chart's
    * gimbal the angle rates of a smooth rotation are unbounded, while its angular
    * velocity is not.
    *
@@ -95,11 +95,11 @@ export namespace samplePoseVelocity {
     ): number => (near * x + far * y + here * z) / (2 * step);
 
     const aa: Map<AutoMovieHumanoidBone, [number, number, number]> =
-      poseJointCodec.index(a);
+      AutoMovieEngineKinematics.indexPoseJoints(a);
     const ba: Map<AutoMovieHumanoidBone, [number, number, number]> =
-      poseJointCodec.index(b);
+      AutoMovieEngineKinematics.indexPoseJoints(b);
     const pa: Map<AutoMovieHumanoidBone, [number, number, number]> =
-      poseJointCodec.index(instant);
+      AutoMovieEngineKinematics.indexPoseJoints(instant);
     const joints: Map<AutoMovieHumanoidBone, [number, number, number]> =
       new Map();
     for (const bone of new Set([...aa.keys(), ...ba.keys(), ...pa.keys()])) {
@@ -117,7 +117,7 @@ export namespace samplePoseVelocity {
     // beside the instant, from the same origin sample as the root's below.
     const codec: IAutoMoviePoseJointCodec.ICodec =
       prepared === undefined
-        ? poseJointCodec(rig)
+        ? AutoMovieEngineKinematics.poseJointCodec(rig)
         : typeof prepared === "function"
           ? prepared()
           : prepared;

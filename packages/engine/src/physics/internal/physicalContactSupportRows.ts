@@ -10,7 +10,7 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
-import { physicalShapeBounds } from "../physicalShapeBounds";
+import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /** Borrowed world transforms for one candidate. */
@@ -101,7 +101,7 @@ export function physicalContactSupportRows(
               (segment: IAutoMoviePhysicalSegment): number[] =>
                 segment.shapes.map(
                   (shape: IAutoMoviePhysicalShape): number =>
-                    physicalShapeBounds(poses[segment.bone]!, shape).min.y,
+                    physicalShapeBoundsImplementation.physicalShapeBounds(poses[segment.bone]!, shape).min.y,
                 ),
             ),
           );

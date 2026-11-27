@@ -1,4 +1,5 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -11,7 +12,7 @@ const ROUNDING: number = 1e-15;
 const STANDARD_GRAVITY: number = 9.80665;
 
 /**
- * `resolveAutoMovieCenterOfMass.frequency` is the inverted pendulum's
+ * `AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency` is the inverted pendulum's
  * eigenfrequency `sqrt(g / l)` (Hof, Gazendam and Sinke 2005), with standard
  * gravity when none is given.
  *
@@ -24,8 +25,8 @@ const STANDARD_GRAVITY: number = 9.80665;
  * 3. A length of 0 or less and a gravity of 0 are refused.
  */
 export function test_engine_kinematics_resolve_center_of_mass_frequency(): void {
-  const frequency: typeof resolveAutoMovieCenterOfMass.frequency =
-    resolveAutoMovieCenterOfMass.frequency;
+  const frequency: typeof AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency =
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency;
   TestValidator.predicate(
     "standard gravity by default",
     nclose(frequency(STANDARD_GRAVITY), 1, ROUNDING),

@@ -1,11 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidSocket,
-  IAutoMovieMotionHumanCarry,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieMotionHumanCarry, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { carry } from "../../carrying/internal/carry";
@@ -148,7 +143,7 @@ export function carryCases(
           t: number,
         ): IAutoMovieVector3 => {
           const frame = who.body.surfaces.sockets[name(side)];
-          return resolveAutoMovieHumanoidSurfaces.place(
+          return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             frame,
             performance.bones("a", t).get(frame.bone)!,
           ).point;

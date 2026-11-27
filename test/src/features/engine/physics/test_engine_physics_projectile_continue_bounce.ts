@@ -1,8 +1,7 @@
 import {
+  AutoMoviePhysicalProjectile,
   AutoMovieGravity,
   Vector3,
-  projectileContinue,
-  projectileFirstContact,
 } from "@automovie/engine";
 import type {
   IAutoMovieHit,
@@ -58,7 +57,7 @@ const REST: number = 1e-4;
  */
 export function test_engine_physics_projectile_continue_bounce(): void {
   const ground: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.plane(
+    AutoMoviePhysicalProjectile.planeCollider(
       "ground",
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 1, z: 0 },
@@ -69,7 +68,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
     gravity: AutoMovieGravity.DOWN,
   };
   const first = (p: IAutoMovieProjectile): IAutoMovieHit =>
-    projectileFirstContact(
+    AutoMoviePhysicalProjectile.firstContact(
       p,
       [ground],
       { from: 0, to: 5 },
@@ -82,7 +81,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
 
   // 1. Half the speed, a quarter of the height.
   const hit: IAutoMovieHit = first(drop);
-  const after: IAutoMovieProjectileContinue.Segment = projectileContinue(
+  const after: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
     drop,
     hit,
     {
@@ -107,7 +106,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
   };
   let rolled: boolean = false;
   for (let k: number = 0; k < 3; k++) {
-    const next: IAutoMovieProjectileContinue.Segment = projectileContinue(
+    const next: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
       current,
       first(current),
       {
@@ -127,7 +126,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
   TestValidator.predicate("the bounces end in a roll", rolled);
 
   // 3. A roll stops at v²/(2cg).
-  const rolling: IAutoMovieProjectileContinue.Segment = projectileContinue(
+  const rolling: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
     {
       ...drop,
       origin: { x: 0, y: 0.0001, z: 0 },
@@ -144,7 +143,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
   // ground there (2 m/s, gravity having no horizontal part).
   const start: number = rolling.kind === "roll" ? rolling.origin.x : NaN;
   const stop: number = start + (2 * 2) / (2 * 0.1 * AutoMovieGravity.STANDARD);
-  const rest = projectileContinue.at(rolling, 100);
+  const rest = AutoMoviePhysicalProjectile.continuedAt(rolling, 100);
   // The closed form's few operations at float resolution.
   const resolution: number = Number.EPSILON * stop * 2 ** 4;
   TestValidator.predicate(
@@ -154,7 +153,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
   );
 
   // 4. A stick rests on along the velocity.
-  const stuck: IAutoMovieProjectileContinue.Segment = projectileContinue(
+  const stuck: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
     drop,
     hit,
     {
@@ -187,7 +186,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
           : { kind, loss: value };
       let refused: boolean = false;
       try {
-        projectileContinue(flight, contact, outcome);
+        AutoMoviePhysicalProjectile.continueFlight(flight, contact, outcome);
       } catch (error) {
         refused = error instanceof RangeError;
       }
@@ -213,7 +212,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
             ? { kind, restitution: value, friction: 0 }
             : { kind, loss: value };
         const continued: IAutoMovieProjectileContinue.Segment =
-          projectileContinue(flight, contact, outcome);
+          AutoMoviePhysicalProjectile.continueFlight(flight, contact, outcome);
         return (
           continued.kind === "flight" &&
           nclose(
@@ -229,7 +228,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
         );
       });
   accepts("friction above one keeps its nonnegative domain", (): boolean => {
-    const continued: IAutoMovieProjectileContinue.Segment = projectileContinue(
+    const continued: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
       flight,
       contact,
       {
@@ -248,7 +247,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
     "rolling resistance above one keeps its nonnegative domain",
     (): boolean => {
       const continued: IAutoMovieProjectileContinue.Segment =
-        projectileContinue(
+        AutoMoviePhysicalProjectile.continueFlight(
           { ...flight, gravity: AutoMovieGravity.DOWN },
           contact,
           { kind: "roll", resistance: 2 },
@@ -263,7 +262,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
     "embedding depth above one keeps its nonnegative domain",
     (): boolean => {
       const continued: IAutoMovieProjectileContinue.Segment =
-        projectileContinue(flight, contact, {
+        AutoMoviePhysicalProjectile.continueFlight(flight, contact, {
           kind: "stick",
           depth: 2,
         });
@@ -293,7 +292,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
     radius: 0.1,
     gyration: 2 / 3,
   };
-  const gripped: IAutoMovieProjectileContinue.Segment = projectileContinue(
+  const gripped: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
     oblique,
     level,
     { kind: "bounce", restitution: 0.5, friction: 1, ball: shell },
@@ -318,7 +317,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
   );
   accepts("a rolling shell's next bounce keeps its speed", (): boolean => {
     if (gripped.kind !== "flight" || gripped.spin === undefined) return false;
-    const again: IAutoMovieProjectileContinue.Segment = projectileContinue(
+    const again: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
       {
         ...oblique,
         velocity: { x: gripped.projectile.velocity.x, y: -1, z: 0 },
@@ -337,7 +336,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
     );
   });
   accepts("a ball that slides throughout keeps Coulomb's loss", (): boolean => {
-    const slid: IAutoMovieProjectileContinue.Segment = projectileContinue(
+    const slid: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
       oblique,
       level,
       { kind: "bounce", restitution: 0.5, friction: 0.2, ball: shell },
@@ -350,7 +349,7 @@ export function test_engine_physics_projectile_continue_bounce(): void {
   accepts(
     "a moving surface returns the ball relative to itself",
     (): boolean => {
-      const struck: IAutoMovieProjectileContinue.Segment = projectileContinue(
+      const struck: IAutoMovieProjectileContinue.Segment = AutoMoviePhysicalProjectile.continueFlight(
         { ...oblique, velocity: { x: 0, y: -1, z: 0 } },
         level,
         {

@@ -1,5 +1,5 @@
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
-import { applyRenderMode, AutoMovieRenderSceneEnvironment, AutoMovieRenderSceneLayout } from "@automovie/render";
+import { AutoMovieSceneRenderMode, AutoMovieRenderSceneEnvironment, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -83,7 +83,7 @@ export const assertViewerEnvironmentState: (
     },
   );
   AutoMovieRenderSceneEnvironment.applySceneEnvironment(scene, ENVIRONMENT, texture);
-  const normalPass: ReturnType<typeof applyRenderMode> = applyRenderMode(
+  const normalPass: ReturnType<typeof AutoMovieSceneRenderMode.apply> = AutoMovieSceneRenderMode.apply(
     scene,
     "normal",
   );

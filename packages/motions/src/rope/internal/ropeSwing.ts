@@ -2,7 +2,7 @@ import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -234,12 +234,12 @@ export function ropeSwing(
       return stuntFallPose.blend(
         shape(hipsOf(touchdown), up, end.joints),
         landed,
-        minimumJerk.share((t - touchdown) / ABSORB),
+        AutoMovieEngineMotionSampling.minimumJerkShare((t - touchdown) / ABSORB),
       );
     const hips: IAutoMovieVector3 = hipsOf(t);
     if (t > release.release) {
       // In flight the body rights itself and lowers its arms by touchdown.
-      const k: number = minimumJerk.share(
+      const k: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         (t - release.release) / (touchdown - release.release),
       );
       const joints: IAutoMovieMotionHumanPosture["joints"] =
@@ -270,7 +270,7 @@ export function ropeSwing(
   ): IAutoMovieMotionHumanPosture =>
     t >= STEP_OFF
       ? hung
-      : stuntFallPose.blend(entered, hung, minimumJerk.share(t / STEP_OFF));
+      : stuntFallPose.blend(entered, hung, AutoMovieEngineMotionSampling.minimumJerkShare(t / STEP_OFF));
   return {
     duration,
     events: [

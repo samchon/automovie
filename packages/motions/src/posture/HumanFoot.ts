@@ -1,18 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFootOutline } from "./HumanFootOutline";
 import { HumanFootRotation } from "./HumanFootRotation";
@@ -112,7 +99,7 @@ export namespace HumanFoot {
           ];
         return {
           socket,
-          point: resolveAutoMovieHumanoidSurfaces.point(
+          point: AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
             frame,
             bones.get(frame.bone)!,
           ),

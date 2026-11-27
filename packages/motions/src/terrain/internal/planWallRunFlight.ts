@@ -1,4 +1,4 @@
-import { AutoMovieGravity, minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
@@ -105,8 +105,8 @@ export function planWallRunFlight(
       const { from, to, bones, arms, v }: IFlight = flight;
       const tau: number = seconds - t0;
       const s: number = tau / span;
-      const shaped: number = minimumJerk.share(s);
-      const reached: number = minimumJerk.share(Math.min(1, 2 * s));
+      const shaped: number = AutoMovieEngineMotionSampling.minimumJerkShare(s);
+      const reached: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, 2 * s));
       const joints: IAutoMovieMotionHumanPosture["joints"] = {};
       for (let k: number = 0; k < bones.length; ++k) {
         const bone: keyof IAutoMovieMotionHumanPosture["joints"] = bones[k]!;

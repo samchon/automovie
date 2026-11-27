@@ -1,4 +1,15 @@
-import { DEFAULT_HUMANOID_ROM, DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, createPhysicalHullShape, rotationBetween, toRigAngle, AutoMovieEnginePhysics } from "@automovie/engine";
+import {
+  DEFAULT_HUMANOID_ROM,
+  DEFAULT_JOINT_AXES,
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  AutoMoviePhysicalHull,
+  AutoMovieEngineMath,
+  AutoMovieEnginePhysics,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieCombinePhysicalMassProperties,
@@ -101,8 +112,8 @@ export namespace AutoMovieHumanCanonicalProfile {
         throw new Error(`The polygon profile needs the joint ${name}`);
       return found;
     };
-    const hulls: ReturnType<typeof createPhysicalHullShape> =
-      createPhysicalHullShape();
+    const hulls: ReturnType<typeof AutoMoviePhysicalHull.createShapeFactory> =
+      AutoMoviePhysicalHull.createShapeFactory();
     const identity: IAutoMovieQuaternion = hulls.rotation;
     const at = (name: string): IAutoMovieVector3 => j(name).position;
     // A rig bone's origin is its joint; the toes bone sits at the hallux's root.
@@ -148,7 +159,7 @@ export namespace AutoMovieHumanCanonicalProfile {
       const axis: IAutoMovieVector3 = Vector3.subtract(to, from);
       const length: number = Vector3.length(axis);
       const rotation: IAutoMovieQuaternion =
-        length > 1e-9 ? rotationBetween({ x: 0, y: 1, z: 0 }, axis) : identity;
+        length > 1e-9 ? AutoMovieEngineMath.rotationBetween({ x: 0, y: 1, z: 0 }, axis) : identity;
       const full: number = length + 2 * radius;
       const transverse: number = (3 * radius * radius + full * full) / 12;
       put(bone, {
@@ -630,7 +641,7 @@ function soleOf(
   // The box's local Y is the sole's normal and its local X the flexion axis
   // (either way along it: the box is symmetric), so the second turn is about
   // the normal and never a half turn.
-  const tilt: IAutoMovieQuaternion = rotationBetween(
+  const tilt: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
     { x: 0, y: 1, z: 0 },
     normal,
   );
@@ -640,7 +651,7 @@ function soleOf(
     z: 0,
   });
   const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-    rotationBetween(
+    AutoMovieEngineMath.rotationBetween(
       turned,
       Vector3.scale(lateral, Vector3.dot(turned, lateral) < 0 ? -1 : 1),
     ),
@@ -732,7 +743,7 @@ function axesOf(
     const sign: number = Math.sign(d[letter]);
     const frame = HUMANOID_REST_FRAME[bone]?.[clinical];
     const physical = (c: number): number =>
-      (sign * toRigAngle(c, frame)! * Math.PI) / 180;
+      (sign * AutoMovieEngineKinematics.toRigAngle(c, frame)! * Math.PI) / 180;
     const ends: number[] = [physical(range.min), physical(range.max)].sort(
       (a: number, b: number): number => a - b,
     );

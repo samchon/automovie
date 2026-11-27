@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry as Geometry, AutoMovieEngineCompositionOutcome, AutoMovieEngineCompositionContact } from "@automovie/engine";
+import { AutoMoviePhysicalGeometry as Geometry, AutoMovieEngineCompositionOutcome, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieAuditOutcome,
   IAutoMovieMeasureContact,
@@ -26,7 +26,7 @@ const ROUNDING: number = 1e-6;
  * 3. A side whose bones declare no colliders is refused.
  */
 export async function test_engine_composition_measure_contact(): Promise<void> {
-  const queries: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const queries: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const profile: IAutoMoviePhysicalProfile = PhysicalFixtures.sphere(0.1);
   const side = (
     subject: string,

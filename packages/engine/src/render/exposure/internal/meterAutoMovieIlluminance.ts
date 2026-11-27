@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { autoMovieContextSolids } from "../../../analysis/internal/autoMovieContextSolids";
-import { autoMovieSkyIlluminance } from "../../../analysis/autoMovieSkyIlluminance";
+import { autoMovieSkyIlluminance } from "../../../analysis/internal/autoMovieSkyIlluminance";
 import { Quaternion } from "../../../math/Quaternion";
 import { Vector3 } from "../../../math/Vector3";
 

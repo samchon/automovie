@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  integrateMotionTrajectory,
+  AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -59,7 +59,7 @@ export function HumanSupportFrame(
  * first one on a prop or a person, the ground when every one is on the ground.
  * The velocity and the acceleration are the central differences of the
  * support's origin at the engine's plan-time step
- * (`integrateMotionTrajectory.STEP`). A performer's region is read only at and
+ * (`AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()`). A performer's region is read only at and
  * before the second evaluated (contract), so its differences are backward ones
  * over the same step.
  */
@@ -234,7 +234,7 @@ export namespace HumanSupportFrame {
       const posed: IAutoMovieResolvedBone = other.bones(t).get(bone)!;
       return HumanPropFrame.bone(posed);
     };
-    const h: number = integrateMotionTrajectory.STEP;
+    const h: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
     const now: IAutoMovieRigidTransform = frame(seconds);
 
     // A person is read only up to the second evaluated: backward differences.

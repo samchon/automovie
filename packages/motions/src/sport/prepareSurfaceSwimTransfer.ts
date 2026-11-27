@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -97,7 +97,7 @@ export function prepareSurfaceSwimTransfer(
           projection,
         );
         if (seconds >= settle) return target;
-        const share: number = minimumJerk.share(seconds / settle);
+        const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(seconds / settle);
         const blended = mixHumanPosture(start, target, share);
         const pointed = turnHumanPosture(target);
         const facing: IAutoMovieQuaternion = Quaternion.slerp(

@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieQuaternion,
@@ -333,7 +338,7 @@ export namespace QuadrupedWorldPose {
     to: IAutoMovieTransform,
     share: number,
   ): IAutoMovieTransform {
-    const u: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
+    const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share)));
     return {
       translation: Vector3.lerp(from.translation, to.translation, u),
       rotation: Quaternion.slerp(from.rotation, to.rotation, u),

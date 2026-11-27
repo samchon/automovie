@@ -88,7 +88,7 @@ export namespace AutoMovieMotionHumanGaze {
    * their range, so a gaze too far behind the body is visibly short; turning
    * the feet is the `look` action's step-turn.
    *
-   * The head and neck angles come from the engine's `gazeChainJoints`, which
+   * The head and neck angles come from the engine's `AutoMovieEngineKinematics.gazeChainJoints`, which
    * splits one aim over the neck and the head inside their ranges; the eyes are
    * then solved exactly: each eye's direction to the target is read in its
    * head's frame by forward kinematics of the trunk and head, and turned into

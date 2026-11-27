@@ -4,7 +4,7 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validatePose } from "../validatePose";
+import { validatePose } from "./validatePose";
 
 /**
  * Expose validatePose's collector as a finished success/failure report for the

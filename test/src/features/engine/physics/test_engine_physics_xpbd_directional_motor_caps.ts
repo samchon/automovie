@@ -3,10 +3,9 @@ import {
   AutoMovieXpbdCollider,
   AutoMovieXpbdJoint,
   AutoMovieXpbdWorld,
-  configurePhysicalJointMotor,
-  solveXpbdArticulationContacts,
-  solveXpbdContacts,
-  solveXpbdSupportCascade,
+  AutoMovieXpbdArticulation,
+  AutoMovieXpbdSupportRows,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
@@ -44,7 +43,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
   // 1. Both bounds survive a weak-way demand.
   {
     const link: ILink = hang(249, 94);
-    configurePhysicalJointMotor({
+    AutoMovieEnginePhysics.configurePhysicalJointMotor({
       world: link.world,
       native: link.joint,
       joint: link.joint.joint,
@@ -91,7 +90,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
     [10, 2, 5],
     [2, 2, 2],
   ] as const) {
-    const x: number[] | null = solveXpbdSupportCascade(program(cap, reverse));
+    const x: number[] | null = AutoMovieXpbdSupportRows.cascade(program(cap, reverse));
     if (x === null) findings.push(`cascade ${cap}/${reverse} has no solution`);
     else if (
       !(Math.abs(x[3]! - expected) < PhysicalTolerance.CONVERGED) ||
@@ -159,7 +158,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
   function program(
     cap: number,
     reverse: number,
-  ): solveXpbdSupportCascade.IInput {
+  ): AutoMovieXpbdSupportRows.IInput {
     const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(origin());
     const floor: AutoMovieXpbdCollider = world.createCollider(
       world.createBody(false, { position: origin(), rotation: identity() }),
@@ -174,7 +173,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
       0,
       false,
     );
-    const contact: solveXpbdContacts.IContact = {
+    const contact: AutoMovieXpbdWorld.IContact = {
       a: floor,
       b: floor,
       pair: 0,
@@ -195,7 +194,7 @@ export function test_engine_physics_xpbd_directional_motor_caps(): void {
     const row = (
       direction: IAutoMovieVector3,
       lower?: number,
-    ): solveXpbdArticulationContacts.IRow => ({
+    ): AutoMovieXpbdArticulation.IRow => ({
       state: 1,
       point: origin(),
       direction,

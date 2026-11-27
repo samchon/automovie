@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -292,7 +292,7 @@ export namespace HumanTravelLeaf {
           lowered === null
             ? standing.posture(t, channels, resolution, projection)
             : lowered.at(
-                minimumJerk.share(Math.min(1, t / TAKE)),
+                AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / TAKE)),
                 resolution,
                 projection,
               );

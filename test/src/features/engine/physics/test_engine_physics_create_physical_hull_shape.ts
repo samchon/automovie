@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, createPhysicalHullShape, physicalHullFaces, physicalShapeBounds, physicalShapePairDistance, physicalShapeSegmentDistance, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMoviePhysicalHull, AutoMoviePhysicalHullFaces, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalShape,
@@ -89,7 +89,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
   });
 
   // 1. Faces, vertices and the buried point.
-  const faces: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces([
+  const faces: IAutoMoviePhysicalHullFaces.IHull = AutoMoviePhysicalHullFaces.build([
     ...corners(half),
     { x: 0.5, y: 0, z: 0 },
     { x: 0.1, y: 0, z: 0 },
@@ -106,12 +106,12 @@ export function test_engine_physics_create_physical_hull_shape(): void {
       close(faces.centre, { x: 0, y: 0, z: 0 }, PhysicalTolerance.ROUNDING) &&
       Math.abs(faces.radius - Math.sqrt(0.3)) < PhysicalTolerance.ROUNDING &&
       Math.abs(faces.depth - 0.1) < PhysicalTolerance.ROUNDING &&
-      physicalHullFaces(corners(half)).buried <= faces.tolerance,
+      AutoMoviePhysicalHullFaces.build(corners(half)).buried <= faces.tolerance,
   );
 
   // A factory hull shares the group's rotation and reads its scalar distance.
-  const factory: ReturnType<typeof createPhysicalHullShape> =
-    createPhysicalHullShape();
+  const factory: ReturnType<typeof AutoMoviePhysicalHull.createShapeFactory> =
+    AutoMoviePhysicalHull.createShapeFactory();
   const native: IAutoMoviePhysicalShape = factory.shape(
     "native",
     "solid",
@@ -121,8 +121,8 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     ),
     corners(half),
   );
-  const scalar: ReturnType<typeof physicalShapeSegmentDistance.prepare> =
-    physicalShapeSegmentDistance.prepare(still, native);
+  const scalar: ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance> =
+    AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(still, native);
   const inward: IAutoMovieVector3 = { x: 0, y: 0, z: 0.07 };
   assert.equal(native.transform.rotation, factory.rotation);
   assert(Math.abs(scalar(inward, inward) + 0.03) < PhysicalTolerance.ROUNDING);
@@ -256,9 +256,9 @@ export function test_engine_physics_create_physical_hull_shape(): void {
   );
 
   // 4. Bounds and spans.
-  const hullBounds: ReturnType<typeof physicalShapeBounds> =
-    physicalShapeBounds(pose, turnedHull);
-  const boxBounds: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(
+  const hullBounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> =
+    AutoMovieEnginePhysics.physicalShapeBounds(pose, turnedHull);
+  const boxBounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> = AutoMovieEnginePhysics.physicalShapeBounds(
     pose,
     turnedBox,
   );
@@ -338,11 +338,11 @@ export function test_engine_physics_create_physical_hull_shape(): void {
   const eroded: IAutoMoviePhysicalShape = hullOf(
     AutoMovieEnginePhysics.physicalHullErode(corners(half), 0.05),
   );
-  const erodedBounds: ReturnType<typeof physicalShapeBounds> =
-    physicalShapeBounds(still, eroded);
+  const erodedBounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> =
+    AutoMovieEnginePhysics.physicalShapeBounds(still, eroded);
   TestValidator.predicate(
     "eroded box",
-    physicalHullFaces(AutoMovieEnginePhysics.physicalHullErode(corners(half), 0.05)).vertices
+    AutoMoviePhysicalHullFaces.build(AutoMovieEnginePhysics.physicalHullErode(corners(half), 0.05)).vertices
       .length === 8 &&
       close(
         erodedBounds.max,
@@ -377,9 +377,9 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     b: IAutoMoviePhysicalShape,
     expected: number,
   ): boolean =>
-    Math.abs(physicalShapePairDistance(poseA, a, poseB, b) - expected) <
+    Math.abs(AutoMovieEnginePhysics.physicalShapePairDistance(poseA, a, poseB, b) - expected) <
       NATIVE_DISTANCE &&
-    Math.abs(physicalShapePairDistance(poseB, b, poseA, a) - expected) <
+    Math.abs(AutoMovieEnginePhysics.physicalShapePairDistance(poseB, b, poseA, a) - expected) <
       NATIVE_DISTANCE;
   const ball = (radius: number): IAutoMoviePhysicalShape => ({
     id: "sphere",

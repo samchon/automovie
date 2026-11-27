@@ -1,11 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanOperate,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanWipe,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanOperate, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanWipe, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
@@ -84,7 +79,7 @@ export function householdCases(
       const to: number = at("strokeEnd");
       const palm = (t: number): IAutoMovieVector3 => {
         const frame = who.body.surfaces.sockets.palmRight;
-        return resolveAutoMovieHumanoidSurfaces.place(
+        return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           performance.bones("a", t).get(frame.bone)!,
         ).point;

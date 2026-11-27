@@ -1,4 +1,5 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,7 +13,7 @@ const ROUNDING: number = 1e-12;
 const STANDARD_GRAVITY: number = 9.80665;
 
 /**
- * `resolveAutoMovieCenterOfMass.extrapolate` is Hof's extrapolated centre of
+ * `AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassExtrapolate` is Hof's extrapolated centre of
  * mass, `x + v / w0` with `w0 = sqrt(g / l)` (Hof, Gazendam and Sinke 2005, J
  * Biomech 38:1).
  *
@@ -32,7 +33,7 @@ export function test_engine_kinematics_resolve_center_of_mass_extrapolate(): voi
   TestValidator.predicate(
     "x + v / w0",
     vclose(
-      resolveAutoMovieCenterOfMass.extrapolate(centre, velocity, 1, 4),
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassExtrapolate(centre, velocity, 1, 4),
       { x: 1.25, y: 2, z: 2.5 },
       ROUNDING,
     ),
@@ -40,7 +41,7 @@ export function test_engine_kinematics_resolve_center_of_mass_extrapolate(): voi
   TestValidator.predicate(
     "standard gravity by default",
     vclose(
-      resolveAutoMovieCenterOfMass.extrapolate(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassExtrapolate(
         centre,
         velocity,
         STANDARD_GRAVITY,
@@ -52,7 +53,7 @@ export function test_engine_kinematics_resolve_center_of_mass_extrapolate(): voi
   TestValidator.predicate(
     "a centre at rest",
     vclose(
-      resolveAutoMovieCenterOfMass.extrapolate(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassExtrapolate(
         centre,
         { x: 0, y: 0, z: 0 },
         1.2,
@@ -69,7 +70,7 @@ export function test_engine_kinematics_resolve_center_of_mass_extrapolate(): voi
   TestValidator.predicate(
     "a length of 0 is refused",
     throwsError(() =>
-      resolveAutoMovieCenterOfMass.extrapolate(centre, velocity, 0),
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassExtrapolate(centre, velocity, 0),
     ),
   );
 }

@@ -8,7 +8,7 @@ import {
 import { Matrix4 } from "../../math/Matrix4";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { rotationBetween } from "../../math/rotationBetween";
+import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import { blendVec } from "./blendVec";
 import { readWorld } from "./readWorld";
 import { recompose } from "./recompose";
@@ -118,7 +118,7 @@ const solveCcd: (
       // A degenerate direction (tip or goal exactly on the pivot) normalizes to
       // the zero vector, and rotationBetween of a zero vector is the identity.
       // The pivot simply contributes nothing that sweep, no guard needed.
-      const rot: IAutoMovieQuaternion = rotationBetween(
+      const rot: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
         Vector3.normalize(Vector3.subtract(p[tip]!, p[j]!)),
         Vector3.normalize(Vector3.subtract(goal, p[j]!)),
       );
@@ -243,7 +243,7 @@ const writeChain: (
         ? Quaternion.slerp(
             dec.rotation,
             Quaternion.multiply(
-              rotationBetween(
+              AutoMovieEngineMath.rotationBetween(
                 unitOr(Vector3.subtract(before[j + 1]!, before[j]!)),
                 unitOr(Vector3.subtract(after[j + 1]!, after[j]!)),
               ),

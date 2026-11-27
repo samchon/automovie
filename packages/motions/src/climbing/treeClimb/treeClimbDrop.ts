@@ -2,7 +2,7 @@ import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -151,7 +151,7 @@ export function treeClimbDrop(
         root: { ...hang.root, y: hang.root.y + rate * s - 0.5 * g * s * s },
       };
     }
-    const w: number = minimumJerk.share((t - touchdown) / ABSORB);
+    const w: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - touchdown) / ABSORB);
     const dip: number = DIP * body.measure.hipHeight * Math.sin(Math.PI * w);
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...end.joints };
     for (const bone of drop.joints) {
@@ -193,7 +193,7 @@ export function treeClimbDrop(
               (planted
                 ? 0
                 : foot.remaining *
-                  (1 - minimumJerk.share(elapsed / foot.after))),
+                  (1 - AutoMovieEngineMotionSampling.minimumJerkShare(elapsed / foot.after))),
           },
           Quaternion.rotateVector(rotation, offset),
         ),

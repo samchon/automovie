@@ -2,7 +2,7 @@ import type { IAutoMovieMeshSkin } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieSkinBlend } from "./AutoMovieSkinBlend.js";
-import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
+import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
 /**
  * The CPU pose of one skinned mesh: posed positions under a complete dependency

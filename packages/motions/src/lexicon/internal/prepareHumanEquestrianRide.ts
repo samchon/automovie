@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -214,8 +214,8 @@ export function prepareHumanEquestrianRide(
       const active: number =
         gait === 0 || fade === 0
           ? 0
-          : minimumJerk.share(Math.min(1, at / fade)) *
-            minimumJerk.share(Math.min(1, (seconds - at) / fade));
+          : AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, at / fade)) *
+            AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (seconds - at) / fade));
       const {
         pitch,
         roll,

@@ -1,4 +1,4 @@
-import { plantStanceFeet, AutoMovieEngineMotionTrajectory, AutoMovieEngineSpace, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineMotionPlanting, AutoMovieEngineMotionTrajectory, AutoMovieEngineSpace, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
@@ -73,7 +73,7 @@ const legSkeleton: IAutoMovieSkeleton = {
   ],
 };
 const KNEE_REST_FLEXION: number = (2 * Math.atan2(0.15, 0.4) * 180) / Math.PI;
-const REST_FRAMES: Parameters<typeof plantStanceFeet>[0]["restFrames"] = {
+const REST_FRAMES: Parameters<typeof AutoMovieEngineMotionPlanting.plantStanceFeet>[0]["restFrames"] = {
   leftLowerLeg: {
     flexion: { sign: 1 as const, neutral: KNEE_REST_FLEXION },
   },
@@ -139,7 +139,7 @@ export function test_motion_ground_stance_projection(): void {
         (0.2 * 0.15) / 2,
       ),
     );
-    const planted = plantStanceFeet({
+    const planted = AutoMovieEngineMotionPlanting.plantStanceFeet({
       skeleton: legSkeleton,
       motion: path.motion,
       groundY: ground,

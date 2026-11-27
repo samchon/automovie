@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { rotationBetween } from "../../math/rotationBetween";
-import { toRigAngle } from "../../rom/toRigAngle";
+import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
+import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 import { swingTwistBasis } from "../swingTwistBasis";
 import { swingTwistRange } from "../swingTwistRange";
 
@@ -22,13 +22,13 @@ interface IState {
   basis: IAutoMovieSwingTwistBasis.IBasis;
 
   /** Source normalization of the swing axis. */
-  aim: ReturnType<typeof rotationBetween.prepare>;
+  aim: ReturnType<typeof AutoMovieEngineMath.prepareRotationBetween>;
 
   /** Fixed twist axis. */
   turn: ReturnType<typeof Quaternion.prepareAxisAngle>;
 
   /** Fixed affine operands of the twist conversion. */
-  rig: ReturnType<typeof toRigAngle.prepare>;
+  rig: ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle>;
 }
 
 /**
@@ -55,11 +55,11 @@ export function placeSwingTwistChart(
   );
   const aimed: IAutoMovieQuaternion =
     state === undefined
-      ? rotationBetween(basis.u, direction)
+      ? AutoMovieEngineMath.rotationBetween(basis.u, direction)
       : state.aim(direction);
   const angle: number =
     state === undefined
-      ? toRigAngle(place.twist, joint.frame?.twist)!
+      ? AutoMovieEngineRigAngle.toRigAngle(place.twist, joint.frame?.twist)!
       : state.rig(place.twist, joint.frame?.twist)!;
   const turned: IAutoMovieQuaternion =
     state === undefined
@@ -80,9 +80,9 @@ export namespace placeSwingTwistChart {
     );
     const state: IState = {
       basis,
-      aim: rotationBetween.prepare(basis.u),
+      aim: AutoMovieEngineMath.prepareRotationBetween(basis.u),
       turn: Quaternion.prepareAxisAngle(basis.u),
-      rig: toRigAngle.prepare(),
+      rig: AutoMovieEngineRigAngle.prepareToRigAngle(),
     };
     return (place: IPlace): IAutoMovieQuaternion =>
       placeSwingTwistChart(place, joint, radius, state);

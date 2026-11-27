@@ -11,7 +11,7 @@ import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
 import { AutoMovieRenderFormationCycle } from "../formationCycle/AutoMovieRenderFormationCycle.js";
 import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
 import { flattenInstancedModel } from "./flattenInstancedModel.js";
-import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * Construct the tier resources and bind their declared repertoire once. A

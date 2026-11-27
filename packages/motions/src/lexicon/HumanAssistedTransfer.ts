@@ -1,27 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanLimb,
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanAssistedTransfer,
-  IAutoMovieMotionHumanLieDown,
-  IAutoMovieMotionHumanMutual,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSupport,
-  IAutoMovieMotionTarget,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanLimb, AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanAssistedTransfer, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanMutual, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieMotionTarget, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { support } from "../actions/internal/support";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -244,7 +222,7 @@ function gripReader(
 
   /** Fixed shared point, with one visible arrival and release. */
   const weight: (at: number) => number = (at: number): number =>
-    minimumJerk.share(
+    AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.max(
         0,
         Math.min(
@@ -284,7 +262,7 @@ function gripReader(
     const target: IAutoMovieVector3 =
       partner === undefined || other === undefined
         ? context.params.clasp
-        : resolveAutoMovieHumanoidSurfaces.point(
+        : AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
             other,
             partner.bones(context.start + at, targetBone).get(other.bone)!,
           );
@@ -315,7 +293,7 @@ function gripReader(
       ).get(own.bone)!;
       const delta: IAutoMovieVector3 = Vector3.subtract(
         point,
-        resolveAutoMovieHumanoidSurfaces.point(own, actual),
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(own, actual),
       );
       if (Vector3.length(delta) <= 0.001) break;
       wrist = Vector3.add(wrist, delta);

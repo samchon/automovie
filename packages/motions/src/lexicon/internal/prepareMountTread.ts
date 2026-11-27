@@ -1,18 +1,8 @@
-import { Quaternion, Vector3, physicalPlanarPolygon, physicalShapeBounds, physicalShapeContactManifold, physicalShapeGjk, physicalShapePairDistance, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
-  IAutoMoviePhysicalShape,
-  IAutoMoviePhysicalShapeBounds,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsContactTypes, type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Quaternion, Vector3, AutoMovieEnginePhysicalPlanarPolygon, AutoMovieEngineMath } from "@automovie/engine";
+
+
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMoviePhysicalShape, IAutoMoviePhysicalShapeBounds, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPropFrame } from "../../perform/HumanPropFrame";
 import { HumanColliders } from "../../posture/HumanColliders";
@@ -62,7 +52,7 @@ export function prepareMountTread(
   input: prepareMountTread.IInput,
 ): readonly prepareMountTread.ICandidate[] {
   const { body, side, pose, plate, iron, rotation, depth } = input;
-  const bounds: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBounds(
+  const bounds: IAutoMoviePhysicalShapeBounds.IResult = AutoMovieEnginePhysics.physicalShapeBounds(
     plate.pose,
     plate.shape,
   );
@@ -97,7 +87,7 @@ export function prepareMountTread(
     );
   const foot: IAutoMovieResolvedBone = bones.get(socket.bone)!;
   const reference: IAutoMovieRigidTransform = {
-    position: resolveAutoMovieHumanoidSurfaces.point(socket, foot),
+    position: AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(socket, foot),
     rotation: foot.worldRotation,
   };
   const x: number | undefined = input.x;
@@ -118,7 +108,7 @@ export function prepareMountTread(
         bone: part.bone,
         pose,
         shape,
-        bounds: physicalShapeBounds(pose, shape),
+        bounds: AutoMovieEnginePhysics.physicalShapeBounds(pose, shape),
       }));
     },
   );
@@ -130,7 +120,7 @@ export function prepareMountTread(
     shift: number,
   ): prepareMountTread.ICandidate[] => {
     for (const actor of actors) {
-      const witness: physicalShapeContactManifold.IPoint | undefined = onPlate(
+      const witness: AutoMovieEnginePhysicsContactTypes.IPoint | undefined = onPlate(
         actor,
         plate,
         ball,
@@ -174,11 +164,11 @@ export function prepareMountTread(
     return [];
   let open: Span[] = [[bounds.min.x, bounds.max.x]];
   for (const hardware of iron) {
-    const host: physicalShapeGjk.ISolid = physicalShapeGjk.solid(
+    const host: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
       hardware.pose,
       hardware.shape,
     );
-    const limits: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBounds(
+    const limits: IAutoMoviePhysicalShapeBounds.IResult = AutoMovieEnginePhysics.physicalShapeBounds(
       hardware.pose,
       hardware.shape,
     );
@@ -204,7 +194,7 @@ export function prepareMountTread(
       )
         continue;
       const blocked: Span | undefined = mountCastObstruction(
-        physicalShapeGjk.solid(actor.pose, actor.shape),
+        AutoMovieEnginePhysics.physicalShapeGjkSolid(actor.pose, actor.shape),
         host,
         ACROSS,
         [from, to],
@@ -238,7 +228,7 @@ function clearsPlaced(
   precision: number,
 ): boolean {
   for (const obstacle of [plate, ...iron]) {
-    const other: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBounds(
+    const other: IAutoMoviePhysicalShapeBounds.IResult = AutoMovieEnginePhysics.physicalShapeBounds(
       obstacle.pose,
       obstacle.shape,
     );
@@ -252,20 +242,20 @@ function clearsPlaced(
         bounds.min.z < other.max.z,
     );
     if (near.length === 0) continue;
-    const host: physicalShapeGjk.ISolid = physicalShapeGjk.solid(
+    const host: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
       obstacle.pose,
       obstacle.shape,
     );
     for (const actor of near) {
-      const gap: physicalShapeGjk.IBound = physicalShapeGjk(
-        physicalShapeGjk.solid(actor.pose, actor.shape),
+      const gap: AutoMovieEnginePhysicsGjkTypes.IBound = AutoMovieEnginePhysics.physicalShapeGjk(
+        AutoMovieEnginePhysics.physicalShapeGjkSolid(actor.pose, actor.shape),
         host,
         precision,
       );
       if (gap.lower >= 0) continue;
       if (
         gap.upper < -precision ||
-        physicalShapePairDistance(
+        AutoMovieEnginePhysics.physicalShapePairDistance(
           actor.pose,
           actor.shape,
           obstacle.pose,
@@ -285,15 +275,15 @@ function onPlate(
   ball: IAutoMovieVector3,
   shift: number,
   precision: number,
-): physicalShapeContactManifold.IPoint | undefined {
+): AutoMovieEnginePhysicsContactTypes.IPoint | undefined {
   const pose: IAutoMovieRigidTransform = {
     ...actor.pose,
     position: { ...actor.pose.position, x: actor.pose.position.x + shift },
   };
-  const patch: physicalPlanarPolygon.IPoint[] = [];
-  let selected: physicalShapeContactManifold.IPoint | undefined;
+  const patch: AutoMovieEnginePhysicalPlanarPolygon.IPoint[] = [];
+  let selected: AutoMovieEnginePhysicsContactTypes.IPoint | undefined;
   let nearest: number = Infinity;
-  for (const witness of physicalShapeContactManifold(
+  for (const witness of AutoMovieEnginePhysics.physicalShapeContactManifold(
     pose,
     actor.shape,
     plate.pose,
@@ -317,7 +307,7 @@ function onPlate(
     nearest = squared;
     selected = witness;
   }
-  return physicalPlanarPolygon.area(physicalPlanarPolygon.hull(patch)) > 0
+  return AutoMovieEnginePhysicalPlanarPolygon.area(AutoMovieEnginePhysicalPlanarPolygon.hull(patch)) > 0
     ? selected
     : undefined;
 }

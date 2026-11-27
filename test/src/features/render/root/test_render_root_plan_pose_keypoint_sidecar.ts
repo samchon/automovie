@@ -1,5 +1,5 @@
 import type { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
-import { planPoseKeypointSidecar } from "@automovie/render";
+import { AutoMovieRenderPoseKeypointSidecar } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 const shot = (id: string, duration: number): IAutoMovieShot => ({
@@ -41,7 +41,7 @@ export function test_render_root_plan_pose_keypoint_sidecar(): void {
     motions: [],
     skeletons: [],
   };
-  const sidecar = planPoseKeypointSidecar({ ...props, fps: 4 });
+  const sidecar = AutoMovieRenderPoseKeypointSidecar.plan({ ...props, fps: 4 });
   TestValidator.equals("target", [sidecar.target, sidecar.fps, sidecar.frameCount], [
     "seq",
     4,
@@ -58,6 +58,6 @@ export function test_render_root_plan_pose_keypoint_sidecar(): void {
     true,
   );
   TestValidator.error("no rate", (): void => {
-    planPoseKeypointSidecar({ ...props, fps: 0 });
+    AutoMovieRenderPoseKeypointSidecar.plan({ ...props, fps: 0 });
   });
 }

@@ -1,18 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanToolWork,
-  IAutoMovieMotionHumanUseTool,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanToolWork, IAutoMovieMotionHumanUseTool, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -111,7 +98,7 @@ export function toolCases(
           performance.bones("a", t);
         const frame: IAutoMovieMotionHumanBody["surfaces"]["sockets"]["gripRight"] =
           who.body.surfaces.sockets.gripRight;
-        const grip: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        const grip: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           bones.get(frame.bone)!,
         ).point;

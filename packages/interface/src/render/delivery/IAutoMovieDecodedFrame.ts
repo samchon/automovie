@@ -1,5 +1,5 @@
 /**
- * One admitted stream-zero framemd5 row. auditAutoMovieDecodedFrames checks
+ * One admitted stream-zero framemd5 row. AutoMovieRenderDelivery.auditDecodedFrames checks
  * nonnegative safe-integer presentation ticks, positive duration, positive
  * raster byte count and equal decode/presentation timestamps. Adjacent
  * identical image digests are allowed holds.

@@ -1,11 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 
-import type { AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
+import type { AutoMovieArchetype, AutoMovieArchetypeRefusal, AutoMovieArchetypeRide } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { rideQuadruped } from "./rideQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A grounded ride on authored footing whose course datum is the ground under
@@ -25,9 +25,9 @@ import { rideQuadruped } from "./rideQuadruped";
  *   it when absent.
  * @returns The ride, its samples in the world.
  * @throws {AutoMovieArchetypeRefusal} When no authored surface lies under the
- *   course's start, and as `rideQuadruped` refuses.
+ *   course's start, and as `AutoMovieArchetypeQuadruped.ride` refuses.
  */
-export function AutoMovieArchetypeQuadrupedDatumRide<
+function quadrupedDatumRide<
   Affordance extends string,
   D extends string,
 >(
@@ -51,7 +51,7 @@ export function AutoMovieArchetypeQuadrupedDatumRide<
     Quaternion.identity(),
   ).point.y;
   const ride: AutoMovieArchetypeRide.IRide<Affordance, Dimension> =
-    rideQuadruped(
+    AutoMovieArchetypeQuadruped.ride(
       animal,
       {
         ...course,
@@ -89,8 +89,31 @@ export function AutoMovieArchetypeQuadrupedDatumRide<
 
 /** Types of {@link AutoMovieArchetypeQuadrupedDatumRide}. */
 export namespace AutoMovieArchetypeQuadrupedDatumRide {
+  /**
+   * Ride over authored footing translated to the course start datum.
+   *
+   * @param animal The quadruped, in its neutral pose.
+   * @param course The course and authored world footing.
+   * @param gait The gait for strides that do not name one.
+   * @returns The ride, with samples in world coordinates.
+   * @throws {AutoMovieArchetypeRefusal} When the course start has no authored surface, and as the ordinary quadruped ride refuses.
+   */
+  export function ride<Affordance extends string, D extends string>(
+    animal: AutoMovieArchetype<
+      Affordance,
+      D | AutoMovieArchetypeQuadrupedBody.Dimension
+    >,
+    course: ICourse,
+    gait?: AutoMovieArchetypeQuadrupedGait.Gait,
+  ): AutoMovieArchetypeRide.IRide<
+    Affordance,
+    D | AutoMovieArchetypeQuadrupedBody.Dimension
+  > {
+    return quadrupedDatumRide(animal, course, gait);
+  }
+
   /** A quadruped's course with its authored footing required. */
-  export interface ICourse extends rideQuadruped.ICourse {
+  export interface ICourse extends AutoMovieArchetypeQuadruped.IRideCourse {
     /** The authored world footing; the ground under the start is the datum. */
     footing: AutoMovieArchetypeQuadrupedFooting.IScene;
   }

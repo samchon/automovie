@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -119,7 +119,7 @@ export namespace pickUpLift {
     // A foot that stepped stays where it landed: the stance straightens no
     // further than the share of the way at which it lands.
     const floor: number =
-      stance?.step === undefined ? 0 : minimumJerk.share(stance.step.on);
+      stance?.step === undefined ? 0 : AutoMovieEngineMotionSampling.minimumJerkShare(stance.step.on);
 
     // A standing body lowered on its legs lifts with them: the least
     // straightening whose shoulder has risen by the lift. A seated body's

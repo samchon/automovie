@@ -1,4 +1,5 @@
-import { physicalShapeGjk } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanAuditTangleModel,
   IAutoMovieMotionHumanColliders,
@@ -23,7 +24,7 @@ export namespace HumanLinkCertificate {
   /**
    * A lower bound on the signed distance from every probe of a segment to a
    * convex shape. A cast, the solid the segment's shapes sweep between two read
-   * waypoints widened by their stray (`physicalShapeGjk.cast`), bounds every
+   * waypoints widened by their stray (`AutoMovieEnginePhysics.physicalShapeGjkCast`), bounds every
    * probe over the interval the same way. Where the solids meet, no bound is
    * given.
    *
@@ -36,16 +37,16 @@ export namespace HumanLinkCertificate {
    * @returns Metres; negative infinity where the solids meet.
    */
   export function certify(
-    solids: readonly physicalShapeGjk.ISolid[],
+    solids: readonly AutoMovieEnginePhysicsGjkTypes.ISolid[],
     offset: number,
-    shape: physicalShapeGjk.ISolid,
+    shape: AutoMovieEnginePhysicsGjkTypes.ISolid,
     floor: number,
   ): number {
     let least: number = Infinity;
     for (const solid of solids) {
       least = Math.min(
         least,
-        physicalShapeGjk(solid, shape, floor + offset).lower - offset,
+        AutoMovieEnginePhysics.physicalShapeGjk(solid, shape, floor + offset).lower - offset,
       );
       if (least < floor) return least;
     }
@@ -72,21 +73,21 @@ export namespace HumanLinkCertificate {
     bPart: IAutoMovieMotionHumanAuditTangleModel.IPart,
   ): number {
     const offset: number = Math.max(aPart.offset, bPart.offset);
-    const theirs: physicalShapeGjk.ISolid[] = b.shapes.map(
+    const theirs: AutoMovieEnginePhysicsGjkTypes.ISolid[] = b.shapes.map(
       (
         shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
-      ): physicalShapeGjk.ISolid => physicalShapeGjk.solid(b.pose, shape),
+      ): AutoMovieEnginePhysicsGjkTypes.ISolid => AutoMovieEnginePhysics.physicalShapeGjkSolid(b.pose, shape),
     );
     let least: number = Infinity;
     for (const shape of a.shapes) {
-      const solid: physicalShapeGjk.ISolid = physicalShapeGjk.solid(
+      const solid: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
         a.pose,
         shape,
       );
       for (const other of theirs) {
         least = Math.min(
           least,
-          physicalShapeGjk(solid, other, offset).lower - offset,
+          AutoMovieEnginePhysics.physicalShapeGjk(solid, other, offset).lower - offset,
         );
         if (!(least > 0)) return least;
       }

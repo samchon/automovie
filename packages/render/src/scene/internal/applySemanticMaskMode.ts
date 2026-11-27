@@ -3,16 +3,14 @@ import * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import {
-  type IAutoMovieSemanticMaskHandle,
-  applyAutoMovieSemanticMask,
-} from "../semanticMask/index.js";
+import type { IAutoMovieSemanticMaskHandle } from "../semanticMask/IAutoMovieSemanticMaskHandle.js";
+import { AutoMovieRenderSemanticMask } from "../semanticMask/AutoMovieRenderSemanticMask.js";
 
 /**
  * Mask pass over the stable semantic palette the scene was handed.
  *
  * The outer pass boundary suspends fog, image lighting, background and non-mesh
- * renderables. {@link applyAutoMovieSemanticMask} snapshots those already
+ * renderables. {@link AutoMovieRenderSemanticMask.apply} snapshots those already
  * suspended values for its own install. Inner restoration returns the outer
  * boundary's black background and suspended state, then outer restoration
  * returns the original background, atmosphere and helper visibility. Coverage
@@ -26,7 +24,7 @@ export const applySemanticMaskMode: (
   scene: THREE.Scene,
   binding: IAutoMovieSemanticMaskBinding,
 ): IAutoMovieRenderModeHandle => {
-  const handle: IAutoMovieSemanticMaskHandle = applyAutoMovieSemanticMask({
+  const handle: IAutoMovieSemanticMaskHandle = AutoMovieRenderSemanticMask.apply({
     scene,
     design: binding.design,
     mask: binding.mask,

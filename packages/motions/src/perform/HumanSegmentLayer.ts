@@ -1,4 +1,4 @@
-import { minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
@@ -83,7 +83,7 @@ export namespace HumanSegmentLayer {
           if (!(edge > 0) || (phase === "entry" && HumanBreath.isNative(layer)))
             return current;
           const weight: number =
-            edge >= fade ? 1 : minimumJerk.share(edge / fade);
+            edge >= fade ? 1 : AutoMovieEngineMotionSampling.minimumJerkShare(edge / fade);
           const borrowed: ReturnType<typeof borrowResolution> | undefined =
             resolution === undefined ? undefined : borrowResolution(resolution);
           const projected: ReturnType<typeof borrowProjection> | undefined =

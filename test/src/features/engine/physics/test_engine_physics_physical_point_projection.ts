@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPointBound as Bound,
   IAutoMoviePhysicalSegment,
@@ -46,7 +46,7 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
       ],
     ),
   );
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const base: Bound = {
     ...PhysicalPointFixtures.bound(),
     reference: { body: "123", bone: "root", shape: "surface" },

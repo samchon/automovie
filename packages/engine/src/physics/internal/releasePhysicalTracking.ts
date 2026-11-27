@@ -2,7 +2,7 @@ import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
 import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
-import { configurePhysicalJointMotor } from "../configurePhysicalJointMotor";
+import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 
 /**
  * Withdraw all default actuator effort once: clear the body's forces and
@@ -21,7 +21,7 @@ export function releasePhysicalTracking(
   }
   if (bound.released.has(body.id)) return;
   for (const joint of body.profile.joints)
-    configurePhysicalJointMotor({
+    AutoMovieEnginePhysics.configurePhysicalJointMotor({
       world,
       native: bound.joints.get(`${body.id}/${joint.id}`)!,
       joint,

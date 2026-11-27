@@ -1,4 +1,4 @@
-import { prepareLinearSystem } from "../math/prepareLinearSystem";
+import { AutoMovieEngineMath } from "../math/AutoMovieEngineMath";
 import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
 
 /**
@@ -52,7 +52,7 @@ export function solveXpbdSupportComplementarity(
         );
         right[r] = patch.friction * patch.normal * along - prior;
       });
-    lambda = prepareLinearSystem.solve(matrix, right);
+    lambda = AutoMovieEngineMath.solveLinearSystem(matrix, right);
     if (lambda === null) return null;
     const current: number[] = lambda;
     let changed: boolean = false;

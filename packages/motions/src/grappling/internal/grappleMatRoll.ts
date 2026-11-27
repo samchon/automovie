@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -62,7 +62,7 @@ export function grappleMatRoll(
       if (time <= startTime) return plan.posture(...args);
       if (time >= endTime) return settled;
       const posture: IAutoMovieMotionHumanPosture = roll(
-        minimumJerk.share((time - startTime) / (endTime - startTime)),
+        AutoMovieEngineMotionSampling.minimumJerkShare((time - startTime) / (endTime - startTime)),
       );
       return {
         ...posture,

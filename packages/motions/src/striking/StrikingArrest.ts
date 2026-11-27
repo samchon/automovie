@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 /**
  * The arrest of a travel that a contact interrupts: a strike that meets a body
@@ -39,7 +39,7 @@ export namespace StrikingArrest {
     if (!(span > 0)) throw new Error("An arrest takes a positive time");
     const u: number = Math.min(1, Math.max(0, elapsed / span));
     const h: number = u - 6 * u ** 3 + 8 * u ** 4 - 3 * u ** 5;
-    return from + velocity * span * h + (to - from) * minimumJerk.share(u);
+    return from + velocity * span * h + (to - from) * AutoMovieEngineMotionSampling.minimumJerkShare(u);
   }
 
   /**

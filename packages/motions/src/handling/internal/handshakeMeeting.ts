@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -241,10 +241,10 @@ export namespace handshakeMeeting {
         const t: number = Math.min(reach + shake + back, Math.max(0, seconds));
         const w: number =
           t < reach
-            ? minimumJerk.share(t / reach)
+            ? AutoMovieEngineMotionSampling.minimumJerkShare(t / reach)
             : t <= reach + shake
               ? 1
-              : Math.max(0, 1 - minimumJerk.share((t - reach - shake) / back));
+              : Math.max(0, 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - reach - shake) / back));
         return HumanSeatedReach.posed(
           body,
           base.posture(seconds, undefined, resolution, projection),

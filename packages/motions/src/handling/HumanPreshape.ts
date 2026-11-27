@@ -1,4 +1,6 @@
-import { clampJointToSkeleton } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -80,7 +82,7 @@ export namespace HumanPreshape {
     const thumb: AutoMovieHumanoidBone =
       `${side}ThumbMetacarpal` as AutoMovieHumanoidBone;
     const limit: (sense: number) => number = (sense: number): number =>
-      clampJointToSkeleton(
+      AutoMovieEngineKinematics.clampJointToSkeleton(
         { bone: thumb, flexion: 0, abduction: sense * 180, twist: 0 },
         body.skeleton,
       ).abduction ?? 0;

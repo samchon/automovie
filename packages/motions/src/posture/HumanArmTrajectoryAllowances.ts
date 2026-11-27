@@ -1,4 +1,4 @@
-import { physicalShapeSegmentDistance } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanAuditTangleModel,
@@ -220,7 +220,7 @@ export function HumanArmTrajectoryAllowances(
                   v =
                     Math.min(
                       0,
-                      physicalShapeSegmentDistance(s.pose, s.shape, p, p) - r,
+                      AutoMovieEnginePhysics.physicalShapeSegmentDistance(s.pose, s.shape, p, p) - r,
                     ) - slack;
                 }
                 out[probe * theirs.length + shape] = v;
@@ -356,7 +356,7 @@ export function HumanArmTrajectoryAllowances(
                           deepest = Math.max(
                             deepest,
                             r -
-                              physicalShapeSegmentDistance(
+                              AutoMovieEnginePhysics.physicalShapeSegmentDistance(
                                 s.pose,
                                 s.shape,
                                 p,

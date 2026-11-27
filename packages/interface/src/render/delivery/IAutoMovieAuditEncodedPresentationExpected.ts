@@ -1,6 +1,6 @@
 /**
  * Commissioned video raster/clock and optional audio format for
- * auditAutoMovieEncodedPresentation. The audit requires exact presentation
+ * AutoMovieRenderDelivery.auditEncodedPresentation. The audit requires exact presentation
  * coverage and the declared audio profile; absent audio fields mean 48000
  * samples/second and two channels. These are required delivery facts, not probe
  * observations.

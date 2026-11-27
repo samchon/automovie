@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, integrateMotionTrajectory } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -100,7 +100,7 @@ export function test_motions_mounted_dismount_supports(): void {
   const angular: number = Math.PI / 2;
   const velocity: IAutoMovieVector3 = { x: 1 + 2 * angular, y: -angular, z: 2 };
   const error: number =
-    (angular ** 3 * Math.sqrt(5) * integrateMotionTrajectory.STEP ** 2) / 3;
+    (angular ** 3 * Math.sqrt(5) * AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep() ** 2) / 3;
   TestValidator.predicate(
     "departure reads the incoming linear and angular movement",
     vclose(foot.velocity, velocity, error) &&

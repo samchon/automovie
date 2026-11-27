@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { admitAutoMovieBicubicAtlas } from "./admitAutoMovieBicubicAtlas";
-import { tessellateAutoMovieBicubicAtlas64 as T } from "../curve/tessellateAutoMovieBicubicAtlas64";
+import { AutoMovieEngineCurve } from "../curve/AutoMovieEngineCurve";
 
 /**
  * Realize the public metre-valued bicubic recipe through its owning engine. The
@@ -92,7 +92,7 @@ export function realizeAutoMovieBicubicAtlas64(
     IAutoMovieBicubicAtlasTessellation64.Chunk,
     IAutoMovieBicubicAtlasTessellation64.Summary,
     void
-  > = T({
+  > = AutoMovieEngineCurve.tessellateBicubicAtlas64({
     ...(options.retainPatchCoefficients
       ? { retainPatchCoefficients: true }
       : {}),

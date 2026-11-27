@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -356,7 +356,7 @@ export class StaggerFeet {
             placement: {
               ankle: {
                 ...from.ankle,
-                y: from.ankle.y + CLEARANCE * minimumJerk.share(u / rising),
+                y: from.ankle.y + CLEARANCE * AutoMovieEngineMotionSampling.minimumJerkShare(u / rising),
               },
               rotation: from.rotation,
             },

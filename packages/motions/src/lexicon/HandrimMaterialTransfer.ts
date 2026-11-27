@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -48,7 +48,7 @@ export namespace HandrimMaterialTransfer {
     span: number,
   ): Grip {
     const share: number = Math.min(1, Math.abs(seconds) / span);
-    const lead: number = seconds * (1 - minimumJerk.share(share));
+    const lead: number = seconds * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(share));
     if (lead === 0 || rate === 0) return grip;
 
     const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -176,9 +176,9 @@ export function prepareDryKneeSupport(
       const fade: number =
         approach === 0
           ? 1
-          : minimumJerk.share((seconds - first + approach) / approach);
+          : AutoMovieEngineMotionSampling.minimumJerkShare((seconds - first + approach) / approach);
       const end: number =
-        release === 0 ? 1 : 1 - minimumJerk.share((seconds - last) / release);
+        release === 0 ? 1 : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - last) / release);
       return [offset * fade * end];
     },
     tolerance: { kind: "absolute", absolute: HumanFoot.BEARING / 4 },

@@ -1,13 +1,6 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
@@ -76,7 +69,7 @@ export function athleticsCases(
     const window: number[] = [];
     for (let t: number = set; t <= gun + 1e-9; t += 1 / 24) window.push(t);
     const mass: IAutoMovieResolveCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const knee = (
       side: AutoMovieHumanSide,
       want: number,
@@ -130,7 +123,7 @@ export function athleticsCases(
         (t: number): number => {
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             performance.bones("a", t);
-          const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+          const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
             mass,
             bones,
           );

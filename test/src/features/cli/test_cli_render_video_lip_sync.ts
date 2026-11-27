@@ -2,7 +2,7 @@ import type {
   IAutoMovieDialogueLipSync,
   IAutoMovieDrawnVideoResult,
 } from "@automovie/interface";
-import { renderAutoMovieDrawnVideo } from "@automovie/render";
+import { AutoMovieRenderVideo } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { AutoMovieCliRender } from "automovie";
 import * as fs from "node:fs/promises";
@@ -45,12 +45,15 @@ export async function test_cli_render_video_lip_sync(): Promise<void> {
 
         // The host's own drawing, with the mixed sound record a sound list
         // would have produced handed to the encoder.
-        renderAutoMovieDrawnVideo: (props) =>
-          renderAutoMovieDrawnVideo({
-            ...props,
-            encode: (args, drawn) =>
-              props.encode(args, { ...drawn, sound: soundRecord(lipSync) }),
-          }),
+        AutoMovieRenderVideo: {
+          ...delivery.input.host.render.AutoMovieRenderVideo,
+          renderDrawnVideo: (props) =>
+            AutoMovieRenderVideo.renderDrawnVideo({
+              ...props,
+              encode: (args, drawn) =>
+                props.encode(args, { ...drawn, sound: soundRecord(lipSync) }),
+            }),
+        },
       },
     },
   });

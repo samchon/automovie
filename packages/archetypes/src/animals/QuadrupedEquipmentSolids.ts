@@ -1,4 +1,4 @@
-import { physicalShapeSegmentDistance } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -185,7 +185,7 @@ export class QuadrupedEquipmentSolids {
       halfExtents: { x: size.x / 2, y: size.y / 2, z: size.z / 2 },
     };
     for (const sphere of this.#spheres) {
-      const distance: number = physicalShapeSegmentDistance(
+      const distance: number = AutoMovieEnginePhysics.physicalShapeSegmentDistance(
         pose,
         shape,
         sphere.centre,

@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanTrick,
@@ -72,7 +72,7 @@ export function humanTrickSchedule(
       while (index + 1 < figures.length && t >= starts[index + 1]!) ++index;
       return {
         index,
-        share: minimumJerk.share(
+        share: AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.min(1, (t - starts[index]!) / figures[index]!.transfer),
         ),
       };

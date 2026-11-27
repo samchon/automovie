@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -283,7 +283,7 @@ export namespace fieldThrow {
         ? yaw
         : yaw -
           spec.turn *
-            (1 - minimumJerk.share(Math.min(1, Math.max(0, t / spec.seconds))));
+            (1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, t / spec.seconds))));
     const joints: (t: number) => IAutoMovieMotionHumanExerciseKey.IKey = (
       t: number,
     ): IAutoMovieMotionHumanExerciseKey.IKey =>
@@ -293,12 +293,12 @@ export namespace fieldThrow {
           ? fieldThrowKeys.blend(
               keys.wind,
               keys.release,
-              minimumJerk.share((t - spec.seconds) / DELIVER),
+              AutoMovieEngineMotionSampling.minimumJerkShare((t - spec.seconds) / DELIVER),
             )
           : fieldThrowKeys.blend(
               keys.release,
               keys.stand,
-              minimumJerk.share(Math.min(1, (t - release) / RECOVER)),
+              AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (t - release) / RECOVER)),
             );
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
     const hipsHeight: number =

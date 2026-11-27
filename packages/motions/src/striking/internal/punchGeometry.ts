@@ -1,8 +1,8 @@
 import {
   Quaternion,
   Vector3,
-  minimumJerk,
-  superposeMinimumJerk,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -93,12 +93,12 @@ export namespace punchGeometry {
    * @returns The shares.
    */
   export function phases(shown: number, recoil: number, drop: number): IPhases {
-    const back = (t: number): number => minimumJerk.share((t - shown) / recoil);
+    const back = (t: number): number => AutoMovieEngineMotionSampling.minimumJerkShare((t - shown) / recoil);
     return {
-      out: (t: number): number => minimumJerk.share(t / shown),
+      out: (t: number): number => AutoMovieEngineMotionSampling.minimumJerkShare(t / shown),
       back,
       sag: (t: number): number =>
-        drop > 0 ? back(t) - minimumJerk.share((t - shown - recoil) / drop) : 0,
+        drop > 0 ? back(t) - AutoMovieEngineMotionSampling.minimumJerkShare((t - shown - recoil) / drop) : 0,
     };
   }
 
@@ -126,7 +126,7 @@ export namespace punchGeometry {
     stop: number,
     duration: number,
   ): IReturn {
-    const w: number = minimumJerk.share(
+    const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       (seconds - stop - StrikingStroke.DWELL) /
         Math.max(1e-3, duration - stop - StrikingStroke.DWELL),
     );
@@ -249,9 +249,9 @@ export namespace punchGeometry {
     );
     const advanced: IAutoMovieVector3 = { x: contact.advance, y: 0, z: 0 };
     const step = (t: number): number =>
-      superposeMinimumJerk.position(advanced, advanceUnits, t0 + t).x;
+      AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition(advanced, advanceUnits, t0 + t).x;
     const hint = (t: number): IAutoMovieVector3 =>
-      superposeMinimumJerk.position(contact.hint, hints, t0 + t);
+      AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition(contact.hint, hints, t0 + t);
 
     const origin: IAutoMovieVector3 = bones.get(
       `${side}Hand` as AutoMovieHumanoidBone,
@@ -307,7 +307,7 @@ export namespace punchGeometry {
             origin,
             solved.end,
             StrikingRoom.feint(context, p.at, {
-              declared: minimumJerk.share(p.feint),
+              declared: AutoMovieEngineMotionSampling.minimumJerkShare(p.feint),
               aimed: contact.first,
               origin,
               end: solved.end,

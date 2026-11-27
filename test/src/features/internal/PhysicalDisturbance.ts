@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalBalance, Quaternion, Vector3, physicalShapeBounds, physicalStanceBalance, physicalStanceSupport, physicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalBalance, Quaternion, Vector3, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalStanceSupport, AutoMovieEnginePhysicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
 import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   IAutoMovieMotionHumanBody,
@@ -104,7 +104,7 @@ const FALLEN: number = 0.6;
  *   at most m omega b (omega T) / (1 - e^(-omega T)), T the pulse, which no
  *   controller exceeds without a step or the hip.
  * - One step: the leading limb steps after the reaction, its unloading ramp
- *   (`physicalStanceBalance.FADE`) and its quickest swing to its reach l, T in
+ *   (`AutoMovieEnginePhysicalStanceBalance.FADE`) and its quickest swing to its reach l, T in
  *   all (Khadiv et al. 2017, Section III-B), while the remaining supports hold
  *   the centre of pressure at their edge p. The capture point there grows as p
  *
@@ -271,7 +271,7 @@ export namespace PhysicalDisturbance {
    * pendulum, with the controller's own step time (`timing`). The linear
    * inverted pendulum is integrated through the 0.1 s pulse under the
    * centre-of-pressure law clamped to the support polygon
-   * (`physicalStanceSupport.polygon`, `.GAIN`):
+   * (`AutoMovieEnginePhysicalStanceSupport.polygon`, `.GAIN`):
    *
    * - In place: the largest pulse whose capture point stays on the polygon (Hof
    *   et al. 2005, Eqs. 7-8);
@@ -312,7 +312,7 @@ export namespace PhysicalDisturbance {
       y: 0,
       z: axis === "z" ? sign : 0,
     });
-    const polygon: IAutoMovieVector3[] = physicalStanceSupport.polygon(
+    const polygon: IAutoMovieVector3[] = AutoMovieEnginePhysicalStanceSupport.polygon(
       subject.profile,
       subject.targets,
       limbs,
@@ -320,7 +320,7 @@ export namespace PhysicalDisturbance {
     );
     const from: number = center[axis];
     const middles = limbs.map((limb) => {
-      const at: number[] = physicalStanceSupport
+      const at: number[] = AutoMovieEnginePhysicalStanceSupport
         .polygon(subject.profile, subject.targets, [limb], 0)
         .map((point: IAutoMovieVector3): number => point[axis]);
       return { limb, middle: (Math.min(...at) + Math.max(...at)) / 2 };
@@ -332,12 +332,12 @@ export namespace PhysicalDisturbance {
       from,
       high:
         from +
-        physicalStanceSwing.reach(polygon, { ...center, y: 0 }, along(1)),
+        AutoMovieEnginePhysicalStanceSwing.reach(polygon, { ...center, y: 0 }, along(1)),
       low:
         from -
-        physicalStanceSwing.reach(polygon, { ...center, y: 0 }, along(-1)),
+        AutoMovieEnginePhysicalStanceSwing.reach(polygon, { ...center, y: 0 }, along(-1)),
       rest: Math.max(
-        ...physicalStanceSupport
+        ...AutoMovieEnginePhysicalStanceSupport
           .polygon(
             subject.profile,
             subject.targets,
@@ -370,7 +370,7 @@ export namespace PhysicalDisturbance {
         const xi: number = x + v / omega;
         const u: number = Math.max(
           low,
-          Math.min(high, xi + physicalStanceBalance.GAIN * (xi - from)),
+          Math.min(high, xi + AutoMovieEnginePhysicalStanceBalance.GAIN * (xi - from)),
         );
         const a: number =
           omega * omega * (x - u) + (t < PUSH_SECONDS ? force / mass : 0);
@@ -449,7 +449,7 @@ export namespace PhysicalDisturbance {
   /**
    * The controller's own step time for a full-reach step, seconds: the
    * reaction, the unloading ramp and the quickest swing the hip allows
-   * (`physicalStanceSwing.swingBound`), as `advancePhysicalBalance` states it
+   * (`AutoMovieEnginePhysicalStanceSwing.swingBound`), as `advancePhysicalBalance` states it
    * at the standing pose.
    */
   export function timing(subject: ISubject): number {
@@ -471,7 +471,7 @@ export namespace PhysicalDisturbance {
     );
     const leg = limbs
       .map((limb) =>
-        physicalStanceSwing.swingLeg(
+        AutoMovieEnginePhysicalStanceSwing.swingLeg(
           subject.profile,
           // The targets as the rigid poses the swing reads.
           new Map(
@@ -491,7 +491,7 @@ export namespace PhysicalDisturbance {
       .reduce((a, b) => (b.mass > a.mass ? b : a));
     const peak: number = Math.min(
       policy.maximumForce / heaviest - 9.81,
-      physicalStanceSwing.swingBound({
+      AutoMovieEnginePhysicalStanceSwing.swingBound({
         effective: leg.mass,
         length: leg.length,
         torque: leg.torque,
@@ -499,7 +499,7 @@ export namespace PhysicalDisturbance {
     );
     return (
       (policy.reactionSeconds ?? 0) +
-      physicalStanceBalance.FADE +
+      AutoMovieEnginePhysicalStanceBalance.FADE +
       AutoMoviePhysicalBalance.duration(reach, 0, peak)
     );
   }
@@ -701,7 +701,7 @@ export namespace PhysicalDisturbance {
         if (!box) {
           const boxes = [step - 1, step].flatMap((k: number) =>
             [...segment.shapes, ...(segment.contactShapes ?? [])].map((shape) =>
-              physicalShapeBounds(frames[k]!.bodies[id]![bone]!, shape),
+              AutoMovieEnginePhysics.physicalShapeBounds(frames[k]!.bodies[id]![bone]!, shape),
             ),
           );
           box = {
@@ -966,7 +966,7 @@ export namespace PhysicalDisturbance {
       y: 0,
       z: now.z + velocity.z / omega,
     };
-    const polygon: IAutoMovieVector3[] = physicalStanceSupport.polygon(
+    const polygon: IAutoMovieVector3[] = AutoMovieEnginePhysicalStanceSupport.polygon(
       subject.profile,
       poses,
       limbsOf(subject),

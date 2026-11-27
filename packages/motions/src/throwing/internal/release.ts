@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  integrateMotionTrajectory,
+  AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -46,7 +46,7 @@ import { poseBones } from "../../posture/internal/poseBones";
  * Until then its grip window on the prop takes the hand over from the hold; at
  * `open` the prop is launched (`IHumanActionPlan.launches`) with the hand's
  * velocity there, the central difference of the carried grip point at the
- * engine's plan-time step (`integrateMotionTrajectory.STEP`), so a drop from a
+ * engine's plan-time step (`AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()`), so a drop from a
  * still hand falls and one from a moving carrier carries its speed.
  *
  * A prop that rests on something the hand held back (an arrow on a drawn
@@ -230,7 +230,7 @@ export namespace release {
       });
 
     // The hand's velocity at the opening, from the carrier's motion.
-    const h: number = integrateMotionTrajectory.STEP;
+    const h: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
     const point: (s: number) => IAutoMovieVector3 = (
       s: number,
     ): IAutoMovieVector3 =>

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalHullFaces, physicalHullNearest, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMoviePhysicalHullFaces, AutoMoviePhysicalHull, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalShape,
@@ -207,7 +207,7 @@ export function test_engine_physics_physical_hull_nearest(): void {
       { length: 4 + (h % 27) },
       (): IAutoMovieVector3 => scatter(scale),
     );
-    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+    const hull: IAutoMoviePhysicalHullFaces.IHull = AutoMoviePhysicalHullFaces.build(points);
     if (!hull.faces.length) continue;
     const shape: IAutoMoviePhysicalShape = hullOf(points);
     const inner = (): IAutoMovieVector3 => {
@@ -261,12 +261,12 @@ export function test_engine_physics_physical_hull_nearest(): void {
       read = Math.max(
         read,
         Math.abs(
-          physicalHullNearest(points, reading.at).distance - reading.distance,
+          AutoMoviePhysicalHull.nearest(points, reading.at).distance - reading.distance,
         ),
       );
       for (const p of [a, b]) {
-        const near: ReturnType<typeof physicalHullNearest> =
-          physicalHullNearest(points, p);
+        const near: ReturnType<typeof AutoMoviePhysicalHull.nearest> =
+          AutoMoviePhysicalHull.nearest(points, p);
         // The point is on the surface and as far from the query as read.
         const surface: number = Math.max(
           ...hull.faces.map(

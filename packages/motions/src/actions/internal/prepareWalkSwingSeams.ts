@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -126,7 +126,7 @@ export function prepareWalkSwingSeams(
     const adjustment: IAdjustment | undefined =
       u < walkReach.FADE ? seams?.departure : seams?.landing;
     if (adjustment === undefined) return;
-    const weight: number = 1 - minimumJerk.share(edge / walkReach.FADE);
+    const weight: number = 1 - AutoMovieEngineMotionSampling.minimumJerkShare(edge / walkReach.FADE);
     goal.point = Vector3.add(
       goal.point,
       Vector3.scale(adjustment.ankle, weight),

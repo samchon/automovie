@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkSteps,
@@ -137,7 +137,7 @@ export function walkRoot(
     // The swing advances two steps in its swing time. Differentiate its
     // minimum-jerk path at mid-swing to account for distal mass momentum.
     const footSpeed: number =
-      (minimumJerk.rate(0.5) * 2 * props.step) / props.swing;
+      (AutoMovieEngineMotionSampling.minimumJerkRate(0.5) * 2 * props.step) / props.swing;
     const residual: number =
       speed - walkRoot.distalShare(props.body) * footSpeed;
 
@@ -147,8 +147,8 @@ export function walkRoot(
       contrast = (fast - residual) / (fast + residual);
   }
   const amount: (t: number) => number = (t: number): number => {
-    const up: number = minimumJerk.share((t - props.lag) / gathers);
-    const down: number = 1 - minimumJerk.share((t - props.stop) / sheds);
+    const up: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - props.lag) / gathers);
+    const down: number = 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - props.stop) / sheds);
     return Math.max(0, Math.min(1, Math.min(up, down)));
   };
   const planned: (t: number) => IAutoMovieVector3 = (
@@ -200,7 +200,7 @@ export function walkRoot(
   return {
     amount,
     root: (t: number): IAutoMovieVector3 => {
-      const fade: number = 1 - minimumJerk.share(t / walkRoot.FADE);
+      const fade: number = 1 - AutoMovieEngineMotionSampling.minimumJerkShare(t / walkRoot.FADE);
       const point: IAutoMovieVector3 = planned(t);
       return {
         x: point.x + offset.x * fade,

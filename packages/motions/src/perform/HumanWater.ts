@@ -2,8 +2,8 @@ import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  integrateMotionTrajectory,
-  resolveHydrodynamicForce,
+  AutoMovieEngineMotionTrajectory,
+  AutoMovieEngineMotionHydrodynamics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -31,7 +31,7 @@ const PLATE: number = 1.17;
 
 /**
  * A body the water carries: the water's forces on every segment
- * (`resolveHydrodynamicForce`) summed over the posed body, the height at which
+ * (`AutoMovieEngineMotionHydrodynamics`) summed over the posed body, the height at which
  * a still body floats, and a glide slowed by drag, integrated at plan time by
  * the engine's integrator.
  *
@@ -89,12 +89,12 @@ export namespace HumanWater {
     const model: IBody["massModel"] = body.massModel;
     body.profile.segments.forEach(
       (segment: IAutoMoviePhysicalSegment, i: number): void => {
-        const v: number = resolveHydrodynamicForce.volume(segment);
+        const v: number = AutoMovieEngineMotionHydrodynamics.volume(segment);
         if (!(v > 0)) return;
         const s: IBody["massModel"]["segments"][number] = model.segments[i]!;
         const bone: IAutoMovieResolvedBone = bones.get(s.bone)!;
         const force: IAutoMovieResolveHydrodynamicForce.IForce =
-          resolveHydrodynamicForce({
+          AutoMovieEngineMotionHydrodynamics.resolve({
             volume: v,
             centre: centre(bone, s.point),
             velocity,
@@ -201,7 +201,7 @@ export namespace HumanWater {
     seconds: number,
     water: IAutoMovieMotionHumanWater,
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
-    return integrateMotionTrajectory({
+    return AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       f: (
         _t: number,
         x: readonly number[],
@@ -250,7 +250,7 @@ export namespace HumanWater {
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     const intervals: number = 120;
     const volumes: readonly number[] = body.profile.segments.map(
-      resolveHydrodynamicForce.volume,
+      AutoMovieEngineMotionHydrodynamics.volume,
     );
     const segments: IBody["massModel"]["segments"] = body.massModel.segments;
     const centres: (readonly IAutoMovieVector3[])[] = [];
@@ -268,7 +268,7 @@ export namespace HumanWater {
           const volume: number = volumes[i]!;
           if (!(volume > 0)) return 0;
           const force: IAutoMovieResolveHydrodynamicForce.IForce =
-            resolveHydrodynamicForce({
+            AutoMovieEngineMotionHydrodynamics.resolve({
               volume,
               centre: position,
               velocity: direction,
@@ -299,7 +299,7 @@ export namespace HumanWater {
                 ),
         ),
     );
-    return integrateMotionTrajectory({
+    return AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       x0: [0, 0],
       t0: 0,
       t1: 1,

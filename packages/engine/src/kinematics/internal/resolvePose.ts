@@ -14,7 +14,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { SKELETON_ROOT_PARENT } from "../constants/SKELETON_ROOT_PARENT";
-import { indexSkeletonTopology } from "../indexSkeletonTopology";
+import { indexSkeletonTopologyChildren } from "./indexSkeletonTopologyChildren";
 import { jointToQuaternion } from "./jointToQuaternion";
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import { resolvePoseBone } from "./resolvePoseBone";
@@ -60,7 +60,7 @@ const ORIGIN: IAutoMovieVector3 = Vector3.create(0, 0, 0);
  *   clinical, such as `HUMANOID_REST_FRAME`; an absent bone reads its angles as
  *   rest-relative.
  * @param topology Index of the same, unchanged skeleton from
- *   {@link indexSkeletonTopology}, reused across poses; omitted, one is built
+ *   {@link AutoMovieEngineKinematics.indexSkeletonTopology}, reused across poses; omitted, one is built
  *   for this call.
  * @param prepared Optional operation-owned raw FK adapter; it shares pure
  *   exact-angle factors while preserving every current input read and fresh
@@ -90,7 +90,7 @@ export const resolvePose: (
   requested?: ReadonlySet<string>,
 ): IAutoMovieResolvedBone[] => {
   const childrenByParent: IAutoMovieSkeletonTopology["childrenByParent"] =
-    topology?.childrenByParent ?? indexSkeletonTopology.children(skeleton);
+    topology?.childrenByParent ?? indexSkeletonTopologyChildren(skeleton);
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(skeleton, jointAxes);
   const articulation: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> =

@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanGaze,
   IAutoMovieMotionHumanLayer,
@@ -152,7 +152,7 @@ export function HumanGazeLayer(
           for (const later of stages.slice(index + 1))
             w *=
               1 -
-              minimumJerk.share(
+              AutoMovieEngineMotionSampling.minimumJerkShare(
                 (seconds - later.request.from) / later.durations[part],
               );
           return w;
@@ -186,10 +186,10 @@ function gazeWeight(
   active: IAutoMovieMotionHumanGaze.ILayer,
   duration: number,
 ): number {
-  const on: number = minimumJerk.share((seconds - active.from) / duration);
+  const on: number = AutoMovieEngineMotionSampling.minimumJerkShare((seconds - active.from) / duration);
   const off: number =
     active.to === undefined
       ? 0
-      : minimumJerk.share((seconds - active.to) / duration);
+      : AutoMovieEngineMotionSampling.minimumJerkShare((seconds - active.to) / duration);
   return on * (1 - off);
 }

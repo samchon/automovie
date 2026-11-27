@@ -1,20 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-  rotationBetween,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCloseStrike,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCloseStrike, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -80,7 +65,7 @@ export function CloseStrikeReach(
 
   if (technique === "headbutt") {
     const forehead = (lean: number, shift: number): IAutoMovieVector3 =>
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         body.surfaces.regions.forehead,
         read(at(lean, Vector3.scale(line, shift)), "head").get("head")!,
       ).point;
@@ -232,7 +217,7 @@ export function CloseStrikeReach(
         Vector3.subtract(
           target,
           Quaternion.rotateVector(
-            rotationBetween(rest, folded.forearm),
+            AutoMovieEngineMath.rotationBetween(rest, folded.forearm),
             region,
           ),
         ),

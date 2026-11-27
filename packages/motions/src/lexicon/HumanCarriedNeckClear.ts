@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapePairDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -92,7 +92,7 @@ export function HumanCarriedNeckClear(
           for (const t of y.shapes)
             found = Math.min(
               found,
-              physicalShapePairDistance(
+              AutoMovieEnginePhysics.physicalShapePairDistance(
                 {
                   ...m.pose,
                   position: Vector3.add(m.pose.position, offset),

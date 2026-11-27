@@ -1,4 +1,4 @@
-import { createAutoMovieResourceRetirement } from "@automovie/render";
+import { AutoMovieSceneResource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { rejects } from "node:assert/strict";
 
@@ -22,7 +22,7 @@ export async function test_render_scene_create_resource_retirement(): Promise<vo
   const pending: Promise<never> = new Promise<never>((_resolve, reject) => {
     finish.push(reject);
   });
-  const retire: () => Promise<never> = createAutoMovieResourceRetirement(
+  const retire: () => Promise<never> = AutoMovieSceneResource.createRetirement(
     [
       (): Promise<void> => {
         events.push("first");

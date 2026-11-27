@@ -89,7 +89,7 @@ export namespace EquineEarMass {
           draw,
           material: "skin",
         });
-      AutoMovieArchetypeQuadrupedHead(
+      AutoMovieArchetypeQuadrupedHead.lay(
         builder,
         rig,
         1.6,

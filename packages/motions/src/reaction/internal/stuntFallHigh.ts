@@ -2,7 +2,7 @@ import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
@@ -154,7 +154,7 @@ export function stuntFallHigh(
     return stuntFallPose.blend(
       a,
       stuntFallPose.at(lying, hips, flatOffset),
-      minimumJerk.share(time / nominal),
+      AutoMovieEngineMotionSampling.minimumJerkShare(time / nominal),
     );
   };
   const exterior:
@@ -188,7 +188,7 @@ export function stuntFallHigh(
     ? { ...stand.posture(body, { ...touch, y: base }, yaw), limbs: {} }
     : stuntFallPose.at(lying, touch, flatOffset);
   const settled = (time: number): IAutoMovieMotionHumanPosture =>
-    stuntFallPose.blend(contacted, endpoint, minimumJerk.share(time / SETTLE));
+    stuntFallPose.blend(contacted, endpoint, AutoMovieEngineMotionSampling.minimumJerkShare(time / SETTLE));
   const fit: ((seconds: number) => number[]) | undefined =
     pad === undefined
       ? undefined
@@ -221,7 +221,7 @@ export function stuntFallHigh(
     if (fit === undefined) return shown;
     const sink: number = descend
       ? 0
-      : YIELD * Math.sin(Math.PI * minimumJerk.share(time / SETTLE));
+      : YIELD * Math.sin(Math.PI * AutoMovieEngineMotionSampling.minimumJerkShare(time / SETTLE));
     shown.root.y -= fit(time)[0]! + sink;
     return shown;
   };

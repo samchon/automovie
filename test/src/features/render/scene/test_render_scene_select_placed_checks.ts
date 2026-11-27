@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `AutoMovieRenderInspection.PlacedScene.selectChecks` selects the declared checks active at one
+ * `AutoMovieRenderInspection.selectPlacedChecks` selects the declared checks active at one
  * placed sample.
  *
  * Scenarios:
@@ -38,7 +38,7 @@ export function test_render_scene_select_placed_checks(): void {
       ],
     },
   ];
-  const second = AutoMovieRenderInspection.PlacedScene.selectChecks({
+  const second = AutoMovieRenderInspection.selectPlacedChecks({
     scene,
     time: at(1),
     fps: 24,
@@ -51,7 +51,7 @@ export function test_render_scene_select_placed_checks(): void {
   );
   TestValidator.equals(
     "support over",
-    AutoMovieRenderInspection.PlacedScene.selectChecks({ scene, time: at(2), fps: 24, supports }),
+    AutoMovieRenderInspection.selectPlacedChecks({ scene, time: at(2), fps: 24, supports }),
     [],
   );
 
@@ -78,7 +78,7 @@ export function test_render_scene_select_placed_checks(): void {
       ],
     },
   ];
-  const gripped = AutoMovieRenderInspection.PlacedScene.selectChecks({ scene, time: at(3), fps: 24, grips });
+  const gripped = AutoMovieRenderInspection.selectPlacedChecks({ scene, time: at(3), fps: 24, grips });
   const grip = gripped[0];
   TestValidator.equals(
     "grip expected at the second",
@@ -109,7 +109,7 @@ export function test_render_scene_select_placed_checks(): void {
     },
   ];
   const input = (carried: THREE.Object3D, filmSeconds: number): unknown[] =>
-    AutoMovieRenderInspection.PlacedScene.selectChecks({
+    AutoMovieRenderInspection.selectPlacedChecks({
       scene,
       time: at(filmSeconds),
       fps: 24,

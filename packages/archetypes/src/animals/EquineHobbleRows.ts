@@ -1,4 +1,7 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../core";
@@ -158,11 +161,11 @@ export namespace EquineHobbleRows {
       const off: number = s % PIECES === 0 ? s * piece : (s + LOAD) * piece;
       for (const limb of limbs)
         events.push(
-          { label: `${limb}Off`, entry: true, time: minimumJerk.time(off) },
+          { label: `${limb}Off`, entry: true, time: AutoMovieEngineMotionSampling.minimumJerkTime(off) },
           {
             label: `${limb}On`,
             entry: true,
-            time: minimumJerk.time((s + 1) * piece),
+            time: AutoMovieEngineMotionSampling.minimumJerkTime((s + 1) * piece),
           },
         );
     }

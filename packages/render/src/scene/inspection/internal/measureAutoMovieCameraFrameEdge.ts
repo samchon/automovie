@@ -11,7 +11,7 @@ import { measureAutoMovieCameraFrameEdgeSurface } from "./measureAutoMovieCamera
  * Three orders the normalized inward planes right, left, bottom, top, far,
  * near.
  */
-const SIDES: readonly AutoMovieRenderInspectionCamera.FrameEdge.Side[] = [
+const SIDES: readonly AutoMovieRenderInspectionCamera.IAutoMovieRenderInspectionFrameEdgeSide[] = [
   "right",
   "left",
   "bottom",
@@ -42,8 +42,8 @@ const SIDES: readonly AutoMovieRenderInspectionCamera.FrameEdge.Side[] = [
  *   the reason the bounds or projection cannot be read.
  */
 export function measureAutoMovieCameraFrameEdge(
-  props: AutoMovieRenderInspectionCamera.FrameEdge.IProps,
-): AutoMovieRenderInspectionCamera.FrameEdge.IResult {
+  props: AutoMovieRenderInspectionCamera.IFrameEdgeProps,
+): AutoMovieRenderInspectionCamera.IFrameEdgeResult {
   const { camera, meshes, triangleBudget } = props;
   const projection: Matrix4 = new Matrix4().multiplyMatrices(
     camera.projectionMatrix,
@@ -87,8 +87,8 @@ export function measureAutoMovieCameraFrameEdge(
     for (let i: number = 0; i < 4; ++i)
       if (past[i]! > slack[i]!) reach[i] = Math.max(reach[i]!, past[i]!);
   }
-  const crossings: AutoMovieRenderInspectionCamera.FrameEdge.ICrossing[] = crossed.map(
-    (i: number): AutoMovieRenderInspectionCamera.FrameEdge.ICrossing =>
+  const crossings: AutoMovieRenderInspectionCamera.IFrameEdgeCrossing[] = crossed.map(
+    (i: number): AutoMovieRenderInspectionCamera.IFrameEdgeCrossing =>
       reach[i] !== -Infinity
         ? { side: SIDES[i]!, extent: reach[i]! }
         : { side: SIDES[i]! },
@@ -97,7 +97,7 @@ export function measureAutoMovieCameraFrameEdge(
   // A box whose drawn part stays inside every edge leaves nothing for an edge to cut.
   if (
     crossings.every(
-      (crossing: AutoMovieRenderInspectionCamera.FrameEdge.ICrossing): boolean =>
+      (crossing: AutoMovieRenderInspectionCamera.IFrameEdgeCrossing): boolean =>
         crossing.extent === undefined,
     )
   )

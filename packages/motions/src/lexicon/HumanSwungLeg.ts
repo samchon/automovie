@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, hingedArmSwivel, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
+import { ROM_TOLERANCE, hingedArmSwivel, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -114,7 +114,7 @@ export namespace HumanSwungLeg {
               ...at(
                 body,
                 found,
-                minimumJerk.share(
+                AutoMovieEngineMotionSampling.minimumJerkShare(
                   (t - found.start) / (found.end - found.start),
                 ),
               ),

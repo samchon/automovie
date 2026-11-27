@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
   type AutoMovieArchetype,
@@ -9,6 +10,7 @@ import {
   AutoMovieArchetypeRefusal,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import { rideSwingImplementation } from "./internal/rideSwing";
 
 /** The seat clearance read for a single-user swing at rest. */
 const EN1176: string =
@@ -28,7 +30,7 @@ export namespace AutoMovieArchetypeSwing {
  * = 0`; the seat hangs below it and swings in the `y`-`z` plane. This model
  * draws the fixed frame. The seat with its chains is a separate rigid model,
  * `createSwing.seat`, whose origin is the pivot, so a rotation of its frame
- * about the pivot axis swings it (`rideSwing`).
+ * about the pivot axis swings it (`AutoMovieArchetypeSwing.ride`).
  *
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
@@ -231,5 +233,87 @@ export namespace AutoMovieArchetypeSwing {
       depth: seatDepth,
     });
     return builder.build(mass);
+  }
+}
+
+/** The swing's ride and its contract. */
+export namespace AutoMovieArchetypeSwing {
+  /**
+   * A pumped playground swing on the ride's clock: the hanging seat model
+   * (`createSwing.seat`) turns about the beam's pivot axis by the swing angle,
+   * positive toward `+Z`.
+   *
+   * The seat is a simple pendulum of the hanging length to the seated centre of
+   * mass, with angular frequency `sqrt(g / length)`. Seated pumping, by the rider
+   * turning the body at each turning point, adds a fixed angle to the amplitude
+   * every half swing (Wirkus, Rand and Ruina, "How to pump a swing", College Math
+   * J 29:266, 1998, https://www.maa.org/pubs/CMJ_September98.html). Each half
+   * swing runs from one turning point to the next on a cosine whose two ends are
+   * those turning points, so the seat is still at each turning point and its path
+   * stays smooth while the amplitude grows. Half swings without pumping keep
+   * their amplitude.
+   *
+   * @param swing The installed swing frame.
+   * @param placement Its world placement.
+   * @param ride The start, the pumped half swings and the angle each adds.
+   * @returns The seat's frame and the turning points on the ride's clock.
+   * @throws {AutoMovieArchetypeRefusal} For a hanging length, start angle or
+   *   increment out of range.
+   */
+  export function ride(
+    swing: AutoMovieArchetype<"ground", AutoMovieArchetypeSwing.Dimension>,
+    placement: IAutoMovieTransform,
+    ride: AutoMovieArchetypeSwing.IRideParams,
+  ): AutoMovieArchetypeSwing.IRideResult {
+    return rideSwingImplementation(swing, placement, ride);
+  }
+
+  /** How the swing is set going and pumped. */
+  export interface IRideParams {
+    /** Pivot to the seated centre of mass, metres. */
+    length: number;
+
+    /** The swing angle at second 0, a turning point, degrees toward `+Z`. */
+    start: number;
+
+    /**
+     * Whole number of half swings the ride lasts; each takes pi / sqrt(g /
+     * length) seconds, with standard gravity g.
+     */
+    halves: number;
+
+    /**
+     * Whole number of leading half swings that gain `increment`, at most
+     * `halves`; later half swings keep their amplitude.
+     */
+    pumps: number;
+
+    /** The angle each pumped half swing adds to the amplitude, degrees. */
+    increment: number;
+  }
+
+  /** One running swing's readers. */
+  export interface IRideResult {
+    /** Seconds from one turning point to the next. */
+    half: number;
+
+    /** The swing angle at each turning point, degrees, starting at second 0. */
+    turns: readonly number[];
+
+    /**
+     * The swing angle at a ride second, degrees toward `+Z`.
+     *
+     * @param seconds Ride seconds.
+     * @returns The angle.
+     */
+    angle(seconds: number): number;
+
+    /**
+     * The hanging seat model's world frame at a ride second.
+     *
+     * @param seconds Ride seconds.
+     * @returns The frame.
+     */
+    seat(seconds: number): IAutoMovieTransform;
   }
 }

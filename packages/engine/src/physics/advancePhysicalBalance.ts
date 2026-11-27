@@ -13,8 +13,8 @@ import type {
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
-import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
-import { collectPhysicalSupports } from "./collectPhysicalSupports";
+import { AutoMovieEnginePhysics } from "./AutoMovieEnginePhysics";
+import { AutoMoviePhysicalSupportCollector } from "./AutoMoviePhysicalSupportCollector";
 import { physicalAuthoredCapture } from "./internal/physicalAuthoredCapture";
 import { physicalBalanceHandoff } from "./physicalBalanceHandoff";
 import { physicalBalancePlan } from "./physicalBalancePlan";
@@ -23,7 +23,7 @@ import { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalBalanceSettle } from "./physicalBalanceSettle";
 import { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalBalanceSwing } from "./physicalBalanceSwing";
-import { physicalSupportSole } from "./physicalSupportSole";
+import { AutoMovieEnginePhysicalSupportSole } from "./AutoMovieEnginePhysicalSupportSole";
 
 /**
  * Advance one body's generic recovery controller from actual floor manifolds.
@@ -83,17 +83,17 @@ export function advancePhysicalBalance(input: {
   /**
    * The authored pose's centre of mass, its velocity and acceleration, world; a
    * body's disturbance response stands in for it.
-   */ command?: AutoMovieEnginePhysicalBalanceTypes.Sense.IInput["command"];
+   */ command?: AutoMovieEnginePhysicalBalanceTypes.ISenseInput["command"];
   /** Where the phases record their events and readings, if anywhere. */ trace?: IAutoMoviePhysicalBalanceTrace[];
   /**
    * On the substep after a stated disturbance's first push, its later pushes,
    * whose response the body prepares now.
-   */ disturbance?: { pushes: readonly AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IPush[] };
+   */ disturbance?: { pushes: readonly AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanPush[] };
 }): IAutoMovieAdvancePhysicalBalance.IResult {
   const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
     input.supports ??
-    collectPhysicalSupports({ ...input, pattern: input.policy.pattern });
-  const sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense = physicalBalanceSense({
+    AutoMoviePhysicalSupportCollector.collect({ ...input, pattern: input.policy.pattern });
+  const sense: AutoMovieEnginePhysicalBalanceTypes.ISense = physicalBalanceSense({
     profile: input.profile,
     segments: input.segments,
     policy: input.policy,
@@ -148,7 +148,7 @@ export function advancePhysicalBalance(input: {
   // actuation.
   for (const drive of swing.drives)
     if (input.actuation)
-      accumulatePhysicalMotorTorques({
+      AutoMovieEnginePhysics.accumulatePhysicalMotorTorques({
         profile: input.profile,
         segments: input.segments,
         chain: sense.limb(drive.bone).chain,
@@ -181,14 +181,14 @@ export function advancePhysicalBalance(input: {
  * A body's disturbance response's inputs from the state just after its first
  * push: the centre of mass and its velocity, the pendulum's rate the plan holds
  * (`physicalBalancePlan.omega`), the planted limbs as the planner reads them
- * (`physicalSupportSole.foot`, each on its side), the authored capture point
+ * (`AutoMovieEnginePhysicalSupportSole.foot`, each on its side), the authored capture point
  * and rate (`physicalAuthoredCapture`), the later pushes and the policy's step
  * range and reaction time.
  */
 function disturbance(
   state: IAutoMoviePhysicalRecoveryState,
-  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense,
-  stated: { pushes: readonly AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IPush[] },
+  sense: AutoMovieEnginePhysicalBalanceTypes.ISense,
+  stated: { pushes: readonly AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanPush[] },
 ): NonNullable<IAutoMoviePhysicalRecoveryState["span"]> {
   const omega: number = state.omega ?? physicalBalancePlan.omega(sense, state);
   const authored: physicalAuthoredCapture.IDesired = physicalAuthoredCapture(
@@ -204,19 +204,19 @@ function disturbance(
     mass: sense.profile.mass,
     gravity: sense.gravity,
     feet: sense.limbs.map(
-      (limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): physicalSupportSole.IFoot =>
-        physicalSupportSole.foot(
+      (limb: AutoMovieEnginePhysicalBalanceTypes.ILimb): AutoMovieEnginePhysicalSupportSole.IFoot =>
+        AutoMovieEnginePhysicalSupportSole.foot(
           sense,
           state,
           limb.bone,
-          physicalSupportSole.side(sense, limb.bone),
+          AutoMovieEnginePhysicalSupportSole.side(sense, limb.bone),
         ),
     ),
     authored: {
       position: { ...authored.position },
       velocity: { ...authored.velocity },
     },
-    pushes: stated.pushes.map((push: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IPush) => ({
+    pushes: stated.pushes.map((push: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanPush) => ({
       seconds: push.seconds,
       velocity: { ...push.velocity },
     })),

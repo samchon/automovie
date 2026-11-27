@@ -1,4 +1,4 @@
-import { carriedRate } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -37,7 +37,7 @@ export function test_engine_motion_carried_rate(): void {
     TestValidator.predicate(
       `interior at ${u}`,
       nclose(
-        carriedRate(D, u * D),
+        AutoMovieEngineMotionSampling.carriedRate(D, u * D),
         D * u * (1 - u) ** 3 * (1 + 3 * u),
         ROUNDING,
       ),
@@ -47,33 +47,33 @@ export function test_engine_motion_carried_rate(): void {
   for (const elapsed of [-D, 0, D, 2 * D])
     TestValidator.predicate(
       `zero at ${elapsed} s`,
-      nclose(carriedRate(D, elapsed), 0, ROUNDING),
+      nclose(AutoMovieEngineMotionSampling.carriedRate(D, elapsed), 0, ROUNDING),
     );
 
   // 3. The peak.
-  const peak: number = carriedRate(D, D / 3);
+  const peak: number = AutoMovieEngineMotionSampling.carriedRate(D, D / 3);
   TestValidator.predicate(
     "the peak at a third",
-    nclose(carriedRate.PEAK, 16 / 81, 1e-15) &&
+    nclose(AutoMovieEngineMotionSampling.carriedRatePeak(), 16 / 81, 1e-15) &&
       nclose(peak, (D * 16) / 81, ROUNDING) &&
-      carriedRate(D, D / 3 - D / 100) < peak &&
-      carriedRate(D, D / 3 + D / 100) < peak,
+      AutoMovieEngineMotionSampling.carriedRate(D, D / 3 - D / 100) < peak &&
+      AutoMovieEngineMotionSampling.carriedRate(D, D / 3 + D / 100) < peak,
   );
 
   // 4. The end slopes.
   TestValidator.predicate(
     "unit slope at the cut",
-    nclose((carriedRate(D, H) - carriedRate(D, 0)) / H, 1, 1e-9),
+    nclose((AutoMovieEngineMotionSampling.carriedRate(D, H) - AutoMovieEngineMotionSampling.carriedRate(D, 0)) / H, 1, 1e-9),
   );
   TestValidator.predicate(
     "zero slope at the end",
-    nclose((carriedRate(D, D) - carriedRate(D, D - H)) / H, 0, 1e-9),
+    nclose((AutoMovieEngineMotionSampling.carriedRate(D, D) - AutoMovieEngineMotionSampling.carriedRate(D, D - H)) / H, 0, 1e-9),
   );
 
   // 5. Refusals.
   for (const duration of [0, -1])
     TestValidator.predicate(
       `a duration of ${duration} is refused`,
-      throwsError(() => carriedRate(duration, 0.1)),
+      throwsError(() => AutoMovieEngineMotionSampling.carriedRate(duration, 0.1)),
     );
 }

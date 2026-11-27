@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
@@ -72,7 +72,7 @@ export namespace punchAnchored {
     seconds: number,
     correction: Pick<punchReach.ICorrection, "start" | "duration">,
   ): number {
-    return minimumJerk.share(
+    return AutoMovieEngineMotionSampling.minimumJerkShare(
       (seconds - correction.start) / correction.duration,
     );
   }

@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, minimumJerk, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, AutoMovieEngineMotionSampling, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -133,8 +133,8 @@ export namespace walkReach {
     if (foot.swing === undefined) return 1;
     const u: number = foot.swing.u;
     return u < 0.5
-      ? 1 - minimumJerk.share(Math.min(1, u / FADE))
-      : minimumJerk.share(Math.max(0, (u - (1 - FADE)) / FADE));
+      ? 1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, u / FADE))
+      : AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, (u - (1 - FADE)) / FADE));
   }
 
   /**

@@ -227,7 +227,7 @@ export namespace equineFordRider {
     const authored: AutoMovieArchetypeEquineFordPlan.IParams =
       equineFordScene.params(shelf);
     const crossing: AutoMovieArchetypeEquineFordPlan.IClip<string, string> =
-      AutoMovieArchetypeEquineFord(horse, {
+      AutoMovieArchetypeEquineFord.create(horse, {
         ...authored,
         water: WATER,
         footing: {

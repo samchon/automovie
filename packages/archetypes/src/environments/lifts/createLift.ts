@@ -1,5 +1,11 @@
 import { AutoMovieEngineBuiltEnvironmentWorkflow } from "@automovie/engine";
+import type {
+  IAutoMovieEnvironmentContribution,
+  IAutoMovieEnvironmentModule,
+  IAutoMovieSubjectContribution,
+} from "@automovie/interface";
 
+import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import { buildLiftEnvironment } from "./buildLiftEnvironment";
 import { liftStopHeights } from "./internal/liftStopHeights";

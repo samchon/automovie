@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween, AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -368,7 +368,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
         share: number,
       ): IAutoMovieVector3 =>
         Quaternion.rotateVector(
-          Quaternion.slerp(Quaternion.identity(), rotationBetween(a, b), share),
+          Quaternion.slerp(Quaternion.identity(), AutoMovieEngineMath.rotationBetween(a, b), share),
           a,
         );
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -380,7 +380,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       );
       return Quaternion.normalize(
         Quaternion.multiply(
-          rotationBetween(Quaternion.rotateVector(hand, axis), wanted),
+          AutoMovieEngineMath.rotationBetween(Quaternion.rotateVector(hand, axis), wanted),
           hand,
         ),
       );

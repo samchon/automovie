@@ -1,7 +1,7 @@
 import {
   AutoMovieXpbdBody,
   Quaternion,
-  physicalStanceHip,
+  AutoMovieEnginePhysicalStanceHip,
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
@@ -60,11 +60,11 @@ export function test_engine_physics_physical_stance_hip(): void {
   // 1. The flywheel model against the closed form.
   const torque: number = 320;
   const inertia: number = 7.8;
-  const theta: number = physicalStanceHip.HIP_RANGE;
+  const theta: number = AutoMovieEnginePhysicalStanceHip.HIP_RANGE;
   const mass: number = 78.5;
   const gravity: number = 9.81;
   const omega: number = 3.21;
-  const reach: number = physicalStanceHip.hipReach({
+  const reach: number = AutoMovieEnginePhysicalStanceHip.hipReach({
     torque,
     inertia,
     angle: theta,
@@ -117,13 +117,13 @@ export function test_engine_physics_physical_stance_hip(): void {
     margin: number = 0,
     previous?: number,
   ): boolean =>
-    physicalStanceHip.exceeds({
+    AutoMovieEnginePhysicalStanceHip.exceeds({
       support,
       capture: { x: 0, y: 0, z },
       spin,
       margin,
       reach: (): number =>
-        physicalStanceHip.hipReach({
+        AutoMovieEnginePhysicalStanceHip.hipReach({
           torque,
           inertia,
           angle,
@@ -231,7 +231,7 @@ export function test_engine_physics_physical_stance_hip(): void {
     direction: IAutoMovieVector3,
     intended = identity,
   ) =>
-    physicalStanceHip.hip({
+    AutoMovieEnginePhysicalStanceHip.hip({
       profile,
       segments,
       limbs,

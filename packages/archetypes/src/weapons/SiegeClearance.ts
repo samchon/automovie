@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
@@ -123,7 +123,7 @@ export namespace SiegeClearance {
     }
     const rest: ReturnType<typeof AutoMovieArchetypeFrame.upright> = {
       translation: Vector3.scale(Vector3.add(from, to), 0.5),
-      rotation: rotationBetween(
+      rotation: AutoMovieEngineMath.rotationBetween(
         { x: 0, y: 1, z: 0 },
         Vector3.subtract(to, from),
       ),

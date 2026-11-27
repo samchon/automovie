@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -394,7 +394,7 @@ function inheritedStance(
     if (seconds <= strike)
       return { placement: foot.placement, toes: foot.toes };
     if (seconds >= strike + settle) return staged(seconds);
-    const share: number = minimumJerk.share((seconds - strike) / settle);
+    const share: number = AutoMovieEngineMotionSampling.minimumJerkShare((seconds - strike) / settle);
     const rotation: IAutoMovieMotionHumanFoot.IPlacement["rotation"] =
       Quaternion.slerp(
         foot.placement.rotation,

@@ -10,7 +10,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../../kinematics/index";
+import { AutoMovieEngineKinematics } from "../../kinematics/index";
+import { indexSkeletonTopology } from "../../kinematics/internal/indexSkeletonTopology";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
 import { groundFunction } from "../../space/internal/groundFunction";

@@ -1,11 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSeated,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSeated, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { seated } from "../../everyday/internal/seated";
@@ -56,7 +51,7 @@ export function everydayPostureCases(
     const [sit, shift, rise] = performance.segments("a");
     const contact: number = event(performance, "a", 0, "seatContact");
     const socket = (t: number): IAutoMovieVector3 =>
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         body.surfaces.sockets.seat,
         performance.bones("a", t).get(body.surfaces.sockets.seat.bone)!,
       ).point;

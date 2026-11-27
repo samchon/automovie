@@ -6,8 +6,8 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { appendGraphCycles } from "../../validation/appendGraphCycles";
-import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
+import { appendGraphCycles } from "../../validation/internal/appendGraphCycles";
+import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { validateBuiltSpaceShell } from "./validateBuiltSpaceShell";
 
 /** A plane normal this short or shorter has no direction. */

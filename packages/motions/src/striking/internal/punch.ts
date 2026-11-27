@@ -1,25 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieMotionHumanActionName,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPunch,
-  IAutoMovieMotionHumanStrikingRecord,
-  IAutoMovieMotionHumanStrikingSkill,
-  IAutoMovieMotionHumanVariation,
-  IAutoMovieMotionWeaponContact,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionHumanStrikingSkill, IAutoMovieMotionHumanVariation, IAutoMovieMotionWeaponContact, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
 import { AutoMovieMotionPrepared } from "../../compose/AutoMovieMotionPrepared";
@@ -329,7 +310,7 @@ export namespace punch {
     const aimed = (): IAutoMovieHumanoidSurfaces.ITangent | undefined =>
       source === undefined ||
       p.at.kind !== "person" ||
-      !resolveAutoMovieHumanoidSurfaces.rayed(p.at.region)
+      !AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceRayed(p.at.region)
         ? undefined
         : AutoMovieMotionHumanVariation.strike(source, "point", {
             radius: StrikingBody.radius(

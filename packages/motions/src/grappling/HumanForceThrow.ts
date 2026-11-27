@@ -1,30 +1,5 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  integrateAirborneRotation,
-  integrateMotionTrajectory,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
-  resolveAutoMovieMomentum,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanForceSite,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieIntegrateAirborneRotation,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanForceExchange,
-  IAutoMovieMotionHumanForceResponse,
-  IAutoMovieMotionHumanForceThrow,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineMotionTrajectory, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanForceSite, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanForceThrow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -96,7 +71,7 @@ export namespace HumanForceThrow {
     const axis: IAutoMovieVector3 = Vector3.cross(up, direction);
     const shape: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(body, frozen);
-    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+    const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
       model,
       shape,
     );
@@ -113,7 +88,7 @@ export namespace HumanForceThrow {
       Vector3.scale(direction, Math.cos(start)),
       Vector3.scale(up, -Math.sin(start)),
     );
-    const tensor: number[][] = resolveAutoMovieMomentum.inertia(model, shape);
+    const tensor: number[][] = AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia(model, shape);
     const about: number = [0, 1, 2].reduce(
       (s: number, i: number): number =>
         s +
@@ -195,18 +170,18 @@ export namespace HumanForceThrow {
 
     // This authored geometry is held for the entire rigid flight. Its copied
     // native constructor proves that fact without inspecting callback samples.
-    const end: number = Math.max(fall, integrateMotionTrajectory.STEP);
-    const fixed: integrateAirborneRotation.ICachedHistory | undefined =
+    const end: number = Math.max(fall, AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep());
+    const fixed: AutoMovieEngineMotionAirborneRotation.ICachedHistory | undefined =
       end < Infinity
-        ? integrateAirborneRotation.fixed(model, body.skeleton, local, {
+        ? AutoMovieEngineMotionAirborneRotation.fixed(model, body.skeleton, local, {
             from: 0,
             to: end,
           })
         : undefined;
     let rigid: IAutoMovieIntegrateAirborneRotation.IInstant | undefined;
     if (fixed === undefined) {
-      const history: integrateAirborneRotation.ICachedHistory =
-        integrateAirborneRotation.history(model, () => local);
+      const history: AutoMovieEngineMotionAirborneRotation.ICachedHistory =
+        AutoMovieEngineMotionAirborneRotation.history(model, () => local);
       try {
         rigid = history(0);
       } finally {
@@ -215,7 +190,7 @@ export namespace HumanForceThrow {
     }
     let flight: IAutoMovieIntegrateAirborneRotation.IFlight;
     try {
-      flight = integrateAirborneRotation({
+      flight = AutoMovieEngineMotionAirborneRotation.integrate({
         history:
           fixed ?? ((): IAutoMovieIntegrateAirborneRotation.IInstant => rigid!),
         t0: 0,
@@ -251,7 +226,7 @@ export namespace HumanForceThrow {
     for (
       let tau: number = 0;
       tau <= fall;
-      tau += integrateMotionTrajectory.STEP
+      tau += AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()
     )
       if (lowest(tau) <= 0) {
         land = tau;
@@ -321,7 +296,7 @@ export namespace HumanForceThrow {
     }
     const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[at];
-    return resolveAutoMovieHumanoidSurfaces.point(
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
       frame,
       bones.get(frame.bone)!,
     );

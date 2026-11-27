@@ -1,21 +1,8 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanAuditMeasure,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { HumanRefusal } from "@automovie/motions";
-import {
-  AutoMovieMotionHumanAuditPartner,
-  HumanHand,
-} from "@automovie/motions/internal";
+import { AutoMovieMotionHumanAuditPartner, HumanHand } from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
@@ -249,7 +236,7 @@ function skin(
 ): IAutoMovieVector3 {
   const frame: IAutoMovieHumanoidSurfaces.IFrame = body(film, subject).surfaces
     .regions[region];
-  return resolveAutoMovieHumanoidSurfaces.place(
+  return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
     frame,
     film.bones(subject, seconds).get(frame.bone)!,
   ).point;

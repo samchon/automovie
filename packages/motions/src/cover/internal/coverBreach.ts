@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
@@ -91,7 +91,7 @@ export function coverBreach(
     to: 1,
     travel: (seconds: number): number =>
       travel *
-      minimumJerk.share(Math.max(0, Math.min(1, (seconds - at) / SWING))),
+      AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, Math.min(1, (seconds - at) / SWING))),
   };
   return {
     ...struck,

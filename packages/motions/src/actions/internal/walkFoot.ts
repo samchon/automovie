@@ -1,4 +1,4 @@
-import { Vector3, carriedRate, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -175,8 +175,8 @@ export namespace walkFoot {
     return (share: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
       const u: number = Math.min(1, Math.max(0, share));
       const travel: number = Math.min(1, u / (1 - landing));
-      const s: number = minimumJerk.share(travel);
-      const carried: number = carriedRate(
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(travel);
+      const carried: number = AutoMovieEngineMotionSampling.carriedRate(
         carriedSeconds,
         travel * carriedSeconds,
       );
@@ -187,10 +187,10 @@ export namespace walkFoot {
 
       // A leg kept straight cannot carry its heel's rise through the swing: its foot is down at its landing height and pitch by `LEVEL` of the swing, and is lifted by `STIFF` of the gait's lift.
       const level: number = stiff
-        ? minimumJerk.share(Math.min(1, u / LEVEL))
+        ? AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, u / LEVEL))
         : s;
       const rising: number = stiff
-        ? carriedRate(levelSeconds, u * props.seconds)
+        ? AutoMovieEngineMotionSampling.carriedRate(levelSeconds, u * props.seconds)
         : carried;
       const a: IAutoMovieVector3 = props.from.ankle;
       const bowed: number = Math.sin(Math.PI * s) ** 2;
@@ -208,10 +208,10 @@ export namespace walkFoot {
           (props.bow?.z ?? 0) * bowed,
       };
       const heading: number = leaving + headingDelta * s;
-      const turning: number = carriedRate(turnSeconds, u * props.seconds);
+      const turning: number = AutoMovieEngineMotionSampling.carriedRate(turnSeconds, u * props.seconds);
       const toes: number =
-        props.from.toes * (1 - minimumJerk.share(Math.min(1, 2 * u))) +
-        props.to.toes * minimumJerk.share(Math.max(0, 2 * u - 1)) +
+        props.from.toes * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, 2 * u))) +
+        props.to.toes * AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, 2 * u - 1)) +
         (props.rates?.toes ?? 0) * turning;
 
       // A foot that leaves or lands on its edge rolls between the two as its
@@ -246,7 +246,7 @@ export namespace walkFoot {
           placement,
           toes,
         );
-        const released: number = minimumJerk.share(
+        const released: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.max(0, (u - settle) / settle),
         );
         ankle.x += (departure.point.x - sole.x) * (1 - released);

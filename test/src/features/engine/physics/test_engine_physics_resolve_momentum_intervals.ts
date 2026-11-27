@@ -1,14 +1,5 @@
-import {
-  prepareAutoMovieMassModel as M,
-  resolveAutoMovieMomentum as P,
-  physicalInertiaTensor,
-} from "@automovie/engine";
-import type {
-  IAutoMovieCombinePhysicalMassProperties,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, AutoMoviePhysicalInertiaTensor } from "@automovie/engine";
+import type { IAutoMovieCombinePhysicalMassProperties, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -280,8 +271,8 @@ function reentrantReaders(): void {
       }),
     ],
   };
-  const tensor: ReturnType<typeof physicalInertiaTensor.prepare> =
-    physicalInertiaTensor.prepare();
+  const tensor: ReturnType<typeof AutoMoviePhysicalInertiaTensor.prepare> =
+    AutoMoviePhysicalInertiaTensor.prepare();
   const interval: ReturnType<typeof P.prepareIntervals> = P.prepareIntervals();
   const prepared: M.IPrepared = M(model);
   const findings: string[] = [];

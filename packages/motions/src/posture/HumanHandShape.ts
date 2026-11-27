@@ -1,19 +1,6 @@
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEnginePhysics } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  AutoMovieHumanoidSocket,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanHandShape,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHandShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./internal/poseBones";
@@ -336,8 +323,8 @@ export namespace HumanHandShape {
     const Side: TipSide = side === "left" ? "Left" : "Right";
     const region: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[`${surface}${Side}` as AutoMovieHumanoidRegion];
-    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-      resolveAutoMovieHumanoidSurfaces.place(region, bones.get(region.bone)!);
+    const placed: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> =
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(region, bones.get(region.bone)!);
     // A pad is where its digit bears on a surface it lies on: the point of
     // the digit's own collider farthest along the pad's outward normal, the
     // point a support facing the pad meets, read from the posed digit as the
@@ -380,7 +367,7 @@ function padOf(
   body: IAutoMovieMotionHumanBody,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   bone: AutoMovieHumanoidBone,
-  placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place>,
+  placed: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace>,
 ): IAutoMovieVector3 {
   let best: IAutoMovieVector3 = placed.point;
   let reach: number = -Infinity;

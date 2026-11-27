@@ -28,8 +28,8 @@ import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
  *   checked.
  */
 export function measureAutoMovieCameraNearClip(
-  props: AutoMovieRenderInspectionCamera.NearClip.IProps,
-): AutoMovieRenderInspectionCamera.NearClip.IResult {
+  props: AutoMovieRenderInspectionCamera.INearClipProps,
+): AutoMovieRenderInspectionCamera.INearClipResult {
   const { camera, meshes, triangleBudget } = props;
   if (triangleBudget < 0)
     return {

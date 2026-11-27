@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Release the renderer, preserving its failure rather than reporting successful

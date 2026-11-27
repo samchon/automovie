@@ -16,30 +16,28 @@ import { readMaterialShaderPatches as readShaderPatchesImplementation } from "./
 
 /** Public operations for Auto Movie Render Material. */
 export namespace AutoMovieRenderMaterial {
-
-  /** Type-only input contract for runtime material texture residency. */
-  export namespace ReadMaterialTextureSources {
-    /** Scene state and previously retained observations for one scope. */
-    export interface IProps {
-      /** Stable scope that groups the renderer observations. */
-      scope: string;
-      /** Renderer whose extensions determine the area-light texture sources. */
-      renderer: {
-        extensions: Pick<THREE.WebGLRenderer["extensions"], "has">;
-      };
-      /** Scene whose live material textures are observed. */
-      scene: THREE.Scene;
-      /** Earlier rows retained by the caller for the same renderer. */
-      retained?: readonly NonNullable<
-        IAutoMovieRenderTextureResidency["runtimeTextures"]
-      >[number][];
-    }
+  /** Scene state and previously retained observations for one texture scope. */
+  export interface IReadMaterialTextureSourcesProps {
+    /** Stable scope that groups the renderer observations. */
+    scope: string;
+    /** Renderer whose extensions determine the area-light texture sources. */
+    renderer: {
+      extensions: Pick<THREE.WebGLRenderer["extensions"], "has">;
+    };
+    /** Scene whose live material textures are observed. */
+    scene: THREE.Scene;
+    /** Earlier rows retained by the caller for the same renderer. */
+    retained?: readonly NonNullable<
+      IAutoMovieRenderTextureResidency["runtimeTextures"]
+    >[number][];
   }
+
   /** One patch operation applied to the same caller-owned shader value. */
-  export type IShaderPatchApplication<Shader> = {
+  export interface IShaderPatchApplication<Shader> {
     /** Update the shader in place after any earlier patches have run. */
     apply: (shader: Shader) => void;
-  };
+  }
+
 
   /** Build one owned Three physical material for a canonical material record. */
   export const build: (
@@ -132,7 +130,7 @@ export namespace AutoMovieRenderMaterial {
    * shader, texture state or GPU lifetime is changed by the observation.
    */
   export function readMaterialTextureSources(
-    props: ReadMaterialTextureSources.IProps,
+    props: IReadMaterialTextureSourcesProps,
   ): NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]>[number][] {
     return readMaterialTextureSourcesImplementation(props);
   }

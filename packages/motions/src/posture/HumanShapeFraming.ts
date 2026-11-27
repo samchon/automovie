@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeHull } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanColliders,
   IAutoMoviePhysicalHullFaces,
@@ -21,7 +21,7 @@ function planes(
   shape: Extract<IAutoMoviePhysicalShape, { kind: "hull" }>,
 ): Float64Array {
   const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] =
-    physicalShapeHull(shape).faces;
+    AutoMovieEnginePhysics.physicalShapeHull(shape).faces;
   const packed: Float64Array = new Float64Array(4 * faces.length);
   faces.forEach(
     (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {

@@ -7,7 +7,7 @@ export * from "./AutoMovieSweepRotation";
 
 
 
-export * from "./createAutoMovieBoneMotion";
+
 
 
 

@@ -26,25 +26,25 @@ import { admitPhysicalOutcomes } from "./internal/admitPhysicalOutcomes";
 import { auditPhysicalOutcomes } from "./internal/auditPhysicalOutcomes";
 import { assertPhysicalReturnPath } from "./internal/assertPhysicalReturnPath";
 import { bindPhysicalWorld } from "./internal/bindPhysicalWorld";
-import { capturePhysicalSimulationCheckpoint } from "./capturePhysicalSimulationCheckpoint";
+import type { IAutoMoviePhysicalSimulationCheckpointCapture } from "./IAutoMoviePhysicalSimulationCheckpointCapture";
+import { capturePhysicalSimulationCheckpoint } from "./internal/capturePhysicalSimulationCheckpoint";
 import { checkpointPhysicalSimulation } from "./internal/checkpointPhysicalSimulation";
 import { collectPhysicalContacts } from "./internal/collectPhysicalContacts";
-import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames";
+import { computePhysicalKinematicFrames } from "./internal/computePhysicalKinematicFrames";
 import { inPhysicalFloorBounds } from "./internal/inPhysicalFloorBounds";
 import { physicalInputDigest } from "./internal/physicalInputDigest";
-import { planPhysicalSimulationSteps } from "./planPhysicalSimulationSteps";
+import { AutoMoviePhysicalStepPlanner } from "./AutoMoviePhysicalStepPlanner";
 import { preparePhysicalContactHooks } from "./internal/preparePhysicalContactHooks";
 import { preparePhysicalCoupledTargetSchedule } from "./internal/preparePhysicalCoupledTargetSchedule";
-import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
+import { AutoMoviePhysicalGeometry } from "./AutoMoviePhysicalGeometry";
 import { readPhysicalFrame } from "./internal/readPhysicalFrame";
 import { recordPhysicalContact } from "./internal/recordPhysicalContact";
-import { recordPhysicalSpanContacts } from "./recordPhysicalSpanContacts";
+import { AutoMoviePhysicalSpanContacts } from "./AutoMoviePhysicalSpanContacts";
 import { restorePhysicalSimulationCheckpoint } from "./internal/restorePhysicalSimulationCheckpoint";
 import { samplePhysicalTracking } from "./internal/samplePhysicalTracking";
 import { samplePhysicalTrackingTarget } from "./internal/samplePhysicalTrackingTarget";
 import { solvePhysicalCompliantContacts as solveCompliance } from "./internal/solvePhysicalCompliantContacts";
-import { solveXpbdArticulation } from "./solveXpbdArticulation";
-import type { solveXpbdContacts } from "./solveXpbdContacts";
+import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
 import { trackPhysicalWorld } from "./internal/trackPhysicalWorld";
 import { yieldPhysicalSimulation } from "./internal/yieldPhysicalSimulation";
 
@@ -101,6 +101,26 @@ export class AutoMoviePhysicalSimulation {
    */
   public static bindWorld(world: AutoMovieXpbdWorld, input: IAutoMoviePhysicalSimulationInput.IInput, restored: boolean): Bound {
     return bindPhysicalWorld(world, input, restored);
+  }
+
+  /**
+   * Keep, after one completed fixed step, everything a later edit resumes from
+   * (`restorePhysicalSimulationCheckpoint` reads it back): the native world's
+   * snapshot, the controller's contact and target state and the balance
+   * controller's recovery state, each under the step in the cache.
+   *
+   * The contact ledger itself is not copied: the controller record keeps its
+   * length and, for each episode still open, its metadata and the count of its
+   * samples so far, so samples the episode gains later never reach a resumed run.
+   * Plans, handoffs and recovery state are cloned, so later steps cannot change
+   * them; the sets and lists are copied into new arrays.
+   *
+   * @param input The run's cache, written; its world and binding after the step;
+   *   the open contact episodes by pair key and the softened tracking's end
+   *   seconds by body/bone key, both read; and the completed step.
+   */
+  public static captureCheckpoint(input: IAutoMoviePhysicalSimulationCheckpointCapture): void {
+    capturePhysicalSimulationCheckpoint(input);
   }
 
   /**
@@ -438,8 +458,8 @@ export class AutoMoviePhysicalSimulation {
     }
     {
       const start: number = checkpointPhysicalSimulation(owned, previous);
-      const plan: planPhysicalSimulationSteps.IResult =
-        planPhysicalSimulationSteps(start, count, owned.checkpointEvery);
+      const plan: AutoMoviePhysicalStepPlanner.IResult =
+        AutoMoviePhysicalStepPlanner.plan(start, count, owned.checkpointEvery);
       const snapshots: ReadonlySet<number> = new Set(plan.snapshots);
       const world: AutoMovieXpbdWorld = restorePhysicalSimulationCheckpoint(
         owned,
@@ -501,7 +521,7 @@ export class AutoMoviePhysicalSimulation {
             ),
         )
       )
-        bound.geometry = await preparePhysicalGeometry();
+        bound.geometry = await AutoMoviePhysicalGeometry.prepare();
       if (start > 0)
         for (const id of previous!.cache.controllerCheckpoints.get(start)!
           .contactReleased ?? [])
@@ -545,7 +565,7 @@ export class AutoMoviePhysicalSimulation {
       }
       const active: Map<string, IAutoMovieContactReceipt> = new Map();
       const softened: Map<string, number> = new Map();
-      const filter: solveXpbdContacts.Filter = preparePhysicalContactHooks(
+      const filter: AutoMovieXpbdWorld.Filter = preparePhysicalContactHooks(
         owned,
         bound,
       );
@@ -590,8 +610,8 @@ export class AutoMoviePhysicalSimulation {
                     candidate.id === impulse.body,
                 )!;
               // The blow acts through the struck body's whole articulation
-              // (`solveXpbdArticulation.impulse`).
-              solveXpbdArticulation.impulse(
+              // (`AutoMovieXpbdArticulation.impulse`).
+              AutoMovieXpbdArticulation.impulse(
                 world.joints,
                 bound.bodies.get(`${impulse.body}/${impulse.bone}`)!,
                 impulse.point,
@@ -654,7 +674,7 @@ export class AutoMoviePhysicalSimulation {
             active,
             found,
           );
-          recordPhysicalSpanContacts({
+          AutoMoviePhysicalSpanContacts.record({
             settings: owned,
             bound,
             recovery: cache.recovery,
@@ -686,7 +706,7 @@ export class AutoMoviePhysicalSimulation {
           if (!found.has(key)) active.delete(key);
         cache.frames.push(readPhysicalFrame(bound, seconds));
         if (snapshots.has(step))
-          capturePhysicalSimulationCheckpoint({
+          AutoMoviePhysicalSimulation.captureCheckpoint({
             cache,
             world,
             bound,

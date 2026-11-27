@@ -5,7 +5,7 @@ import type {
   IAutoMovieScene,
 } from "@automovie/interface";
 
-import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
+import type { AutoMovieEngineSkeletonPose } from "../kinematics/AutoMovieEngineSkeletonPose";
 
 /** Type-only props owned by the engine film's named operations. */
 export namespace AutoMovieEngineFilmTypes {
@@ -31,7 +31,7 @@ export namespace AutoMovieEngineFilmTypes {
      * mappings, kept unchanged throughout the bake. Omission preserves raw full
      * FK.
      */
-    poseResolution?: prepareSkeletonPoseResolution.IRig;
+    poseResolution?: AutoMovieEngineSkeletonPose.IRig;
   }
 
   /** The coupling props with an optional parent-rig preparer. */
@@ -40,6 +40,6 @@ export namespace AutoMovieEngineFilmTypes {
      * Prepare unchanged parent rig inputs for demanded attachment FK; omitted,
      * preserve the raw baker's full live admission.
      */
-    prepareRig?: typeof prepareSkeletonPoseResolution;
+    prepareRig?: typeof AutoMovieEngineSkeletonPose.prepareSkeletonPoseResolution;
   }
 }

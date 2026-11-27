@@ -1,5 +1,8 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core/index";
 import { InstrumentBuild } from "./InstrumentBuild";
+import { createCymbal as createCymbalImplementation } from "./internal/createCymbal";
+import { createDrumstick as createDrumstickImplementation } from "./internal/createDrumstick";
+import { createViolinBow as createViolinBowImplementation } from "./internal/createViolinBow";
 import { AutoMovieArchetypeBugle } from "./AutoMovieArchetypeBugle";
 import { AutoMovieArchetypeGuitar } from "./AutoMovieArchetypeGuitar";
 import { AutoMovieArchetypeSideDrum } from "./AutoMovieArchetypeSideDrum";
@@ -29,6 +32,62 @@ export function create(
     AutoMovieArchetypeInstrument.KINDS,
   );
   return AutoMovieArchetypeInstrument.PRODUCERS[kind](params, seed);
+}
+
+/**
+ * A stationary 16-inch crash cymbal on a straight tripod stand. The diameter
+ * and raised bell follow Zildjian's cymbal anatomy
+ * (https://ae.zildjian.com/wp-content/uploads/Zildjian_Drum_Method_Lesson_11.pdf).
+ * The 0.85 m plate height is a scenic setting within Yamaha's CS650A range
+ * (https://usa.yamaha.com/products/musical_instruments/drums/ac_drums/hardware/cymbal_stands/specs.html).
+ * The plate thickness, bell and stand proportions and assembly mass are scenic
+ * estimates for the rigid prop.
+ *
+ * @param params The model id, supplied as an option or as a positional string.
+ * @returns The mounted cymbal with the upward-facing `edge` on the rim at local
+ *   −Z and `bell` at the raised center.
+ */
+export function createCymbal(
+  params: { id?: string } | string = {},
+): AutoMovieArchetype<"edge" | "bell", never> {
+  return createCymbalImplementation(params);
+}
+
+/**
+ * A scenic wooden drumstick along +Y, with its butt at the origin. The overall
+ * length and shaft diameter follow the Vic Firth American Classic 5A
+ * (https://vicfirth.com/products/american-classicr-5a-doubleglaze-double-coat-of-lacquer-finish).
+ * The shoulder, spherical bead, grip placement and 50 g mass are scenic
+ * estimates. `face` is the bead's tangent point on +Z. The grip frame is offset
+ * by the same amount, so the line to the face follows the stick and the shaft
+ * clears the head when the bead lands.
+ *
+ * @param params The model id, supplied as an option or as a positional string.
+ * @returns A rigid wooden stick with `grip` and `face` contacts.
+ */
+export function createDrumstick(
+  params: { id?: string } | string = {},
+): AutoMovieArchetype<"grip" | "face", never> {
+  return createDrumstickImplementation(params);
+}
+
+/**
+ * A full-size violin bow along +X, hair on the bottom, with a grip by the frog.
+ * The overall length (745 mm), hair length (649 mm), mass (61 g) and head
+ * height (23 mm) follow Birmingham City University's James Tubbs bow catalogue
+ * 10.31
+ * (https://www.bcu.ac.uk/conservatoire/research/hic/the-collection/string-bow/10-31).
+ * Stick diameter, frog width, grip placement and ribbon section are coarse
+ * estimates. The stick is rigid. The hair contacts mark the underside of the
+ * ribbon at the frog and tip, with outward normals facing the string.
+ *
+ * @param params The model id, supplied as an option or as a positional string.
+ * @returns A bow with grip, hairFrog and hairTip affordances.
+ */
+export function createViolinBow(
+  params: { id?: string } | string = {},
+): AutoMovieArchetype<"grip" | "hairFrog" | "hairTip", never> {
+  return createViolinBowImplementation(params);
 }
 }
 

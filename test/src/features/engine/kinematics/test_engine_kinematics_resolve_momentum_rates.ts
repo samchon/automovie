@@ -1,12 +1,5 @@
-import { resolveAutoMovieMomentum, AutoMovieEngineKinematics, type AutoMovieEngineKinematicsTypes } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMomentum,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics, type AutoMovieEngineKinematicsTypes } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -63,13 +56,13 @@ export function test_engine_kinematics_resolve_momentum_rates(): void {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([
     ["hips", frame],
   ]);
-  const rate: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate = {
+  const rate: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate = {
     linear: { x: 7, y: 0, z: 0 },
     angular: { x: 0, y: 0, z: 5 },
   };
-  const rates: Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate> =
+  const rates: Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate> =
     new Map([["hips", rate]]);
-  const posed: resolveAutoMovieMomentum.IPosed = resolveAutoMovieMomentum.pose(
+  const posed: AutoMovieEngineKinematics.IPosedBody = AutoMovieEngineKinematics.resolveAutoMovieMomentumPose(
     model,
     bones,
   );
@@ -119,7 +112,7 @@ export function test_engine_kinematics_resolve_momentum_rates(): void {
       ],
     ],
   );
-  const pairRates: Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate> =
+  const pairRates: Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate> =
     new Map([
       ["hips", { linear: { x: 0, y: -4, z: 0 }, angular: zero }],
       ["spine", { linear: { x: 0, y: 4, z: 0 }, angular: zero }],
@@ -135,7 +128,7 @@ export function test_engine_kinematics_resolve_momentum_rates(): void {
     new Map();
   const translatedRates: Map<
     AutoMovieHumanoidBone,
-    AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate
+    AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate
   > = new Map();
   for (const [name, bone] of pairBones)
     translatedBones.set(name, {
@@ -177,7 +170,7 @@ export function test_engine_kinematics_resolve_momentum_rates(): void {
     ]);
   const shiftedSingleRates: Map<
     AutoMovieHumanoidBone,
-    AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate
+    AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate
   > = new Map([
     [
       "hips",
@@ -198,7 +191,7 @@ export function test_engine_kinematics_resolve_momentum_rates(): void {
     },
   );
 
-  const halfRates: Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate> =
+  const halfRates: Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate> =
     new Map([
       [
         "hips",
@@ -249,7 +242,7 @@ export function test_engine_kinematics_resolve_momentum_rates(): void {
   ]);
   const turnedRates: Map<
     AutoMovieHumanoidBone,
-    AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate
+    AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate
   > = new Map([
     [
       "hips",
@@ -303,7 +296,7 @@ export function test_engine_kinematics_resolve_momentum_rates(): void {
   withSpine.set("spine", { ...frame, bone: "spine" });
   const withSpineRates: Map<
     AutoMovieHumanoidBone,
-    AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate
+    AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate
   > = new Map(rates);
   withSpineRates.set("spine", { linear: zero, angular: { x: 0, y: 0, z: 3 } });
   expectMomentum(
@@ -330,13 +323,13 @@ export function test_engine_kinematics_resolve_momentum_rates(): void {
       model,
       posed,
       bones,
-      new Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>(),
+      new Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate>(),
     ),
   );
   refused("missing zero-mass part's spin rate", (): unknown =>
     AutoMovieEngineKinematics.resolveAutoMovieMomentumRates(
       masslessSpin,
-      resolveAutoMovieMomentum.pose(masslessSpin, withSpine),
+      AutoMovieEngineKinematics.resolveAutoMovieMomentumPose(masslessSpin, withSpine),
       withSpine,
       rates,
     ),
@@ -372,11 +365,11 @@ export function test_engine_kinematics_resolve_momentum_rates(): void {
 function read(
   model: IAutoMovieResolveCenterOfMass.IModel,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>,
+  rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate>,
 ): IAutoMovieBodyMomentum {
   return AutoMovieEngineKinematics.resolveAutoMovieMomentumRates(
     model,
-    resolveAutoMovieMomentum.pose(model, bones),
+    AutoMovieEngineKinematics.resolveAutoMovieMomentumPose(model, bones),
     bones,
     rates,
   );

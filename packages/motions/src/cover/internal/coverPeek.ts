@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -134,7 +134,7 @@ export function coverPeek(
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
-    const w: number = minimumJerk.share(
+    const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.max(0, Math.min(1, seconds / LEAN, (duration - seconds) / LEAN)),
     );
     if (w === 0) return stood;

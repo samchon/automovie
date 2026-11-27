@@ -4,7 +4,7 @@ import {
   ROM_TOLERANCE,
   Vector3,
   hingedArmSwivel,
-  toRigAngle,
+  AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
@@ -78,7 +78,7 @@ export function HumanArmTrajectoryContactCircle(
     Vector3.subtract(contact, before.elbow),
   );
   const link: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle(hinge, -toRigAngle(reference[3]!, flexion)!),
+    Quaternion.fromAxisAngle(hinge, -AutoMovieEngineKinematics.toRigAngle(reference[3]!, flexion)!),
     local,
   );
   const geometry: Omit<
@@ -98,8 +98,8 @@ export function HumanArmTrajectoryContactCircle(
   };
   const bound: IAutoMovieAngleRange | null | undefined =
     setup.constraint.lower?.flexion;
-  const low: number | null = toRigAngle(bound?.min ?? null, flexion);
-  const high: number | null = toRigAngle(bound?.max ?? null, flexion);
+  const low: number | null = AutoMovieEngineKinematics.toRigAngle(bound?.min ?? null, flexion);
+  const high: number | null = AutoMovieEngineKinematics.toRigAngle(bound?.max ?? null, flexion);
   const rad: number = Math.PI / 180;
   const range: IAutoMovieHingedChainGeometry["range"] =
     low === null || high === null

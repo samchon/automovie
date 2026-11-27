@@ -1,15 +1,9 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMomentum,
-  IAutoMovieCombinePhysicalMassProperties,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieCombinePhysicalMassProperties, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { physicalInertiaTensor } from "../../physics/physicalInertiaTensor";
+import { AutoMoviePhysicalInertiaTensor } from "../../physics/AutoMoviePhysicalInertiaTensor";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
-import type { resolveAutoMovieMomentum } from "../resolveAutoMovieMomentum";
+import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
+
 
 /**
  * Instantaneous centroidal momentum from actual bone-origin rates.
@@ -42,7 +36,7 @@ export function resolveAutoMovieMomentumRates(
   model: IAutoMovieResolveCenterOfMass.IModel,
   posed: resolveAutoMovieMomentum.IPosed,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>,
+  rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate>,
 ): IAutoMovieBodyMomentum {
   if (!(model.mass > 0))
     throw new Error("Instantaneous momentum needs finite positive total mass");
@@ -60,7 +54,7 @@ export function resolveAutoMovieMomentumRates(
     const segment: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
     const part: IAutoMovieCombinePhysicalMassProperties.IPart = posed.parts[i]!;
     const bone: IAutoMovieResolvedBone | undefined = bones.get(segment.bone);
-    const rate: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate | undefined = rates.get(
+    const rate: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate | undefined = rates.get(
       segment.bone,
     );
     if (bone === undefined || rate === undefined)
@@ -115,7 +109,7 @@ export function resolveAutoMovieMomentumRates(
     const vx: number = rate.velocity.x - velocity.x;
     const vy: number = rate.velocity.y - velocity.y;
     const vz: number = rate.velocity.z - velocity.z;
-    const spin: IAutoMovieVector3 = physicalInertiaTensor.spin(
+    const spin: IAutoMovieVector3 = AutoMoviePhysicalInertiaTensor.spin(
       part,
       part.inertiaRotation,
       rate.angular,

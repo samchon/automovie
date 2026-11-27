@@ -23,7 +23,7 @@ import type { IChunkObject } from "./IChunkObject.js";
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
 import type { ISlotException } from "./ISlotException.js";
 import { bindFormationTierCycle } from "./bindFormationTierCycle.js";
-import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { createFormationRepresentations } from "./createFormationRepresentations.js";
 import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop.js";
 import { describeFormationTextureSources } from "./describeFormationTextureSources.js";
@@ -33,7 +33,7 @@ import { formationSpacingOffset } from "./formationSpacingOffset.js";
 import { AutoMovieCollisionSource } from "../inspection/AutoMovieCollisionSource.js";
 import { objectTransform } from "./objectTransform.js";
 import { regenerateFormationSlot } from "./regenerateFormationSlot.js";
-import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 import { slotMatrix } from "./slotMatrix.js";
 import { vector } from "./vector.js";
 

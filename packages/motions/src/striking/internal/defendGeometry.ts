@@ -1,25 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanDefend,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPlacedAction,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPlacedAction, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { StrikingBody } from "../StrikingBody";
 import { StrikingGuardBones } from "../StrikingGuardBones";
@@ -64,8 +44,8 @@ export namespace defendGeometry {
     seconds: number,
   ): number {
     return (
-      minimumJerk.share((seconds - timing.begin) / timing.movement) -
-      minimumJerk.share((seconds - timing.hold) / timing.recovery)
+      AutoMovieEngineMotionSampling.minimumJerkShare((seconds - timing.begin) / timing.movement) -
+      AutoMovieEngineMotionSampling.minimumJerkShare((seconds - timing.hold) / timing.recovery)
     );
   }
 
@@ -171,8 +151,8 @@ export namespace defendGeometry {
       timing.region,
       aimed,
     );
-    const regionAt: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-      resolveAutoMovieHumanoidSurfaces.place(frame, own.get(frame.bone)!);
+    const regionAt: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> =
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, own.get(frame.bone)!);
     const attacker: IAutoMovieMotionHumanPerformerReader = context.performer(
       timing.attack.subject,
     );
@@ -357,10 +337,10 @@ export namespace defendGeometry {
             limb.endsWith("Leg") &&
             footwork !== undefined &&
             footwork.release > timing.begin
-              ? minimumJerk.share(
+              ? AutoMovieEngineMotionSampling.minimumJerkShare(
                   (t - footwork.release) /
                     (timing.begin + timing.movement - footwork.release),
-                ) - minimumJerk.share((t - timing.hold) / timing.recovery)
+                ) - AutoMovieEngineMotionSampling.minimumJerkShare((t - timing.hold) / timing.recovery)
               : k;
           limbs[limb] = {
             point: Vector3.lerp(from.point, goal.point, share),

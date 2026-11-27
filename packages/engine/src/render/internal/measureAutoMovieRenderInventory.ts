@@ -312,7 +312,7 @@ export function measureAutoMovieRenderInventory(
   });
 
   // --- film stage targets and passes, over the opaque frame -----------------
-  const film: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IResult =
+  const film: AutoMovieEngineRenderMeasureTypes.IFilmStageResult =
     measureAutoMovieRenderFilmStage({
       subject,
       ...(props.settings === undefined ? {} : { settings: props.settings }),

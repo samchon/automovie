@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { physicalHullFaces } from "../physicalHullFaces";
+import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
 import { physicalHullFacesErode } from "./physicalHullFacesErode";
 
 /**
@@ -17,5 +17,5 @@ export function physicalHullErode(
   points: readonly IAutoMovieVector3[],
   depth: number,
 ): IAutoMovieVector3[] {
-  return physicalHullFacesErode(physicalHullFaces(points), depth);
+  return physicalHullFacesErode(AutoMoviePhysicalHullFaces.build(points), depth);
 }

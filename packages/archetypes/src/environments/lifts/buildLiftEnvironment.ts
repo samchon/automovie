@@ -1,5 +1,20 @@
 import { Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieBoxShape,
+  IAutoMovieBuiltElement,
+  IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSurface,
+  IAutoMovieEnvironmentModule,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMoviePlanarPoint,
+  IAutoMoviePropSpec,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
+import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import type { liftStopHeights } from "./internal/liftStopHeights";
 import { liftLandingSpace } from "./liftLandingSpace";

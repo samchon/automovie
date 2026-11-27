@@ -1,4 +1,6 @@
-import { simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import type { IAutoMovieFluidDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,7 +80,7 @@ const restingPond: (depth?: number[]) => IAutoMovieFluidDomain = (
  */
 export function test_fluid_lake_at_rest(): void {
   const domain: ReturnType<typeof restingPond> = restingPond();
-  const settled: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const settled: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     domain,
     300,
   );
@@ -120,7 +122,7 @@ export function test_fluid_lake_at_rest(): void {
 
   const tilted: number[] = DEPTH.slice();
   tilted[0] = DEPTH[0] + 0.0625;
-  const disturbed: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const disturbed: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     restingPond(tilted),
     1,
   );

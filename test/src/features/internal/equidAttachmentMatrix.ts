@@ -1,4 +1,4 @@
-import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeRide, rideQuadruped, type AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeRide, AutoMovieArchetypeQuadruped, type AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -117,7 +117,7 @@ export function equidAttachmentMatrix(
           animalAttachmentScenario(
             animal,
             (): Ride => {
-              const result: Ride = rideQuadruped(
+              const result: Ride = AutoMovieArchetypeQuadruped.ride(
                 animal,
                 {
                   start: { x: 2, z: -3, heading: 29 },

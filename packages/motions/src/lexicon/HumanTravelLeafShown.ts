@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -46,7 +46,7 @@ export function HumanTravelLeafShown(
     // (`resolveHumanPosture.lower` over both legs' goals).
     const leant: IAutoMovieMotionHumanPosture = lowered.lower(
       walking,
-      minimumJerk.share(Math.min(1, t / HumanTravelLeaf.TAKE)),
+      AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / HumanTravelLeaf.TAKE)),
       resolution,
       projection,
     );

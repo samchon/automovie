@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -72,10 +72,10 @@ export function gesturePlanned(
   }: gesturePlanned.IScope = scope;
   const weight: (t: number) => number = (t: number): number =>
     t < prepare
-      ? minimumJerk.share(t / prepare)
+      ? AutoMovieEngineMotionSampling.minimumJerkShare(t / prepare)
       : t <= retractAt
         ? 1
-        : 1 - minimumJerk.share((t - retractAt) / retract);
+        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - retractAt) / retract);
 
   // A bow: the trunk pitched about the hips by the transport's share of its
   // depth, the hips moved back by the balance shift solved at the deepest

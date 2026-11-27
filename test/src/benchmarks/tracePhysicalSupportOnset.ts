@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalBalance, AutoMoviePhysicalSimulation, Quaternion, Vector3, physicalShapeBounds, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalBalance, AutoMoviePhysicalSimulation, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieFootfallPattern,
@@ -341,7 +341,7 @@ function carrierHeight(
   return Math.min(
     ...segment.shapes.map(
       (shape: (typeof segment.shapes)[number]): number =>
-        physicalShapeBounds(pose, shape).min.y,
+        AutoMovieEnginePhysics.physicalShapeBounds(pose, shape).min.y,
     ),
   );
 }

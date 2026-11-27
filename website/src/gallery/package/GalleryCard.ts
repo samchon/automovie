@@ -1,4 +1,4 @@
-import { type IAutoMovieModelObject, buildModel } from "@automovie/render";
+import { type IAutoMovieModelObject, AutoMovieRenderSceneLayout } from "@automovie/render";
 import * as THREE from "three";
 
 import type { IGalleryCard } from "../structures/IGalleryCard";
@@ -25,7 +25,7 @@ export namespace GalleryCard {
       state: {},
       affordances: false,
     });
-    const model: IAutoMovieModelObject = buildModel(built.archetype);
+    const model: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(built.archetype);
     const scene: THREE.Scene = new THREE.Scene();
     const style: CSSStyleDeclaration = getComputedStyle(
       document.documentElement,

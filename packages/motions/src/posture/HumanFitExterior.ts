@@ -1,4 +1,5 @@
-import { Vector3, physicalShapeBounds, physicalShapeGjk, AutoMovieEnginePhysics } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBodyFitTypes,
@@ -32,10 +33,10 @@ interface IObstacle {
   shape: IAutoMoviePhysicalShape;
 
   /** World axis bounds for conservative influence filtering. */
-  bounds: ReturnType<typeof physicalShapeBounds>;
+  bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>;
 
   /** The fixed world core and radius used for GJK. */
-  solid: physicalShapeGjk.ISolid;
+  solid: AutoMovieEnginePhysicsGjkTypes.ISolid;
 }
 
 /** The parts of a fit step that write a row from a measured gap. */
@@ -142,8 +143,8 @@ export namespace HumanFitExterior {
           part: segment.part,
           pose,
           shape,
-          bounds: physicalShapeBounds(pose, shape),
-          solid: physicalShapeGjk.solid(pose, shape),
+          bounds: AutoMovieEnginePhysics.physicalShapeBounds(pose, shape),
+          solid: AutoMovieEnginePhysics.physicalShapeGjkSolid(pose, shape),
         });
     }
     scene.sort(
@@ -182,9 +183,9 @@ export namespace HumanFitExterior {
               }
               if (!(pair.contact.distance >= influence)) result.push(pair);
             }
-          const bounds: ReturnType<typeof physicalShapeBounds> =
-            physicalShapeBounds(segment.pose, shape);
-          let solid: physicalShapeGjk.ISolid | undefined;
+          const bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> =
+            AutoMovieEnginePhysics.physicalShapeBounds(segment.pose, shape);
+          let solid: AutoMovieEnginePhysicsGjkTypes.ISolid | undefined;
           for (const obstacle of scene) {
             const { min, max }: IObstacle["bounds"] = obstacle.bounds;
             if (min.x - bounds.max.x >= influence) break;
@@ -200,9 +201,9 @@ export namespace HumanFitExterior {
 
             // A positive GJK query target lets zero-radius cores find a
             // separator. An uncertified bound reaches the signed query.
-            solid ??= physicalShapeGjk.solid(segment.pose, shape);
+            solid ??= AutoMovieEnginePhysics.physicalShapeGjkSolid(segment.pose, shape);
             if (
-              physicalShapeGjk(solid, obstacle.solid, influence).lower >=
+              AutoMovieEnginePhysics.physicalShapeGjk(solid, obstacle.solid, influence).lower >=
               influence
             )
               continue;

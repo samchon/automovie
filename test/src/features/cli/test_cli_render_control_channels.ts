@@ -1,3 +1,4 @@
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   AutoMovieInspectionShade,
   IAutoMovieControlRecord,
@@ -6,10 +7,8 @@ import type {
 import {
   AUTOMOVIE_MP4_SRGB_COLOUR,
   AutoMovieRenderDelivery,
-  admitAutoMovieControlPasses,
-  createAutoMovieLoudnessMeter,
-  renderAutoMovieDrawnVideo,
-
+  AutoMovieRenderDraw,
+  AutoMovieRenderVideo,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { AutoMovieCliRender } from "automovie";
@@ -50,7 +49,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
   // 1. Admission.
   TestValidator.equals(
     "guide passes in request order",
-    admitAutoMovieControlPasses(["mask", "depth", "albedo"]),
+    AutoMovieRenderDraw.admitControlPasses(["mask", "depth", "albedo"]),
     ["mask", "depth", "albedo"],
   );
   for (const [passes, reason] of [
@@ -60,7 +59,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
   ] as const)
     TestValidator.predicate(
       `${passes.join(",")} is refused`,
-      throwsError((): unknown => admitAutoMovieControlPasses(passes), reason),
+      throwsError((): unknown => AutoMovieRenderDraw.admitControlPasses(passes), reason),
     );
 
   const root: string = await fs.mkdtemp(
@@ -87,8 +86,8 @@ export async function test_cli_render_control_channels(): Promise<void> {
   ): Parameters<typeof AutoMovieCliRender.renderVideo>[0] => ({
     host: {
       render: {
-        renderAutoMovieDrawnVideo,
-        createAutoMovieLoudnessMeter,
+        AutoMovieRenderVideo,
+        createAutoMovieLoudnessMeter: AutoMovieEngineSound.createLoudnessMeter,
         AUTOMOVIE_MP4_SRGB_COLOUR,
         AutoMovieRenderDelivery,
       },

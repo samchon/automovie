@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
 
 /**
@@ -23,7 +23,7 @@ export function crabWalkClock(
   const duration: number = crabWalkClock.SETTLE + travelling;
   const progress = (seconds: number): number =>
     cycles *
-    minimumJerk.share(
+    AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (seconds - crabWalkClock.SETTLE) / travelling)),
     );
   return {
@@ -118,7 +118,7 @@ export namespace crabWalkClock {
     const f: number = c - k;
     if (k >= clock.cycles) return [clock.cycles, 0];
     if (f >= 0.5) return [k + 1, 0];
-    const s: number = minimumJerk.share(f / 0.5);
+    const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(f / 0.5);
     return [k + s, Math.sin(Math.PI * s) * LIFT];
   }
 

@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, clampPose, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieExpression,
@@ -104,7 +104,7 @@ export class AutoMovieRenderPlayer {
     );
     this.lastSample = sample;
     let pose: IAutoMoviePose = this.clampToRom
-      ? clampPose(sample.pose, this.skeleton)
+      ? AutoMovieEngineKinematics.clampPose(sample.pose, this.skeleton)
       : sample.pose;
     if (this.spring !== undefined) {
       pose = this.applySpring(pose, seconds);
@@ -112,7 +112,7 @@ export class AutoMovieRenderPlayer {
       // alone rendered poses past the promised limits (#1048). Re-clamp the
       // OUTPUT only: the spring state keeps its overshoot and converges
       // naturally; the render just never shows it outside the ROM.
-      if (this.clampToRom) pose = clampPose(pose, this.skeleton);
+      if (this.clampToRom) pose = AutoMovieEngineKinematics.clampPose(pose, this.skeleton);
     }
     applyPose(
       this.target,

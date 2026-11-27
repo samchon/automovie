@@ -1,4 +1,4 @@
-import { makeActorSynthesizer } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
   type IAutoMovieActionSynthesizer,
@@ -73,7 +73,7 @@ const nodes: Map<string, IAutoMovieVector3> = new Map<
   ["lens", LENS_PLACEMENT],
 ]);
 
-const synth: IAutoMovieActionSynthesizer = makeActorSynthesizer(
+const synth: IAutoMovieActionSynthesizer = AutoMovieEngineFilm.makeActorSynthesizer(
   contexts,
   nodes,
 );

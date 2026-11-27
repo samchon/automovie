@@ -1,4 +1,6 @@
-import { simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { flatBasin } from "../internal/fluidFixtures";
@@ -44,11 +46,11 @@ export function test_fluid_drain_positivity_ledger(): void {
       ],
     },
   });
-  const emptied: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const emptied: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     overEager,
     1,
   );
-  const stayed: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const stayed: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     overEager,
     200,
   );

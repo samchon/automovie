@@ -1,4 +1,4 @@
-import { AutoMovieXpbdBody, AutoMovieXpbdWorld, advancePhysicalBalance, physicalIcpController, trackPhysicalRoot, AutoMoviePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
+import { AutoMovieXpbdBody, AutoMovieXpbdWorld, AutoMovieEnginePhysicalIcpController, AutoMoviePhysicalRootTracking, AutoMoviePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
 import type {
   IAutoMovieCollectPhysicalSupports,
   IAutoMoviePhysicalProfile,
@@ -21,7 +21,7 @@ import { repositoryRoot } from "./repositoryRoot";
 /**
  * The balance controller's recorded calls and their golden outputs, replayed
  * without a simulation: each fixture holds one disturbance case's key frames,
- * the complete inputs of `advancePhysicalBalance` and `trackPhysicalRoot` at
+ * the complete inputs of `AutoMoviePhysicalBalance.advance` and `AutoMoviePhysicalRootTracking` at
  * that substep and what they returned and wrote, recorded once from the
  * simulation; a replay rebuilds the bodies the controller reads and compares
  * its outputs to the recording bit for bit.
@@ -82,7 +82,7 @@ export namespace PhysicalBalanceReplay {
 
   /** A recorded `advance` call's input, its segments unpacked. */
   export type IAdvanceInput = Pick<
-    Parameters<typeof advancePhysicalBalance>[0],
+    Parameters<typeof AutoMoviePhysicalBalance.advance>[0],
     | "targets"
     | "velocities"
     | "unavailable"
@@ -103,7 +103,7 @@ export namespace PhysicalBalanceReplay {
 
   /** A recorded `root` call's input, its segments and goals unpacked. */
   export type IRootInput = Pick<
-    trackPhysicalRoot.IInput,
+    AutoMoviePhysicalRootTracking.IInput,
     | "rootDynamic"
     | "rootIntent"
     | "target"
@@ -164,7 +164,7 @@ export namespace PhysicalBalanceReplay {
     integral: IRootInput["integral"];
 
     /** The support wrenches written by the call, in recording order. */
-    supportWrenches: trackPhysicalRoot.IInput["bound"]["supportWrenches"];
+    supportWrenches: AutoMoviePhysicalRootTracking.IInput["bound"]["supportWrenches"];
 
     /** The accumulated actuation by bone, when recording was enabled. */
     actuation: [string, IAutoMovieVector3][] | undefined;
@@ -214,7 +214,7 @@ export namespace PhysicalBalanceReplay {
     /** The push's impulse, N s. */
     impulse: number;
     /** The simulation's gravity, floor, rate and substeps. */
-    settings: trackPhysicalRoot.IInput["settings"];
+    settings: AutoMoviePhysicalRootTracking.IInput["settings"];
     /** The simulated body without its profile, which its digest names. */
     body: Omit<IAutoMoviePhysicalSimulationInput.IBody, "profile"> & {
       profileDigest: string;
@@ -491,7 +491,7 @@ export namespace PhysicalBalanceReplay {
     };
     const actuation: Map<string, IAutoMovieVector3> | undefined =
       input.actuation ? new Map(clone(input.actuation)) : undefined;
-    const output = advancePhysicalBalance({
+    const output = AutoMoviePhysicalBalance.advance({
       // The controller reads no solver state but the recorded segments.
       world: new AutoMovieXpbdWorld(fixture.settings.gravity),
       body: fixture.body.id,
@@ -531,7 +531,7 @@ export namespace PhysicalBalanceReplay {
     record: IAdvanceRecord,
     built: IAutoMoviePhysicalProfile,
   ): {
-    sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
+    sense: AutoMovieEnginePhysicalBalanceTypes.ISense;
     state: IAutoMoviePhysicalRecoveryState;
   } {
     const input: IAdvanceInput = record.input;
@@ -578,7 +578,7 @@ export namespace PhysicalBalanceReplay {
     const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(
       fixture.settings.gravity,
     );
-    const bound: trackPhysicalRoot.IInput["bound"] = {
+    const bound: AutoMoviePhysicalRootTracking.IInput["bound"] = {
       segments: new Map([[fixture.body.id, bodies]]),
       order: new Map([[fixture.body.id, [rootSegment]]]),
       supportWrenches: [],
@@ -587,7 +587,7 @@ export namespace PhysicalBalanceReplay {
     const actuation: Map<string, IAutoMovieVector3> | undefined =
       input.actuation ? new Map(clone(input.actuation)) : undefined;
     const base: AutoMovieXpbdBody = bodies.get(input.base)!;
-    trackPhysicalRoot({
+    AutoMoviePhysicalRootTracking.track({
       settings: clone(fixture.settings),
       body: { ...clone(fixture.body), profile: built },
       bound,
@@ -605,7 +605,7 @@ export namespace PhysicalBalanceReplay {
       // controller on their hull, as the world gives it (`trackPhysicalWorld`);
       // a recording without its state starts it new.
       icp: clone(input.icp) ?? {
-        ...physicalIcpController.create(),
+        ...AutoMovieEnginePhysicalIcpController.create(),
         key: "",
       },
       ...(input.desired ? { desired: clone(input.desired) } : {}),

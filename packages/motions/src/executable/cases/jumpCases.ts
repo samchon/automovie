@@ -1,17 +1,5 @@
-import {
-  AutoMovieGravity,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieGravity, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
@@ -106,7 +94,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     walk.plan.events.find((e) => e.name === name)!.share;
   const s0: number = share("leftHeelStrike2");
   const s1: number = share("leftHeelStrike3");
-  const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+  const model = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   let illegal: string[] = [];
   let slip: IJumpCasesSlip = { value: 0, where: "none" };
   let jumpRatio: IJumpCasesJumpRatio = { value: 0, where: "none" };
@@ -307,7 +295,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     )
       samples.push({
         t: t - takeoff,
-        p: resolveAutoMovieCenterOfMass.place(model, bones(t)),
+        p: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, bones(t)),
       });
     const fit = (value: (s: IFitValueS) => number): ((t: number) => number) => {
       const n: number = samples.length;

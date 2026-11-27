@@ -32,7 +32,7 @@ export function test_engine_kinematics_solve_resolved_rate(): void {
   ];
   const right: number[] = [3, -6, 5];
   const scale: number[] = [1, 1, 1];
-  const triangular: AutoMovieEngineKinematicsTypes.SolveResolvedRate.ISolved = expectRates(
+  const triangular: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsSolveResolvedRateSolved = expectRates(
     "triangular",
     AutoMovieEngineKinematics.solveResolvedRate(matrix, right, scale),
     [3, -2, 1],
@@ -44,7 +44,7 @@ export function test_engine_kinematics_solve_resolved_rate(): void {
   expectZeros("triangular original residual", triangular.residual);
   expectZeros("triangular scaled residual", triangular.scaledResidual);
 
-  const mixed: AutoMovieEngineKinematicsTypes.SolveResolvedRate.ISolved = expectRates(
+  const mixed: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsSolveResolvedRateSolved = expectRates(
     "metres and radians",
     AutoMovieEngineKinematics.solveResolvedRate(
       [
@@ -56,7 +56,7 @@ export function test_engine_kinematics_solve_resolved_rate(): void {
     ),
     [3, -2],
   );
-  const converted: AutoMovieEngineKinematicsTypes.SolveResolvedRate.ISolved = expectRates(
+  const converted: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsSolveResolvedRateSolved = expectRates(
     "millimetres and milliradians",
     AutoMovieEngineKinematics.solveResolvedRate(
       [
@@ -82,7 +82,7 @@ export function test_engine_kinematics_solve_resolved_rate(): void {
     );
   }
 
-  const third: AutoMovieEngineKinematicsTypes.SolveResolvedRate.ISolved = expectRates(
+  const third: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsSolveResolvedRateSolved = expectRates(
     "stored binary64 third",
     AutoMovieEngineKinematics.solveResolvedRate([[3]], [1], [1]),
     [1 / 3],
@@ -163,7 +163,7 @@ export function test_engine_kinematics_solve_resolved_rate(): void {
   triangular.velocity[0] = 99;
   triangular.residual[0] = 99;
   triangular.scaledResidual[0] = 99;
-  const fresh: AutoMovieEngineKinematicsTypes.SolveResolvedRate.ISolved = expectRates(
+  const fresh: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsSolveResolvedRateSolved = expectRates(
     "fresh result",
     AutoMovieEngineKinematics.solveResolvedRate(matrix, right, scale),
     [3, -2, 1],
@@ -201,9 +201,9 @@ export function test_engine_kinematics_solve_resolved_rate(): void {
  */
 function expectRates(
   label: string,
-  result: AutoMovieEngineKinematicsTypes.SolveResolvedRate.IResult,
+  result: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsSolveResolvedRateResult,
   expected: readonly number[],
-): AutoMovieEngineKinematicsTypes.SolveResolvedRate.ISolved {
+): AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsSolveResolvedRateSolved {
   if (result.status !== "solved")
     throw new Error(`${label}: expected solved, got ${result.status}`);
   TestValidator.equals(

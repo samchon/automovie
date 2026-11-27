@@ -6,7 +6,7 @@ import type { AutoMovieHumanoidBone } from "../../skeleton/AutoMovieHumanoidBone
  * `bufferAutoMovieBones`, refreshed per pose without allocation.
  *
  * Bone `b` carries a point `p` to `P_b + Q_b R_b^-1 (p - O_b)` and a direction
- * by `Q_b R_b^-1` alone, the transform `createAutoMovieBoneMotion` gives.
+ * by `Q_b R_b^-1` alone. This is the rigid point transform used when\n * posing a sweep.
  * Before the first `update`, and after `reset`, every motion is the identity,
  * applied as an exact copy.
  */

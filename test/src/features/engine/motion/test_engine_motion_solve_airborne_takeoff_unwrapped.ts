@@ -1,15 +1,5 @@
-import {
-  Quaternion,
-  integrateAirborneRotation,
-  resolveAutoMovieCenterOfMass,
-  solveAirborneTakeoff,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieSolveAirborneTakeoff,
-} from "@automovie/interface";
+import { Quaternion, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics, AutoMovieEngineMotionAirborneTakeoff } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { airborneHumanLayout } from "../../internal/airborneHumanLayout";
@@ -23,7 +13,7 @@ const DEGREE: number = Math.PI / 180;
 const MIRROR: number = 1e-3;
 
 /**
- * `solveAirborneTakeoff.unwrapped` reads a flight's attitude as a somersault, a
+ * `AutoMovieEngineMotionAirborneTakeoff.unwrapped` reads a flight's attitude as a somersault, a
  * tilt and a twist, each unwrapped over the flight.
  *
  * Scenarios, on the stored average man in a layout (arms lowered to the sides)
@@ -39,7 +29,7 @@ const MIRROR: number = 1e-3;
 export async function test_engine_motion_solve_airborne_takeoff_unwrapped(): Promise<void> {
   const person: IHumanFixture = await humanFixture("m-average");
   const model: IAutoMovieResolveCenterOfMass.IModel =
-    resolveAutoMovieCenterOfMass(person.skeleton, person.profile);
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(person.skeleton, person.profile);
   const layout: (
     left: number,
     right: number,
@@ -50,9 +40,9 @@ export async function test_engine_motion_solve_airborne_takeoff_unwrapped(): Pro
   ) => IAutoMovieSolveAirborneTakeoff.IAngles = (
     side: "left" | "right",
   ): IAutoMovieSolveAirborneTakeoff.IAngles =>
-    solveAirborneTakeoff.unwrapped(
-      integrateAirborneRotation({
-        history: integrateAirborneRotation.history(
+    AutoMovieEngineMotionAirborneTakeoff.unwrapped(
+      AutoMovieEngineMotionAirborneRotation.integrate({
+        history: AutoMovieEngineMotionAirborneRotation.history(
           model,
           (
             t: number,

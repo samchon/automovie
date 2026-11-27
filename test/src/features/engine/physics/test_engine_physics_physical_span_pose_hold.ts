@@ -1,13 +1,13 @@
 import {
   type IAutoMoviePhysicalBinding,
-  physicalSpanPose,
+  AutoMoviePhysicalSpanPose,
 } from "@automovie/engine";
 import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
  * A disturbance response is prepared once and held by its owner
- * (`physicalSpanPose.play`):
+ * (`AutoMoviePhysicalSpanPose.play`):
  *
  * 1. Over a span's substeps the binding holds one prepared response, the same
  *    object at every substep, as the recovery state's recorded inputs keep
@@ -53,7 +53,7 @@ export function test_engine_physics_physical_span_pose_hold(): void {
     spans: new Map(),
     segments: new Map(),
   };
-  const body: Parameters<typeof physicalSpanPose.play>[1] = {
+  const body: Parameters<typeof AutoMoviePhysicalSpanPose.play>[1] = {
     id: "body",
     profile: { joints: [] },
   };
@@ -62,31 +62,31 @@ export function test_engine_physics_physical_span_pose_hold(): void {
   // 1. One prepared response held over the substeps.
   TestValidator.equals(
     "before the push",
-    physicalSpanPose.play(bound, body, state, 1),
+    AutoMoviePhysicalSpanPose.play(bound, body, state, 1),
     undefined,
   );
-  physicalSpanPose.play(bound, body, state, 1 + dt);
+  AutoMoviePhysicalSpanPose.play(bound, body, state, 1 + dt);
   const first = bound.spans.get("body");
   for (let i: number = 2; i < 64; ++i) {
-    physicalSpanPose.play(bound, body, { ...state }, 1 + i * dt);
+    AutoMoviePhysicalSpanPose.play(bound, body, { ...state }, 1 + i * dt);
     if (bound.spans.get("body") !== first)
       failures.push(`prepared again at substep ${i}`);
   }
 
   // 2. A restore prepares it once again, then holds that one.
   const restored: IAutoMoviePhysicalRecoveryState = structuredClone(state);
-  const before = physicalSpanPose.play(bound, body, state, 1 + 64 * dt);
-  const after = physicalSpanPose.play(bound, body, restored, 1 + 64 * dt);
+  const before = AutoMoviePhysicalSpanPose.play(bound, body, state, 1 + 64 * dt);
+  const after = AutoMoviePhysicalSpanPose.play(bound, body, restored, 1 + 64 * dt);
   const second = bound.spans.get("body");
   if (second === first) failures.push("a restore was not prepared again");
-  physicalSpanPose.play(bound, body, restored, 1 + 65 * dt);
+  AutoMoviePhysicalSpanPose.play(bound, body, restored, 1 + 65 * dt);
   if (bound.spans.get("body") !== second)
     failures.push("the restored response was prepared again");
   TestValidator.equals("restored sample", after, before);
 
   // 3. Nothing plays once the response has settled.
   const until: number = second!.span.until;
-  if (physicalSpanPose.play(bound, body, restored, until + dt) !== undefined)
+  if (AutoMoviePhysicalSpanPose.play(bound, body, restored, until + dt) !== undefined)
     failures.push("a settled response still plays");
   TestValidator.equals("span hold", failures, []);
 }

@@ -22,7 +22,7 @@ import type {
  * A rig bone's world rotation is its parent's times its rest rotation times its
  * articulation (`resolvePoseBone`). A bone on a three-axis joint takes the
  * articulation `inverse(rest) * inverse(parent) * world`, lowered to clinical
- * angles by the rig's codec (`poseJointCodec`) exactly: the angles compose back
+ * angles by the rig's codec (`AutoMovieEngineKinematics.poseJointCodec`) exactly: the angles compose back
  * to the solved rotation. A joint with fewer axes is read in its reduced
  * coordinates, as a generalized-coordinate model keeps it: a revolute joint's
  * transform is a function of its own coordinates alone (Featherstone 2008,

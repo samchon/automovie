@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -145,7 +145,7 @@ function plan(
     { x: 0, y: 1, z: 0 },
   );
   const fire: IAutoMovieVector3 = context.aim(p.target, context.start).point;
-  const aim: IAutoMovieQuaternion = rotationBetween(
+  const aim: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
     discharge,
     Vector3.subtract(fire, outlet),
   );

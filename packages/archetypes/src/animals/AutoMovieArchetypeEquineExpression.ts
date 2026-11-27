@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide } from "../core";
 import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
@@ -280,7 +285,7 @@ export namespace AutoMovieArchetypeEquineExpression {
         rising < falling && before !== undefined && before.to === cue.from
           ? turn(base, current, before, seconds)
           : EquineHeadCourse.rest();
-      const share: number = minimumJerk.share(
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.max(0, Math.min(1, rising, falling)),
       );
       const path: EquineHeadCourse.IPath =

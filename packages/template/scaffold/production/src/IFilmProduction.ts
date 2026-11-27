@@ -15,10 +15,10 @@ import type {
 } from "@automovie/interface";
 import type {
   IAutoMovieDrawScene,
-  IObserveAutoMoviePlacedScene,
-  ISelectAutoMoviePlacedChecks,
+  IObserveAutoMoviePlacedSceneCheck,
+  ISelectAutoMoviePlacedChecksContinuity,
   AutoMovieRenderInspectionCamera,
-  observeAutoMovieSceneCollision,
+  AutoMovieRenderInspection,
 } from "@automovie/render";
 import type * as THREE from "three";
 
@@ -72,7 +72,7 @@ export interface IFilmProduction {
    */
   inspectionLayers?: (
     sample: IAutoMovieDrawScene.IPlacedSample,
-  ) => Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"];
+  ) => AutoMovieRenderInspection.IPlacedSceneCollisionProps["layers"];
 
   /**
    * Independent support, grip, custody and continuity expectations for the
@@ -84,7 +84,7 @@ export interface IFilmProduction {
    */
   inspectionChecks?: (
     sample: IAutoMovieDrawScene.IPlacedSample,
-  ) => readonly IObserveAutoMoviePlacedScene.ICheck[];
+  ) => readonly IObserveAutoMoviePlacedSceneCheck[];
 
   /**
    * Subjects the shot last placed requires the delivery camera to show at its
@@ -204,7 +204,7 @@ export interface IFilmProduction {
    * start. Absent treats the whole film as one continuous shot.
    */
   playback?: Pick<
-    ISelectAutoMoviePlacedChecks.IContinuity,
+    ISelectAutoMoviePlacedChecksContinuity,
     "sequence" | "timeline" | "discontinuities"
   >;
 

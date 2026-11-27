@@ -13,7 +13,7 @@ import { sampleAutoMovieCameraOcclusion } from "./sampleAutoMovieCameraOcclusion
 
 /** Observes required-subject framing from the original delivered projection. */
 export function observeAutoMovieCameraInspection(
-  props: AutoMovieRenderInspectionCamera.Observe.IProps,
+  props: AutoMovieRenderInspectionCamera.IObserveProps,
 ): IAutoMovieCameraInspection.IResult {
   const { camera, scene, target, maxOcclusionRatio, pixels } = props;
   if (target === undefined || !isDisplayed(scene, target))

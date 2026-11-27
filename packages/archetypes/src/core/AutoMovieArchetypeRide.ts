@@ -1,4 +1,6 @@
-import { integrateMotionTrajectory } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionTrajectory,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieIntegrateMotionTrajectory,
@@ -385,7 +387,7 @@ export namespace AutoMovieArchetypeRide {
 
     // The headings, radians about +Y: the first link's turning toward the hitch at its sideways speed over its reach; a second link's toward the pivot at the pivot's sideways speed over the body's length.
     const heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory = (() => {
-      return integrateMotionTrajectory({
+      return AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
         f: (
           t: number,
           x: readonly number[],

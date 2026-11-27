@@ -1,4 +1,4 @@
-import { prepareLinearSystem } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -6,7 +6,7 @@ import { nclose } from "../../internal/nclose";
 /**
  * `prepareLinearSystem` factors a square matrix once with partial pivoting and
  * returns a solver for any right-hand side, or null when a pivot vanishes;
- * `prepareLinearSystem.solve` answers one system the same way.
+ * `AutoMovieEngineMath.solveLinearSystem` answers one system the same way.
  *
  * Scenarios:
  *
@@ -34,13 +34,13 @@ export function test_engine_math_prepare_linear_system(): void {
     [1, 3],
   ];
   const solver: ((right: readonly number[]) => number[]) | null =
-    prepareLinearSystem(rows);
+    AutoMovieEngineMath.prepareLinearSystem(rows);
   TestValidator.predicate(
     "the prepared solver and solve agree on every right-hand side",
     solver !== null &&
       close(solver([3, 5]), [0.8, 1.4]) &&
       close(solver([1, 3]), [0, 1]) &&
-      close(prepareLinearSystem.solve(rows, [3, 5]), [0.8, 1.4]),
+      close(AutoMovieEngineMath.solveLinearSystem(rows, [3, 5]), [0.8, 1.4]),
   );
   const swapped: number[][] = [
     [0, 1],
@@ -48,8 +48,8 @@ export function test_engine_math_prepare_linear_system(): void {
   ];
   TestValidator.predicate(
     "a zero leading entry is pivoted",
-    close(prepareLinearSystem(swapped)?.([2, 3]) ?? null, [3, 2]) &&
-      close(prepareLinearSystem.solve(swapped, [2, 3]), [3, 2]),
+    close(AutoMovieEngineMath.prepareLinearSystem(swapped)?.([2, 3]) ?? null, [3, 2]) &&
+      close(AutoMovieEngineMath.solveLinearSystem(swapped, [2, 3]), [3, 2]),
   );
   const dependent: number[][] = [
     [1, 2],
@@ -58,15 +58,15 @@ export function test_engine_math_prepare_linear_system(): void {
   TestValidator.equals(
     "dependent rows are singular",
     [
-      prepareLinearSystem(dependent),
-      prepareLinearSystem.solve(dependent, [1, 2]),
+      AutoMovieEngineMath.prepareLinearSystem(dependent),
+      AutoMovieEngineMath.solveLinearSystem(dependent, [1, 2]),
     ],
     [null, null],
   );
   TestValidator.predicate(
     "the pivot threshold is relative to the matrix's scale",
     close(
-      prepareLinearSystem([
+      AutoMovieEngineMath.prepareLinearSystem([
         [1e-20, 0],
         [0, 2e-20],
       ])?.([1e-20, 4e-20]) ?? null,
@@ -75,7 +75,7 @@ export function test_engine_math_prepare_linear_system(): void {
   );
   TestValidator.equals(
     "the empty system solves to the empty vector",
-    prepareLinearSystem([])?.([]) ?? null,
+    AutoMovieEngineMath.prepareLinearSystem([])?.([]) ?? null,
     [],
   );
 }

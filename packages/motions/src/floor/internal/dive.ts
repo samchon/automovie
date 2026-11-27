@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, minimumJerk } from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -423,7 +423,7 @@ export namespace dive {
         if (t <= crouch) return crouched(t, resolution, projection);
         if (t >= crouch + travel) return { ...landedShape, root: landed };
         const u: number = (t - crouch) / travel;
-        const s: number = kind === "dive" ? u : minimumJerk.share(u);
+        const s: number = kind === "dive" ? u : AutoMovieEngineMotionSampling.minimumJerkShare(u);
         const posture: IAutoMovieMotionHumanPosture = launchShape(
           s,
           TURN[kind] * s,

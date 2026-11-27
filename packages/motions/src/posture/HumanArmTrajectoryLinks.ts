@@ -1,4 +1,5 @@
-import { Vector3, physicalShapeGjk } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Vector3 } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanAuditTangleModel,
@@ -28,7 +29,7 @@ export function HumanArmTrajectoryLinks(
   const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
   const model: IAutoMovieMotionHumanAuditTangleModel.IModel =
     c.setups[a]!.body.tangle;
-  const solids: Map<number, physicalShapeGjk.ISolid[]> =
+  const solids: Map<number, AutoMovieEnginePhysicsGjkTypes.ISolid[]> =
     HumanArmTrajectoryLinks.shapes(frame, placed);
   const links: Map<number, HumanArmTrajectoryLinks.ILink> = new Map();
   for (let probe: number = G.SURFACE; probe < placed.probes.length; ++probe) {
@@ -122,7 +123,7 @@ export namespace HumanArmTrajectoryLinks {
     offset: number;
 
     /** Its own collider shapes placed, as convex solids. */
-    solids: physicalShapeGjk.ISolid[];
+    solids: AutoMovieEnginePhysicsGjkTypes.ISolid[];
   }
 
   /**
@@ -136,12 +137,12 @@ export namespace HumanArmTrajectoryLinks {
   export function shapes(
     frame: IAutoMovieMotionHumanArmGeometry.IFrame,
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
-  ): Map<number, physicalShapeGjk.ISolid[]> {
-    const out: Map<number, physicalShapeGjk.ISolid[]> = new Map();
+  ): Map<number, AutoMovieEnginePhysicsGjkTypes.ISolid[]> {
+    const out: Map<number, AutoMovieEnginePhysicsGjkTypes.ISolid[]> = new Map();
     for (const shape of S.colliders(frame, placed)) {
-      let list: physicalShapeGjk.ISolid[] | undefined = out.get(shape.part);
+      let list: AutoMovieEnginePhysicsGjkTypes.ISolid[] | undefined = out.get(shape.part);
       if (list === undefined) out.set(shape.part, (list = []));
-      list.push(physicalShapeGjk.solid(shape.pose, shape.shape));
+      list.push(AutoMovieEnginePhysics.physicalShapeGjkSolid(shape.pose, shape.shape));
     }
     return out;
   }
@@ -152,7 +153,7 @@ export namespace HumanArmTrajectoryLinks {
     at: number;
 
     /** The arm's solids there, by part (`shapes`). */
-    solids: Map<number, physicalShapeGjk.ISolid[]>;
+    solids: Map<number, AutoMovieEnginePhysicsGjkTypes.ISolid[]>;
   }
 
   /**
@@ -178,15 +179,15 @@ export namespace HumanArmTrajectoryLinks {
     part: number,
     steps: readonly IStep[],
     shape: number,
-  ): physicalShapeGjk.ISolid[] {
-    const first: readonly physicalShapeGjk.ISolid[] =
+  ): AutoMovieEnginePhysicsGjkTypes.ISolid[] {
+    const first: readonly AutoMovieEnginePhysicsGjkTypes.ISolid[] =
       steps[0]?.solids.get(part) ?? [];
     return first.map(
-      (_: physicalShapeGjk.ISolid, i: number): physicalShapeGjk.ISolid => {
+      (_: AutoMovieEnginePhysicsGjkTypes.ISolid, i: number): AutoMovieEnginePhysicsGjkTypes.ISolid => {
         const points: IAutoMovieVector3[] = [];
         let radius: number = 0;
         for (const step of steps) {
-          const at: physicalShapeGjk.ISolid | undefined =
+          const at: AutoMovieEnginePhysicsGjkTypes.ISolid | undefined =
             step.solids.get(part)?.[i];
           if (at === undefined) continue;
           radius = Math.max(radius, at.radius);
@@ -221,25 +222,25 @@ export namespace HumanArmTrajectoryLinks {
    * @see https://doi.org/10.1177/0278364914528132
    */
   export function certifiesTurn(
-    start: readonly physicalShapeGjk.ISolid[],
-    swept: readonly physicalShapeGjk.ISolid[],
+    start: readonly AutoMovieEnginePhysicsGjkTypes.ISolid[],
+    swept: readonly AutoMovieEnginePhysicsGjkTypes.ISolid[],
     pivot: IAutoMovieVector3,
     angle: number,
-    obstacle: physicalShapeGjk.ISolid,
+    obstacle: AutoMovieEnginePhysicsGjkTypes.ISolid,
     offset: number,
     floor: number,
   ): boolean {
     if (start.length === 0 || start.length !== swept.length) return false;
     const margin: number = floor + offset;
     for (let i: number = 0; i < swept.length; ++i) {
-      const solid: physicalShapeGjk.ISolid = swept[i]!;
-      const first: physicalShapeGjk.ISolid = start[i]!;
+      const solid: AutoMovieEnginePhysicsGjkTypes.ISolid = swept[i]!;
+      const first: AutoMovieEnginePhysicsGjkTypes.ISolid = start[i]!;
       let reach: number = 0;
       for (const point of first.points)
         reach = Math.max(reach, Vector3.distance(point, pivot));
       const radius: number =
         solid.radius + ((reach + first.radius) * angle * angle) / 8;
-      const bound: physicalShapeGjk.IBound = physicalShapeGjk(
+      const bound: AutoMovieEnginePhysicsGjkTypes.IBound = AutoMovieEnginePhysics.physicalShapeGjk(
         { points: solid.points, radius },
         obstacle,
         margin > -(radius + obstacle.radius) ? margin : undefined,

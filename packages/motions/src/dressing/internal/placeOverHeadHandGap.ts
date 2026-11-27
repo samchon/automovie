@@ -1,9 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeBounds,
-  physicalShapePairDistance,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -60,7 +58,7 @@ export function placeOverHeadHandGap(
     parts.flatMap((part: IAutoMovieMotionHumanColliders.IPlaced): Query[] =>
       part.shapes.map(
         (shape: IAutoMoviePhysicalShape): Query =>
-          physicalShapeSegmentDistance.prepare(part.pose, shape),
+          AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(part.pose, shape),
       ),
     );
   const shoulders: readonly Query[] = distances(
@@ -88,9 +86,9 @@ export function placeOverHeadHandGap(
   ];
   const parts = shapes.map((shape: IAutoMoviePhysicalShape) => ({
     shape,
-    bounds: physicalShapeBounds(ORIGIN, shape),
+    bounds: AutoMovieEnginePhysics.physicalShapeBounds(ORIGIN, shape),
     clasp:
-      physicalShapeSegmentDistance(ORIGIN, shape, props.wear, props.wear) <=
+      AutoMovieEnginePhysics.physicalShapeSegmentDistance(ORIGIN, shape, props.wear, props.wear) <=
       SHAPE_ROUNDING,
   }));
   return {
@@ -124,7 +122,7 @@ export function placeOverHeadHandGap(
               gap = Math.min(
                 gap,
                 AutoMovieMotionHumanAuditSkin.BUILT +
-                  physicalShapePairDistance(frame, shape, part.pose, obstacle),
+                  AutoMovieEnginePhysics.physicalShapePairDistance(frame, shape, part.pose, obstacle),
               );
           }
         return gap;
@@ -145,7 +143,7 @@ export function placeOverHeadHandGap(
 }
 
 /** The prepared signed distance to a fixed partner shape. */
-type Query = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
+type Query = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;
 
 /** Roundoff in locating the wear socket on an adjoining collider surface. */
 const SHAPE_ROUNDING: number = 1e-9;

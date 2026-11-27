@@ -3,7 +3,7 @@ import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `auditAutoMovieDecodedFrames` checks an FFmpeg framecrc report against the
+ * `AutoMovieRenderDelivery.auditDecodedFrames` checks an FFmpeg framecrc report against the
  * commissioned frame count and rate.
  *
  * Scenarios:

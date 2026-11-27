@@ -1,4 +1,4 @@
-import { Vector3, rotationBetween } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -57,7 +57,7 @@ export namespace AnnularFitting {
   ): void {
     const at: IAutoMovieVector3 = Vector3.scale(Vector3.add(from, to), 0.5);
     const rotation: AutoMovieArchetypeBuilder.IOptions["rotation"] =
-      rotationBetween({ x: 0, y: 1, z: 0 }, Vector3.subtract(to, from));
+      AutoMovieEngineMath.rotationBetween({ x: 0, y: 1, z: 0 }, Vector3.subtract(to, from));
     ids(id).forEach((part: string, index: number): void => {
       builder.convex(part, cells[index]!, at, { color, rotation });
     });

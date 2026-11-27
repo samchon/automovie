@@ -1,10 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidSocket,
-  IAutoMovieComposition,
-  IAutoMovieMotionHumanPerformance,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieComposition, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { clinch } from "../../grappling/internal/clinch";
@@ -77,7 +73,7 @@ export function grappleCases(
         const to: number = segment.start + c.to * segment.plan.duration;
         for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
           const frame = who.body.surfaces.sockets[name];
-          const hand = resolveAutoMovieHumanoidSurfaces.place(
+          const hand = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             frame,
             performance.bones("a", t).get(frame.bone)!,
           ).point;

@@ -8,11 +8,11 @@ import type { IAutoMovieInstancedGeometry } from "../IAutoMovieInstancedGeometry
 import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
 import type { IBakeFormationCycleProps } from "../IBakeFormationCycleProps.js";
 import { bakeFormationCycle } from "./bakeFormationCycle.js";
-import { buildModel } from "../buildModel.js";
-import { collectAutoMovieOwnedResources } from "../collectAutoMovieOwnedResources.js";
+import { AutoMovieRenderSceneLayout } from "../AutoMovieRenderSceneLayout.js";
+import { collectAutoMovieOwnedResources } from "./collectAutoMovieOwnedResources.js";
 import { flattenRigidParts } from "./flattenRigidParts.js";
 import { instancedModelParts } from "./instancedModelParts.js";
-import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * Flatten one runtime model for a chunked instancing consumer.
@@ -44,7 +44,7 @@ export const flattenInstancedModel: (
   owner: string = `Instanced runtime model "${model.id}"`,
   bake?: Pick<IBakeFormationCycleProps, "samples" | "takes">,
 ): IAutoMovieInstancedModelRepresentation => {
-  const built: ReturnType<typeof buildModel> = buildModel(model);
+  const built: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> = AutoMovieRenderSceneLayout.buildModel(model);
   const sourceResources: readonly { dispose(): void }[] =
     collectAutoMovieOwnedResources(built.object);
   const temporary: Set<THREE.BufferGeometry | THREE.Skeleton> = new Set();

@@ -3,7 +3,7 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import type { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * Clock continuation for strides already selected by the shared quadruped ride.
@@ -65,7 +65,7 @@ export namespace QuadrupedRideClock {
    */
   export function create(
     species: AutoMovieArchetypeQuadruped.ISpecies,
-    course: rideQuadruped.ICourse,
+    course: AutoMovieArchetypeQuadruped.IRideCourse,
     plan: AutoMovieArchetypeCourse.IPlan,
     tempo: number,
     withers: number,

@@ -1,4 +1,13 @@
-import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, ROM_TOLERANCE, clampJointToSkeleton, decomposeJointRotationOnBasis, jointToQuaternionOnBasis, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  DEFAULT_JOINT_AXES,
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  ROM_TOLERANCE,
+  swingTwistRange,
+  AutoMovieEngineKinematics,
+  AutoMovieEngineKinematicsJointRotation,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -144,7 +153,7 @@ export namespace HumanArmGeometry {
         has(hand, "abduction"),
         has(hand, "twist"),
       ],
-      clamp: clampJointToSkeleton.prepare(body.skeleton, axes),
+      clamp: AutoMovieEngineKinematics.prepareClampJointToSkeleton(body.skeleton, axes),
       basis: (
         bone: AutoMovieHumanoidBone,
         path: string,
@@ -173,7 +182,7 @@ export namespace HumanArmGeometry {
 
   /**
    * A joint's articulation from its clinical triple, clamped to the skeleton's
-   * range (`clampJointToSkeleton`), using the same clinical articulation as the
+   * range (`AutoMovieEngineKinematics.clampJointToSkeleton`), using the same clinical articulation as the
    * displayed posture, so the arm planned is the arm shown.
    *
    * @param setup The arm.
@@ -192,7 +201,7 @@ export namespace HumanArmGeometry {
       of,
     );
     return Quaternion.normalize(
-      jointToQuaternionOnBasis(
+      AutoMovieEngineKinematicsJointRotation.jointToQuaternionOnBasis(
         { flexion, abduction, twist },
         setup.basis(bone, "jointToQuaternion axes"),
         HUMANOID_REST_FRAME[bone],
@@ -293,7 +302,7 @@ export namespace HumanArmGeometry {
     c: readonly number[],
     turned: IAutoMovieQuaternion = shoulder(setup, c),
   ): IAutoMovieMotionHumanArmClearance.IArm {
-    const read: IArmRead = decomposeJointRotationOnBasis(
+    const read: IArmRead = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
       turned,
       setup.basis(setup.bones.upper, "decomposeJointRotation axes"),
       HUMANOID_REST_FRAME[setup.bones.upper],

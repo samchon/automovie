@@ -3,10 +3,9 @@ import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   Quaternion,
-  decomposeJointRotationOnBasis,
-  jointToQuaternionOnBasis,
-  minimumJerk,
-  rotationBetween,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineMath,
+  AutoMovieEngineKinematicsJointRotation,
 } from "@automovie/engine";
 import type {
   IAutoMovieJointRotationDomain,
@@ -56,7 +55,7 @@ export namespace WorkoutGym {
       const axes = HUMANOID_JOINT_AXES[bone]!;
       const frame = HUMANOID_REST_FRAME[bone];
       const direction = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
-      const compose = jointToQuaternionOnBasis.prepare(axes, frame);
+      const compose = AutoMovieEngineKinematicsJointRotation.prepareJointToQuaternionOnBasis(axes, frame);
       const domain: IAutoMovieJointRotationDomain = body.chains[`${side}Arm`]
         ?.upperDomain ?? {
         bone,
@@ -73,7 +72,7 @@ export namespace WorkoutGym {
         // Keep the clean's rack. Bring its modest outboard grip in over the jerk drive.
         const share: number = snatch
           ? 1
-          : minimumJerk.share((flexion - 85) / 45);
+          : AutoMovieEngineMotionSampling.minimumJerkShare((flexion - 85) / 45);
         if (share === 0) continue;
         const f: number = (flexion * Math.PI) / 180;
         const a: number = (spread * Math.PI) / 180;
@@ -82,7 +81,7 @@ export namespace WorkoutGym {
         const turn = compose({ flexion, abduction: spread, twist });
         // Swing the arm around the bar's lateral axis. Canonical abduction
         // alone makes the outboard direction reverse past shoulder height.
-        const aimed = rotationBetween(
+        const aimed = AutoMovieEngineMath.rotationBetween(
           Quaternion.rotateVector(turn, direction),
           {
             x:
@@ -96,7 +95,7 @@ export namespace WorkoutGym {
           },
         );
         // Retain the keyed arm's axial rotation so the elbow does not flip at turnover.
-        const angles = decomposeJointRotationOnBasis(
+        const angles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
           Quaternion.multiply(aimed, turn),
           axes,
           frame,

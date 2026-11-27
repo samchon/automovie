@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -43,7 +43,7 @@ export function HumanMountFlight(
   };
   return (side: AutoMovieHumanSide, t: number): HumanMountFlight.IFlown => {
     const [leaves, arrives]: readonly [number, number] = props.flight[side];
-    const share: number = minimumJerk.share((t - leaves) / (arrives - leaves));
+    const share: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - leaves) / (arrives - leaves));
     const facing: IAutoMovieVector3 = Quaternion.rotateVector(
       HumanFrame.turn(props.frameAt(t).yaw),
       { x: 0, y: 0, z: 1 },

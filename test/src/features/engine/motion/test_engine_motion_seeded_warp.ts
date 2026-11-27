@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, seededSmoothNoise, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEngineMotionTrajectory, AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 import type {
   IAutoMovieRandom,
@@ -44,7 +44,7 @@ export function test_engine_motion_seeded_warp(): void {
       return i / 8;
     },
   };
-  const reader: (u: number) => number = seededSmoothNoise.prepare(
+  const reader: (u: number) => number = AutoMovieEngineMotionSampling.seededSmoothNoisePrepare(
     stream,
     1.25,
     2,
@@ -79,7 +79,7 @@ export function test_engine_motion_seeded_warp(): void {
       ) &&
       draws.join() === "0,1,2,3,4,5,6,7" &&
       nclose(
-        seededSmoothNoise.prepare(stream, 1.25, 2, 1)(0.25),
+        AutoMovieEngineMotionSampling.seededSmoothNoisePrepare(stream, 1.25, 2, 1)(0.25),
         256 * 0.25 ** 4 * 0.75 ** 4 * Math.sin(Math.PI * (1.5 * 0.25 + 0.25)),
         ROUNDING,
       ),
@@ -100,14 +100,14 @@ export function test_engine_motion_seeded_warp(): void {
         number,
       ]): boolean =>
         throwsError((): number =>
-          seededSmoothNoise.prepare(stream, duration, frequency, count)(0),
+          AutoMovieEngineMotionSampling.seededSmoothNoisePrepare(stream, duration, frequency, count)(0),
         ),
     ),
   );
 
   // 3. Seeds.
   const at = (seed: string, u: number): number =>
-    seededSmoothNoise(
+    AutoMovieEngineMotionSampling.seededSmoothNoise(
       AutoMovieEngineRandom.createRandom(
         AutoMovieEngineRandom.deriveSeed(seed, "walker", "walk", "tempo"),
       ),

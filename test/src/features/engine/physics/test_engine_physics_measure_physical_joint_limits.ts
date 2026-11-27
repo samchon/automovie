@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds, solvePhysicalFloorChainTarget, AutoMovieEnginePhysics, AutoMoviePhysicalSimulation } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysicalFloorChainTarget, AutoMovieEnginePhysics, AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalSegment,
@@ -169,7 +169,7 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
       const minimum: number = Math.min(
         ...segment.shapes.map(
           (shape: IAutoMoviePhysicalShape): number =>
-            physicalShapeBounds(result.targets[limb.bone]!, shape).min.y,
+            AutoMovieEnginePhysics.physicalShapeBounds(result.targets[limb.bone]!, shape).min.y,
         ),
       );
       TestValidator.predicate(
@@ -212,8 +212,8 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
       "unreachable intent stays explicit",
       unreachable.residuals["support-0"]! > 90 && unreachable.rootDrop <= 0.05,
     );
-    const free: ReturnType<typeof solvePhysicalFloorChainTarget> =
-      solvePhysicalFloorChainTarget({
+    const free: ReturnType<typeof AutoMovieEnginePhysicalFloorChainTarget.solve> =
+      AutoMovieEnginePhysicalFloorChainTarget.solve({
         profile,
         targets,
         chain: pattern.limbs[0]!.chain,

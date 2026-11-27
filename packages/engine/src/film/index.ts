@@ -1,5 +1,5 @@
 export type { AutoMovieEngineFilmTypes } from "./AutoMovieEngineFilmTypes";
-export { AutoMovieEngineFrameClock } from "./AutoMovieEngineFrameClock";
+export * from "./AutoMovieEngineFrameClock";
 
 
 
@@ -132,4 +132,4 @@ export * from "./staging";
 
 
 
-export { AutoMovieEngineFilm } from "./AutoMovieEngineFilm";
+export * from "./AutoMovieEngineFilm";

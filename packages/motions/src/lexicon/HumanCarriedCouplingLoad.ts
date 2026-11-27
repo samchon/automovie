@@ -1,18 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionCoupling,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCarriedCouplingLoad,
-  IAutoMovieMotionHumanLoad,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarriedCouplingLoad, IAutoMovieMotionHumanLoad, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLoad } from "../perform/HumanLoad";
@@ -185,7 +172,7 @@ export namespace HumanCarriedCouplingLoad {
     )!;
     return {
       mass: model.mass,
-      own: resolveAutoMovieCenterOfMass.place(model, bones),
+      own: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, bones),
       load: coupling.mass * share,
       borne: Vector3.add(
         anchor.worldPosition,

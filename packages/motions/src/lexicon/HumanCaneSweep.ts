@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
@@ -205,7 +205,7 @@ function planHumanCaneSweep(
     const line: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(hand, tip),
     );
-    const swung: IAutoMovieQuaternion = rotationBetween(shaft, line);
+    const swung: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(shaft, line);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const across: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
       v: IAutoMovieVector3,

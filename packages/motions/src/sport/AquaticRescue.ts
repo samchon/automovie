@@ -1,22 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -194,7 +177,7 @@ export namespace AquaticRescue {
             ? Vector3.lerp(
                 { ...standoff, y: 0 },
                 { ...behind, y: 0 },
-                minimumJerk.share((t - arrive) / AquaticRescueBounds.GRIP),
+                AutoMovieEngineMotionSampling.minimumJerkShare((t - arrive) / AquaticRescueBounds.GRIP),
               )
             : Vector3.add(
                 { ...behind, y: 0 },
@@ -214,7 +197,7 @@ export namespace AquaticRescue {
       // The legs scissor under the side-lying rescuer, the kick growing in
       // as the turn onto the side is taken, so the legs move on from the
       // crawl's without a jump.
-      const k: number = minimumJerk.share(
+      const k: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(1, (t - arrive) / AquaticRescueBounds.GRIP),
       );
       const swing: number =
@@ -275,8 +258,8 @@ export namespace AquaticRescue {
     const holdWorld = (): IHoldWorld => {
       const sternum: IAutoMovieHumanoidSurfaces.IFrame =
         victim.body.surfaces.regions.sternum;
-      const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-        resolveAutoMovieHumanoidSurfaces.place(
+      const placed: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> =
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           sternum,
           victim
             .bones(start + hold, new Set([sternum.bone]))
@@ -460,7 +443,7 @@ export namespace AquaticRescue {
    */
   function along(tow: ITow, t: number): number {
     return (
-      tow.length * minimumJerk.share(Math.min(1, Math.max(0, t / tow.seconds)))
+      tow.length * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, t / tow.seconds)))
     );
   }
 

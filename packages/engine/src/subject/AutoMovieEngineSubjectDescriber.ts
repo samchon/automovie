@@ -15,7 +15,7 @@ import {
 import { builtEnvironmentPartBoxes } from "../architecture/internal/builtEnvironmentPartBoxes";
 import { builtPointBounds } from "../architecture/internal/builtPointBounds";
 import { autoMovieInstanceAddressSlot } from "../populationRuntime/internal/autoMovieInstanceAddressSlot";
-import { autoMovieModelPartPoints } from "../autoMovieModelPartPoints";
+import { AutoMovieEngineModel } from "../AutoMovieEngineModel";
 import { compareAutoMovieRenderIds } from "../render/internal/compareAutoMovieRenderIds";
 import { autoMovieSubjectAddress } from "./internal/autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./internal/autoMovieSubjectMaterials";
@@ -463,7 +463,7 @@ export class AutoMovieEngineSubjectDescriber {
     let geometry: IAutoMovieModelPartPoints.IResult | undefined =
       this.geometry.get(model.id);
     if (geometry === undefined) {
-      geometry = autoMovieModelPartPoints(model);
+      geometry = AutoMovieEngineModel.partPoints(model);
       this.geometry.set(model.id, geometry);
     }
     return geometry;

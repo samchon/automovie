@@ -1,9 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeGjk,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Quaternion, Vector3 } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanAuditTangleModel,
@@ -148,11 +144,11 @@ export namespace HumanArmTrajectoryOverlap {
         lower: near("lower"),
         hand: near("hand"),
       };
-      const solids: (physicalShapeGjk.ISolid | undefined)[] = theirs.map(
+      const solids: (AutoMovieEnginePhysicsGjkTypes.ISolid | undefined)[] = theirs.map(
         (shape, i) =>
           certifies &&
           (screened.upper[i] || screened.lower[i] || screened.hand[i])
-            ? physicalShapeGjk.solid(shape.pose, shape.shape)
+            ? AutoMovieEnginePhysics.physicalShapeGjkSolid(shape.pose, shape.shape)
             : undefined,
       );
       for (const link of HumanArmTrajectoryLinks(c, a, k, own)) {
@@ -233,7 +229,7 @@ export namespace HumanArmTrajectoryOverlap {
                   });
                 continue;
               }
-              const distance: number = physicalShapeSegmentDistance(
+              const distance: number = AutoMovieEnginePhysics.physicalShapeSegmentDistance(
                 shape.pose,
                 shape.shape,
                 p,
@@ -299,8 +295,8 @@ export namespace HumanArmTrajectoryOverlap {
       c.setups[a]!.body.tangle;
     const floor: number = cut / 1000;
     const certifies: boolean = floor < Infinity;
-    const solids: physicalShapeGjk.ISolid[] = certifies
-      ? mine.map((shape) => physicalShapeGjk.solid(shape.pose, shape.shape))
+    const solids: AutoMovieEnginePhysicsGjkTypes.ISolid[] = certifies
+      ? mine.map((shape) => AutoMovieEnginePhysics.physicalShapeGjkSolid(shape.pose, shape.shape))
       : [];
     // Each segment's sphere screens the corners before its shapes.
     const centres: Record<Owner, IAutoMovieVector3> = {
@@ -392,7 +388,7 @@ export namespace HumanArmTrajectoryOverlap {
               });
             return;
           }
-          const distance: number = physicalShapeSegmentDistance(
+          const distance: number = AutoMovieEnginePhysics.physicalShapeSegmentDistance(
             shape.pose,
             shape.shape,
             corner.point,
@@ -453,9 +449,9 @@ export namespace HumanArmTrajectoryOverlap {
             : [],
         );
         if (candidates.length > 0) {
-          const body: physicalShapeGjk.ISolid[] = frame.shapes
+          const body: AutoMovieEnginePhysicsGjkTypes.ISolid[] = frame.shapes
             .filter((shape) => shape.part === part)
-            .map((shape) => physicalShapeGjk.solid(shape.pose, shape.shape));
+            .map((shape) => AutoMovieEnginePhysics.physicalShapeGjkSolid(shape.pose, shape.shape));
           for (const j of candidates)
             if (body.length !== 0)
               certificates[j] = Math.min(

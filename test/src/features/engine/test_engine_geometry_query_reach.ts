@@ -1,4 +1,4 @@
-import { measureAutoMovieGeometry, validatePose, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineGeometryObservation, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieCamera,
@@ -173,8 +173,8 @@ const measure: (
     target: { kind: "point", position: target },
     ...(time === undefined ? {} : { time }),
   };
-  const result: ReturnType<typeof measureAutoMovieGeometry> =
-    measureAutoMovieGeometry({
+  const result: ReturnType<typeof AutoMovieEngineGeometryObservation.measure> =
+    AutoMovieEngineGeometryObservation.measure({
       request,
       design: {
         production: null,
@@ -277,10 +277,10 @@ export function test_engine_geometry_query_reach(): void {
   };
   const affineAsk: (
     request: IAutoMovieGeometryQuery,
-  ) => ReturnType<typeof measureAutoMovieGeometry> = (
+  ) => ReturnType<typeof AutoMovieEngineGeometryObservation.measure> = (
     request: IAutoMovieGeometryQuery,
-  ): ReturnType<typeof measureAutoMovieGeometry> =>
-    measureAutoMovieGeometry({
+  ): ReturnType<typeof AutoMovieEngineGeometryObservation.measure> =>
+    AutoMovieEngineGeometryObservation.measure({
       request,
       design: {
         production: null,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -289,7 +289,7 @@ export namespace crabWalk {
         return mixHumanPosture(
           entry,
           crawl(SETTLE),
-          minimumJerk.share(t / SETTLE),
+          AutoMovieEngineMotionSampling.minimumJerkShare(t / SETTLE),
         );
       },
     };

@@ -10,7 +10,7 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { spotEquineTakeoff } from "./internal/spotEquineTakeoff";
 
 /**
@@ -224,7 +224,7 @@ export namespace EquineJump {
   export function admit(
     archetype: string,
     index: number,
-    leg: rideQuadruped.ILeg,
+    leg: AutoMovieArchetypeQuadruped.IRideLeg,
     technique: Technique,
     plan: AutoMovieArchetypeCourse.IPlan,
     footing: AutoMovieArchetypeQuadrupedFooting.IScene | undefined,

@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeFaceContact,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
@@ -86,8 +86,8 @@ export async function test_motions_actions_support_material(): Promise<void> {
     { frame: raised, outline: square },
     local,
   );
-  const tilted: ReturnType<typeof physicalShapeFaceContact> =
-    physicalShapeFaceContact(
+  const tilted: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> =
+    AutoMovieEnginePhysics.physicalShapeFaceContact(
       { ...origin, position: world },
       ball,
       raised,
@@ -101,14 +101,14 @@ export async function test_motions_actions_support_material(): Promise<void> {
   );
   TestValidator.predicate(
     "a hovering or penetrating exterior does not convert a nominal off-edge point into contact",
-    physicalShapeFaceContact(
+    AutoMovieEnginePhysics.physicalShapeFaceContact(
       { ...origin, position: { ...local, x: 1 } },
       ball,
       origin,
       square,
     ) === undefined &&
       nclose(
-        physicalShapeFaceContact(
+        AutoMovieEnginePhysics.physicalShapeFaceContact(
           {
             ...origin,
             position: { x: 0, y: 0.1, z: 0 },
@@ -128,8 +128,8 @@ export async function test_motions_actions_support_material(): Promise<void> {
     halfExtents: { x: 0.8, y: 0.1, z: 0.3 },
     transform: origin,
   };
-  const flat: ReturnType<typeof physicalShapeFaceContact> =
-    physicalShapeFaceContact(
+  const flat: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> =
+    AutoMovieEnginePhysics.physicalShapeFaceContact(
       { ...origin, position: { x: 0.45, y: 0.1, z: 0 } },
       box,
       origin,

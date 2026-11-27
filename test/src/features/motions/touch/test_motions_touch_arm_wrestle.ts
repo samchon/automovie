@@ -1,4 +1,4 @@
-import { Quaternion, physicalShapeFaceContact } from "@automovie/engine";
+import { AutoMovieEnginePhysics, Quaternion } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -40,8 +40,8 @@ export function test_motions_touch_arm_wrestle(): void {
     { x: 0.08, y: 0, z: 0.08 },
     { x: -0.08, y: 0, z: 0.08 },
   ];
-  const face: ReturnType<typeof physicalShapeFaceContact.prepare> =
-    physicalShapeFaceContact.prepare(frame, outline);
+  const face: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContactPrepare> =
+    AutoMovieEnginePhysics.physicalShapeFaceContactPrepare(frame, outline);
   const gap = (x: number, y: number): number | undefined =>
     face({ ...frame, position: { x, y, z: 0 } }, elbow)?.clearance;
   TestValidator.predicate(

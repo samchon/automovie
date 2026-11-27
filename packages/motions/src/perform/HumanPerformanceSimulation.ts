@@ -3,7 +3,7 @@ import {
   AutoMoviePhysicalSimulation,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  poseJointCodec,
+  AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -338,7 +338,7 @@ export namespace HumanPerformanceSimulation {
           {
             body: bodies.get(subject)!,
             profile: profiles.get(subject)!,
-            codec: poseJointCodec({
+            codec: AutoMovieEngineKinematics.poseJointCodec({
               skeleton: bodies.get(subject)!.skeleton,
               jointAxes: HUMANOID_JOINT_AXES,
               restFrames: HUMANOID_REST_FRAME,

@@ -15,8 +15,8 @@ import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import type { AutoMovieArchetypeEquineDraftPlan } from "./AutoMovieArchetypeEquineDraftPlan";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { EquineHarness } from "./EquineHarness";
-import { rideHorse } from "./rideHorse";
-import type { rideQuadruped } from "./rideQuadruped";
+import { AutoMovieArchetypeHorseRide } from "./AutoMovieArchetypeHorseRide";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /** Points a slack trace is laid through, ends included. */
 const SAG_POINTS: number = 9;
@@ -28,7 +28,7 @@ const SAG_POINTS: number = 9;
  * the breeching to a stop, stands while the traces are unhooked, and walks out
  * of the shafts, leaving the cart standing.
  *
- * The horse is the ordinary ride (`rideHorse`) on one course: a rein-back of
+ * The horse is the ordinary ride (`AutoMovieArchetypeHorseRide.ride`) on one course: a rein-back of
  * `approach` metres pausing `connect` seconds, the `pull` legs at `cruise`
  * ending in a stop that pauses `release` seconds, and the `depart` legs. The
  * cart is the existing vehicle contract (`createCart`, `createCart.towing`,
@@ -61,7 +61,7 @@ const SAG_POINTS: number = 9;
  *   points of draft, nonpositive stage values, and as the ride and the towing
  *   refuse.
  */
-export function AutoMovieArchetypeEquineDraft(
+function equineDraft(
   horse: AutoMovieArchetype<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
@@ -120,7 +120,7 @@ export function AutoMovieArchetypeEquineDraft(
   if (
     params.footing === undefined &&
     [...params.pull, ...params.depart].some(
-      (leg: rideQuadruped.ILeg): boolean => (leg.rise ?? 0) !== 0,
+      (leg: AutoMovieArchetypeQuadruped.IRideLeg): boolean => (leg.rise ?? 0) !== 0,
     )
   )
     refuse(
@@ -131,7 +131,7 @@ export function AutoMovieArchetypeEquineDraft(
 
   // One course: back in, pull and stop, walk out.
   const last: number = params.pull.length;
-  const legs: rideQuadruped.ILeg[] = [
+  const legs: AutoMovieArchetypeQuadruped.IRideLeg[] = [
     {
       kind: "straight",
       length: params.approach,
@@ -141,7 +141,7 @@ export function AutoMovieArchetypeEquineDraft(
       gait: "walk",
     },
     ...params.pull.map(
-      (leg: rideQuadruped.ILeg, k: number): rideQuadruped.ILeg =>
+      (leg: AutoMovieArchetypeQuadruped.IRideLeg, k: number): AutoMovieArchetypeQuadruped.IRideLeg =>
         k === last - 1 ? { ...leg, pause: params.release } : leg,
     ),
     ...params.depart,
@@ -149,13 +149,13 @@ export function AutoMovieArchetypeEquineDraft(
   const ride: AutoMovieArchetypeRide.IRide<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension
-  > = rideHorse(horse, {
+  > = AutoMovieArchetypeHorseRide.ride(horse, {
     start: params.start,
     legs,
     cruise: params.cruise,
     acceleration: params.acceleration,
     deceleration: params.deceleration,
-    speeds: legs.map((_: rideQuadruped.ILeg, k: number): number =>
+    speeds: legs.map((_: AutoMovieArchetypeQuadruped.IRideLeg, k: number): number =>
       k === 0 || k === last || k === legs.length - 1 ? 0 : params.cruise,
     ),
     footing: params.footing,
@@ -341,5 +341,35 @@ export function AutoMovieArchetypeEquineDraft(
         spread,
         `the cart's single tree and shafts were fitted to a horse ${spread} m at the withers, not ${horse.dimensions.withersHeight} m`,
       );
+  }
+}
+/** Operations for putting a harnessed horse to a fitted cart. */
+export namespace AutoMovieArchetypeEquineDraft {
+  /**
+   * Build the coupled take and its authored trace states.
+   *
+   * @param horse A horse in harness tack.
+   * @param cart A cart built for that horse.
+   * @param params The course stages, durations, trace sag and optional footing.
+   * @returns The take.
+   * @throws {AutoMovieArchetypeRefusal} For incompatible harness/cart fit, invalid stage values, and refusals from the ride or towing contracts.
+   */
+  export function create(
+    horse: AutoMovieArchetype<
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
+    >,
+    cart: AutoMovieArchetype<
+      AutoMovieArchetypeCart.Affordance,
+      AutoMovieArchetypeCart.Dimension
+    >,
+    params: AutoMovieArchetypeEquineDraftPlan.IParams,
+  ): AutoMovieArchetypeEquineDraftPlan.ITake<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension,
+    AutoMovieArchetypeCart.Affordance,
+    AutoMovieArchetypeCart.Dimension
+  > {
+    return equineDraft(horse, cart, params);
   }
 }

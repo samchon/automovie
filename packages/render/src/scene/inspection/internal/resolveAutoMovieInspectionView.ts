@@ -65,8 +65,8 @@ const FLOOR: number = 0.5;
  * ```
  */
 export function resolveAutoMovieInspectionView(
-  props: AutoMovieRenderInspectionCamera.ResolveView.IProps,
-): AutoMovieRenderInspectionCamera.ResolveView.IResult {
+  props: AutoMovieRenderInspectionCamera.IResolveViewProps,
+): AutoMovieRenderInspectionCamera.IResolveViewResult {
   if (!(props.width > 0) || !(props.height > 0))
     throw new Error(
       `Inspection picture ${props.width} x ${props.height} is not a positive size`,

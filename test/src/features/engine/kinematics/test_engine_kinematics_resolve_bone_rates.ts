@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, indexSkeletonTopology, type AutoMovieEngineKinematicsTypes } from "@automovie/engine";
+import { AutoMovieEngineKinematics, type AutoMovieEngineKinematicsTypes } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -23,7 +23,7 @@ type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 type LocalRates = Map<AutoMovieHumanoidBone, IAutoMovieVector3>;
 
 /** Common-frame origin linear and angular rates returned by the product. */
-type Rates = Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>;
+type Rates = Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate>;
 
 /**
  * Differentiate one three-link mathematical rig through the actual native FK.
@@ -46,7 +46,7 @@ type Rates = Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAu
  */
 export function test_engine_kinematics_resolve_bone_rates(): void {
   const skeleton: IAutoMovieSkeleton = rig();
-  const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton);
+  const topology: IAutoMovieSkeletonTopology = AutoMovieEngineKinematics.indexSkeletonTopology(skeleton);
   const pose: IAutoMoviePose = {
     skeleton: skeleton.id,
     root: null,
@@ -55,13 +55,13 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
   const rest: Bones = native(skeleton, pose);
   const local: LocalRates = declared(rest);
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const still: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRoot = {
+  const still: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsRootRate = {
     position: zero,
     linear: zero,
     angular: zero,
   };
   const precision: number = 64 * Number.EPSILON * 32;
-  const root: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRoot = {
+  const root: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsRootRate = {
     position: { x: 11, y: -7, z: 2 },
     linear: { x: 3, y: -4, z: 1 },
     angular: { x: 0, y: 0, z: 2 },
@@ -165,7 +165,7 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
   bodyLocal.set("spine", { x: 4, y: 0, z: 0 });
   const body: Rates = available(
     AutoMovieEngineKinematics.resolveAutoMovieBoneRates(
-      indexSkeletonTopology(quarter),
+      AutoMovieEngineKinematics.indexSkeletonTopology(quarter),
       quarterBones,
       bodyLocal,
       still,
@@ -198,7 +198,7 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
   TestValidator.predicate(
     "a bone absent from this topology has no propagated rate",
     AutoMovieEngineKinematics.resolveAutoMovieBoneRates(
-      indexSkeletonTopology(shorter),
+      AutoMovieEngineKinematics.indexSkeletonTopology(shorter),
       rest,
       local,
       still,

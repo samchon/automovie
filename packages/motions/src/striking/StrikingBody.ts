@@ -1,25 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  AutoMovieHumanoidSocket,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanStrikingBody,
-  IAutoMovieMotionHumanStrikingContact,
-  IAutoMoviePhysicalShape,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingBody, IAutoMovieMotionHumanStrikingContact, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
@@ -152,8 +132,8 @@ export namespace StrikingBody {
       tangent,
     );
     const placed: ReturnType<
-      typeof resolveAutoMovieHumanoidSurfaces.pointNormal
-    > = resolveAutoMovieHumanoidSurfaces.pointNormal(
+      typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal
+    > = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(
       local,
       bones.get(local.bone)!,
     );
@@ -176,7 +156,7 @@ export namespace StrikingBody {
   ): IAutoMovieHumanoidSurfaces.IFrame {
     return tangent === undefined || (tangent.up === 0 && tangent.out === 0)
       ? body.surfaces.regions[region]
-      : resolveAutoMovieHumanoidSurfaces.offset(
+      : AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceOffset(
           body.skeleton,
           body.profile,
           region,

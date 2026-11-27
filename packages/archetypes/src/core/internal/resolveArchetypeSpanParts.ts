@@ -1,4 +1,4 @@
-import { rotationBetween } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -97,7 +97,7 @@ export function resolveArchetypeSpanParts(
           y: midpoint(from.y, to.y),
           z: midpoint(from.z, to.z),
         },
-        rotation: rotationBetween(
+        rotation: AutoMovieEngineMath.rotationBetween(
           { x: 0, y: 1, z: 0 },
           {
             x: (to.x - from.x) / state.length,

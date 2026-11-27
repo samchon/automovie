@@ -18,13 +18,12 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { nearestAngleAlias } from "../math/internal/nearestAngleAlias";
 import { positiveModulo } from "../math/internal/positiveModulo";
-import { rotationBetween } from "../math/rotationBetween";
-import { swingTwist } from "../math/swingTwist";
+import { AutoMovieEngineMath } from "../math/AutoMovieEngineMath";
 import { wrapDegrees } from "../math/internal/wrapDegrees";
 import { DEFAULT_HUMANOID_ROM } from "../rom/constants/DEFAULT_HUMANOID_ROM";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
-import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { toRigAngle } from "../rom/toRigAngle";
+import { AutoMovieEngineClinicalAngle } from "../rom/internal/AutoMovieEngineClinicalAngle";
+import { AutoMovieEngineRigAngle } from "../rom/internal/AutoMovieEngineRigAngle";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
 import { placeSwingTwistChart } from "./internal/placeSwingTwistChart";
 import { skeletonJointAxes } from "./internal/skeletonJointAxes";
@@ -210,7 +209,7 @@ export namespace swingTwistRange {
     // The twist alone (`swingTwist.twist`): the swing is read from the
     // direction, so its product is not formed.
     const twisted: IAutoMovieQuaternion =
-      swingTwist.twist(unit, basis.u) ?? IDENTITY_TWIST;
+      AutoMovieEngineMath.swingTwistComponent(unit, basis.u) ?? IDENTITY_TWIST;
     const rig: number =
       2 *
       Math.atan2(
@@ -226,7 +225,7 @@ export namespace swingTwistRange {
         ) * DEG,
       azimuth: swingTwistBasis.azimuth(basis, direction),
       twist: wrapDegrees(
-        toClinicalAngle(wrapDegrees(rig), joint.frame?.twist)!,
+        AutoMovieEngineClinicalAngle.toClinicalAngle(wrapDegrees(rig), joint.frame?.twist)!,
       ),
     };
   }
@@ -291,10 +290,10 @@ export namespace swingTwistRange {
         : swingTwistBasis.direction(basis, swing, reading.azimuth);
     return Quaternion.normalize(
       Quaternion.multiply(
-        rotationBetween(basis.u, direction),
+        AutoMovieEngineMath.rotationBetween(basis.u, direction),
         Quaternion.fromAxisAngle(
           basis.u,
-          toRigAngle(twist, joint.frame?.twist)!,
+          AutoMovieEngineRigAngle.toRigAngle(twist, joint.frame?.twist)!,
         ),
       ),
     );

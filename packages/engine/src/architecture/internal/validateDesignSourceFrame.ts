@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
+import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { validateTransformScalars } from "../../validation/internal/validateTransformScalars";
 
 /**

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -288,7 +288,7 @@ export namespace guard {
       // lands, so it never skates; its toes point down in the air, the ankle
       // easing out of the stance's dorsiflexion while it bears nothing.
       const raw: number = Math.min(1, Math.max(0, (t - a) / (b - a)));
-      const s: number = minimumJerk.share(
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         (raw - STEP_TRAVEL[0]) / (STEP_TRAVEL[1] - STEP_TRAVEL[0]),
       );
       const bump: number = Math.sin(Math.PI * raw) ** 2;
@@ -357,9 +357,9 @@ export namespace guard {
       ): IAutoMovieMotionHumanPosture => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(source);
-        const s: number = minimumJerk.share(t / SET);
+        const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / SET);
         const fade: number =
-          s * (1 - minimumJerk.share((t - (duration - 0.2)) / 0.2));
+          s * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - (duration - 0.2)) / 0.2));
         const hop: number =
           bounce *
           fade *

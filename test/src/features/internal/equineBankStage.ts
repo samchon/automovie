@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeFrame, AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeQuadrupedFooting, rideHorse, type rideQuadruped, type AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeQuadrupedFooting, AutoMovieArchetypeHorseRide, type AutoMovieArchetypeQuadruped, type AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -22,7 +22,7 @@ export namespace equineBankStage {
   export const RUN_OUT: number = 4;
 
   /** A horse ride along a course. */
-  export type Ride = ReturnType<typeof rideHorse>;
+  export type Ride = ReturnType<typeof AutoMovieArchetypeHorseRide.ride>;
 
   /**
    * A face: its signed grade, rise over run, negative down, and its run in metres.
@@ -101,10 +101,10 @@ export namespace equineBankStage {
    */
   export function course(
     face: IFace,
-    technique: NonNullable<rideQuadruped.ILeg["equineFootwork"]>,
+    technique: NonNullable<AutoMovieArchetypeQuadruped.IRideLeg["equineFootwork"]>,
     runOut: boolean = true,
     footing: boolean = true,
-  ): rideQuadruped.ICourse {
+  ): AutoMovieArchetypeQuadruped.IRideCourse {
     return {
       start: { x: 0, z: 0, heading: 0 },
       cruise: 1.2,
@@ -127,7 +127,7 @@ export namespace equineBankStage {
               {
                 kind: "straight",
                 length: RUN_OUT,
-              } satisfies rideQuadruped.ILeg,
+              } satisfies AutoMovieArchetypeQuadruped.IRideLeg,
             ]
           : []),
       ],
@@ -229,8 +229,8 @@ export namespace equineBankStage {
    */
   export function walk(
     horse: ReturnType<typeof AutoMovieArchetypeHorse.create>,
-    authored: rideQuadruped.ICourse,
+    authored: AutoMovieArchetypeQuadruped.IRideCourse,
   ): Ride {
-    return rideHorse(horse, authored, "walk");
+    return AutoMovieArchetypeHorseRide.ride(horse, authored, "walk");
   }
 }

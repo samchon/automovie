@@ -3,7 +3,7 @@ import {
   HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
-  curlChainUntilContact,
+  AutoMovieEngineKinematicsChains,
 } from "@automovie/engine";
 import type {
   AutoMovieGripKind,
@@ -31,7 +31,7 @@ import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPose
  * phalanges as the body's own colliders, and the finger angles at contact,
  * solved, never authored.
  *
- * Closure is the engine's `curlChainUntilContact` (the auto-grasp stopping rule
+ * Closure is the engine's `AutoMovieEngineKinematicsChains.curlChainUntilContact` (the auto-grasp stopping rule
  * of Miller and Allen 2004, IEEE Robot. Autom. Mag. 11(4):110): the digits
  * named by the grip kind close proximal to distal until each phalanx first
  * touches the object, the four fingers before the thumb so the thumb closes
@@ -198,7 +198,7 @@ export namespace HumanGrip {
     );
     const digits: readonly IAutoMovieMotionHumanGrip.Digit[] = CLOSING[kind];
     const result: IAutoMovieCurlChainUntilContact.IResult =
-      curlChainUntilContact({
+      AutoMovieEngineKinematicsChains.curlChainUntilContact({
         skeleton: body.skeleton,
         pose: {
           skeleton: body.skeleton.id,

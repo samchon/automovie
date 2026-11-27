@@ -13,26 +13,26 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import type { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
 import { QuadrupedEquipmentSolids } from "./QuadrupedEquipmentSolids";
 
-/**
- * One admitted real primitive, kept outside the animal builder until the whole
- * assembly fits.
- */
-type Part =
-  | {
-      kind: "rod";
-      id: string;
-      radius: number;
-      from: IAutoMovieVector3;
-      to: IAutoMovieVector3;
-      color: string;
-    }
-  | {
-      kind: "box";
-      id: string;
-      size: IAutoMovieVector3;
-      at: IAutoMovieVector3;
-      color: string;
-    };
+/** An admitted cylindrical bar, kept outside the builder until the plan fits. */
+interface IRodPart {
+  kind: "rod";
+  id: string;
+  radius: number;
+  from: IAutoMovieVector3;
+  to: IAutoMovieVector3;
+  color: string;
+}
+
+/** An admitted box, kept outside the builder until the plan fits. */
+interface IBoxPart {
+  kind: "box";
+  id: string;
+  size: IAutoMovieVector3;
+  at: IAutoMovieVector3;
+  color: string;
+}
+
+type Part = IRodPart | IBoxPart;
 
 /**
  * Call-local geometry and contact plan for the two authored animal assemblies.

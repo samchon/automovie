@@ -2,7 +2,7 @@ import type { IAutoMovieFluidSpraySample } from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieFluidSprayObject } from "../IAutoMovieFluidSprayObject.js";
-import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * Project one bounded spray sample into a `three.js` point cloud.

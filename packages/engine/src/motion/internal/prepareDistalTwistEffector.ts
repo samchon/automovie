@@ -7,8 +7,8 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { toRigAngle } from "../../rom/toRigAngle";
-import { solveDistalTwist } from "../solveDistalTwist";
+import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
+import type { AutoMovieEngineMotionDistalTwist } from "../AutoMovieEngineMotionDistalTwist";
 
 /**
  * Own the target-independent effector readings of one distal-twist operation,
@@ -16,10 +16,10 @@ import { solveDistalTwist } from "../solveDistalTwist";
  */
 export function prepareDistalTwistEffector(
   props: Pick<
-    Parameters<typeof solveDistalTwist>[0],
+    Parameters<typeof AutoMovieEngineMotionDistalTwist.solve>[0],
     "effectorRest" | "effectorBasis" | "effectorFrame"
   >,
-): solveDistalTwist.IPrepared {
+): AutoMovieEngineMotionDistalTwist.IPrepared {
   const rest: IAutoMovieQuaternion = props.effectorRest;
   const basis: IAutoMovieJointAxes = props.effectorBasis;
   const frame: IAutoMovieRestFrame | undefined = props.effectorFrame;
@@ -36,14 +36,14 @@ export function prepareDistalTwistEffector(
       ? 1
       : -1;
   const phi: number =
-    (handed * (toRigAngle(0, frame?.twist) ?? 0) * Math.PI) / 180;
-  const zero: solveDistalTwist.IZero = {
+    (handed * (AutoMovieEngineRigAngle.toRigAngle(0, frame?.twist) ?? 0) * Math.PI) / 180;
+  const zero: AutoMovieEngineMotionDistalTwist.IZero = {
     cosine: Math.cos(phi),
     sine: Math.sin(phi),
   };
   return {
     abduction: (): IAutoMovieVector3 => abduction,
     flexion: (): IAutoMovieVector3 => flexion,
-    zero: (): solveDistalTwist.IZero => zero,
+    zero: (): AutoMovieEngineMotionDistalTwist.IZero => zero,
   };
 }

@@ -1,4 +1,4 @@
-import { physicalShapeSegmentDistance } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMovieVector3,
@@ -160,7 +160,7 @@ export namespace findAutoMovieCollisionWitness {
     const geometry: Collision.IPart["geometry"] | undefined = part?.geometry;
     if (geometry?.kind === "shape" && geometry.basis === "displayed") {
       const distance: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number =
-        physicalShapeSegmentDistance.prepare(
+        AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(
           geometry.collider.pose,
           geometry.collider.shape,
         );

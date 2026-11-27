@@ -6,12 +6,12 @@ import {
 import * as THREE from "three";
 
 import { IAutoMovieTextureResolver } from "../IAutoMovieTextureResolver.js";
-import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { AutoMovieRenderDetailNormalShading } from "../detailNormalShading/index.js";
 import { AutoMovieRenderMaterialOverlayShading } from "../materialOverlayShading/index.js";
 import { AutoMovieRenderProceduralShading } from "../proceduralShading/index.js";
 import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTexture.js";
-import { applySubsurfaceShading } from "../subsurfaceShading/index.js";
+import { AutoMovieRenderSubsurfaceShading } from "../subsurfaceShading/index.js";
 
 /**
  * Build a `three.js` physical PBR material from an automovie material, mapping
@@ -80,7 +80,7 @@ export const buildMaterial: (
           material.sheen.color.b,
         );
       if (material.subsurfaceRadius !== undefined)
-        applySubsurfaceShading(std, material.subsurfaceRadius);
+        AutoMovieRenderSubsurfaceShading.apply(std, material.subsurfaceRadius);
       if (material.procedural !== undefined)
         AutoMovieRenderProceduralShading.applySurface(std, material.procedural);
       std.map = resolveAutoMovieMaterialTexture(

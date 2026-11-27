@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -106,7 +106,7 @@ export function prepareKneelFoot(
     const l: number = timed
       ? Math.min(1, Math.max(0, (linear - lift) / (strike - lift)))
       : linear;
-    const s: number = timed ? minimumJerk.share(l) : share;
+    const s: number = timed ? AutoMovieEngineMotionSampling.minimumJerkShare(l) : share;
     return {
       placement: place(s, l),
       planted: !moves || s <= 0 || s >= 1,

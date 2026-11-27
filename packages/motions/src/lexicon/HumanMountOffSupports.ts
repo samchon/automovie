@@ -3,7 +3,7 @@ import {
   Quaternion,
   RigidCarrierSample,
   Vector3,
-  integrateMotionTrajectory,
+  AutoMovieEngineMotionTrajectory,
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
@@ -216,7 +216,7 @@ export namespace HumanMountOffSupports {
     const end: IAutoMovieRigidTransform = at(release);
     // The same left-sided derivative as motion entry, using only the named
     // material while it still bore the body. No request crosses release.
-    const h: number = Math.min(integrateMotionTrajectory.STEP, release / 2);
+    const h: number = Math.min(AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep(), release / 2);
     const near: IAutoMovieRigidTransform = at(release - h);
     const far: IAutoMovieRigidTransform = at(release - 2 * h);
     const rate = (

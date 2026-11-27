@@ -1,4 +1,4 @@
-import { restoreAutoMovieRenderModeState, AutoMovieSceneRenderMode } from "@automovie/render";
+import { AutoMovieSceneRenderMode } from "@automovie/render";
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 import { createViewerCameraState } from "./createViewerCameraState.js";
 
@@ -43,7 +43,7 @@ export function createViewerFrameControl(
         options.rebase(seconds);
         options.redraw(seconds);
       } catch (error) {
-        restoreAutoMovieRenderModeState(
+        AutoMovieSceneRenderMode.restoreState(
           [
             (): void => cameraState.restore(previousCamera),
             (): void => options.rebase(previousSeconds),
@@ -66,7 +66,7 @@ export function createViewerFrameControl(
           releaseProducer;
         releaseProducer = undefined;
         try {
-          restoreAutoMovieRenderModeState([
+          AutoMovieSceneRenderMode.restoreState([
             (): void => options.rebase(options.currentSeconds()),
             (): void => {
               release?.(true);

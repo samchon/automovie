@@ -1,20 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMeasure,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPunch,
-  IAutoMovieMotionHumanStrikingAim,
-  IAutoMovieMotionHumanStrikingReach,
-  IAutoMovieMotionTarget,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieBodyMeasure, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch, IAutoMovieMotionHumanStrikingAim, IAutoMovieMotionHumanStrikingReach, IAutoMovieMotionTarget, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
 import { StrikingAim } from "../StrikingAim";
@@ -224,7 +210,7 @@ export namespace punchContact {
       if (tangent !== undefined && at.kind === "person") {
         const other: IAutoMovieMotionHumanPerformerReader = partner!;
         const frame: IAutoMovieHumanoidSurfaces.IFrame = varied!;
-        return resolveAutoMovieHumanoidSurfaces.point(
+        return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
           frame,
           other.bones(seconds, variedBones!).get(frame.bone)!,
         );

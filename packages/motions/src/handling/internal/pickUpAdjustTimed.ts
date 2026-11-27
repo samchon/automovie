@@ -1,7 +1,7 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 /**
  * The time share at which a minimum-jerk progress has gone a share of its way
- * (`minimumJerk.time`).
+ * (`AutoMovieEngineMotionSampling.minimumJerkTime`).
  */
-export const pickUpAdjustTimed: typeof minimumJerk.time = minimumJerk.time;
+export const pickUpAdjustTimed: typeof AutoMovieEngineMotionSampling.minimumJerkTime = AutoMovieEngineMotionSampling.minimumJerkTime;

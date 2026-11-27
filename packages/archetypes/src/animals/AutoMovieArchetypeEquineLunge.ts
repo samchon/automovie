@@ -17,7 +17,7 @@ import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEqui
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import { rideQuadruped } from "./rideQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /** A named instant of a ride. */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
@@ -44,7 +44,7 @@ interface ISegment<Id extends string, D extends string> {
  * its gait and speed (the middle of the gait's admitted speeds when unstated),
  * changes speed between works over the distance its acceleration needs, and
  * brakes to a halt the same way. Its body leans into the circle by the ride's
- * own steady-turn balance (`rideQuadruped`). At the halt the stance turns it on
+ * own steady-turn balance (`AutoMovieArchetypeQuadruped.ride`). At the halt the stance turns it on
  * the centre toward the handler (`AutoMovieArchetypeEquineStance`, a spin
  * `about` the centre), holds it facing for `face` seconds, and, between reins,
  * turns it on to the opposite heading, the centre now on its other side, where
@@ -224,7 +224,7 @@ export namespace AutoMovieArchetypeEquineLunge {
       Id,
       D | AutoMovieArchetypeQuadrupedBody.Dimension
     >[] = [];
-    let start: rideQuadruped.ICourse["start"] = {
+    let start: AutoMovieArchetypeQuadruped.IRideCourse["start"] = {
       x: centre.x + radius * Math.sin((bearing * Math.PI) / 180),
       z: centre.z + radius * Math.cos((bearing * Math.PI) / 180),
       heading: bearing + (reins[0]!.side === "left" ? 90 : -90),
@@ -235,7 +235,7 @@ export namespace AutoMovieArchetypeEquineLunge {
       const sign: number = rein.side === "left" ? 1 : -1;
       const arc = (length: number): number =>
         (sign * length * 180) / (Math.PI * radius);
-      const legs: rideQuadruped.ILeg[] = [];
+      const legs: AutoMovieArchetypeQuadruped.IRideLeg[] = [];
       const marks: number[] = [];
       let speed: number = 0;
       const shift = (to: number): void => {
@@ -259,7 +259,7 @@ export namespace AutoMovieArchetypeEquineLunge {
         marks.push(speed);
       });
       shift(0);
-      const going: Ride = rideQuadruped(animal, {
+      const going: Ride = AutoMovieArchetypeQuadruped.ride(animal, {
         start,
         at: film,
         cruise: Math.max(...speeds[k]!),

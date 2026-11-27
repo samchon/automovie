@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, preparePhysicalGeometry, AutoMovieEnginePhysics, AutoMoviePhysicalBalance } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMoviePhysicalGeometry, AutoMovieEnginePhysics, AutoMoviePhysicalBalance } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalContactSupportRows,
@@ -89,7 +89,7 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
     });
 
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
-    await preparePhysicalGeometry();
+    await AutoMoviePhysicalGeometry.prepare();
   const contactTargets: Poses = structuredClone(fitted.targets);
   tilt(contactTargets, planted[0]!, -5);
   tilt(contactTargets, planted[1]!, 6);

@@ -1,13 +1,6 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanAuditMeasure,
-  IAutoMovieMotionHumanAuditMotion,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -126,8 +119,8 @@ export namespace AutoMovieMotionHumanAuditBalance {
     const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     const hold: number =
       1 /
-      resolveAutoMovieCenterOfMass.frequency(
-        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
+        AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
       );
     const samples: Map<number, IStencilSample> = new Map();
     const sampleAt: StencilAt = (
@@ -139,7 +132,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
       const read: Bones = bones ?? motion.bones(subject, seconds);
       const sample: IStencilSample = {
         bones: read,
-        centre: resolveAutoMovieCenterOfMass.place(model, read),
+        centre: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, read),
       };
       samples.set(seconds, sample);
       return sample;
@@ -241,7 +234,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
       HumanAuditMotion.windows(motion, subject),
       motion.bones(subject, seconds),
       (at: number, bones?: Bones): IAutoMovieVector3 =>
-        resolveAutoMovieCenterOfMass.place(
+        AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
           model,
           bones ?? motion.bones(subject, at),
         ),
@@ -314,11 +307,11 @@ export namespace AutoMovieMotionHumanAuditBalance {
             z: (b.z - a.z) / span,
           }
         : { x: 0, y: 0, z: 0 };
-    return resolveAutoMovieCenterOfMass.margin(
-      resolveAutoMovieCenterOfMass.extrapolate(
+    return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassExtrapolate(
         seconds === before ? a : seconds === after ? b : centre(seconds, bones),
         velocity,
-        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+        AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
       ),
       support,
     );

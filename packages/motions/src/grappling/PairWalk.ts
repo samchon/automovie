@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -100,7 +100,7 @@ export namespace PairWalk {
         if (s.side === side) {
           if (seconds >= s.to) point = s.end;
           else if (seconds > s.from) {
-            const u: number = minimumJerk.share(
+            const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(
               (seconds - s.from) / (s.to - s.from),
             );
             point = Vector3.add(Vector3.lerp(s.start, s.end, u), {

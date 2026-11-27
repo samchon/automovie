@@ -15,7 +15,7 @@ import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotion
  * gripping hand, the first one on a prop or a person, the ground when every one
  * is on the ground. The velocity and the acceleration are the central
  * differences of the support's origin at the engine's plan-time step
- * (`integrateMotionTrajectory.STEP`). A performer's region is read only at and
+ * (`AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep()`). A performer's region is read only at and
  * before the second evaluated (contract), so its differences are backward ones
  * over the same step.
  */

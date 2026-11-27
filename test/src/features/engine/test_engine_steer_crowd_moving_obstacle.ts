@@ -1,4 +1,4 @@
-import { steerAutoMovieCrowd } from "@automovie/engine";
+import { AutoMovieEngineMotionCrowd } from "@automovie/engine";
 import type {
   IAutoMovieCrowdAgent,
   IAutoMovieSteerCrowd,
@@ -31,7 +31,7 @@ import { TestValidator } from "@nestia/e2e";
  * than 0.3 m from its lane at some sample. A crossing walker may yield by
  * slowing instead.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `steerAutoMovieCrowd` with a moving `IObstacle`. It measures each course against the box placed by the same closed-form motion, independently of the pass. A pass that steers walkers only by the push along the predicted contact normal drives them forward, ahead of an obstacle that is faster than they are. That pass fails the overtaking and head-on gaps, which is the reported defect.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMovieEngineMotionCrowd` with a moving `IObstacle`. It measures each course against the box placed by the same closed-form motion, independently of the pass. A pass that steers walkers only by the push along the predicted contact normal drives them forward, ahead of an obstacle that is faster than they are. That pass fails the overtaking and head-on gaps, which is the reported defect.
  * @evidence contracts/development/testing.md#independent-expectations The clearance, the box, the speeds and the lanes are #4024's acceptance. The gap is the distance to the ungrown box less the walker's radius, computed here from the rectangle. The 0.3 m aside and return bounds are the issue's.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers the three approach directions the issue names: from behind with a faster obstacle, head-on, and across. A still obstacle and a single crossing walker belong to `test_engine_steer_crowd`.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_steer_crowd_moving_obstacle`. It uses only the engine's steering pass and starts no host.
@@ -99,7 +99,7 @@ export function test_engine_steer_crowd_moving_obstacle(): void {
         z: approach.start.z + heading.z * s,
       };
     };
-    const result: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
+    const result: IAutoMovieSteerCrowd.IResult = AutoMovieEngineMotionCrowd.steer({
       agents: lanes.map(
         (x: number, k: number): IAutoMovieCrowdAgent => ({
           at: { x, y: 0, z: 2 * k },

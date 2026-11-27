@@ -1,63 +1,39 @@
 export * from "./AutoMovieEnvelope";
 export * from "./MotionTrajectoryFailure";
 
-export * from "./assemblePlantedFeet";
-export * from "./basisOf";
+export { AutoMovieEngineMotionPlanting } from "./AutoMovieEngineMotionPlanting";
 
-export * from "./carriedAcceleration";
-export * from "./carriedRate";
 
 export * from "./constants";
-export * from "./contactMask";
 
 
 
-export * from "./fitChainToTarget";
-export * from "./fitHingedChainAt";
-export * from "./fitSeededChainToTarget";
-export * from "./readHingedChainSeed";
-export * from "./fitHingedChainCandidate";
-export * from "./fitHingedRotationError";
-
-export * from "./gaitLimbFlexion";
+export { AutoMovieEngineMotionKinematics } from "./AutoMovieEngineMotionKinematics";
 
 
 
 
 
-export * from "./AirborneTakeoffQuadrature";
-export * from "./integrateAirborneRotation";
-export * from "./integrateMotionTrajectory";
-export * from "./resolveHydrodynamicForce";
-export * from "./solveAirborneTakeoff";
+
+export * from "./AutoMovieEngineMotionAirborneRotation";
+export { AutoMovieEngineMotionAirborneTakeoff } from "./AutoMovieEngineMotionAirborneTakeoff";
+export { AutoMovieEngineMotionCrowd } from "./AutoMovieEngineMotionCrowd";
+export { AutoMovieEngineMotionHydrodynamics } from "./AutoMovieEngineMotionHydrodynamics";
 
 
-export * from "./minimumJerk";
 
-export * from "./orientChainEffector";
-export * from "./pinStanceTargets";
-export * from "./plantStanceFeet";
-export * from "./prepareChainPlant";
-export * from "./prepareChainConstants";
-export * from "./prepareChainRigConstants";
-export * from "./placeChainPlant";
-export * from "./prepareJointRotationProjection";
+// The chain preparation and planting operations are exported by their owner.
+export * from "./AutoMovieEngineMotionJointProjection";
 
 
-export * from "./rekeyPlantedFeet";
-export * from "./resolveBoneMap";
-export * from "./resolvePreparedChainEffector";
+// Prepared chain effector resolution is part of the Planting owner.
 
 
-export * from "./seededSmoothNoise";
 
 
-export * from "./solvePreparedChainPlant";
-export * from "./solveDistalTwist";
-export * from "./speedProfile";
-export * from "./splitDistalTwist";
-export * from "./steerAutoMovieCrowd";
-export * from "./superposeMinimumJerk";
+// Prepared chain solving is part of the Planting owner.
+export * from "./AutoMovieEngineMotionDistalTwist";
+export * from "./AutoMovieEngineMotionChainTwist";
 
 
 

@@ -129,7 +129,7 @@ export namespace AutoMovieArchetypeEquineGait {
    * gallop at 0.8 m/s, a 170 kg pony at 5 m/s." The coefficient of the paper's
    * Table 2 is unread (the journal's PDF refused the fetch and the summary
    * gives no table), so the pony's point anchors the power law; the same page
-   * notes the paper's horse masses are given inconsistently. `rideHorse`'s spec
+   * notes the paper's horse masses are given inconsistently. `AutoMovieArchetypeHorseRide.ride`'s spec
    * checks that the speed falls inside the trot's and the canter's measured
    * ranges.
    */

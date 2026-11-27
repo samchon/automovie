@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -150,13 +150,13 @@ function frameAt(
     if (seconds <= move.from) return stable;
     if (seconds < move.to) {
       const share: number = (seconds - move.from) / (move.to - move.from);
-      const blend: number = minimumJerk.share(share);
+      const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(share);
       const position: IAutoMovieVector3 = Vector3.lerp(
         move.floor[0].position,
         move.floor[1].position,
         blend,
       );
-      const height: number = minimumJerk.share(2 * Math.min(share, 1 - share));
+      const height: number = AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(share, 1 - share));
       return {
         position: { ...position, y: position.y + LIFT * height },
         rotation: Quaternion.slerp(
@@ -381,7 +381,7 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
       const frame: IAutoMovieRigidTransform = frameAt(moves, start, seconds);
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
       const joints: IAutoMovieMotionHumanPosture["joints"] = { ...base.joints };
-      const share: number = minimumJerk.share(
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(1, Math.max(0, seconds / ready)),
       );
       for (const hand of hands) {

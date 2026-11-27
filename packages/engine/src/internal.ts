@@ -5,5 +5,8 @@ export { unsupportedAutoMovieMaterialExtensions } from "./validation/internal/un
 export { validateUniqueIds } from "./validation/internal/validateUniqueIds";
 export { violation } from "./validation/internal/violation";
 export { validateExpression } from "./validation/internal/validateExpression";
+export { appendGraphCycles } from "./validation/internal/appendGraphCycles";
+export { validatePose } from "./validation/internal/validatePose";
+export { collectDeclaredIds } from "./validation/internal/collectDeclaredIds";
 export * from "./film/internal";
 export { trianglesOf } from "./geometry/planar-region/internal/trianglesOf";

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -155,7 +155,7 @@ function planHumanBikeGuide(
     z: handle.z - BEHIND,
   };
   const held = (t: number): IAutoMovieVector3 =>
-    Vector3.lerp(entered, station, minimumJerk.share(Math.min(1, t / ADJUST)));
+    Vector3.lerp(entered, station, AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / ADJUST)));
   const heading0: number = HumanBikeGuideHeading(origin.rotation);
   const path: HumanBikeGuidePath.IPath = {
     times: [],

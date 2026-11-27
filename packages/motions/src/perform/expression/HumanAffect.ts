@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 import type {
   AutoMovieHumanoidBone,
@@ -166,7 +166,7 @@ export namespace HumanAffect {
       case "sigh": {
         const inhale: number = INHALE.progress(u);
         const exhale: number = EXHALE.progress(u);
-        const close: number = 1 - minimumJerk.share((u - 0.85) / 0.15);
+        const close: number = 1 - AutoMovieEngineMotionSampling.minimumJerkShare((u - 0.85) / 0.15);
         const shoulders: number = k * (6 * inhale - 8 * exhale) * close;
         write(joints, additive, "leftShoulder", 0, shoulders, 0);
         write(joints, additive, "rightShoulder", 0, shoulders, 0);
@@ -194,13 +194,13 @@ export namespace HumanAffect {
         break;
       }
       case "sneeze": {
-        const build: number = minimumJerk.share(u / SNEEZE_BUILD);
+        const build: number = AutoMovieEngineMotionSampling.minimumJerkShare(u / SNEEZE_BUILD);
         const burst: number = pulse(
           t - SNEEZE_BUILD * seconds,
           SNEEZE_BURST,
           (1 - SNEEZE_BUILD) * seconds - SNEEZE_BURST,
         );
-        const end: number = 1 - minimumJerk.share((u - SNEEZE_BUILD) / 0.05);
+        const end: number = 1 - AutoMovieEngineMotionSampling.minimumJerkShare((u - SNEEZE_BUILD) / 0.05);
         write(
           joints,
           additive,
@@ -352,8 +352,8 @@ export namespace HumanAffect {
  */
 function ramp(u: number, rise: number, fall: number): number {
   return Math.min(
-    minimumJerk.share(u / rise),
-    minimumJerk.share((1 - u) / fall),
+    AutoMovieEngineMotionSampling.minimumJerkShare(u / rise),
+    AutoMovieEngineMotionSampling.minimumJerkShare((1 - u) / fall),
   );
 }
 
@@ -365,8 +365,8 @@ function pulse(x: number, up: number, down: number): number {
   return x <= 0
     ? 0
     : x < up
-      ? minimumJerk.share(x / up)
-      : 1 - minimumJerk.share((x - up) / down);
+      ? AutoMovieEngineMotionSampling.minimumJerkShare(x / up)
+      : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((x - up) / down);
 }
 
 /** Write one bone's angles, or add them to the bone's own. */

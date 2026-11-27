@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3, minimumJerk } from "@automovie/engine";
+import { ROM_TOLERANCE, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -261,7 +261,7 @@ export namespace stagger {
         // mass from the pendulum's course (`shiftAt`), and the
         // pelvis is settled where that puts it, under the trunk's tilt: the
         // legs are fitted to the hips the pose shows.
-        const reacting: number = minimumJerk.share(seconds / reaction);
+        const reacting: number = AutoMovieEngineMotionSampling.minimumJerkShare(seconds / reaction);
         const shift: IAutoMovieVector3 = Vector3.scale(
           shiftAt(seconds),
           reacting,

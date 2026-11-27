@@ -1,4 +1,4 @@
-import { AutoMovieXpbdBody, AutoMovieXpbdWorld, AutoMoviePhysicalPlayback as Playback, Quaternion, AutoMoviePhysicalSimulation as Simulation, Vector3, advancePhysicalOwnership, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieXpbdBody, AutoMovieXpbdWorld, AutoMoviePhysicalPlayback as Playback, Quaternion, AutoMoviePhysicalSimulation as Simulation, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
   IAutoMoviePhysicalSegment,
@@ -192,7 +192,7 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
     ...baseline.input.bodies[0]!.targets[49]!,
     dynamicSegments: ["child"],
   };
-  const goals: Parameters<typeof advancePhysicalOwnership>[0]["goals"] = {};
+  const goals: Parameters<typeof AutoMovieEnginePhysics.advancePhysicalOwnership>[0]["goals"] = {};
   for (const [bone, pose] of Object.entries(target.segments))
     goals[bone] = Simulation.sampleTarget(
       baseline.input.bodies[0]!.targets[48]!.segments[bone]!,
@@ -200,7 +200,7 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
       1,
       120,
     );
-  advancePhysicalOwnership({
+  AutoMovieEnginePhysics.advancePhysicalOwnership({
     body: baseline.input.bodies[0]!,
     target,
     bound,

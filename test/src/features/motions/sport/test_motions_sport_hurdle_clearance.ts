@@ -1,4 +1,4 @@
-import { Quaternion, physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -53,7 +53,7 @@ export async function test_motions_sport_hurdle_clearance(): Promise<void> {
     const shown = actual.find((segment): boolean => segment.bone === bone)!;
     const boxes: IAutoMoviePhysicalShapeBounds.IResult[] = shown.shapes.map(
       (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShapeBounds.IResult =>
-        physicalShapeBounds(shown.pose, shape),
+        AutoMovieEnginePhysics.physicalShapeBounds(shown.pose, shape),
     );
     const face: number = Math.max(...boxes.map((box): number => box.max.x));
     const edge = boxes.find((box): boolean => box.max.x === face)!;

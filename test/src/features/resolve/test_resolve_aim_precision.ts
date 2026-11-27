@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineMath, Matrix4, Quaternion, AutoMovieEngineResolve } from "@automovie/engine";
 import { IAutoMovieAimDriver, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

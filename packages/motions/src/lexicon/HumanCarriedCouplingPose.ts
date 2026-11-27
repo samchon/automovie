@@ -1,22 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionCoupling,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCarried,
-  IAutoMovieMotionHumanCarriedCouplingPose,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { stand } from "../actions/internal/stand";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -227,7 +210,7 @@ export namespace HumanCarriedCouplingPose {
           bearer.body.surfaces.regions[contact.on.region];
         const bone: IAutoMovieResolvedBone = bearer.bones.get(surface.bone)!;
         const at: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
-          resolveAutoMovieHumanoidSurfaces.pointNormal(surface, bone);
+          AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(surface, bone);
         const goal: IAutoMovieHumanLimbGoal = palm(placed, {
           point: Vector3.add(
             root,
@@ -358,7 +341,7 @@ export namespace HumanCarriedCouplingPose {
         reason: `the rig has no bone ${frame.bone} for the region ${name}`,
         fix: "carry on a body of the canonical humanoid rig",
       });
-    return resolveAutoMovieHumanoidSurfaces.point(frame, bone);
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(frame, bone);
   }
 }
 

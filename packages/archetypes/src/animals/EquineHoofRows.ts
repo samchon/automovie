@@ -1,4 +1,7 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeFrame } from "../core";
@@ -110,7 +113,7 @@ export namespace EquineHoofRows {
         [limb]: { kind: "placed", anchor, fold: 0 },
       },
     });
-    const time: number = minimumJerk.time(LOAD);
+    const time: number = AutoMovieEngineMotionSampling.minimumJerkTime(LOAD);
     return {
       cue,
       start,
@@ -134,7 +137,7 @@ export namespace EquineHoofRows {
               EquineStanceSupport.arc(
                 place,
                 back,
-                minimumJerk.share((share - LOAD) / (1 - LOAD)),
+                AutoMovieEngineMotionSampling.minimumJerkShare((share - LOAD) / (1 - LOAD)),
                 PAW.lift / 2,
               ),
             ),
@@ -149,10 +152,10 @@ export namespace EquineHoofRows {
             ? EquineStanceSupport.arc(
                 back,
                 front,
-                minimumJerk.share(u / 0.5),
+                AutoMovieEngineMotionSampling.minimumJerkShare(u / 0.5),
                 PAW.lift,
               )
-            : Vector3.lerp(front, back, minimumJerk.share((u - 0.5) / 0.5)),
+            : Vector3.lerp(front, back, AutoMovieEngineMotionSampling.minimumJerkShare((u - 0.5) / 0.5)),
         );
       },
     };
@@ -181,7 +184,7 @@ export namespace EquineHoofRows {
       y: STAMP,
       z: 0,
     });
-    const time: number = minimumJerk.time(LOAD);
+    const time: number = AutoMovieEngineMotionSampling.minimumJerkTime(LOAD);
     return {
       cue,
       start,
@@ -242,7 +245,7 @@ export namespace EquineHoofRows {
       anchor: start.anchors[limb],
       fold: 0,
     });
-    const time: number = minimumJerk.time(LOAD);
+    const time: number = AutoMovieEngineMotionSampling.minimumJerkTime(LOAD);
     return {
       cue,
       start,

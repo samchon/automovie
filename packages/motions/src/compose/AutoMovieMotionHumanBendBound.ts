@@ -1,4 +1,4 @@
-import { decomposeJointRotationOnBasis, swivelJointReadings, type AutoMovieEngineKinematicsTypes } from "@automovie/engine";
+import { swivelJointReadings, type AutoMovieEngineKinematicsTypes, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
 import type {
   IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
@@ -107,7 +107,7 @@ export namespace AutoMovieMotionHumanBendBound {
    */
   export function prepare(
     props: IProps,
-  ): NonNullable<AutoMovieEngineKinematicsTypes.HingedArmArticulation.IProps["bound"]> {
+  ): NonNullable<AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps["bound"]> {
     const halves: AutoMovieMotionHumanBendStrain.IHalves =
       AutoMovieMotionHumanBendStrain.halvesOf(props.range);
     const unmade: ReturnType<
@@ -118,7 +118,7 @@ export namespace AutoMovieMotionHumanBendBound {
         : AutoMovieMotionHumanBendUnmadeBound.prepare(props.hand);
     return (
       upper: (swivel: number) => IAutoMovieQuaternion,
-      posed: Parameters<NonNullable<AutoMovieEngineKinematicsTypes.HingedArmArticulation.IProps["bound"]>>[1],
+      posed: Parameters<NonNullable<AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps["bound"]>>[1],
     ): ((low: number, high: number) => number) => {
       const shoulder: (low: number, high: number) => number = shoulderOf(
         props,
@@ -245,7 +245,7 @@ function premised(
   readings: Record<swivelJointReadings.Axis, swivelJointReadings.IRead>,
 ): boolean {
   for (const swivel of [45, 225]) {
-    const actual: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+    const actual: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
       upper(swivel),
       basis,
     );

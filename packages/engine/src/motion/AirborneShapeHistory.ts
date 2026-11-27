@@ -1,16 +1,9 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMomentum,
-  IAutoMovieIntegrateAirborneRotation,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
+import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieIntegrateAirborneRotation, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
+
 import type { AutoMovieEngineKinematicsTypes } from "../kinematics/AutoMovieEngineKinematicsTypes";
-import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
+
 import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -20,7 +13,7 @@ import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeReduction } from "./AirborneShapeReduction";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
-import type { integrateAirborneRotation } from "./integrateAirborneRotation";
+import type { AutoMovieEngineMotionAirborneRotation } from "./AutoMovieEngineMotionAirborneRotation";
 
 /** The numeric sufficient statistics that survive a shape query. */
 type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
@@ -29,10 +22,10 @@ type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
 type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
 
 /** The memo's explicit owner can clear it after planning. */
-type ICachedHistory = integrateAirborneRotation.ICachedHistory;
+type ICachedHistory = AutoMovieEngineMotionAirborneRotation.ICachedHistory;
 
 /** A private exact-time mass node retains only numeric physical sufficient data. */
-interface INode extends resolveAutoMovieMomentum.IPosed {
+interface INode extends AutoMovieEngineKinematics.IPosedBody {
   /** Rated nodes admit their tensor before evaluating the current rate producer. */
   rated?: {
     /** The same actual posed node's aggregate root-frame tensor. */
@@ -66,7 +59,7 @@ interface INode extends resolveAutoMovieMomentum.IPosed {
 export function AirborneShapeHistory(
   model:
     | IAutoMovieResolveCenterOfMass.IModel
-    | prepareAutoMovieMassModel.IPrepared,
+    | AutoMovieEngineKinematics.IPreparedMassModel,
   shape: (
     seconds: number,
   ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -124,7 +117,7 @@ export function AirborneShapeHistory(
               ): AutoMovieHumanoidBone => segment.bone,
             ),
           )
-        : prepareAutoMovieMassModel.bones(model);
+        : AutoMovieEngineKinematics.prepareAutoMovieMassModelBones(model);
 
   // Only the two boundary stencils recur at different query times.
   // Their numeric moments are sufficient; their bones need not survive.
@@ -141,14 +134,14 @@ export function AirborneShapeHistory(
     if (known !== undefined) return known;
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       shape(at);
-    const posed: resolveAutoMovieMomentum.IPosed = pose(bones);
+    const posed: AutoMovieEngineKinematics.IPosedBody = pose(bones);
 
     // Nodes never escape this history. Their fixed moments can share a
     // private numeric copy, while public pose outputs keep their isolation.
     intrinsicMoments.length = posed.parts.length;
     principalRotations.length = posed.parts.length;
     for (let i: number = 0; i < posed.parts.length; i++) {
-      const part: resolveAutoMovieMomentum.IPosed["parts"][number] =
+      const part: AutoMovieEngineKinematics.IPosedBody["parts"][number] =
         posed.parts[i]!;
       let fixed: IAutoMovieVector3 | undefined = intrinsicMoments[i];
       if (
@@ -193,7 +186,7 @@ export function AirborneShapeHistory(
           ? undefined
           : "segments" in model
             ? resolveAutoMovieMomentumRates(model, posed, bones, rates)
-            : prepareAutoMovieMassModel.rates(model, posed, bones, rates);
+            : AutoMovieEngineKinematics.prepareAutoMovieMassModelRates(model, posed, bones, rates);
       node.rated = { matrix, relative: instantaneous?.angular };
     }
     poses.set(at, node);
@@ -204,8 +197,8 @@ export function AirborneShapeHistory(
     from: number,
     to: number,
   ): IAutoMovieVector3 => {
-    const before: resolveAutoMovieMomentum.IPosed = read(from);
-    const after: resolveAutoMovieMomentum.IPosed = read(to);
+    const before: AutoMovieEngineKinematics.IPosedBody = read(from);
+    const after: AutoMovieEngineKinematics.IPosedBody = read(to);
     return interval(before, after, to - from).angular;
   };
   const evaluate: (seconds: number) => IInstant = (
@@ -297,7 +290,7 @@ export namespace AirborneShapeHistory {
     seconds: number,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ) =>
-    | ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>
+    | ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate>
     | undefined;
 
   /**

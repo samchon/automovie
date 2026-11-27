@@ -1,3 +1,4 @@
+import type { AutoMovieEngineSound } from "@automovie/engine";
 import type * as Render from "@automovie/render";
 import type { AutoMovieCliRenderTypes } from "./AutoMovieCliRenderTypes";
 import { AUTOMOVIE_RENDER_OPTIONS } from "./internal/AUTOMOVIE_RENDER_OPTIONS";
@@ -14,11 +15,12 @@ export namespace AutoMovieCliRender {
     host: {
       render: Pick<
         typeof Render,
-        | "renderAutoMovieDrawnVideo"
-        | "createAutoMovieLoudnessMeter"
+        | "AutoMovieRenderVideo"
         | "AUTOMOVIE_MP4_SRGB_COLOUR"
         | "AutoMovieRenderDelivery"
-      >;
+      > & {
+        createAutoMovieLoudnessMeter: typeof AutoMovieEngineSound.createLoudnessMeter;
+      };
       session(props: {
         /** Name of the subject, or null for the page's only subject. */
         subject: string | null;

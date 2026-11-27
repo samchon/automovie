@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
@@ -274,7 +274,7 @@ export namespace workout {
         length > 1e-9
           ? Math.min(1, Math.max(0, (seconds - opened) / length))
           : 1;
-      const u: number = minimumJerk.share(x);
+      const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(x);
       const key: IAutoMovieMotionHumanExerciseKey.IKey = blends[index]!(u);
       const placed: IAutoMovieMotionHumanPosture = pin(
         emptyBar === undefined ? key : emptyBar(key),
@@ -347,7 +347,7 @@ export namespace workout {
             entered,
             workAt,
             (seconds: number): number =>
-              minimumJerk.share(clock.progress("enter", work, seconds)),
+              AutoMovieEngineMotionSampling.minimumJerkShare(clock.progress("enter", work, seconds)),
             workoutPosture,
             entered,
           );

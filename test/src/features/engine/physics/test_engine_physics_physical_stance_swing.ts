@@ -1,8 +1,8 @@
 import {
   AutoMoviePhysicalBalance,
   Quaternion,
-  physicalStanceBalance,
-  physicalStanceSwing,
+  AutoMovieEnginePhysicalStanceBalance,
+  AutoMovieEnginePhysicalStanceSwing,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -50,19 +50,19 @@ export function test_engine_physics_physical_stance_swing(): void {
     if (actual !== expected) failures.push(`${name}: ${actual}`);
   };
   const W: number = 700;
-  const { RELEASE, TOUCH, DWELL, TORSO_ERROR }: typeof physicalStanceBalance =
-    physicalStanceBalance;
+  const { RELEASE, TOUCH, DWELL, TORSO_ERROR }: typeof AutoMovieEnginePhysicalStanceBalance =
+    AutoMovieEnginePhysicalStanceBalance;
   const dt: number = 1 / 960;
 
   // 1. Lift-off on the measured load alone.
   const release = (bearing: number, load: number): boolean =>
-    physicalStanceBalance.release({ bearing, load, weight: W });
+    AutoMovieEnginePhysicalStanceBalance.release({ bearing, load, weight: W });
   check("ramping limb", release(0.4, 0), false);
   check("loaded limb", release(0, 1.5 * RELEASE * W), false);
   check("unloaded limb", release(0, 0.5 * RELEASE * W), true);
 
   // 2. Early touchdown on the second successive substep.
-  const first = physicalStanceBalance.touchdown({
+  const first = AutoMovieEnginePhysicalStanceBalance.touchdown({
     load: 800,
     weight: W,
     cleared: true,
@@ -72,7 +72,7 @@ export function test_engine_physics_physical_stance_swing(): void {
     dt,
   });
   check("touch starts", first.since === 1 && !first.landed, true);
-  const held = physicalStanceBalance.touchdown({
+  const held = AutoMovieEnginePhysicalStanceBalance.touchdown({
     load: 800,
     weight: W,
     cleared: true,
@@ -82,7 +82,7 @@ export function test_engine_physics_physical_stance_swing(): void {
     dt,
   });
   check("held touch rejoins", held.landed, true);
-  const scuff = physicalStanceBalance.touchdown({
+  const scuff = AutoMovieEnginePhysicalStanceBalance.touchdown({
     load: 0.5 * TOUCH * W,
     weight: W,
     cleared: true,
@@ -100,7 +100,7 @@ export function test_engine_physics_physical_stance_swing(): void {
     let landed: boolean = false;
     for (let i: number = 0; i < 8; i++) {
       const pressed: { since?: number; landed: boolean } =
-        physicalStanceBalance.touchdown({
+        AutoMovieEnginePhysicalStanceBalance.touchdown({
           load: 800,
           weight: W,
           cleared,
@@ -135,28 +135,28 @@ export function test_engine_physics_physical_stance_swing(): void {
   // 3. The second step waits for the landing ramp and the dwell.
   check(
     "ramping landing",
-    physicalStanceBalance.ready({ landing: 0.5, outside: 0, seconds: 1 }),
+    AutoMovieEnginePhysicalStanceBalance.ready({ landing: 0.5, outside: 0, seconds: 1 }),
     false,
   );
   check(
     "fresh excursion",
-    physicalStanceBalance.ready({ outside: 1, seconds: 1 + DWELL / 2 }),
+    AutoMovieEnginePhysicalStanceBalance.ready({ outside: 1, seconds: 1 + DWELL / 2 }),
     false,
   );
   check(
     "held excursion",
-    physicalStanceBalance.ready({ landing: 1, outside: 1, seconds: 1 + DWELL }),
+    AutoMovieEnginePhysicalStanceBalance.ready({ landing: 1, outside: 1, seconds: 1 + DWELL }),
     true,
   );
   check(
     "inside",
-    physicalStanceBalance.ready({ outside: undefined, seconds: 1 }),
+    AutoMovieEnginePhysicalStanceBalance.ready({ outside: undefined, seconds: 1 }),
     false,
   );
 
   // 4. Tilt guard: 0.3 rad tilt, rate |k_h| / I_h = 2 rad/s, omega 4: 0.8.
   const tipping = (momentum: { x: number; y: number; z: number }): boolean =>
-    physicalStanceBalance.tipping({
+    AutoMovieEnginePhysicalStanceBalance.tipping({
       tilt: 0.3,
       momentum,
       inertia: 10,
@@ -175,13 +175,13 @@ export function test_engine_physics_physical_stance_swing(): void {
     { x: 1, y: 0, z: 0 },
     ((TORSO_ERROR / 2) * 180) / Math.PI,
   );
-  const kept = physicalStanceBalance.saturate(identity, small, TORSO_ERROR);
+  const kept = AutoMovieEnginePhysicalStanceBalance.saturate(identity, small, TORSO_ERROR);
   if (
     !(Math.abs(angleOf(kept) - TORSO_ERROR / 2) < PhysicalTolerance.ACCUMULATED)
   )
     failures.push(`a small error became ${angleOf(kept)}`);
   const large = Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 60);
-  const cut = physicalStanceBalance.saturate(identity, large, TORSO_ERROR);
+  const cut = AutoMovieEnginePhysicalStanceBalance.saturate(identity, large, TORSO_ERROR);
   if (
     !(Math.abs(angleOf(cut) - TORSO_ERROR) < PhysicalTolerance.ACCUMULATED) ||
     !(cut.z > 0)
@@ -189,7 +189,7 @@ export function test_engine_physics_physical_stance_swing(): void {
     failures.push(`a large error became ${angleOf(cut)} about ${cut.z}`);
 
   // 6. The swing's drive: 6.2 kg at rest, then accelerating.
-  const rest = physicalStanceSwing.swingForce({
+  const rest = AutoMovieEnginePhysicalStanceSwing.swingForce({
     mass: 6.2,
     gravity: 9.81,
     acceleration: { x: 0, y: 0, z: 0 },
@@ -200,7 +200,7 @@ export function test_engine_physics_physical_stance_swing(): void {
     rest.z !== 0
   )
     failures.push(`a resting swing is driven by ${JSON.stringify(rest)}`);
-  const moving = physicalStanceSwing.swingForce({
+  const moving = AutoMovieEnginePhysicalStanceSwing.swingForce({
     mass: 6.2,
     gravity: 9.81,
     acceleration: { x: 1, y: -2, z: 3 },
@@ -226,7 +226,7 @@ export function test_engine_physics_physical_stance_swing(): void {
   };
   near(
     "hip-bound swing",
-    physicalStanceSwing.swingBound({ effective: 2, length: 0.8, torque: 160 }),
+    AutoMovieEnginePhysicalStanceSwing.swingBound({ effective: 2, length: 0.8, torque: 160 }),
     160 / (2 * 0.8),
   );
   near("shortest swing", AutoMoviePhysicalBalance.duration(0.01, 0, 100), 0.3);
@@ -237,16 +237,16 @@ export function test_engine_physics_physical_stance_swing(): void {
   );
   near(
     "lowered clearance",
-    physicalStanceSwing.clearance(0.3, 8, 1, 9.81, 0.1),
-    (physicalStanceSwing.LIFT_SHARE * 8 * 9.81 * 0.09) /
+    AutoMovieEnginePhysicalStanceSwing.clearance(0.3, 8, 1, 9.81, 0.1),
+    (AutoMovieEnginePhysicalStanceSwing.LIFT_SHARE * 8 * 9.81 * 0.09) /
       AutoMoviePhysicalBalance.CLEARANCE,
   );
   near(
     "kept clearance",
-    physicalStanceSwing.clearance(1, 8, 1, 9.81, 0.1),
+    AutoMovieEnginePhysicalStanceSwing.clearance(1, 8, 1, 9.81, 0.1),
     0.1,
   );
-  const shifted: IAutoMovieVector3 = physicalStanceSwing.spin(
+  const shifted: IAutoMovieVector3 = AutoMovieEnginePhysicalStanceSwing.spin(
     { x: 2, y: 0, z: -1 },
     3,
     80,

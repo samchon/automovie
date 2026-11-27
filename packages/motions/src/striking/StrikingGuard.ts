@@ -1,15 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanGuard,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanStrikingStance,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGuard, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingStance, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
 import { StrikingBody } from "./StrikingBody";
@@ -59,7 +50,7 @@ export function StrikingGuard(
     "face",
   );
   const forward: IAutoMovieVector3 = horizontal(
-    resolveAutoMovieHumanoidSurfaces.normal(
+    AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceNormal(
       faceFrame,
       bones.get(faceFrame.bone)!,
     ),

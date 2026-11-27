@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionContext,
@@ -63,10 +63,10 @@ export namespace kuzushi {
   export function tipped(hold: number, seconds: number): number {
     const t: number = Math.min(2 * TIP + hold, Math.max(0, seconds));
     return t < TIP
-      ? minimumJerk.share(t / TIP)
+      ? AutoMovieEngineMotionSampling.minimumJerkShare(t / TIP)
       : t <= TIP + hold
         ? 1
-        : 1 - minimumJerk.share((t - TIP - hold) / TIP);
+        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - TIP - hold) / TIP);
   }
   /**
    * Plan a broken base.

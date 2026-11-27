@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanArmGeometry } from "@automovie/interface";
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
@@ -126,7 +126,7 @@ export function HumanArmTrajectoryLay(
     );
     if (tried !== undefined) {
       for (let k: number = from + 1; k < to; ++k) {
-        shares[k] = minimumJerk.share((times[k]! - times[from]!) / seconds);
+        shares[k] = AutoMovieEngineMotionSampling.minimumJerkShare((times[k]! - times[from]!) / seconds);
         x.forEach((arm: number[][], a: number): void => {
           arm[k] = M.ranged(context, a, tried[a]![k - from]!);
         });
@@ -145,7 +145,7 @@ export function HumanArmTrajectoryLay(
   let s: number = 1;
   for (let k: number = from + 1; k < to; ++k) {
     const w: number = (times[k]! - times[from]!) / seconds;
-    const reached: number = arc * minimumJerk.share(w);
+    const reached: number = arc * AutoMovieEngineMotionSampling.minimumJerkShare(w);
     while (s < ARC && along[s]! < reached) ++s;
     const span: number = along[s]! - along[s - 1]!;
     const share: number =

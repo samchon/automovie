@@ -1,6 +1,6 @@
 import {
-  physicalShapeBounds,
-  physicalShapePairDistance,
+
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -84,7 +84,7 @@ export function crossingClearance(
         shapes: fixture.prop.shapes.map(
           (shape: IAutoMoviePhysicalShape): IFixtureShape => ({
             shape,
-            bounds: physicalShapeBounds(pose, shape),
+            bounds: AutoMovieEnginePhysics.physicalShapeBounds(pose, shape),
           }),
         ),
       };
@@ -127,7 +127,7 @@ export function crossingClearance(
     for (const segment of placed(readBones(posed))) {
       for (const shape of segment.shapes) {
         const bounds: IAutoMoviePhysicalShapeBounds.IResult =
-          physicalShapeBounds(segment.pose, shape);
+          AutoMovieEnginePhysics.physicalShapeBounds(segment.pose, shape);
         for (const fixture of fixtures) {
           const allowance: number = bearing(
             plan.contacts,
@@ -139,7 +139,7 @@ export function crossingClearance(
             : (options.allowance ?? ROOM);
           for (const barrier of fixture.shapes) {
             if (!overlap(bounds, barrier.bounds)) continue;
-            const gap: number = physicalShapePairDistance(
+            const gap: number = AutoMovieEnginePhysics.physicalShapePairDistance(
               segment.pose,
               shape,
               fixture.pose,

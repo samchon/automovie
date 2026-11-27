@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -103,16 +103,16 @@ export namespace KickCarriage {
     seconds: number,
     turning: number,
   ): IMotion {
-    const recovery: number = minimumJerk.share(
+    const recovery: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       (turning - timing.impact) / (timing.duration - timing.impact),
     );
-    const weight: number = minimumJerk.share(turning / timing.chamber) - recovery;
-    const stepped: number = carriage.step * minimumJerk.share(
+    const weight: number = AutoMovieEngineMotionSampling.minimumJerkShare(turning / timing.chamber) - recovery;
+    const stepped: number = carriage.step * AutoMovieEngineMotionSampling.minimumJerkShare(
       (seconds - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
     );
     const driven: number = carriage.drive === 0
       ? 0
-      : carriage.drive * (minimumJerk.share(
+      : carriage.drive * (AutoMovieEngineMotionSampling.minimumJerkShare(
           (turning - timing.chamber) / Math.max(1e-3, timing.impact - timing.chamber),
         ) - recovery);
     return { weight, stepped, driven };

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBikeGuideStance } from "./HumanBikeGuideStance";
@@ -29,7 +29,7 @@ export function HumanBikeGuidePlace(
         now.lift,
         ball,
       );
-      const share: number = minimumJerk.share(
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         (t - now.lift) / (next.land - now.lift),
       );
       const ankle: IAutoMovieVector3 = Vector3.lerp(

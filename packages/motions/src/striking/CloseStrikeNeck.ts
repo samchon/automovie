@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -127,8 +127,8 @@ export namespace CloseStrikeNeck {
     duration: number,
   ): number {
     return seconds <= release
-      ? minimumJerk.share(Math.min(1, seconds / take))
-      : 1 - minimumJerk.share((seconds - release) / (duration - release));
+      ? AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, seconds / take))
+      : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - release) / (duration - release));
   }
 
   /**

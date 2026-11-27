@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
-import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * Release owned tier geometry, material objects and every declared gait table.

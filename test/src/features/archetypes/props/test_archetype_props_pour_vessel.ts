@@ -1,5 +1,5 @@
 import { AutoMovieArchetypePourVessel } from "@automovie/archetypes";
-import { Quaternion, physicalShapeSegmentDistance, AutoMovieEngineGeometry } from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysics, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -222,7 +222,7 @@ function separation(
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
-  return physicalShapeSegmentDistance(pose, shape, from, to);
+  return AutoMovieEnginePhysics.physicalShapeSegmentDistance(pose, shape, from, to);
 }
 
 /**

@@ -1,16 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanSupportCarry,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSupportCarry, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
@@ -112,7 +101,7 @@ function kneel(
     body.surfaces.regions[side === "left" ? "kneeLeft" : "kneeRight"];
   const front = side === "left" ? "right" : "left";
   const read = poseBones(body, entry.pose, undefined, new Set([region.bone]));
-  const knee: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+  const knee: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
     region,
     read.get(region.bone)!,
   ).point;

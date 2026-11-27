@@ -1,7 +1,7 @@
-import { tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanInteractionMesh,
-  IAutoMovieTetrahedralizeDelaunay,
+  IAutoMovieTetrahedralizedMesh,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -22,7 +22,7 @@ import { humanInteractionMeshShape } from "./internal/humanInteractionMeshShape"
  * points coinciding or held at a fixed offset.
  *
  * - **Mesh.** The Delaunay tetrahedralization of the points
- *   (`tetrahedralizeAutoMovieDelaunay`, Bowyer-Watson on Qhull's joggled
+ *   (`AutoMovieEngineMath.tetrahedralizeDelaunay`, Bowyer-Watson on Qhull's joggled
  *   input). Its edges are the points' neighbourhoods.
  * - **Laplacian coordinates.** Each point's offset from the inverse-distance
  *   weighted mean of its neighbours, excluding bone edges so deformation does
@@ -80,9 +80,9 @@ export namespace HumanInteractionMesh {
     for (const contact of props.contacts)
       if (!inside(contact.a) || !inside(contact.b))
         throw new Error(`A contact ${contact.a}-${contact.b} needs two points`);
-    const mesh: IAutoMovieTetrahedralizeDelaunay.IMesh =
-      props.mesh ?? tetrahedralizeAutoMovieDelaunay(props.reference);
-    const neighbours: number[][] = tetrahedralizeAutoMovieDelaunay.neighbours(
+    const mesh: IAutoMovieTetrahedralizedMesh =
+      props.mesh ?? AutoMovieEngineMath.tetrahedralizeDelaunay(props.reference);
+    const neighbours: number[][] = AutoMovieEngineMath.delaunayNeighbours(
       mesh,
       n,
     );

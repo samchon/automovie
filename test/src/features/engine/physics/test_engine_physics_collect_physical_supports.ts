@@ -2,7 +2,7 @@ import {
   type AutoMovieXpbdBody,
   type AutoMovieXpbdCollider,
   AutoMovieXpbdWorld,
-  collectPhysicalSupports as collect,
+  AutoMoviePhysicalSupportCollector as Collector,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSegment,
@@ -27,7 +27,7 @@ const FLOOR_FRICTION: number = 0.3;
 const BOX_FRICTION: number = 0.9;
 
 /**
- * `collectPhysicalSupports` reads a body's supports from one solver step: the
+ * `AutoMoviePhysicalSupportCollector` reads a body's supports from one solver step: the
  * floor points that step's manifold found pressing under a downward-facing
  * normal, with the pair's own combined friction, and a support loaded only by a
  * positive floor impulse.
@@ -180,7 +180,7 @@ export async function test_engine_physics_collect_physical_supports(): Promise<v
         { body: "floor", bone: "floor", shape: "floor", material: "floor" },
       ],
     ]);
-    const actual: ReturnType<typeof collect> = collect({
+    const actual: ReturnType<typeof Collector.collect> = Collector.collect({
       world,
       body: "box",
       profile,
@@ -307,7 +307,7 @@ function landing(): boolean[] {
   for (const tick of [1, 2]) {
     if (tick === 2) rigid.resetForces();
     world.step();
-    const supports = collect({
+    const supports = Collector.collect({
       world,
       body: "assembly",
       profile,

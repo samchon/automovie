@@ -12,7 +12,7 @@ import type {
 
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
-import type { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
+import type { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { Quaternion } from "../../math/Quaternion";
 
 /**

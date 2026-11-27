@@ -14,7 +14,7 @@ import { QuadrupedCorner } from "./QuadrupedCorner";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedTail } from "./QuadrupedTail";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A quadruped ride's techniques and terrain, prepared once for its route: the
@@ -76,7 +76,7 @@ export namespace EquineRideTerrain {
   export function prepare<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
     species: AutoMovieArchetypeQuadruped.ISpecies,
-    course: rideQuadruped.ICourse,
+    course: AutoMovieArchetypeQuadruped.IRideCourse,
     plan: AutoMovieArchetypeCourse.IPlan,
     gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
     rig: ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>,

@@ -1,15 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanBodyFitTypes,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSupport,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFoot } from "../../posture/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -77,7 +68,7 @@ import { supportContact } from "./supportContact";
       ? bones
       : poseBones(body, resolveHumanPosture(body, preferred), undefined, names);
   return feet.map((foot: IHeel): IAutoMovieMotionHumanBodyFitTypes.ITarget => {
-    const heel: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+    const heel: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
       foot.frame,
       bones.get(foot.frame.bone)!,
     );

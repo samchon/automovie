@@ -1,4 +1,4 @@
-import { transformedBoxBounds } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieSubjectBox } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,7 +22,7 @@ export function test_engine_math_transformed_box_bounds(): void {
   };
   TestValidator.equals(
     "translation",
-    transformedBoxBounds(
+    AutoMovieEngineMath.transformedBoxBounds(
       box,
       [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 0, 0, 1],
     ),
@@ -30,7 +30,7 @@ export function test_engine_math_transformed_box_bounds(): void {
   );
   TestValidator.equals(
     "quarter turn",
-    transformedBoxBounds(
+    AutoMovieEngineMath.transformedBoxBounds(
       box,
       [0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
     ),
@@ -38,7 +38,7 @@ export function test_engine_math_transformed_box_bounds(): void {
   );
   TestValidator.equals(
     "mirror",
-    transformedBoxBounds(
+    AutoMovieEngineMath.transformedBoxBounds(
       box,
       [-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
     ),

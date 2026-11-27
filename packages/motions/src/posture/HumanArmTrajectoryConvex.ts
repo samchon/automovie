@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
@@ -350,7 +350,7 @@ export namespace HumanArmTrajectoryConvex {
           if (-pair.short > T.CHECK) continue;
           const p: IAutoMovieVector3 =
             c.frames[a]![k]!.body[pair.corner]!.point;
-          const g: IAutoMovieVector3 = physicalShapeNormal(
+          const g: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalShapeNormal(
             pair.shape.pose,
             pair.shape.shape,
             p,
@@ -382,7 +382,7 @@ export namespace HumanArmTrajectoryConvex {
           const a: number = pair.a;
           const b: number = 1 - a;
           const p: IAutoMovieVector3 = at.placed[a]![k]!.probes[pair.probe]![0];
-          const g: IAutoMovieVector3 = physicalShapeNormal(
+          const g: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalShapeNormal(
             pair.shape.pose,
             pair.shape.shape,
             p,

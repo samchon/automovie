@@ -1,4 +1,4 @@
-import { rideQuadruped, AutoMovieArchetypeDog } from "../animals";
+import { AutoMovieArchetypeQuadruped, AutoMovieArchetypeDog } from "../animals";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -31,7 +31,7 @@ export function archetypeCaptureDogGaits(): Readonly<
   ] as const)
     subjects[`ride-dog-${gait}`] = archetypeCaptureSubject.moving(
       "dog",
-      rideQuadruped(
+      AutoMovieArchetypeQuadruped.ride(
         dog,
         {
           start: { x: 0, z: 0, heading: 0 },

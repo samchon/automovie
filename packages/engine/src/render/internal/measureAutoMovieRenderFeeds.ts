@@ -48,7 +48,7 @@ const FEED_BYTES_PER_PIXEL: number = 8;
  */
 export function measureAutoMovieRenderFeeds(
   subject: IAutoMovieRenderSubject,
-): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.IResult {
+): AutoMovieEngineRenderMeasureTypes.IFeedResult {
   const nodes: Map<string, IAutoMovieSceneNode> = new Map(
     subject.scene.nodes.map(
       (node: IAutoMovieSceneNode): [string, IAutoMovieSceneNode] => [
@@ -63,7 +63,7 @@ export function measureAutoMovieRenderFeeds(
       model,
     ]),
   );
-  const tracks: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.ITrack[] = [];
+  const tracks: AutoMovieEngineRenderMeasureTypes.IFeedTrack[] = [];
   for (const track of subject.surfaceGraphics ?? []) {
     const feeds: IAutoMovieSurfaceGraphicLayer.IFeed[][] = track.keys.map(
       (
@@ -134,17 +134,17 @@ export function measureAutoMovieRenderFeeds(
   return {
     tracks,
     targets: tracks.reduce(
-      (sum: number, track: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.ITrack): number =>
+      (sum: number, track: AutoMovieEngineRenderMeasureTypes.IFeedTrack): number =>
         sum + track.targets,
       0,
     ),
     bytes: tracks.reduce(
-      (sum: number, track: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.ITrack): number =>
+      (sum: number, track: AutoMovieEngineRenderMeasureTypes.IFeedTrack): number =>
         sum + track.bytes,
       0,
     ),
     passes: tracks.reduce(
-      (sum: number, track: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.ITrack): number =>
+      (sum: number, track: AutoMovieEngineRenderMeasureTypes.IFeedTrack): number =>
         sum + track.passes,
       0,
     ),

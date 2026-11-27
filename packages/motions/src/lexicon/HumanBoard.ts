@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -129,7 +129,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   // world at a local second.
   const boarding = (time: number): IAutoMovieMotionHumanPosture => {
     const t: number = Math.max(0, Math.min(duration, time));
-    const s: number = minimumJerk.share(Math.min(1, t / flight));
+    const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / flight));
     const shown: IAutoMovieMotionHumanPosture = mixHumanPosture(from, key, s);
     shown.root = Vector3.add(Vector3.lerp(from.root, key.root, s), {
       x: 0,
@@ -262,7 +262,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           ? Vector3.lerp(
               point,
               HumanUnseatPose.hang(world, hand.side),
-              minimumJerk.share((t - lets) / (duration - lets)),
+              AutoMovieEngineMotionSampling.minimumJerkShare((t - lets) / (duration - lets)),
             )
           : point,
         1,

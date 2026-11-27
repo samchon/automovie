@@ -1,14 +1,6 @@
-import { Quaternion, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanAuditMeasure,
-  IAutoMovieMotionHumanAuditMotion,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanContactWindow } from "../law/HumanContactWindow";
 import { HumanSupportPatch } from "../posture/HumanSupportPatch";
@@ -64,8 +56,8 @@ export namespace AutoMovieMotionHumanAuditStatics {
       HumanAuditMotion.windows(motion, subject);
     const lead: number =
       1 /
-      resolveAutoMovieCenterOfMass.frequency(
-        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
+        AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
       );
     const bound: number = SHARE * body.measure.stature;
     const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
@@ -77,7 +69,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
     const centre = (i: number): IAutoMovieVector3 => {
       let found: IAutoMovieVector3 | undefined = centres.get(i);
       if (found === undefined) {
-        found = resolveAutoMovieCenterOfMass.place(
+        found = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
           model,
           motion.bones(subject, times[i]!),
         );
@@ -121,7 +113,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
 
       const value: number = Math.max(
         0,
-        -resolveAutoMovieCenterOfMass.margin(
+        -AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(
           centre(i),
           region(body, motion.bones(subject, t), open, motion, t),
         ),

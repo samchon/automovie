@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
-import { physicalShapePairDistance } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMoviePhysicalShape,
@@ -161,7 +161,7 @@ function radialClearance(
         rotation: ORIGIN.rotation,
       };
       if (!nclose(
-        physicalShapePairDistance(ORIGIN, cylinder, position, PROBE),
+        AutoMovieEnginePhysics.physicalShapePairDistance(ORIGIN, cylinder, position, PROBE),
         clearance,
         ROUNDING,
       )) return false;

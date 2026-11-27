@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, ROM_TOLERANCE, prepareSkeletonPoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics, ROM_TOLERANCE, AutoMovieEngineSkeletonPose } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -58,7 +58,12 @@ export function test_engine_digit_prepared_baseline(): void {
       bone(names[1]!, names[0]!, 1, axes, true),
       bone(names[2]!, names[1]!, 1, axes, true)],
   };
-  const rig: ReturnType<typeof prepareSkeletonPoseResolution> = prepareSkeletonPoseResolution(skeleton, {}, {});
+  const rig: AutoMovieEngineSkeletonPose.IRig =
+    AutoMovieEngineSkeletonPose.prepareSkeletonPoseResolution(
+      skeleton,
+      {},
+      {},
+    );
   const pose: IAutoMoviePose = {
     skeleton: skeleton.id,
     root: { translation: { x: 2, y: 3, z: 4 },

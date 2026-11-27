@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -131,7 +135,7 @@ export namespace EquineRecumbency {
     const at = (seconds: number): AutoMovieArchetypeRide.ISample<Id, D> => {
       if (seconds <= cue.from || seconds >= end)
         return ride.at(Math.min(seconds, ride.duration));
-      const share: number = minimumJerk.share(
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         seconds < cue.from + cue.down
           ? (seconds - cue.from) / cue.down
           : seconds < rise

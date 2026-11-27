@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieTransform,
@@ -17,7 +21,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import { AutoMovieArchetypeQuadrupedLateralRest } from "./AutoMovieArchetypeQuadrupedLateralRest";
 import type { AutoMovieArchetypeQuadrupedLateralRestPlan } from "./AutoMovieArchetypeQuadrupedLateralRestPlan";
 import { EquineBlend } from "./EquineBlend";
-import { rideQuadruped } from "./rideQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * The fastest a trained fall is staged from, metres per second: an authored
@@ -128,7 +132,7 @@ export namespace AutoMovieArchetypeEquineFall {
     const clip: AutoMovieArchetypeQuadrupedLateralRestPlan.IClip<
       Id,
       Dimension
-    > = AutoMovieArchetypeQuadrupedLateralRest(
+    > = AutoMovieArchetypeQuadrupedLateralRest.plan(
       animal,
       AutoMovieArchetypeEquineLiberty.rested(animal, ground, cue.rest),
       cue.lateral,
@@ -163,7 +167,7 @@ export namespace AutoMovieArchetypeEquineFall {
     const away: AutoMovieArchetypeRide.IRide<Id, Dimension> | undefined =
       cue.away === undefined
         ? undefined
-        : rideQuadruped(
+        : AutoMovieArchetypeQuadruped.ride(
             animal,
             {
               start: {
@@ -210,7 +214,7 @@ export namespace AutoMovieArchetypeEquineFall {
         slid(ground, seconds),
         lying.placement,
       );
-      const share: number = minimumJerk.share(
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(1, (seconds - cue.from) / cue.drop),
       );
       if (share >= 1)

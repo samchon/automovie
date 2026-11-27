@@ -16,7 +16,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
 import type { ResolvePhysicalContactPose } from "./ResolvePhysicalContactPose";
-import { linearizePhysicalSeparation } from "../linearizePhysicalSeparation";
+import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 import { physicalShapeSurfaceAnchor } from "./physicalShapeSurfaceAnchor";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
@@ -75,7 +75,7 @@ export function preparePhysicalContactBindingRows(
               const model: (
                 first: IAutoMovieRigidTransform,
                 second: IAutoMovieRigidTransform,
-              ) => number = linearizePhysicalSeparation(
+              ) => number = AutoMovieEnginePhysics.linearizePhysicalSeparation(
                 input.geometry,
                 first(poses),
                 second(poses),

@@ -10,8 +10,7 @@ import {
   AutoMovieThreeKind,
   type IAutoMovieModelObject,
   type IMaterialShaderSource,
-  buildModel,
-  readAutoMovieBufferAttribute,
+  AutoMovieRenderSceneLayout,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -56,7 +55,7 @@ export function test_render_scene_build_model_wear_skinned(): void {
       wear,
     }),
   );
-  const built: IAutoMovieModelObject = buildModel(model);
+  const built: IAutoMovieModelObject = AutoMovieRenderSceneLayout.buildModel(model);
   let found: THREE.SkinnedMesh | null = null;
   built.object.traverse((object: THREE.Object3D): void => {
     if (AutoMovieThreeKind.isSkinnedMesh(object)) found = object;
@@ -102,10 +101,9 @@ export function test_render_scene_build_model_wear_skinned(): void {
   );
 
   // 3. Bend and compare.
-  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
-    geometry,
+  const position: THREE.BufferAttribute = geometry.getAttribute(
     "position",
-  );
+  ) as THREE.BufferAttribute;
   const before: number[] = Array.from(position.array);
   const spine: THREE.Bone = mesh.skeleton.bones.find(
     (bone: THREE.Bone): boolean => bone.name === "spine",

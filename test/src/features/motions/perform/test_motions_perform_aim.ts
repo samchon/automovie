@@ -1,18 +1,8 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanPerformanceAim,
-  IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanPerformanceAim, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMovieVector3 } from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
-import {
-  HumanPerception,
-  HumanPerformanceAim,
-  HumanPerformanceRead,
-  HumanRefusal,
-} from "@automovie/motions/internal";
+import { HumanPerception, HumanPerformanceAim, HumanPerformanceRead, HumanRefusal } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../internal/fixtures/standingPerformanceState";
@@ -139,7 +129,7 @@ export async function test_motions_perform_aim(): Promise<void> {
   // 6. Regions.
   const surface = body.surfaces.regions.chin!;
   const own = aim({ kind: "self", region: "chin" });
-  const mine = resolveAutoMovieHumanoidSurfaces.place(
+  const mine = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
     surface,
     bones().get(surface.bone)!,
   );
@@ -159,7 +149,7 @@ export async function test_motions_perform_aim(): Promise<void> {
     0.5,
     frame,
   );
-  const earlier = resolveAutoMovieHumanoidSurfaces.place(
+  const earlier = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
     surface,
     HumanPerformanceRead.bones(
       other,

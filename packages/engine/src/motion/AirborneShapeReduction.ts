@@ -1,20 +1,16 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMomentum,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
+import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone } from "@automovie/interface";
 
-import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
-import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
-import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
+
+
+import { AutoMoviePhysicalInertiaTensor } from "../physics/AutoMoviePhysicalInertiaTensor";
 
 /**
  * The three reductions a flight's shape history makes of posed bones, chosen
  * together for one mass model: the posed mass parts of a bone map, the momentum
  * of the motion between two posed instants, and a posed instant's composite
  * inertia tensor about its centre; with the admission of that tensor. A raw
- * model reduces through `resolveAutoMovieMomentum` and `physicalInertiaTensor`;
+ * model reduces through `AutoMovieEngineKinematics.resolveAutoMovieMomentum` and `AutoMoviePhysicalInertiaTensor`;
  * a prepared token through its own entries, which share its private last-frame
  * work. Constructing the reduction of a prepared token reads the token once, so
  * a released token is refused before any shape is read.
@@ -27,38 +23,38 @@ import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 export function AirborneShapeReduction(
   model:
     | IAutoMovieResolveCenterOfMass.IModel
-    | prepareAutoMovieMassModel.IPrepared,
+    | AutoMovieEngineKinematics.IPreparedMassModel,
 ): AirborneShapeReduction.IReduction {
-  if (!("segments" in model)) prepareAutoMovieMassModel.bones(model);
+  if (!("segments" in model)) AutoMovieEngineKinematics.prepareAutoMovieMassModelBones(model);
   return "segments" in model
     ? {
         pose: (
           bones: AirborneShapeReduction.IBones,
-        ): resolveAutoMovieMomentum.IPosed =>
-          resolveAutoMovieMomentum.pose(model, bones),
+        ): AutoMovieEngineKinematics.IPosedBody =>
+          AutoMovieEngineKinematics.resolveAutoMovieMomentumPose(model, bones),
         between: (
-          before: resolveAutoMovieMomentum.IPosed,
-          after: resolveAutoMovieMomentum.IPosed,
+          before: AutoMovieEngineKinematics.IPosedBody,
+          after: AutoMovieEngineKinematics.IPosedBody,
           seconds: number,
         ): IAutoMovieBodyMomentum =>
-          resolveAutoMovieMomentum.between(model, before, after, seconds),
-        tensor: (posed: resolveAutoMovieMomentum.IPosed): number[][] =>
-          physicalInertiaTensor(posed.parts, posed.centre),
+          AutoMovieEngineKinematics.resolveAutoMovieMomentumBetween(model, before, after, seconds),
+        tensor: (posed: AutoMovieEngineKinematics.IPosedBody): number[][] =>
+          AutoMoviePhysicalInertiaTensor.compute(posed.parts, posed.centre),
         admit,
       }
     : {
         pose: (
           bones: AirborneShapeReduction.IBones,
-        ): resolveAutoMovieMomentum.IPosed =>
-          prepareAutoMovieMassModel.pose(model, bones),
+        ): AutoMovieEngineKinematics.IPosedBody =>
+          AutoMovieEngineKinematics.prepareAutoMovieMassModelPose(model, bones),
         between: (
-          before: resolveAutoMovieMomentum.IPosed,
-          after: resolveAutoMovieMomentum.IPosed,
+          before: AutoMovieEngineKinematics.IPosedBody,
+          after: AutoMovieEngineKinematics.IPosedBody,
           seconds: number,
         ): IAutoMovieBodyMomentum =>
-          prepareAutoMovieMassModel.between(model, before, after, seconds),
-        tensor: (posed: resolveAutoMovieMomentum.IPosed): number[][] =>
-          prepareAutoMovieMassModel.inertia(model, posed),
+          AutoMovieEngineKinematics.prepareAutoMovieMassModelBetween(model, before, after, seconds),
+        tensor: (posed: AutoMovieEngineKinematics.IPosedBody): number[][] =>
+          AutoMovieEngineKinematics.prepareAutoMovieMassModelInertia(model, posed),
         admit,
       };
 }
@@ -91,15 +87,15 @@ export namespace AirborneShapeReduction {
      * The model's rigid parts and mass-weighted centre under a bone map, in the
      * bones' frame.
      */
-    pose(bones: IBones): resolveAutoMovieMomentum.IPosed;
+    pose(bones: IBones): AutoMovieEngineKinematics.IPosedBody;
 
     /**
      * The momentum of the motion from one posed instant to another `seconds`
      * later; its angular part is about the mean of their centres, kg m²/s.
      */
     between(
-      before: resolveAutoMovieMomentum.IPosed,
-      after: resolveAutoMovieMomentum.IPosed,
+      before: AutoMovieEngineKinematics.IPosedBody,
+      after: AutoMovieEngineKinematics.IPosedBody,
       seconds: number,
     ): IAutoMovieBodyMomentum;
 
@@ -107,7 +103,7 @@ export namespace AirborneShapeReduction {
      * A posed instant's composite inertia tensor about its centre, kg m², as
      * fresh rows.
      */
-    tensor(posed: resolveAutoMovieMomentum.IPosed): number[][];
+    tensor(posed: AutoMovieEngineKinematics.IPosedBody): number[][];
 
     /** Throw unless the tensor has a positive finite scale. */
     admit(matrix: number[][]): void;

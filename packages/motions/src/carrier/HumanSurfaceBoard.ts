@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -197,7 +197,7 @@ export function HumanSurfaceBoard(
   > = posture.joints;
   const holding = (at: number): IAutoMovieMotionHumanPosture => {
     if (grips.length === 0) return posture;
-    const share: number = minimumJerk.share(at / reach);
+    const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(at / reach);
     let held: IAutoMovieMotionHumanPosture = posture;
     for (const { side, grip } of grips) {
       const arm: IAutoMovieMotionHumanMountRider.IHoldResult =
@@ -448,7 +448,7 @@ export namespace HumanSurfaceBoard {
 
   /** The existing minimum-jerk ease between two phase shares. */
   export function ease(at: number, from: number, to: number): number {
-    return minimumJerk(Math.max(0, Math.min(1, (at - from) / (to - from)))).s;
+    return AutoMovieEngineMotionSampling.minimumJerk(Math.max(0, Math.min(1, (at - from) / (to - from)))).s;
   }
 
   /** A declared support interval on the board or on the world floor. */

@@ -1,4 +1,4 @@
-import { updateAutoMovieComparisonCamera } from "@automovie/render";
+import { AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -42,7 +42,7 @@ export function test_render_scene_update_comparison_camera(): void {
       target.z + 0.3 * Math.cos(e) * Math.cos(a),
     );
     camera.lookAt(target);
-    updateAutoMovieComparisonCamera({
+    AutoMovieRenderSubjectViewpoint.updateComparisonCamera({
       perspective: camera,
       comparison,
       target,
@@ -117,7 +117,7 @@ export function test_render_scene_update_comparison_camera(): void {
     }
     let refused: boolean = false;
     try {
-      updateAutoMovieComparisonCamera({
+      AutoMovieRenderSubjectViewpoint.updateComparisonCamera({
         perspective: source,
         comparison: destination,
         target: frame,

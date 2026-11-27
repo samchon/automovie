@@ -1,3 +1,4 @@
+import { AutoMovieEngineKinematicsChains } from "@automovie/engine";
 import { HumanGrasp as HumanGraspSource } from "../handling/HumanGrasp";
 import { HumanGraspUse as HumanGraspUseSource } from "../handling/HumanGraspUse";
 import { HumanGrip as HumanGripSource } from "../handling/HumanGrip";
@@ -302,7 +303,7 @@ export namespace AutoMovieMotionHumanPrehension {
    * digit's phalanges as the body's own colliders, and the finger angles at
    * contact, solved, never authored.
    *
-   * Closure is the engine's `curlChainUntilContact` (the auto-grasp stopping
+   * Closure is the engine's `AutoMovieEngineKinematicsChains.curlChainUntilContact` (the auto-grasp stopping
    * rule of Miller and Allen 2004, IEEE Robot. Autom. Mag. 11(4):110): the
    * digits named by the grip kind close proximal to distal until each phalanx
    * first touches the object, the four fingers before the thumb so the thumb

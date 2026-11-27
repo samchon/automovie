@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanSegment,
@@ -120,7 +120,7 @@ export namespace HumanSegmentOverlayRun {
   ): number {
     return handsOn(person, overlay)
       ? 1
-      : minimumJerk.share(
+      : AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
         );
   }

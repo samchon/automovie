@@ -1,24 +1,5 @@
-import {
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmAngles,
-  IAutoMovieMotionHumanArmTarget,
-  IAutoMovieMotionHumanArmTrajectory,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanBrace,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanArmTrajectory, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBrace, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
@@ -130,7 +111,7 @@ export function braceArms(scope: braceArms.IScope): braceArms.IArms {
       pose,
       readResolution(),
     );
-    const sternum: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+    const sternum: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       region,
       bones.get(region.bone)!,
     ).point;
@@ -156,7 +137,7 @@ export function braceArms(scope: braceArms.IScope): braceArms.IArms {
     right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
   };
   const envelope: (at: number) => number = (at: number): number =>
-    minimumJerk.share(Math.min(1, Math.max(0, at) / SET));
+    AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, at) / SET));
   const arms: Map<
     AutoMovieHumanSide,
     IAutoMovieMotionHumanArmTrajectory.Played

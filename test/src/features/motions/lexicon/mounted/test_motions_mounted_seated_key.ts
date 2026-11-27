@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeHorse } from "@automovie/archetypes";
-import { Quaternion, Vector3, physicalShapeContactManifold, physicalShapePairDistance, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanPosture,
@@ -85,7 +85,7 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
   const seatGap = Math.min(
     ...hips.flatMap((part) =>
       part.shapes.map((skin) =>
-        physicalShapePairDistance(
+        AutoMovieEnginePhysics.physicalShapePairDistance(
           part.pose,
           skin,
           material.frame,
@@ -101,7 +101,7 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
   });
   const witness = hips.some((part) =>
     part.shapes.some((skin) =>
-      physicalShapeContactManifold(
+      AutoMovieEnginePhysics.physicalShapeContactManifold(
         part.pose,
         skin,
         material.frame,
@@ -159,7 +159,7 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
         `${part.bone} clears the posed horse and its tack`,
         material.shapes.every(
           (obstacle: IAutoMoviePhysicalShape) =>
-            physicalShapePairDistance(
+            AutoMovieEnginePhysics.physicalShapePairDistance(
               part.pose,
               actor,
               material.frame,

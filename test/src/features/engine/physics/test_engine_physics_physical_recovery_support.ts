@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalJointChart, Quaternion, Vector3, physicalRecoverySupportGoals, physicalStanceBalance, physicalSwingReference, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalJointChart, Quaternion, Vector3, AutoMovieEnginePhysicalRecoverySupportGoals, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalSwingReference, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalJoint,
@@ -115,7 +115,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     [1, 5, 10],
   ] as const) {
     const out: Record<string, IAutoMovieRigidTransform> =
-      physicalSwingReference({ joints, base, actual, fit, share });
+      AutoMovieEnginePhysicalSwingReference.compute({ joints, base, actual, fit, share });
     near(`hip at ${share}`, angle(base.rotation, out.thigh!.rotation), hip);
     near(
       `knee at ${share}`,
@@ -183,7 +183,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   };
   const path: { height: number; hang: number } = { height: 0.06, hang: 0.02 };
   for (const seconds of [0, 0.2, 0.4]) {
-    const goal: IAutoMovieVector3 = physicalRecoverySupportGoals(
+    const goal: IAutoMovieVector3 = AutoMovieEnginePhysicalRecoverySupportGoals.compute(
       body,
       target,
       body.balance!.pattern,
@@ -201,7 +201,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     near(`goal height at ${seconds}`, goal.y, sampled.y + path.hang);
     near(`goal ahead at ${seconds}`, goal.z, sampled.z);
   }
-  const middle: IAutoMovieVector3 = physicalRecoverySupportGoals(
+  const middle: IAutoMovieVector3 = AutoMovieEnginePhysicalRecoverySupportGoals.compute(
     body,
     target,
     body.balance!.pattern,
@@ -210,7 +210,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
     path,
   ).foot!;
   near("mid-swing height", middle.y, 0.05 + 0.06 + 0.02);
-  const policy: IAutoMovieVector3 = physicalRecoverySupportGoals(
+  const policy: IAutoMovieVector3 = AutoMovieEnginePhysicalRecoverySupportGoals.compute(
     body,
     target,
     body.balance!.pattern,
@@ -224,11 +224,11 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   const planned: IAutoMovieVector3 = { x: 0, y: 0.4, z: 0 };
   for (const [elapsed, share] of [
     [0, 0],
-    [physicalStanceBalance.FADE / 2, 0.5],
-    [physicalStanceBalance.FADE, 1],
-    [2 * physicalStanceBalance.FADE, 1],
+    [AutoMovieEnginePhysicalStanceBalance.FADE / 2, 0.5],
+    [AutoMovieEnginePhysicalStanceBalance.FADE, 1],
+    [2 * AutoMovieEnginePhysicalStanceBalance.FADE, 1],
   ] as const) {
-    const rate: IAutoMovieVector3 = physicalSwingReference.rate({
+    const rate: IAutoMovieVector3 = AutoMovieEnginePhysicalSwingReference.rate({
       actual: moving,
       path: planned,
       elapsed,
@@ -283,7 +283,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   const hangAt = (
     planned: (bone: string) => IAutoMovieRigidTransform | undefined,
   ): number =>
-    physicalSwingReference.hang({
+    AutoMovieEnginePhysicalSwingReference.hang({
       profile: box,
       carriers: ["foot"],
       planned,
@@ -370,7 +370,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   let seed: Record<string, IAutoMovieRigidTransform> = { ...human.targets };
   let first: number[] | undefined;
   for (let frame: number = 0; frame < 10; frame++) {
-    const fitted = physicalSwingReference.pose({
+    const fitted = AutoMovieEnginePhysicalSwingReference.pose({
       profile: human.profile,
       chain: limb.chain,
       base: human.targets[hip.parent]!,

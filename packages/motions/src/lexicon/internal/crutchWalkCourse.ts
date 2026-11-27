@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAidWalk,
   IAutoMovieMotionHumanCrutchWalk,
@@ -250,7 +250,7 @@ export namespace crutchWalkCourse {
       if (seconds <= move.from) return stable;
       if (seconds < move.to) {
         const share: number = (seconds - move.from) / (move.to - move.from);
-        const blend: number = minimumJerk.share(share);
+        const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(share);
         const position: IAutoMovieVector3 = Vector3.lerp(
           move.floor[0].position,
           move.floor[1].position,
@@ -261,7 +261,7 @@ export namespace crutchWalkCourse {
             ...position,
             y:
               position.y +
-              LIFT * minimumJerk.share(2 * Math.min(share, 1 - share)),
+              LIFT * AutoMovieEngineMotionSampling.minimumJerkShare(2 * Math.min(share, 1 - share)),
           },
           rotation: Quaternion.slerp(
             move.floor[0].rotation,

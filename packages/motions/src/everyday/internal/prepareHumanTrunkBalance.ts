@@ -1,15 +1,6 @@
-import { Vector3, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanJacobian,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPhysics } from "../../law/HumanPhysics";
 import { HumanFoot } from "../../posture/HumanFoot";
@@ -124,10 +115,10 @@ export function prepareHumanTrunkBalance(
     );
     const motion: IAutoMovieMotionHumanJacobian.IMotion = joint.motions[0]!;
     const spun: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.mean(
+    const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMean(
       model,
       (segment: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieVector3 => {
-        const point: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.point(
+        const point: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPoint(
           segment,
           bones.get(segment.bone)!,
         );

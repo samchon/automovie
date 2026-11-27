@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, curlChainUntilContact } from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEngineKinematicsChains } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieFitDigitToTarget,
@@ -15,7 +15,7 @@ import { throwsError } from "../../internal/throwsError";
 /**
  * Digit kinematics on the humanoid hand: `fitDigitToTarget` puts a point of the
  * distal phalanx on a world point with the digit's own joints, and
- * `curlChainUntilContact` closes a chain proximal first until a phalanx touches
+ * `AutoMovieEngineKinematicsChains.curlChainUntilContact` closes a chain proximal first until a phalanx touches
  * a collider or its range stops it.
  *
  * Fixture: the average adult's left index finger (proximal, intermediate,
@@ -101,7 +101,7 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
 
   // 3.
   const chain = { bones, tip: { x: 0, y: 0, z: 0 }, radius: 0.008 };
-  const free = curlChainUntilContact({
+  const free = AutoMovieEngineKinematicsChains.curlChainUntilContact({
     skeleton,
     pose: rest,
     chains: [chain],
@@ -120,7 +120,7 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
     rest,
     "leftIndexProximal",
   ).worldPosition;
-  const blocked = curlChainUntilContact({
+  const blocked = AutoMovieEngineKinematicsChains.curlChainUntilContact({
     skeleton,
     pose: rest,
     chains: [chain],
@@ -151,7 +151,7 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
     "step",
     throwsError(
       (): unknown =>
-        curlChainUntilContact({
+        AutoMovieEngineKinematicsChains.curlChainUntilContact({
           skeleton,
           pose: rest,
           chains: [chain],

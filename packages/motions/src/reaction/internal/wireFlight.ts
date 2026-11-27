@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClock,
@@ -184,7 +184,7 @@ export namespace wireFlight {
       );
     };
     // The arc length gone at a second, on one minimum-jerk profile.
-    const gone = (t: number): number => total * minimumJerk.share(t / seconds);
+    const gone = (t: number): number => total * AutoMovieEngineMotionSampling.minimumJerkShare(t / seconds);
     // The feet stay planted while the wire takes the weight (`LIFT`), the
     // heels rising as the body rises past the straightened legs, then leave
     // the floor.
@@ -193,9 +193,9 @@ export namespace wireFlight {
     const weight = (t: number): number => {
       const u: number = t / seconds;
       return u < 0.25
-        ? minimumJerk(u / 0.25).s
+        ? AutoMovieEngineMotionSampling.minimumJerk(u / 0.25).s
         : u > 0.75
-          ? minimumJerk((1 - u) / 0.25).s
+          ? AutoMovieEngineMotionSampling.minimumJerk((1 - u) / 0.25).s
           : 1;
     };
 
@@ -244,7 +244,7 @@ export namespace wireFlight {
                 // the end of the flight's first quarter.
                 yaw:
                   turn *
-                  minimumJerk.share((t - release) / (0.25 * seconds - release)),
+                  AutoMovieEngineMotionSampling.minimumJerkShare((t - release) / (0.25 * seconds - release)),
               });
             },
           },

@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, Vector3, minimumJerk } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -254,7 +254,7 @@ export namespace pickUpAdjust {
     const down: (time: number) => number = (time: number): number =>
       (reach * time) / duration;
     const back: (time: number) => number = (time: number): number =>
-      (end + up * pickUpAdjustTimed(1 - minimumJerk.share(time) / share)) /
+      (end + up * pickUpAdjustTimed(1 - AutoMovieEngineMotionSampling.minimumJerkShare(time) / share)) /
       duration;
     return (["left", "right"] as const).flatMap(
       (foot: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow[] => {

@@ -6,7 +6,7 @@ import {
 
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
-import { rotationBetween } from "./rotationBetween";
+import { AutoMovieEngineMath } from "./AutoMovieEngineMath";
 
 /**
  * Pure 4×4 matrix math in column-major order, element `m[col * 4 + row]`, the
@@ -193,7 +193,7 @@ export namespace Matrix4 {
     axis: number,
     direction: IAutoMovieVector3,
   ): IAutoMovieVector3[] => {
-    const turn: IAutoMovieQuaternion = rotationBetween(AXES[axis]!, direction);
+    const turn: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(AXES[axis]!, direction);
     return AXES.map(
       (canonical: IAutoMovieVector3, at: number): IAutoMovieVector3 =>
         at === axis ? direction : Quaternion.rotateVector(turn, canonical),

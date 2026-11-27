@@ -1,4 +1,7 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
@@ -139,8 +142,8 @@ export namespace EquineTuck {
     const falling: number =
       land > middle ? (land - seconds) / (land - middle) : 0;
     return (
-      minimumJerk(Math.max(0, Math.min(1, rising))).s *
-      minimumJerk(Math.max(0, Math.min(1, falling))).s
+      AutoMovieEngineMotionSampling.minimumJerk(Math.max(0, Math.min(1, rising))).s *
+      AutoMovieEngineMotionSampling.minimumJerk(Math.max(0, Math.min(1, falling))).s
     );
   }
 

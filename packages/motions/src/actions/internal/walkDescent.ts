@@ -1,8 +1,4 @@
-import {
-  carriedAcceleration,
-  carriedRate,
-  minimumJerk,
-} from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 /**
  * The pelvis's descent onto a landing leg, scheduled ahead of the leg's own
@@ -102,9 +98,9 @@ export namespace walkDescent {
     return Math.max(
       actual,
       from +
-        (schedule.need - from) * minimumJerk.share(x) -
-        schedule.rate * span * carriedRate(1, 1 - x) +
-        schedule.bend * span * span * carriedAcceleration(1, 1 - x),
+        (schedule.need - from) * AutoMovieEngineMotionSampling.minimumJerkShare(x) -
+        schedule.rate * span * AutoMovieEngineMotionSampling.carriedRate(1, 1 - x) +
+        schedule.bend * span * span * AutoMovieEngineMotionSampling.carriedAcceleration(1, 1 - x),
     );
   }
 

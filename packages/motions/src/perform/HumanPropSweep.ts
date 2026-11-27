@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, projectileFirstContact, AutoMovieAir } from "@automovie/engine";
+import { AutoMoviePhysicalProjectile, Quaternion, Vector3, AutoMovieAir } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -32,7 +32,7 @@ import { HumanPropSweepHands } from "./HumanPropSweepHands";
  * the launcher holds or wears as the flight starts (they go with the launcher)
  * and, through its fitted approach, those a later launch that ends the flight
  * holds (a bat striking the incoming ball), and the floor, through the engine's
- * one resolver (`projectileFirstContact`). The step keeps the prop from
+ * one resolver (`AutoMoviePhysicalProjectile.firstContact`). The step keeps the prop from
  * crossing the thinnest collider it may meet in one step, finger bones aside: a
  * finger is the stated blind spot. A person is read only as the gap to them
  * could close at the audit's part speed and the flight's own (conservative
@@ -102,7 +102,7 @@ export namespace HumanPropSweep {
     handback?: IHandback,
   ): IAutoMovieMotionHumanPropOutcome.IMeeting | null {
     const colliders: IAutoMovieProjectileFirstContact.ICollider[] = [
-      projectileFirstContact.plane(
+      AutoMoviePhysicalProjectile.planeCollider(
         "ground",
         { x: 0, y: 0, z: 0 },
         { x: 0, y: 1, z: 0 },
@@ -343,7 +343,7 @@ export namespace HumanPropSweep {
           if (id === leave) return;
           solid.push(shape);
           const shaped: IAutoMovieProjectileFirstContact.ICollider =
-            projectileFirstContact.shape(id, shape, fixed ?? pose);
+            AutoMoviePhysicalProjectile.shapeCollider(id, shape, fixed ?? pose);
           const placed: IAutoMovieProjectileFirstContact.ICollider =
             carried.length === 0
               ? shaped
@@ -395,7 +395,7 @@ export namespace HumanPropSweep {
     }
     const tip: IAutoMovieVector3 | undefined =
       radius === undefined ? prop.points["tip"]?.point : undefined;
-    const hit: IAutoMovieHit | null = projectileFirstContact(
+    const hit: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
       projectile,
       colliders,
       { from: 0, to: horizon },

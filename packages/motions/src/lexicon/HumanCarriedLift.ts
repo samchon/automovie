@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -99,7 +99,7 @@ export namespace HumanCarriedLift {
       entry,
     );
     const ease: (x: number) => number = (x: number): number =>
-      minimumJerk.share(x);
+      AutoMovieEngineMotionSampling.minimumJerkShare(x);
     const named: readonly AutoMovieHumanoidRegion[] = [
       "upperBack",
       "kneeRight",

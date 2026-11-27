@@ -6,7 +6,7 @@ import type {
 import * as THREE from "three";
 
 import type { IAutoMovieFluidSurfaceObject } from "../IAutoMovieFluidSurfaceObject.js";
-import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * Project one engine-derived free surface into a `three.js` mesh.

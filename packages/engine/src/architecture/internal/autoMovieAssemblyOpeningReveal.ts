@@ -4,7 +4,7 @@ import type {
   IAutoMovieResolvedLayer,
 } from "@automovie/interface";
 
-import { positive } from "../../geometry/positive";
+import { positive } from "../../geometry/internal/positive";
 
 /**
  * Report what a build-up finishes an opening at.

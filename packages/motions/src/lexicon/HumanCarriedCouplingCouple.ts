@@ -1,25 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionCoupling,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCarried,
-  IAutoMovieMotionHumanCarriedCoupling,
-  IAutoMovieMotionHumanCarriedCouplingPose,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCoupling, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -268,7 +248,7 @@ export namespace HumanCarriedCouplingCouple {
           const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
             borne.surfaces.regions[region];
           const place: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
-            resolveAutoMovieHumanoidSurfaces.place(
+            AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
               surface,
               mine.get(surface.bone)!,
             );
@@ -333,7 +313,7 @@ export namespace HumanCarriedCouplingCouple {
     }
     const model: IAutoMovieResolveCenterOfMass.IModel = borne.massModel;
     const centre: IAutoMovieVector3 = fit.place(
-      resolveAutoMovieCenterOfMass.place(model, mine),
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, mine),
     );
 
     // A drag (`HumanCarriedDrag.CARRIES`, its names the declared union

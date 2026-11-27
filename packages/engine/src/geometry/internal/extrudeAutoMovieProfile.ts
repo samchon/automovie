@@ -7,7 +7,7 @@ import {
 
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { meshOf } from "./meshOf";
-import { positive } from "../positive";
+import { positive } from "./positive";
 
 /**
  * Extrude a convex XY profile along local Z into a closed triangle mesh

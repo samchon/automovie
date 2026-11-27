@@ -11,7 +11,6 @@ export * from "./AutoMovieScheduleWalk";
 
 
 
-export * from "./resolveAutoMovieFraming";
 
 
 
@@ -20,12 +19,13 @@ export * from "./resolveAutoMovieFraming";
 
 
 
-export { AutoMovieEngineSchedule } from "./AutoMovieEngineSchedule";
 
-export { AutoMovieEngineCompositionPose } from "./AutoMovieEngineCompositionPose";
+export * from "./AutoMovieEngineSchedule";
 
-export { AutoMovieEngineCompositionOutcome } from "./AutoMovieEngineCompositionOutcome";
+export * from "./AutoMovieEngineCompositionPose";
 
-export { AutoMovieEngineCompositionContact } from "./AutoMovieEngineCompositionContact";
+export * from "./AutoMovieEngineCompositionOutcome";
 
-export { AutoMovieEngineCompositionZone } from "./AutoMovieEngineCompositionZone";
+export * from "./AutoMovieEngineCompositionContact";
+
+export * from "./AutoMovieEngineCompositionZone";

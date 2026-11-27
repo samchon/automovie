@@ -1,21 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBoard,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanSeated,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBoard, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSeated, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/internal/seated";
@@ -91,7 +75,7 @@ export function HumanBoardKey(
     const back: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.inverse(landing.rotation),
       Vector3.subtract(
-        resolveAutoMovieHumanoidSurfaces.place(
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           other
             .bones(

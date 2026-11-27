@@ -1,9 +1,6 @@
-import {
+import { AutoMovieEnginePhysics,
   Quaternion,
   Vector3,
-  physicalShapeGjk,
-  physicalShapeNormal,
-  physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
@@ -218,7 +215,7 @@ export namespace HumanArmTrajectoryPairs {
           const least: number = HumanAuditModel.certify(
             link.solids,
             link.offset,
-            physicalShapeGjk.solid(s.pose, s.shape),
+            AutoMovieEnginePhysics.physicalShapeGjkSolid(s.pose, s.shape),
             floor,
           );
           if (least > floor) {
@@ -319,11 +316,11 @@ export namespace HumanArmTrajectoryPairs {
         gap: (p: IAutoMovieVector3): number =>
           shape === undefined
             ? 0
-            : physicalShapeSegmentDistance(shape.pose, shape.shape, p, p),
+            : AutoMovieEnginePhysics.physicalShapeSegmentDistance(shape.pose, shape.shape, p, p),
         normalAt: (p: IAutoMovieVector3): IAutoMovieVector3 =>
           shape === undefined
             ? c.normals[a]![k]!
-            : physicalShapeNormal(
+            : AutoMovieEnginePhysics.physicalShapeNormal(
                 shape.pose,
                 shape.shape,
                 p,
@@ -368,11 +365,11 @@ export namespace HumanArmTrajectoryPairs {
       gap: (p: IAutoMovieVector3): number =>
         shape === undefined
           ? 0
-          : physicalShapeSegmentDistance(shape.pose, shape.shape, p, p),
+          : AutoMovieEnginePhysics.physicalShapeSegmentDistance(shape.pose, shape.shape, p, p),
       normalAt: (p: IAutoMovieVector3): IAutoMovieVector3 =>
         shape === undefined
           ? normal
-          : physicalShapeNormal(shape.pose, shape.shape, p, normal),
+          : AutoMovieEnginePhysics.physicalShapeNormal(shape.pose, shape.shape, p, normal),
       on: { arm: on.arm, owner: on.owner, origin },
     };
   }

@@ -16,7 +16,7 @@ import { admitPhysicalMotionFrame } from "./internal/motionAudit/admitPhysicalMo
 import { measurePhysicalJointLimits } from "./internal/measurePhysicalJointLimits";
 import { measurePhysicalMotionConstraint as Constraint } from "./internal/measurePhysicalMotionConstraint";
 
-import { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
+import { AutoMoviePhysicalGeometry as Geometry } from "./AutoMoviePhysicalGeometry";
 
 /**
  * Reusable finite-sample motion audit over the exact consumer state. Callers
@@ -41,7 +41,7 @@ export namespace AutoMovieMotionAudit {
   ): IAutoMovieMeasurePhysicalMotionConstraint.IRunResult {
     admitPhysicalMotionAudit(input);
     const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
-      await Geometry();
+      await Geometry.prepare();
     const findings: IAutoMovieMotionAudit.IFinding[] = [];
     let previous: IAutoMoviePhysicalFrame | undefined;
     const count: number = Math.ceil((input.end - input.start) * input.rate);

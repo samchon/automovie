@@ -12,7 +12,7 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { builtElementRestMatrices } from "../../architecture/builtElementRestMatrices";
+import { builtElementRestMatrices } from "../../architecture/internal/builtElementRestMatrices";
 import { Matrix4 } from "../../math/Matrix4";
 import { Quaternion } from "../../math/Quaternion";
 import { Transform } from "../../math/Transform";

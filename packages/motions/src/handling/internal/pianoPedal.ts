@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -185,7 +185,7 @@ function plan(
 
   /** Raise the shoe over the floor and plate during approach and recovery. */
   const move = (progress: number): IAutoMovieMotionHumanFoot.IPlacement => {
-    const blend: number = minimumJerk.share(progress);
+    const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(progress);
     const ankle: IAutoMovieVector3 = Vector3.lerp(
       foot.worldPosition,
       staged.ankle,

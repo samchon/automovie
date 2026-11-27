@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -136,7 +136,7 @@ export function drawFromCarrierOver(
         to: 1,
         travel: (seconds: number): number =>
           Vector3.length(line) *
-          minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s,
+          AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s,
       },
     ],
     holds: [

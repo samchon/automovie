@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -155,10 +155,10 @@ export namespace HumanIceGlide {
           edge === undefined
             ? 0
             : edge.degrees *
-              minimumJerk.share(share / HumanSurfaceGlide.ACQUIRE) *
+              AutoMovieEngineMotionSampling.minimumJerkShare(share / HumanSurfaceGlide.ACQUIRE) *
               (context.params.stop === true
                 ? 1 -
-                  minimumJerk.share(
+                  AutoMovieEngineMotionSampling.minimumJerkShare(
                     (share - 1 + HumanSurfaceGlide.BRAKE) /
                       HumanSurfaceGlide.BRAKE,
                   )
@@ -183,7 +183,7 @@ export namespace HumanIceGlide {
               (at - step.window[0]) / (step.window[1] - step.window[0]),
             ),
           );
-          const phase: number = minimumJerk.share(u);
+          const phase: number = AutoMovieEngineMotionSampling.minimumJerkShare(u);
           const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
             UP,
             posture.yaw,
@@ -268,10 +268,10 @@ export namespace HumanIceGlide {
         const posture: Posture = base.posture(at);
         const share: number = at / base.duration;
         const set: number =
-          minimumJerk.share(share / CURL_SET) *
+          AutoMovieEngineMotionSampling.minimumJerkShare(share / CURL_SET) *
           (params.stop === true
             ? 1 -
-              minimumJerk.share(
+              AutoMovieEngineMotionSampling.minimumJerkShare(
                 (share - 1 + HumanSurfaceGlide.BRAKE) / HumanSurfaceGlide.BRAKE,
               )
             : 1);

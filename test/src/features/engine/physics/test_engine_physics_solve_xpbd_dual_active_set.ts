@@ -1,4 +1,4 @@
-import { solveXpbdDualActiveSet } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -17,7 +17,7 @@ import { repositoryRoot } from "../../internal/repositoryRoot";
  */
 export async function test_engine_physics_solve_xpbd_dual_active_set(): Promise<void> {
   const cases: {
-    problem: solveXpbdDualActiveSet.IProblem;
+    problem: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetProblem;
     result: { primal: string[]; active: number[] } | null;
   }[] = JSON.parse(
     await fs.readFile(
@@ -32,8 +32,8 @@ export async function test_engine_physics_solve_xpbd_dual_active_set(): Promise<
     new BigUint64Array(new Float64Array([value]).buffer)[0]!.toString(16);
   const failures: string[] = [];
   cases.forEach((entry, index: number): void => {
-    const result: solveXpbdDualActiveSet.IResult | null =
-      solveXpbdDualActiveSet(entry.problem);
+    const result: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetResult | null =
+      AutoMovieEnginePhysics.solveXpbdDualActiveSet(entry.problem);
     const got =
       result === null
         ? null

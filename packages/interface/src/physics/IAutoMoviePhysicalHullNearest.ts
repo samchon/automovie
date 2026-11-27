@@ -6,7 +6,7 @@ export namespace IAutoMoviePhysicalHullNearest {
    * Signed nearest-surface reading for a query in a convex hull's own frame.
    *
    * Distance is metres, negative inside and zero on the surface; point and unit
-   * normal are shape-local. physicalHullNearest allocates the point but may
+   * normal are shape-local. `AutoMoviePhysicalHull.nearest` allocates the point but may
    * borrow a normal from its cached hull faces; callers must treat the returned
    * normal as read-only. The producer requires a volumetric hull. Interior
    * queries use the nearest face; outside edge queries use the direction toward

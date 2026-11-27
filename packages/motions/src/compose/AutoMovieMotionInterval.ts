@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 /** Named clock intervals resolved once for repeated progress reads. */
@@ -19,7 +19,7 @@ export namespace AutoMovieMotionInterval {
    *   after it.
    */
   export function progress(from: number, to: number, seconds: number): number {
-    return minimumJerk.share(linear(from, to, seconds));
+    return AutoMovieEngineMotionSampling.minimumJerkShare(linear(from, to, seconds));
   }
 
   /**
@@ -43,7 +43,7 @@ export namespace AutoMovieMotionInterval {
       linear(opening, closing, seconds);
     return {
       linear: read,
-      progress: (seconds: number): number => minimumJerk.share(read(seconds)),
+      progress: (seconds: number): number => AutoMovieEngineMotionSampling.minimumJerkShare(read(seconds)),
     };
   }
 

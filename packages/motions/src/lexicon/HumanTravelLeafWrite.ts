@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -58,7 +58,7 @@ export function HumanTravelLeafWrite(
       posture,
       grip(context.start + at),
       fingers === undefined
-        ? minimumJerk.share(Math.min(1, at / HumanTravelLeaf.TAKE))
+        ? AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, at / HumanTravelLeaf.TAKE))
         : 1,
       fingers === undefined ? closed : bare,
       read,

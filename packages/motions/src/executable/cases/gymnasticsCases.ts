@@ -1,10 +1,6 @@
-import { Vector3, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
@@ -83,7 +79,7 @@ export function gymnasticsCases(
     const verdicts: IMotionCaptureCase.IVerdict[] = [
       ...everydayVerdicts.standard(performance, "a", body),
     ];
-    const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+    const model = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     for (const side of ["left", "right"] as const) {
       const first: IAutoMovieVector3 = palmAt(down, side);
       verdicts.push(
@@ -146,7 +142,7 @@ export function gymnasticsCases(
       TouchVerdicts.within(
         "centre of mass over the hands",
         (t: number): number => {
-          const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+          const com: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
             model,
             performance.bones("a", t),
           );

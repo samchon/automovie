@@ -11,12 +11,13 @@ import { placeAutoMovieDrawLayer as placeAutoMovieDrawLayerImplementation } from
 import { selectAutoMovieDrawSubject as selectAutoMovieDrawSubjectImplementation } from "./internal/selectAutoMovieDrawSubject.js";
 import { stampAutoMovieDrawLegend as stampAutoMovieDrawLegendImplementation } from "./internal/stampAutoMovieDrawLegend.js";
 
-import { type IAutoMovieCaptureCell, type IAutoMovieCaptureLayout, type IAutoMovieCaptureSubject, type IAutoMovieCaptureTime, type IAutoMovieDrawCall, type IAutoMoviePlaybackLayer, type IAutoMovieRenderSoftPropFrame, type IAutoMovieRasterImage, type IAutoMovieDrawResult, type IAutoMovieInspectionRequest, type IAutoMovieInspectionDiagnostics, type IAutoMovieRasterLabel, type IAutoMovieInspectionLegendEntry } from "@automovie/interface";
+import { type AutoMovieGuidePass, type IAutoMovieCaptureCell, type IAutoMovieCaptureLayout, type IAutoMovieCaptureSubject, type IAutoMovieCaptureTime, type IAutoMovieDrawCall, type IAutoMoviePlaybackLayer, type IAutoMovieRenderSoftPropFrame, type IAutoMovieRasterImage, type IAutoMovieDrawResult, type IAutoMovieInspectionRequest, type IAutoMovieInspectionDiagnostics, type IAutoMovieRasterLabel, type IAutoMovieInspectionLegendEntry } from "@automovie/interface";
 
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { planAutoMovieDrawCall } from "./internal/planAutoMovieDrawCall.js";
 import { planAutoMovieDrawLayers } from "./internal/planAutoMovieDrawLayers.js";
 import { planAutoMovieDrawPicture } from "./internal/planAutoMovieDrawPicture.js";
+import { admitAutoMovieControlPasses as admitAutoMovieControlPassesImplementation } from "./internal/admitAutoMovieControlPasses.js";
 
 /** Public capture and picture planning operations owned by Render's draw topic. */
 export namespace AutoMovieRenderDraw {
@@ -28,6 +29,13 @@ export namespace AutoMovieRenderDraw {
     times: readonly Pick<IAutoMovieCaptureTime, "seconds">[];
     /** The planned raster layout of the capture cell. */
     layout: Pick<IAutoMovieCaptureLayout, "cell">;
+  }
+
+  /** Admit the control passes drawn beside a film, preserving their requested order. */
+  export function admitControlPasses(
+    passes: readonly string[],
+  ): Exclude<AutoMovieGuidePass, "beauty">[] {
+    return admitAutoMovieControlPassesImplementation(passes);
   }
 
   /**

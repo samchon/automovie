@@ -1,4 +1,4 @@
-import { AutoMovieEngineFilm, makeActorSynthesizer } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
@@ -218,7 +218,7 @@ function compileSupport(
     }),
     context: undefined,
     runtime: {
-      synthesize: makeActorSynthesizer(contexts, positions),
+      synthesize: AutoMovieEngineFilm.makeActorSynthesizer(contexts, positions),
       skeleton: (): IAutoMovieSkeleton => rig,
       frameFormat: { width: 1920, height: 1080 },
       previous,

@@ -2,8 +2,8 @@ import * as THREE from "three";
 
 import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
-import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
-import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * Own the two shadow projections of one tier's already-resolved cycle.

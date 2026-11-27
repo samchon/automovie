@@ -1,3 +1,5 @@
+import { tessellateAutoMovieBicubicAtlas64 as tessellateAutoMovieBicubicAtlas64Implementation } from "./internal/tessellateAutoMovieBicubicAtlas64";
+import { tessellateAutoMovieLocalHermite64 as tessellateAutoMovieLocalHermite64Implementation } from "./internal/tessellateAutoMovieLocalHermite64";
 import { type IAutoMovieAdmitContourEvents64, type IAutoMovieContourLoft64, type IAutoMoviePlanContourSlabs64Props, type IAutoMovieCurvePrimitive64, type IAutoMovieCurveBoundary64, type IAutoMovieBicubicAtlasPlan64, type IAutoMovieBicubicAtlasTessellation64, type IAutoMovieBicubicAtlasRegistry64, type IAutoMovieBicubicAtlas64, type IAutoMovieCanonicalBoundaryPhase64, type IAutoMovieBicubicAtlasVertex64, type AutoMovieVector3Tuple, type IAutoMovieEvaluateBernstein64, type IAutoMovieBernsteinCurvePiece64, type IAutoMovieEvaluateCurve64, type IAutoMovieEvaluateHermiteGregory64, type IAutoMovieEvaluateImplicitProjection64, type IAutoMovieContourLoftEmission64, type IAutoMovieContourLoftSink64, type IAutoMovieGenerateSupportCurve64, type IAutoMovieMeasureContourFace64, type IAutoMovieCurveLengthMeasurement64, type IAutoMovieCubicBezierCurve64, type IAutoMovieMeasureCurveLength64, type IAutoMoviePlanContourSlabs64Slab, type IAutoMoviePlanContourWalks64Plans, type IAutoMoviePlanContourWalks64Ring, type IAutoMoviePlanLocalHermite64, type IAutoMovieLocalHermiteStream64, type IAutoMoviePrepareBicubicAtlasBoundary64, type IAutoMoviePrepareContourBoundaries64, type IAutoMovieContourLoftCurves64, type IAutoMoviePrepareContourBoundaries64Ring, type IAutoMoviePrepareContourBoundaries64Group, type IAutoMoviePrepareContourDocument64Document, type IAutoMovieRefineContourInteractions64, type IAutoMovieRefineContourInteractions64Ring, type IAutoMovieSampleContourRing64, type IAutoMovieSplitContourLeaf64, type IAutoMovieTessellateContourPath64, type IAutoMovieObservation, type IAutoMovieTessellateParametricAtlas64 } from "@automovie/interface";
 import { admitAutoMovieContourEvents64 as admitAutoMovieContourEvents64Implementation } from "./internal/admitAutoMovieContourEvents64";
 import { admitAutoMovieContourIntervals64 as admitAutoMovieContourIntervals64Implementation } from "./internal/admitAutoMovieContourIntervals64";
@@ -509,5 +511,109 @@ export namespace AutoMovieEngineCurve {
    */
   export function triangulateParameterCell64<T>(boundary: readonly T[], coordinates: (point: T) => readonly [number, number]): [T, T, T][] {
     return triangulateAutoMovieParameterCell64Implementation<T>(boundary, coordinates);
+  }
+  /**
+   * Tessellate complete bicubic patches with explicit shared control identities.
+   * Sixteen controls are row-major: v rows, u columns, all in millimetres.
+   * Matching four-ID boundary tuples, including reversals, own one edge; matching
+   * endpoint control IDs own one corner. Different IDs at equal positions stay
+   * separate. Output positions are metres, indices are append-only global indices
+   * from vertexOffset, and a chunk may reference earlier vertices. Inputs remain
+   * immutable until completion. Optional triangle-corner parameters retain each
+   * accepted triangle's actual chart coordinates independently of shared render
+   * vertices and normal fans. They follow emitted triangle order, including after
+   * local omissions.
+   *
+   * Exact Bernstein restrictions refine each unit cell using the same-parameter
+   * Taylor estimate Muu/8+Muv/4+Mvv/8. Second-partial coefficient norms bound
+   * these derivatives in exact arithmetic; binary64 estimates are not
+   * outward-rounded certificates. Every incident patch registers boundary
+   * requests before emission. Line registries add hanging corners to
+   * parameter-boundary triangulations without a global grid. Bottom/top chains
+   * are zipped before exterior hanging edges are split, using their existing
+   * samples rather than an analytic cell-center vertex. Matching translated
+   * boundary polygons retain station-parallel face planes in exact arithmetic.
+   * Unequal samples and general fields acquire no normal-error bound. Source
+   * fidelity, immersion, orientability and absence of intersections are
+   * unproved.
+   *
+   * MaxCells bounds allocated leaf slots across the atlas. A cell needing
+   * refinement after the budget is exhausted follows cellBudgetPolicy: the strict
+   * default leaves an explicit gap, while retain-coarse emits that existing
+   * finite leaf once with its actual error estimate and
+   * approximationQualified=false. A split parent is never retained with its
+   * children. All retained leaves enter the same edge-request union, so coarse
+   * budget retention does not bypass boundary conformity. Legacy four-ID edges
+   * share the first retained incident patch's normal. Explicit canonical bindings
+   * instead construct the edge coefficients before bounds, union exact dyadic
+   * phase requests and alias hanging corners by declared endpoints. Distinct
+   * exact phases retain separate identities even when their binary64 views
+   * coincide; zero-area triangles remain counted omissions. An inverse that
+   * cannot represent an interior coordinate omits that request with a local
+   * diagnostic, preserving other requests and patches without welding or altering
+   * coefficients. Optional coefficient retention copies the actual post-binding
+   * root grids into the terminal summary and streamed chunks in mm. Omission or
+   * false allocates no snapshot and leaves emitted geometry unchanged. A prepared
+   * grid can exist for an omitted region; the public realizer separately filters
+   * snapshots to retained triangle owners. Position owners are independent of
+   * render normal fans, preserving both crease banks' analytic normals without
+   * averaging. This establishes no G1 certificate. Canonical endpoint values must
+   * agree exactly across declared corner aliases. Conflicting classes omit only
+   * their incident patches with explicit diagnostics. Consistent bindings
+   * construct the shared corner in every incident chart before derivative bounds,
+   * including charts that retain an unbound side at that corner. Complete legacy
+   * edge tuples consume that same constructed edge, including reversal.
+   * Equivalent nets under different authoritative intervals retain finite
+   * geometry with an explicit inter-authority polygon-conformity limitation.
+   * Exact zero or nonfinite normals remain zero with counts; finite positive-area
+   * geometry survives normal qualifications.
+   */
+  export function* tessellateBicubicAtlas64(
+    input: IAutoMovieBicubicAtlasTessellation64.Input,
+  ): Generator<
+    IAutoMovieBicubicAtlasTessellation64.Chunk,
+    IAutoMovieBicubicAtlasTessellation64.Summary,
+    void
+  > {
+    return yield* tessellateAutoMovieBicubicAtlas64Implementation(input);
+  }
+
+  /**
+   * Stream a conforming open mesh of the local linear physical Hermite field.
+   * Input courses are complete millimetre cubic curves with common normalized
+   * phase; their direction and ordinary-run graph authority are supplied by the
+   * caller. Positions/construction are published in metres. Indices are global,
+   * beginning at vertexOffset, and may reference vertices published in earlier
+   * chunks of this run. Every shared station uses the same actual vertex index
+   * and authoritative source jet.
+   *
+   * Exact tensor restrictions are refined until Muu/8+Muv/4+Mvv/8 <= toleranceMm,
+   * using maxima of Bernstein second-derivative coefficient norms on each local
+   * unit cell. Taylor's formula and barycentric coordinate variances <=1/4 bound
+   * the same-parameter affine error of each parameter triangle in exact
+   * arithmetic. Binary64 estimates are not outward-rounded certificates. This
+   * bound concerns the new Hermite field, not source-surface distance,
+   * monotonicity or injectivity. Bottom/top boundary chains are zipped and
+   * exterior hanging edges subdivided using existing samples only. Identical
+   * translated polygons with matching phase samples retain station-parallel face
+   * planes; general normal error is unbounded.
+   *
+   * Corners use right-sided analytic normals (u=1 left-sided); unresolved normals
+   * remain zero with diagnostics. Zero-area triangles are counted and omitted.
+   * Resource limits or unresolved interval arithmetic leave a diagnostic gap
+   * while other intervals survive. Input admission failures reject the run. Ruled
+   * station interpolation is C0 only and chooses right incident station normals,
+   * with the final station left-sided. Quadratic mode C1 requires same-chart C1
+   * input courses; crease/G1 input does not acquire parametric C1 from station
+   * interpolation.
+   */
+  export function* tessellateLocalHermite64(
+    input: IAutoMovieLocalHermiteStream64.Input,
+  ): Generator<
+    IAutoMovieLocalHermiteStream64.Chunk,
+    IAutoMovieLocalHermiteStream64.Summary,
+    void
+  > {
+    return yield* tessellateAutoMovieLocalHermite64Implementation(input);
   }
 }

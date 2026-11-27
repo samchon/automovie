@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -79,8 +79,8 @@ export function affectHeldHands(
         ? 1
         : Math.min(
             1,
-            minimumJerk.share((share - (window.from - ease)) / ease),
-            minimumJerk.share((window.to + ease - share) / ease),
+            AutoMovieEngineMotionSampling.minimumJerkShare((share - (window.from - ease)) / ease),
+            AutoMovieEngineMotionSampling.minimumJerkShare((window.to + ease - share) / ease),
           );
     const own: boolean =
       window.support.kind === "person" &&

@@ -1,7 +1,6 @@
 import {
   Vector3,
-  physicalShapeNormal,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
@@ -84,7 +83,7 @@ export function HumanArmTrajectoryWaypoint(
       candidates.forEach(
         (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
           if (on !== undefined && owners[i] !== on.owner) return;
-          const d: number = physicalShapeSegmentDistance(
+          const d: number = AutoMovieEnginePhysics.physicalShapeSegmentDistance(
             shape.pose,
             shape.shape,
             site.point,
@@ -105,7 +104,7 @@ export function HumanArmTrajectoryWaypoint(
       touched[a] = best;
       if (on === undefined) heights[a] = least;
       const s: IAutoMovieMotionHumanArmGeometry.IShape = candidates[best]!;
-      return physicalShapeNormal(
+      return AutoMovieEnginePhysics.physicalShapeNormal(
         s.pose,
         s.shape,
         site.point,

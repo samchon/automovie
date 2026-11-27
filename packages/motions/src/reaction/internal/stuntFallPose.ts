@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -478,6 +478,6 @@ function surfaceLow(
   let least: number = Infinity;
   for (const { pose, shapes } of HumanColliders.placed(body, bones))
     for (const shape of shapes)
-      least = Math.min(least, physicalShapeBounds(pose, shape).min.y);
+      least = Math.min(least, AutoMovieEnginePhysics.physicalShapeBounds(pose, shape).min.y);
   return least;
 }

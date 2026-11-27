@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -103,7 +103,7 @@ export namespace vehicleFront {
     };
     const bounds: IAutoMoviePhysicalShapeBounds.IResult[] = shapes.map(
       (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShapeBounds.IResult =>
-        physicalShapeBounds(still, shape),
+        AutoMovieEnginePhysics.physicalShapeBounds(still, shape),
     );
     const foremost: number = Math.max(
       ...bounds.map(

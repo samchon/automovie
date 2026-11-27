@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -195,7 +195,7 @@ export namespace step {
       const k: number = Math.min(count - 1, Math.floor(t / stride));
       const local: number = (t - k * stride) / stride;
       const [a, b] = (k === 0 ? planted.opening : planted.windows)[side];
-      const s: number = minimumJerk.share((local - a) / (b - a));
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare((local - a) / (b - a));
       return {
         travelled: (k + s) * length,
         swinging:
@@ -239,7 +239,7 @@ export namespace step {
           down[side] = !g.swinging;
         }
         const carried: number =
-          count * length * minimumJerk.share(t / duration);
+          count * length * AutoMovieEngineMotionSampling.minimumJerkShare(t / duration);
         const posture: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           body,
           {

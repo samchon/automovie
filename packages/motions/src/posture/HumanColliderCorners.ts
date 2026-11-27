@@ -1,4 +1,4 @@
-import { physicalShapeHull } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
@@ -15,7 +15,7 @@ import type {
 export function HumanColliderCorners(
   shape: IAutoMoviePhysicalShape,
 ): readonly IAutoMovieVector3[] {
-  if (shape.kind === "hull") return physicalShapeHull(shape).vertices;
+  if (shape.kind === "hull") return AutoMovieEnginePhysics.physicalShapeHull(shape).vertices;
   if (shape.kind === "box") {
     const h: IAutoMovieVector3 = shape.halfExtents;
     return [-1, 1].flatMap((x: number): IAutoMovieVector3[] =>

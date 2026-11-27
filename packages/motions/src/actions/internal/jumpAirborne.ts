@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -288,7 +288,7 @@ export namespace jumpAirborne {
       root: IAutoMovieVector3,
       u: number,
     ): IAutoMovieMotionHumanPosture => {
-      const s: number = minimumJerk.share(u);
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(u);
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...fixed.start.joints,
       };

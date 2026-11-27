@@ -3,7 +3,7 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * The route a quadruped ride follows: an authored course of legs, or a planned
@@ -15,7 +15,7 @@ export namespace QuadrupedTimedRoute {
     /** The plan the ride samples. */
     plan: AutoMovieArchetypeCourse.IPlan;
     /** The course of legs its admission and clock read. */
-    course: rideQuadruped.ICourse;
+    course: AutoMovieArchetypeQuadruped.IRideCourse;
 
     /**
      * Each timed halt from its stop to the next departure, which holds the hoof
@@ -40,7 +40,7 @@ export namespace QuadrupedTimedRoute {
   export function of(
     species: AutoMovieArchetypeQuadruped.ISpecies,
     route:
-      | rideQuadruped.ICourse
+      | AutoMovieArchetypeQuadruped.IRideCourse
       | AutoMovieArchetypeCourse.IPlan
       | QuadrupedTimedCues.ICued,
     withers: number,
@@ -54,7 +54,7 @@ export namespace QuadrupedTimedRoute {
         course: {
           ...named.course,
           legs: named.course.legs.map(
-            (leg: rideQuadruped.ILeg): rideQuadruped.ILeg =>
+            (leg: AutoMovieArchetypeQuadruped.IRideLeg): AutoMovieArchetypeQuadruped.IRideLeg =>
               leg.gait === undefined ? { ...leg, gait } : leg,
           ),
         },
@@ -147,7 +147,7 @@ export namespace QuadrupedTimedRoute {
                 : {}),
             }
         : AutoMovieArchetypeCourse.plan(species.archetype, route);
-    const course: rideQuadruped.ICourse =
+    const course: AutoMovieArchetypeQuadruped.IRideCourse =
       route.kind === "plan"
         ? {
             start: {

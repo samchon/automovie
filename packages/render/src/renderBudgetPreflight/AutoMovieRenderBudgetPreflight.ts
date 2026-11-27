@@ -4,12 +4,17 @@ import type {
   IAutoMovieRenderBudgetAssessment,
   IAutoMovieRenderBudgetEvidence,
   IAutoMovieRenderBudgetEvidenceProps,
+  IAutoMovieRenderObservationAuditRequest,
+  IAutoMovieRenderObservationAudit,
   IAutoMovieRenderGraphicsIdentity,
   IAutoMovieRenderTargetRenderer,
   IAutoMovieRenderTargetSettings,
   IAutoMovieRenderTargetSettingsOfShotProps,
 } from "@automovie/interface";
 
+import {
+  auditAutoMovieRenderObservation,
+} from "./internal/auditAutoMovieRenderObservation.js";
 import {
   assessAutoMovieRenderBudget,
 } from "./internal/assessAutoMovieRenderBudget.js";
@@ -32,6 +37,13 @@ import {
 /** Projects caller-supplied inputs into Render budget preflight results. */
 export class AutoMovieRenderBudgetPreflight {
   private constructor() {}
+
+  /** Compare the report cleared for capture with the scene actually observed. */
+  public static auditObservation(
+    props: IAutoMovieRenderObservationAuditRequest,
+  ): IAutoMovieRenderObservationAudit {
+    return auditAutoMovieRenderObservation(props);
+  }
 
   /**
    * Convert an optional graphics probe into a target renderer identity. A

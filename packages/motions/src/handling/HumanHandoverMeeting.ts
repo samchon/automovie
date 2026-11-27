@@ -1,16 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces, AutoMovieEngineCompositionPose } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanHandover,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionMeetingKind,
-  IAutoMovieMotionMeetingRole,
-  IAutoMovieMotionMeetingTiming,
-  IAutoMovieResolveMutualGoal,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineCompositionPose } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHandover, IAutoMovieMotionHumanProp, IAutoMovieMotionMeetingKind, IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingTiming, IAutoMovieResolveMutualGoal, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanSeatedReach } from "../touch/HumanSeatedReach";
@@ -84,7 +74,7 @@ export namespace HumanHandoverMeeting {
     const sternum: (person: IAutoMovieMotionHumanHandover.IPerson) => number = (
       person: IAutoMovieMotionHumanHandover.IPerson,
     ): number =>
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         person.body.surfaces.regions.sternum,
         person.bones.get(person.body.surfaces.regions.sternum.bone)!,
       ).point.y;

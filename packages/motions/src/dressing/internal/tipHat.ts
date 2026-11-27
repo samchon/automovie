@@ -1,28 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieAffordance,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmTarget,
-  IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanGrip,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanTipHat,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieAffordance, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanGrip, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanTipHat, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
@@ -83,7 +60,7 @@ function plan(
 
   const bones: ReturnType<typeof poseBones> = poseBones(body, entry.pose);
   const head: IAutoMovieResolvedBone = bones.get("head")!;
-  const crown = resolveAutoMovieHumanoidSurfaces.place(
+  const crown = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
     body.surfaces.regions.crown,
     head,
   );
@@ -344,7 +321,7 @@ function wornFrame(
   subject: string,
   reader: IAutoMovieMotionHumanPropReader,
   head: IAutoMovieResolvedBone,
-  crown: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place>,
+  crown: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace>,
   seconds: number,
 ): IWornFrameResult {
   const { prop } = reader;

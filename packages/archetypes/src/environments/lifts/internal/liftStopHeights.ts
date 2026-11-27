@@ -1,5 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type { IAutoMovieEnvironmentModule, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 
+import { AutoMovieArchetypeFrame } from "../../../core/AutoMovieArchetypeFrame";
 import type { AutoMovieEnvironment } from "../../AutoMovieEnvironment";
 
 /**

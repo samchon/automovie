@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeSword } from "../AutoMovieArchetypeSword";
-import { Vector3, rotationBetween } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core/index";
 import "../SWORD_BANDS";
@@ -139,7 +139,7 @@ export function createSword(
       {
         color: "#c9ccd1",
         share: ((1 - heavy) * weights[k]!) / total,
-        rotation: rotationBetween({ x: 0, y: 1, z: 0 }, span),
+        rotation: AutoMovieEngineMath.rotationBetween({ x: 0, y: 1, z: 0 }, span),
       },
     );
   }

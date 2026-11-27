@@ -9,8 +9,8 @@ import type {
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { physicalAuthoredCapture } from "./internal/physicalAuthoredCapture";
 import type { physicalBalanceStance } from "./physicalBalanceStance";
-import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
-import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
+import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
+import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "./AutoMovieEnginePhysicalSupportSpanContacts";
 
 /**
  * The balance controller's plan phase (`advancePhysicalBalance`), one for every
@@ -28,9 +28,9 @@ import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanCo
  * - The plan's capture point is the authored motion's
  *   (`physicalAuthoredCapture`), the authored motion playing the planner's
  *   role, which the root's capture-point controller tracks
- *   (`physicalBipedPressure`).
+ *   (`AutoMovieEnginePhysicalBipedPressure`).
  * - The assessment is the capture point against the planted contacts' hull
- *   (`physicalSupportSpanContacts.hull`).
+ *   (`AutoMovieEnginePhysicalSupportSpanContacts.hull`).
  *
  * @param input The recovery's state after the ramp phase, the body's readings,
  *   the stance read from that state and the trace to record into, if any.
@@ -74,7 +74,7 @@ export function physicalBalancePlan(input: {
   // Back over its planted support, the body has recovered: the supported
   // state clears the outside clock and a failed landing, as the push
   // recovery's double-support update does when the capture point is inside
-  // (`physicalPushRecovery.doubleSupport` l.137-183).
+  // (`AutoMovieEnginePhysicalPushRecovery.doubleSupport` l.137-183).
   if (hull.length > 0 && outside === 0) {
     delete state.outsideSince;
     delete state.failedLanding;
@@ -113,7 +113,7 @@ export namespace physicalBalancePlan {
   /** What the plan reads of the body's readings. */
   export type ISense = physicalAuthoredCapture.ISense &
     Pick<
-      AutoMovieEnginePhysicalBalanceTypes.Sense.ISense,
+      AutoMovieEnginePhysicalBalanceTypes.ISense,
       "center" | "velocity" | "gravity" | "floor" | "seconds"
     >;
 

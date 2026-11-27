@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, DEFAULT_HUMANOID_ROM, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, fitChainToTarget, indexSkeletonTopology, jointRomOvershoot, rotationBetween } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineMotionKinematics, DEFAULT_HUMANOID_ROM, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -60,7 +60,7 @@ export namespace motionFitArms {
     bend: IAutoMovieVector3,
     effectorRotation?: IAutoMovieQuaternion,
   ): IAutoMoviePose {
-    return fitChainToTarget({
+    return AutoMovieEngineMotionKinematics.fitChainToTarget({
       skeleton,
       pose: { skeleton: skeleton.id, root: null, joints: [] },
       chain: {
@@ -71,7 +71,7 @@ export namespace motionFitArms {
       target,
       bend,
       ...(effectorRotation === undefined ? {} : { effectorRotation }),
-      topology: indexSkeletonTopology(skeleton),
+      topology: AutoMovieEngineKinematics.indexSkeletonTopology(skeleton),
       jointAxes: HUMANOID_JOINT_AXES,
       restFrames: HUMANOID_REST_FRAME,
     });
@@ -118,7 +118,7 @@ export namespace motionFitArms {
    * range it is given, not that the range or its measure is right.
    */
   export function inRange(j: IAutoMovieJointPose): boolean {
-    return jointRomOvershoot(j, DEFAULT_HUMANOID_ROM[j.bone]!) <= 1e-6;
+    return AutoMovieEngineKinematics.jointRomOvershoot(j, DEFAULT_HUMANOID_ROM[j.bone]!) <= 1e-6;
   }
 
   /** A hand's world rotation from rest for where its fingers point and its palm faces (rest: left fingers +X, right fingers -X, palms -Y). */
@@ -127,7 +127,7 @@ export namespace motionFitArms {
     palm: IAutoMovieVector3,
     side: "left" | "right" = "left",
   ): IAutoMovieQuaternion {
-    const swing: IAutoMovieQuaternion = rotationBetween(
+    const swing: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
       { x: side === "left" ? 1 : -1, y: 0, z: 0 },
       fingers,
     );

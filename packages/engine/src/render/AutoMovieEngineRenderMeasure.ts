@@ -111,7 +111,7 @@ export namespace AutoMovieEngineRenderMeasure {
    * @param subject The subject whose surface graphics are measured.
    * @returns One row per track with feeds, in track order, and the totals.
    */
-  export function measureAutoMovieRenderFeeds(subject: IAutoMovieRenderSubject): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.IResult {
+  export function measureAutoMovieRenderFeeds(subject: IAutoMovieRenderSubject): AutoMovieEngineRenderMeasureTypes.IFeedResult {
     return measureAutoMovieRenderFeedsImplementation(subject);
   }
 
@@ -154,7 +154,7 @@ export namespace AutoMovieEngineRenderMeasure {
    *   casters, and the row and gap sinks.
    * @returns What the stage adds to each total, null where it is unknown.
    */
-  export function measureAutoMovieRenderFilmStage(props: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IProps): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IResult {
+  export function measureAutoMovieRenderFilmStage(props: AutoMovieEngineRenderMeasureTypes.IFilmStageProps): AutoMovieEngineRenderMeasureTypes.IFilmStageResult {
     return measureAutoMovieRenderFilmStageImplementation(props);
   }
 

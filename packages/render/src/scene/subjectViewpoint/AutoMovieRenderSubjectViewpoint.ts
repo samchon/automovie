@@ -1,4 +1,10 @@
 import type * as THREE from "three";
+import type { IAutoMovieViewerSnapshot } from "../IAutoMovieViewerSnapshot.js";
+import type { IAutoMovieViewerSnapshotOptions } from "../IAutoMovieViewerSnapshotOptions.js";
+import type { IAutoMovieViewerSnapshotRenderer } from "../IAutoMovieViewerSnapshotRenderer.js";
+import type { IAutoMovieUpdateComparisonCameraProps } from "./IAutoMovieUpdateComparisonCameraProps.js";
+import { captureViewerSnapshot as captureViewerSnapshotImplementation } from "./internal/captureViewerSnapshot.js";
+import { updateAutoMovieComparisonCamera as updateAutoMovieComparisonCameraImplementation } from "./internal/updateAutoMovieComparisonCamera.js";
 import { type IAutoMovieViewerSubject } from "./IAutoMovieViewerSubject.js";
 import { autoMovieViewerSubjectKey as autoMovieViewerSubjectKeyImplementation } from "./internal/autoMovieViewerSubjectKey.js";
 import { parseAutoMovieViewerSubjectKey as parseAutoMovieViewerSubjectKeyImplementation } from "./internal/parseAutoMovieViewerSubjectKey.js";
@@ -14,9 +20,27 @@ import { applyAutoMovieViewerSubjectPose as applyAutoMovieViewerSubjectPoseImple
 import { type IAutoMovieViewerSubjectView } from "./IAutoMovieViewerSubjectView.js";
 import { type IAutoMovieViewerSubjectViewRequest } from "./IAutoMovieViewerSubjectViewRequest.js";
 import { captureAutoMovieViewerSubjectView as captureAutoMovieViewerSubjectViewImplementation } from "./internal/captureAutoMovieViewerSubjectView.js";
+import { autoMovieViewerPoseFromHeadingImplementation } from "./internal/autoMovieViewerPoseFromHeadingImplementation.js";
 
 /** Public operations for Auto Movie Render Subject Viewpoint. */
 export namespace AutoMovieRenderSubjectViewpoint {
+  /** Render and encode one viewer snapshot through the borrowed renderer. */
+  export function captureSnapshot(
+    renderer: IAutoMovieViewerSnapshotRenderer,
+    scene: THREE.Scene,
+    camera: THREE.Camera,
+    options?: IAutoMovieViewerSnapshotOptions,
+  ): IAutoMovieViewerSnapshot {
+    return captureViewerSnapshotImplementation(renderer, scene, camera, options);
+  }
+
+  /** Update a matched parallel comparison from a standalone perspective view. */
+  export function updateComparisonCamera(
+    props: IAutoMovieUpdateComparisonCameraProps,
+  ): void {
+    updateAutoMovieComparisonCameraImplementation(props);
+  }
+
   /**
    * Format a caller-supplied subject as kind:id or kind:id@revision without
    * escaping. Round-trip requires a nonempty id, a nonempty revision without @
@@ -101,5 +125,25 @@ export namespace AutoMovieRenderSubjectViewpoint {
    */
   export function captureAutoMovieViewerSubjectView(request: IAutoMovieViewerSubjectViewRequest): IAutoMovieViewerSubjectView {
     return captureAutoMovieViewerSubjectViewImplementation(request);
+  }
+
+  /**
+   * Resolve an inspection heading into a target one metre ahead: yaw zero faces
+   * -Z, positive yaw faces -X, and positive pitch points upward. The returned
+   * pose borrows position and lens; clip range is checked only by ordered
+   * comparisons.
+   */
+  export function poseFromHeading(
+    position: { x: number; y: number; z: number },
+    headingDeg: { yaw: number; pitch: number },
+    lens: IAutoMovieViewerSubjectLens,
+    clip: { near: number; far: number },
+  ): IAutoMovieViewerSubjectPose {
+    return autoMovieViewerPoseFromHeadingImplementation(
+      position,
+      headingDeg,
+      lens,
+      clip,
+    );
   }
 }

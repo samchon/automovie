@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -146,7 +146,7 @@ export namespace AquaticTeamBase {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...shaped.limbs };
 
       // The base's palm rises slightly but stays submerged at the figure apex.
-      const near: number = minimumJerk.share(
+      const near: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.max(0, 1 - Math.abs(seconds - peak) / 0.36),
       );
       const y: number =

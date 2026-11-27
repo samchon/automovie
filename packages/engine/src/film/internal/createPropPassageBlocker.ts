@@ -11,7 +11,7 @@ import {
 } from "@automovie/interface";
 
 import { builtConnectorSection } from "../../architecture/internal/builtConnectorSection";
-import { builtElementRestMatrices } from "../../architecture/builtElementRestMatrices";
+import { builtElementRestMatrices } from "../../architecture/internal/builtElementRestMatrices";
 import { builtPlacedPartBoxes } from "../../architecture/internal/builtPlacedPartBoxes";
 import { propBoundsOverlap } from "./propBoundsOverlap";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";

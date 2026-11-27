@@ -9,7 +9,7 @@ import type { physicalInertiaFactor } from "../../physics/internal/physicalInert
 import { AirborneMomentumDefect } from "../AirborneMomentumDefect";
 import { AirborneShapeHistory } from "../AirborneShapeHistory";
 import { MotionTrajectoryRotation } from "../MotionTrajectoryRotation";
-import { integrateMotionTrajectory } from "../integrateMotionTrajectory";
+import { AutoMovieEngineMotionTrajectory } from "../AutoMovieEngineMotionTrajectory";
 
 /**
  * Solve a constructor-proven fixed shape's commuting torque-free rotation.
@@ -41,7 +41,7 @@ export function solveAirborneInvariant(
     return undefined;
 
   const { t0, t1 }: IAutoMovieIntegrateAirborneRotation.IProps = props;
-  const h: number = props.h ?? integrateMotionTrajectory.STEP;
+  const h: number = props.h ?? AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
   if (t1 <= t0 || h <= 0) return undefined;
   const tolerance: IAutoMovieIntegrateAirborneRotation.IProps["tolerance"] =
     props.tolerance;

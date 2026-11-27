@@ -20,7 +20,7 @@ import { computeModelRestExtent } from "../../film/internal/computeModelRestExte
 import { propSupportGap } from "../../film/internal/propSupportGap";
 import { setPieceMatrix } from "../../film/staging/internal/setPieceMatrix";
 import { Matrix4 } from "../../math/Matrix4";
-import { transformedBoxBounds } from "../../math/transformedBoxBounds";
+import { transformedBoxBounds } from "../../math/internal/transformedBoxBounds";
 import { AutoMovieEngineSpace } from "../../space/index";
 import { builtEnvironmentSupportSweep } from "./builtEnvironmentSupportSweep";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";

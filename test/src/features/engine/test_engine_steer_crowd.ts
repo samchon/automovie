@@ -1,4 +1,4 @@
-import { steerAutoMovieCrowd } from "@automovie/engine";
+import { AutoMovieEngineMotionCrowd } from "@automovie/engine";
 import type {
   IAutoMovieCrowdAgent,
   IAutoMovieSteerCrowd,
@@ -71,7 +71,7 @@ export function test_engine_steer_crowd(): void {
     agent(point(0, 0), ends[0]!),
     agent(point(0.01, 10), ends[1]!),
   ];
-  const headOn: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
+  const headOn: IAutoMovieSteerCrowd.IResult = AutoMovieEngineMotionCrowd.steer({
     agents: pair,
     from: 0,
     to: 14,
@@ -125,7 +125,7 @@ export function test_engine_steer_crowd(): void {
       ),
     );
   }
-  const crossing: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
+  const crossing: IAutoMovieSteerCrowd.IResult = AutoMovieEngineMotionCrowd.steer({
     agents: flows,
     from: 0,
     to: 30,
@@ -214,7 +214,7 @@ export function test_engine_steer_crowd(): void {
     return close;
   };
   const steered: number = ttc(
-    steerAutoMovieCrowd({ agents: crowd, from: 0, to: 20 }),
+    AutoMovieEngineMotionCrowd.steer({ agents: crowd, from: 0, to: 20 }),
   );
   const control: number = ttc(null);
   if (!(steered < control))
@@ -223,7 +223,7 @@ export function test_engine_steer_crowd(): void {
     );
 
   // 4. Order independence.
-  const reversed: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
+  const reversed: IAutoMovieSteerCrowd.IResult = AutoMovieEngineMotionCrowd.steer({
     agents: [...flows].reverse(),
     from: 0,
     to: 30,
@@ -245,7 +245,7 @@ export function test_engine_steer_crowd(): void {
       yaw: 90,
     }),
   };
-  const dodge: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
+  const dodge: IAutoMovieSteerCrowd.IResult = AutoMovieEngineMotionCrowd.steer({
     agents: [agent(point(0, 0), point(0, 10))],
     obstacles: [box],
     from: 0,
@@ -274,7 +274,7 @@ export function test_engine_steer_crowd(): void {
       3 + p.x * Math.cos(turn) + p.z * Math.sin(turn),
       -1 - p.x * Math.sin(turn) + p.z * Math.cos(turn),
     );
-  const moved: IAutoMovieSteerCrowd.IResult = steerAutoMovieCrowd({
+  const moved: IAutoMovieSteerCrowd.IResult = AutoMovieEngineMotionCrowd.steer({
     agents: pair.map(
       (a: IAutoMovieCrowdAgent, i: number): IAutoMovieCrowdAgent => ({
         ...a,

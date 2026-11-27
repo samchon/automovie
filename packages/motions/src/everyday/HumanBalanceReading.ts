@@ -1,16 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  prepareAutoMovieMassModel,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -70,7 +59,7 @@ export namespace HumanBalanceReading {
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
     projection: ReturnType<typeof prepareHumanPostureProjection>,
     frames?: ReturnType<typeof poseBones.prepare>,
-    mass?: () => prepareAutoMovieMassModel.IPrepared,
+    mass?: () => AutoMovieEngineKinematics.IPreparedMassModel,
     propose: boolean = false,
   ): IReading {
     const placed: IPlaced = placement(
@@ -81,7 +70,7 @@ export namespace HumanBalanceReading {
       frames,
       mass,
     );
-    const margin: number = resolveAutoMovieCenterOfMass.margin(
+    const margin: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(
       placed.centre,
       placed.base,
     );
@@ -144,7 +133,7 @@ export namespace HumanBalanceReading {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     frames?: ReturnType<typeof poseBones.prepare>,
-    mass?: () => prepareAutoMovieMassModel.IPrepared,
+    mass?: () => AutoMovieEngineKinematics.IPreparedMassModel,
     sides?: readonly AutoMovieHumanSide[],
   ): IPlaced {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
@@ -171,8 +160,8 @@ export namespace HumanBalanceReading {
       feet,
       centre:
         mass === undefined
-          ? resolveAutoMovieCenterOfMass.place(body.massModel, bones)
-          : prepareAutoMovieMassModel.place(mass(), bones),
+          ? AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(body.massModel, bones)
+          : AutoMovieEngineKinematics.prepareAutoMovieMassModelPlace(mass(), bones),
       base: feet.base(sides),
     };
   }

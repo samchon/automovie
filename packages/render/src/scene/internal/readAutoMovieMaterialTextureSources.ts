@@ -35,7 +35,7 @@ type ObservedRuntimeSource = RuntimeSource & { residents: string[] };
  * shader, texture state or GPU lifetime is changed by the observation.
  */
 export function readAutoMovieMaterialTextureSources(
-  props: AutoMovieRenderMaterial.ReadMaterialTextureSources.IProps,
+  props: AutoMovieRenderMaterial.IReadMaterialTextureSourcesProps,
 ): NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]>[number][] {
   const rows: ObservedRuntimeSource[] = (props.retained ?? []).map(
     (row: RuntimeSource): ObservedRuntimeSource => ({

@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype, AutoMovieArchetypeFood, AutoMovieArchetypeTableware } from "@automovie/archetypes";
-import { physicalShapePairDistance } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieRigidTransform,
@@ -26,7 +26,7 @@ function apart(
     for (const q of b.shapes())
       least = Math.min(
         least,
-        physicalShapePairDistance(pose(at), p, pose(bt), q),
+        AutoMovieEnginePhysics.physicalShapePairDistance(pose(at), p, pose(bt), q),
       );
   return least;
 }

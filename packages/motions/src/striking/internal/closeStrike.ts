@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -82,12 +82,12 @@ export namespace closeStrike {
       const take: number = TAKE * shown;
       return (
         reached *
-        minimumJerk.share(Math.max(0, seconds - take) / (shown - take))
+        AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, seconds - take) / (shown - take))
       );
     }
     return seconds <= shown
-      ? reached * minimumJerk.share(seconds / shown)
-      : reached * (1 - minimumJerk.share((seconds - shown) / recoil));
+      ? reached * AutoMovieEngineMotionSampling.minimumJerkShare(seconds / shown)
+      : reached * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - shown) / recoil));
   }
 
   /**
@@ -276,7 +276,7 @@ export namespace closeStrike {
       const pivoting: boolean =
         !spinning && turn !== 0 && p.technique !== "headbutt";
       const spun = (seconds: number): number =>
-        spin * minimumJerk.share(Math.min(1, seconds / shown));
+        spin * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, seconds / shown));
       const motion = (
         lean: number,
         shift: IAutoMovieVector3,
@@ -407,7 +407,7 @@ export namespace closeStrike {
           ): IAutoMovieMotionHumanPosture => {
             const w: number =
               seconds <= shown
-                ? reached * minimumJerk.share(seconds / shown)
+                ? reached * AutoMovieEngineMotionSampling.minimumJerkShare(seconds / shown)
                 : drive(seconds);
             const back: IAutoMovieVector3 = Vector3.scale(
               travel,
@@ -481,7 +481,7 @@ export namespace closeStrike {
             weight: (seconds: number): number =>
               seconds <= shown
                 ? reached *
-                  minimumJerk.share(
+                  AutoMovieEngineMotionSampling.minimumJerkShare(
                     Math.max(0, seconds - delay) / (shown - delay),
                   )
                 : drive(seconds),

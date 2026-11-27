@@ -9,6 +9,7 @@ import type {
   IAutoMovieDialogueVisemeTimeline,
   IAutoMovieHumanVisemeWeights,
   IAutoMovieJoinDialogueVisemes,
+  IAutoMovieLoudnessMeter,
   IAutoMovieMasterProductionSound,
   IAutoMovieMeasureLipSyncLag,
   IAutoMovieProductionAcousticResponse,
@@ -43,6 +44,7 @@ import { renderProductionSound as renderProductionSoundImplementation } from "./
 import { sampleAutoMovieDialogueExpression as sampleAutoMovieDialogueExpressionImplementation } from "./internal/sampleAutoMovieDialogueExpression";
 import { sampleAutoMovieDialogueMouth as sampleAutoMovieDialogueMouthImplementation } from "./internal/sampleAutoMovieDialogueMouth";
 import { sampleAutoMovieDialogueVisemeWeights as sampleAutoMovieDialogueVisemeWeightsImplementation } from "./internal/sampleAutoMovieDialogueVisemeWeights";
+import { createAutoMovieLoudnessMeter as createAutoMovieLoudnessMeterImplementation } from "./internal/createAutoMovieLoudnessMeter";
 
 /** Deterministic sound planning, synthesis, dialogue and analysis operations. */
 export namespace AutoMovieEngineSound {
@@ -222,4 +224,9 @@ export namespace AutoMovieEngineSound {
   ): IAutoMovieHumanVisemeWeights {
     return sampleAutoMovieDialogueVisemeWeightsImplementation(props);
   }
+  /** Create a streaming ITU-R BS.1770-5 meter for mono or stereo PCM. */
+  export function createLoudnessMeter(channels: 1 | 2): IAutoMovieLoudnessMeter {
+    return createAutoMovieLoudnessMeterImplementation(channels);
+  }
+
 }

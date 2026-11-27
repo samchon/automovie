@@ -2,7 +2,7 @@ import {
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -170,10 +170,10 @@ export namespace relayPass {
       t < at - REACH
         ? 0
         : t < at
-          ? minimumJerk.share((t - (at - REACH)) / REACH)
+          ? AutoMovieEngineMotionSampling.minimumJerkShare((t - (at - REACH)) / REACH)
           : t <= relax
             ? 1
-            : 1 - minimumJerk.share(Math.min(1, (t - relax) / REACH));
+            : 1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (t - relax) / REACH));
 
     // The run's own arm over each blend, solved at knots AutoKnots places
     // over the blend (Vitenti et al. 2024, arXiv:2412.13423) to the arm

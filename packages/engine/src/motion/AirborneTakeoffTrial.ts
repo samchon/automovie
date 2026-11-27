@@ -10,7 +10,7 @@ import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 import { AirborneTakeoffJacobian } from "./AirborneTakeoffJacobian";
 import { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
-import { integrateAirborneRotation } from "./integrateAirborneRotation";
+import { IntegrateAirborneRotationImplementation } from "./internal/IntegrateAirborneRotationImplementation";
 
 /**
  * Evaluate shooting points with optional momentum sensitivities. A search point
@@ -79,7 +79,7 @@ export function AirborneTakeoffTrial(
       );
       if (known !== undefined) return retarget(known, target);
       const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-        integrateAirborneRotation({
+        IntegrateAirborneRotationImplementation.integrateAirborneRotation({
           history: props.history,
           t0: props.t0,
           t1: props.t1,

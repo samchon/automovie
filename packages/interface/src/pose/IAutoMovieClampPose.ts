@@ -3,7 +3,7 @@ import type { IAutoMovieJointPose } from "./IAutoMovieJointPose";
 import type { IAutoMoviePose } from "./IAutoMoviePose";
 
 /**
- * Contracts of `clampPose.prepare` and `clampJointToSkeleton.prepare`: a rig's
+ * Contracts of `AutoMovieEngineKinematics.prepareClampPose` and `AutoMovieEngineKinematics.prepareClampJointToSkeleton`: a rig's
  * range-of-motion projection of a whole pose, carrying the one-joint clamp it
  * maps and that clamp's angle-taking form.
  */

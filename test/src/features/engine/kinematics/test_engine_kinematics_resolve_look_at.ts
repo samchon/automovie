@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion, validatePose } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
 import {
   AutoMovieExpressionPreset,
   AutoMovieHumanoidBone,
@@ -41,8 +41,8 @@ const DEGREE: number = Math.PI / 180;
  * 1. `lookLeft` at full intensity turns the left eye 30 degrees outward and the
  *    right eye 20 degrees inward, both toward +X, the model's left.
  * 2. `lookRight` at half intensity turns the left eye 10 degrees inward and the
- *    right eye 15 degrees outward, both toward −X.
- * 3. `lookDown` turns both eyes 25 degrees down (−Y), `lookUp` 15 up.
+ *    right eye 15 degrees outward, both toward ?뭎.
+ * 3. `lookDown` turns both eyes 25 degrees down (?뭑), `lookUp` 15 up.
  * 4. A listed `eyeLookOutLeft` 0.5 replaces the preset's left-eye weight while the
  *    right eye keeps it; the gaze preset becomes `neutral`, the eye channels
  *    leave the list and `jawOpen` stays.
@@ -73,7 +73,7 @@ export function test_engine_kinematics_resolve_look_at(): void {
     rightEye: [0, -15],
   });
   TestValidator.predicate(
-    "look right points both eyes to −X",
+    "look right points both eyes to ?뭎",
     nclose(yaw(right, "leftEye"), -10, 1e-9) &&
       nclose(yaw(right, "rightEye"), -15, 1e-9),
   );

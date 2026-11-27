@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicsContactTypes } from "./AutoMovieEnginePhysicsContactTypes";
 import type {
   IAutoMoviePhysicalShapeBounds,
   IAutoMoviePhysicalShapePairContact,
@@ -14,7 +15,7 @@ import type { IAutoMovieXpbdContactRow } from "./internal/IAutoMovieXpbdContactR
 import type { IAutoMovieXpbdResponder } from "./internal/IAutoMovieXpbdResponder";
 import { correctXpbdContactRow } from "./internal/correctXpbdContactRow";
 import { pairXpbdContactRow } from "./internal/pairXpbdContactRow";
-import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
+import { physicalShapeContactManifold } from "./internal/physicalShapeContactManifold";
 import { physicalShapePairContact } from "./internal/physicalShapePairContact";
 import { physicalShapePenetration } from "./internal/physicalShapePenetration";
 
@@ -165,7 +166,7 @@ export namespace solveXpbdContacts {
           continue;
         const measured: IAutoMoviePhysicalShapePairContact | null = measure(a, b);
         if (measured === null || !(measured.distance <= 0)) continue;
-        const patch: physicalShapeContactManifold.IPoint[] =
+        const patch: AutoMovieEnginePhysicsContactTypes.IPoint[] =
           a.sensor || b.sensor
             ? []
             : physicalShapeContactManifold(
@@ -176,7 +177,7 @@ export namespace solveXpbdContacts {
                 measured.normal,
                 band,
               );
-        const points: physicalShapeContactManifold.IPoint[] = patch.length
+        const points: AutoMovieEnginePhysicsContactTypes.IPoint[] = patch.length
           ? patch
           : [{ pointA: measured.pointA, pointB: measured.pointB }];
         for (const point of points) {

@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { decomposeAutoMovieSingularMatrix } from "../../math/internal/decomposeAutoMovieSingularMatrix";
-import { physicalSingularBudget } from "../physicalSingularBudget";
+import { AutoMovieEnginePhysicalSingularBudget } from "../AutoMovieEnginePhysicalSingularBudget";
 
 /**
  * Damped least-squares target update with an active set at box boundaries.
@@ -62,7 +62,10 @@ export function solvePhysicalTargetStep(
       free.map((index: number): number => input.columns[index]![row]!),
     );
     const decomposition: IAutoMovieSingularDecomposition =
-      decomposeAutoMovieSingularMatrix(design, physicalSingularBudget);
+      decomposeAutoMovieSingularMatrix(
+      design,
+      AutoMovieEnginePhysicalSingularBudget.DEFAULTS,
+    );
     for (let column: number = 0; column < free.length; column++) {
       const singular: number = decomposition.singularValues[column]!;
       const projection: number = decomposition.leftColumns[column]!.reduce(

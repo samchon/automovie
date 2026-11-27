@@ -1,5 +1,5 @@
 import {
-  preparePhysicalGeometry as Geometry,
+  AutoMoviePhysicalGeometry as Geometry,
   AutoMoviePhysicalSimulation,
 } from "@automovie/engine";
 import type {
@@ -25,7 +25,7 @@ const CLEARANCE: number = 1e-5;
  * 1. Exercise actual public inputs and compare physical quantities.
  */
 export async function test_engine_physics_prepare_physical_geometry_layers(): Promise<void> {
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const sphere: IAutoMoviePhysicalShape = {
     kind: "sphere",
     id: "surface",

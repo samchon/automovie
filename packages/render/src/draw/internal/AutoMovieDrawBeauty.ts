@@ -9,7 +9,7 @@ import type { AutoMovieFilmAlpha } from "../../scene/filmResponse/AutoMovieFilmA
 import { AutoMovieFilmResponseStage } from "../../scene/filmResponse/AutoMovieFilmResponseStage.js";
 import { AutoMovieFilmIndirectStage } from "../../scene/filmShading/AutoMovieFilmIndirectStage.js";
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
-import { accumulateAutoMovieFilmSamples } from "../accumulateAutoMovieFilmSamples.js";
+import { accumulateAutoMovieFilmSamples } from "./accumulateAutoMovieFilmSamples.js";
 
 /**
  * The draw page's film picture: the stages that give a subject's beauty pass

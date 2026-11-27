@@ -1,4 +1,4 @@
-import { constructAutoMovieOwnedResources } from "@automovie/render";
+import { AutoMovieSceneResource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { throws } from "node:assert/strict";
 
@@ -28,7 +28,7 @@ export function test_render_scene_construct_owned_resources(): void {
       released.push("second");
     },
   };
-  const adopted: { dispose(): void } = constructAutoMovieOwnedResources((own) =>
+  const adopted: { dispose(): void } = AutoMovieSceneResource.constructOwnedResources((own) =>
     own(second),
   );
   TestValidator.predicate(
@@ -39,7 +39,7 @@ export function test_render_scene_construct_owned_resources(): void {
 
   throws(
     (): void => {
-      constructAutoMovieOwnedResources((own): never => {
+      AutoMovieSceneResource.constructOwnedResources((own): never => {
         own(first);
         own(second);
         own(first);

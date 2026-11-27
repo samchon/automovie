@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -134,7 +134,7 @@ export namespace punchFootwork {
   ): number {
     const from: number = 0.5 * timing.shown;
     const to: number = timing.shown + 0.5 * timing.recoil;
-    return minimumJerk.share((seconds - from) / (to - from));
+    return AutoMovieEngineMotionSampling.minimumJerkShare((seconds - from) / (to - from));
   }
 
   /**
@@ -192,11 +192,11 @@ export namespace punchFootwork {
     const dragged = (t: number): number =>
       support === undefined
         ? drag(timing, t)
-        : minimumJerk.share((t - dragFrom) / (dragTo - dragFrom));
+        : AutoMovieEngineMotionSampling.minimumJerkShare((t - dragFrom) / (dragTo - dragFrom));
     const opens = (t: number): number =>
       firstStart === 0
         ? out(t)
-        : minimumJerk.share((t - firstStart) / (shown - firstStart));
+        : AutoMovieEngineMotionSampling.minimumJerkShare((t - firstStart) / (shown - firstStart));
     const landing = (side: AutoMovieHumanSide): number =>
       support?.landings[side] === undefined
         ? 0
@@ -206,7 +206,7 @@ export namespace punchFootwork {
     const lift: number = 0.015 * body.measure.stature;
     const turnBack = (t: number): number =>
       stepping
-        ? minimumJerk.share((t - dragTo) / Math.max(1e-3, duration - dragTo))
+        ? AutoMovieEngineMotionSampling.minimumJerkShare((t - dragTo) / Math.max(1e-3, duration - dragTo))
         : back(t);
 
     // The feet keep the punch's clock; the trunk's turn may run on another
@@ -236,7 +236,7 @@ export namespace punchFootwork {
       const advanced: number = advance(s);
       const from: number = advanced * opens(s);
       const speed: number =
-        (advanced * minimumJerk.rate((s - firstStart) / (shown - firstStart))) /
+        (advanced * AutoMovieEngineMotionSampling.minimumJerkRate((s - firstStart) / (shown - firstStart))) /
         (shown - firstStart);
       const rest: number = StrikingArrest.rest(from, speed, shown - s);
       travel = (t: number): number => {
@@ -248,7 +248,7 @@ export namespace punchFootwork {
       else {
         const before: number = advanced * dragged(s);
         const rate: number =
-          (advanced * minimumJerk.rate((s - dragFrom) / (dragTo - dragFrom))) /
+          (advanced * AutoMovieEngineMotionSampling.minimumJerkRate((s - dragFrom) / (dragTo - dragFrom))) /
           (dragTo - dragFrom);
         follow = (t: number): number =>
           t <= s

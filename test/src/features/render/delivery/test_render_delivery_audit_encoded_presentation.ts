@@ -1,8 +1,8 @@
-import { auditAutoMovieEncodedPresentation } from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `auditAutoMovieEncodedPresentation` checks a probe of the delivered file
+ * `AutoMovieRenderDelivery.auditEncodedPresentation` checks a probe of the delivered file
  * against the commissioned media profile.
  *
  * Scenarios:
@@ -40,7 +40,7 @@ export function test_render_delivery_audit_encoded_presentation(): void {
     height: 32,
     fps: 24,
   };
-  auditAutoMovieEncodedPresentation({ streams: [video({}), audio({})] }, expected);
+  AutoMovieRenderDelivery.auditEncodedPresentation({ streams: [video({}), audio({})] }, expected);
   for (const [title, streams] of [
     ["width", [video({ width: 65 }), audio({})]],
     ["rate", [video({}), audio({ sample_rate: "44100" })]],
@@ -49,6 +49,6 @@ export function test_render_delivery_audit_encoded_presentation(): void {
     ["no audio", [video({})]],
   ] as const)
     TestValidator.error(title, (): void => {
-      auditAutoMovieEncodedPresentation({ streams }, expected);
+      AutoMovieRenderDelivery.auditEncodedPresentation({ streams }, expected);
     });
 }

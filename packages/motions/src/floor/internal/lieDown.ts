@@ -1,4 +1,4 @@
-import { Quaternion, minimumJerk } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -289,7 +289,7 @@ export namespace lieDown {
         current,
       );
       const decay: number =
-        current === undefined ? 0 : (1 - minimumJerk.share(u)) * stoodOffset!; // Entered standing, the entry's root height decays to the rest on the bounds over the first phase (an inertialized offset, Bollo 2018).
+        current === undefined ? 0 : (1 - AutoMovieEngineMotionSampling.minimumJerkShare(u)) * stoodOffset!; // Entered standing, the entry's root height decays to the rest on the bounds over the first phase (an inertialized offset, Bollo 2018).
       const rooted: IAutoMovieMotionHumanPosture = {
         ...posed,
         root: {

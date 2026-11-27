@@ -23,10 +23,20 @@ export namespace QuadrupedPosePlan {
     "trunk" | "hindquarters" | "neck" | "head" | "tail" | QuadrupedScapula.Bone
   >;
 
+  /** Axial target with an authored world orientation. */
+  export interface IRotationGoal {
+    kind: "rotation";
+    rotation: IAutoMovieQuaternion;
+  }
+
+  /** Axial target with an authored nonzero direction. */
+  export interface IDirectionGoal {
+    kind: "direction";
+    direction: IAutoMovieVector3;
+  }
+
   /** One world orientation or nonzero direction target for an axial bar. */
-  export type Goal =
-    | { kind: "rotation"; rotation: IAutoMovieQuaternion }
-    | { kind: "direction"; direction: IAutoMovieVector3 };
+  export type Goal = IRotationGoal | IDirectionGoal;
 
   /** The current local coordinates and independently computed FK frames. */
   export interface IState {

@@ -1,4 +1,4 @@
-import { makeActorSynthesizer, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineValidation, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
@@ -112,7 +112,7 @@ const aim: (
     string,
     IAutoMovieActorContext
   >([["hero", contextOf(rig)]]);
-  return makeActorSynthesizer(contexts, NODES)(action, "hero")!.keyframes[0]!
+  return AutoMovieEngineFilm.makeActorSynthesizer(contexts, NODES)(action, "hero")!.keyframes[0]!
     .pose;
 };
 

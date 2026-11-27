@@ -1,4 +1,5 @@
-import { Quaternion, Vector3, physicalShapeFaceContact, physicalShapeGjk, physicalShapePairDistance, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
+
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -26,7 +27,7 @@ export namespace HumanMaterialContact {
     /** Boundary in the frame's local XZ plane, metres. */
     outline: readonly IAutoMovieVector3[];
     /** A prepared shape query in the face frame when the site owns one. */
-    query?: ReturnType<typeof physicalShapeFaceContact.prepare>;
+    query?: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContactPrepare>;
   }
 
   /** A named finite feature whose geometry moves rigidly with its site. */
@@ -61,8 +62,8 @@ export namespace HumanMaterialContact {
     if (named === undefined) return undefined;
     const outline: readonly IAutoMovieVector3[] | undefined = perimeter(named);
     if (outline === undefined) return undefined;
-    const query: ReturnType<typeof physicalShapeFaceContact.prepare> =
-      physicalShapeFaceContact.prepare(
+    const query: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContactPrepare> =
+      AutoMovieEnginePhysics.physicalShapeFaceContactPrepare(
         {
           position: { x: 0, y: 0, z: 0 },
           rotation: Quaternion.identity(),
@@ -191,16 +192,16 @@ export namespace HumanMaterialContact {
       HumanColliderPlacement.preparePlaced(body, names);
     return (bones, face) => {
       let best: IAutoMovieMotionHumanContactWindow.IMaterial | undefined;
-      const query: ReturnType<typeof physicalShapeFaceContact.prepare> =
+      const query: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContactPrepare> =
         face.query ??
-        physicalShapeFaceContact.prepare(face.frame, face.outline);
+        AutoMovieEnginePhysics.physicalShapeFaceContactPrepare(face.frame, face.outline);
       for (const segment of placed(bones)) {
         const pose: IAutoMovieRigidTransform =
           face.query === undefined
             ? segment.pose
             : HumanPropFrame.relative(face.frame, segment.pose);
         for (const shape of segment.shapes) {
-          const candidate: ReturnType<typeof physicalShapeFaceContact> = query(
+          const candidate: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> = query(
             pose,
             shape,
           );
@@ -406,7 +407,7 @@ export namespace HumanMaterialContact {
         for (const y of second(b))
           for (const sx of x.shapes)
             for (const sy of y.shapes) {
-              const gap: number = physicalShapePairDistance(
+              const gap: number = AutoMovieEnginePhysics.physicalShapePairDistance(
                 x.pose,
                 sx,
                 y.pose,
@@ -417,17 +418,17 @@ export namespace HumanMaterialContact {
                 (
                   pose: IAutoMovieRigidTransform,
                   shape: IAutoMoviePhysicalShape,
-                ): physicalShapeGjk.Support =>
+                ): AutoMovieEnginePhysicsGjkTypes.Support =>
                 (direction: IAutoMovieVector3): IAutoMovieVector3 =>
                   AutoMovieEnginePhysics.physicalShapeSupport(pose, shape, direction);
-              const ax: physicalShapeGjk.Support = support(x.pose, sx);
-              const by: physicalShapeGjk.Support = support(y.pose, sy);
-              const onOther: IAutoMovieVector3 = physicalShapeGjk.witness(
+              const ax: AutoMovieEnginePhysicsGjkTypes.Support = support(x.pose, sx);
+              const by: AutoMovieEnginePhysicsGjkTypes.Support = support(y.pose, sy);
+              const onOther: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalShapeGjkWitness(
                 ax,
                 by,
                 1e-8,
               ).point;
-              const onOwn: IAutoMovieVector3 = physicalShapeGjk.witness(
+              const onOwn: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalShapeGjkWitness(
                 by,
                 ax,
                 1e-8,

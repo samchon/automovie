@@ -1,10 +1,7 @@
-import { measureAutoMovieHumanoidBody } from "@automovie/engine";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
-import type {
-  IAutoMovieBodyMeasure,
-  IAutoMovieHumanCanonicalBody,
-  IAutoMovieHumanParameters,
-} from "@automovie/interface";
+import type { IAutoMovieBodyMeasure, IAutoMovieHumanCanonicalBody, IAutoMovieHumanParameters } from "@automovie/interface";
 
 /**
  * A polygon man of any Human parameters on the canonical rig, for local motion
@@ -15,7 +12,7 @@ import type {
  * girth radii from the person's measures, the T-pose and a contact profile from
  * the polygon's own primitives), tens of milliseconds a body with no curve of
  * the detailed figure built or solved; its measure is read by the engine's
- * `measureAutoMovieHumanoidBody`. Nothing is kept between calls or on disk: a
+ * `AutoMovieEngineKinematics.measureAutoMovieHumanoidBody`. Nothing is kept between calls or on disk: a
  * preparation costs less than reading and checking a stored one against the
  * sources it depends on.
  *
@@ -34,7 +31,7 @@ export function humanPolygonMan(
   return {
     id,
     body,
-    measure: measureAutoMovieHumanoidBody(body.skeleton, body.profile),
+    measure: AutoMovieEngineKinematics.measureAutoMovieHumanoidBody(body.skeleton, body.profile),
   };
 }
 

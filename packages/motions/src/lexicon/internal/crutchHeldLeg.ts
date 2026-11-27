@@ -1,4 +1,4 @@
-import { ANKLE_DORSIFLEXION, Quaternion, Vector3, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -215,7 +215,7 @@ export function crutchHeldLeg(
       (t: number): IAutoMovieMotionHumanPosture => read(t),
     );
     const share: (t: number) => number = (t: number): number =>
-      minimumJerk(Math.min(1, (t - lifted) / (held - lifted))).s;
+      AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, (t - lifted) / (held - lifted))).s;
     const first: number[] = [
       from.upper[0],
       from.upper[1],
@@ -381,7 +381,7 @@ export function crutchHeldLeg(
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
     if (seconds <= lifted) return base;
-    const s: number = minimumJerk(
+    const s: number = AutoMovieEngineMotionSampling.minimumJerk(
       Math.min(1, (seconds - lifted) / (held - lifted)),
     ).s;
     return posed(base, from, course(seconds).coordinates, s);

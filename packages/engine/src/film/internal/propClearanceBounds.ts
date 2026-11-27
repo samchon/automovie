@@ -3,7 +3,7 @@ import {
   type IAutoMoviePropClearanceBounds,
 } from "@automovie/interface";
 
-import { transformedBoxBounds } from "../../math/transformedBoxBounds";
+import { transformedBoxBounds } from "../../math/internal/transformedBoxBounds";
 import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
 
 /**

@@ -1,3 +1,4 @@
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDeliveryContentAudit,
   IAutoMovieInspectionDiagnostics,
@@ -5,9 +6,7 @@ import type {
 import {
   AUTOMOVIE_MP4_SRGB_COLOUR,
   AutoMovieRenderDelivery,
-  createAutoMovieLoudnessMeter,
-  renderAutoMovieDrawnVideo,
-
+  AutoMovieRenderVideo,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { AutoMovieCliRender } from "automovie";
@@ -76,8 +75,8 @@ export class CliRenderDeliveryFixture {
     this.input = {
       host: {
         render: {
-          renderAutoMovieDrawnVideo,
-          createAutoMovieLoudnessMeter,
+          AutoMovieRenderVideo,
+          createAutoMovieLoudnessMeter: AutoMovieEngineSound.createLoudnessMeter,
           AUTOMOVIE_MP4_SRGB_COLOUR,
           AutoMovieRenderDelivery,
         },

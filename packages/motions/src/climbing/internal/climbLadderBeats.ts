@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
@@ -151,7 +151,7 @@ export namespace climbLadderBeats {
       if (move !== undefined && seconds > move.from)
         return {
           index: base + move.n,
-          u: minimumJerk.share((seconds - move.from) / (move.to - move.from)),
+          u: AutoMovieEngineMotionSampling.minimumJerkShare((seconds - move.from) / (move.to - move.from)),
           moving: true,
         };
       return { index: base + (own[next - 1]?.n ?? 0), u: 1, moving: false };

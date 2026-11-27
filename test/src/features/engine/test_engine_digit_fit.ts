@@ -1,17 +1,5 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, AutoMovieEngineViolationCollector, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineKinematics } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieFitDigitToTarget,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-  IAutoMovieViolationCollector,
-} from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, AutoMovieEngineViolationCollector, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieFitDigitToTarget, IAutoMovieHumanoidSurfaces, IAutoMovieJointConstraint, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3, IAutoMovieViolationCollector } from "@automovie/interface";
 import { poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -83,7 +71,7 @@ const surfaceAt = (
   const frame: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.regions[region];
   const bone: IAutoMovieResolvedBone = poseBones(body, pose).get(frame.bone)!;
-  return resolveAutoMovieHumanoidSurfaces.place(frame, bone);
+  return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bone);
 };
 
 /** Random in-range angles of a digit's free axes. */

@@ -254,7 +254,7 @@ export namespace AutoMovieEngineSweep {
    *
    * `update` computes each bone's rotation `Q_b R_b^-1`, normalized, and keeps
    * its rest and posed origins, so `apply` moves a point by `P_b + Q_b R_b^-1 (p
-   * - O_b)` as `createAutoMovieBoneMotion` does. Until the first `update` and
+   * - O_b)` as the sweep pose transform. Until the first `update` and
    * after `reset` it copies points and directions unchanged, so a rig at rest
    * reproduces its unposed cage bit for bit.
    *

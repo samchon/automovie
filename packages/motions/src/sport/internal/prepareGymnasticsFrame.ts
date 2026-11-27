@@ -1,14 +1,6 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanDigitGoal,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanDigitGoal, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -134,7 +126,7 @@ function preparePlacement(
       ).pose,
       read(),
     );
-    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+    const com: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
       model,
       bones,
     );

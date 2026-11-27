@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanFrame,
@@ -92,7 +92,7 @@ export function typeTextPresses(
     if (seconds < active.start)
       return world(active.from.x, active.from.z, hover);
     if (seconds < active.press) {
-      const share: number = minimumJerk.share(
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         (seconds - active.start) / active.span,
       );
       return world(
@@ -101,7 +101,7 @@ export function typeTextPresses(
         hover - (hover + travel) * share * share,
       );
     }
-    const share: number = minimumJerk.share(
+    const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       (seconds - active.press) / active.lift,
     );
     return world(active.at.x, active.at.z, -travel + (hover + travel) * share);

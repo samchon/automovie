@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanPosture,
@@ -64,7 +64,7 @@ export function prepareRiseFeet(
     if (t >= swing[1]) return { ankle: props.drawn[side], planted: true };
     const u: number = (t - swing[0]) / props.draw;
     const line: ReturnType<typeof Vector3.prepareLerp> = straight[side];
-    const ankle: IAutoMovieVector3 = line(minimumJerk.share(u));
+    const ankle: IAutoMovieVector3 = line(AutoMovieEngineMotionSampling.minimumJerkShare(u));
 
     // This interpolation vector belongs only to this foot read.
     ankle.y = ankle.y + props.lift * Math.sin(Math.PI * u);

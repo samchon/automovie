@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -194,7 +194,7 @@ export namespace disarm {
         closing(
           joints,
           0,
-          minimumJerk.share(Math.min(1, (seconds - taken) / CLOSE)),
+          AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (seconds - taken) / CLOSE)),
         );
         return { ...shown, joints };
       },

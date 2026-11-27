@@ -1,4 +1,4 @@
-import { markAutoMovieSkeleton, AutoMovieEngineCompositionContact } from "@automovie/engine";
+import { AutoMoviePhysicalSkeleton, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type { IAutoMovieMark } from "@automovie/interface";
 
 import type { IFilmProduction } from "./IFilmProduction";
@@ -24,7 +24,7 @@ export function markFilmProduction(
     | undefined = performance.supports?.();
   return [
     ...(production.marks?.(seconds) ?? []),
-    ...markAutoMovieSkeleton({
+    ...AutoMoviePhysicalSkeleton.mark({
       bodies: performance.bodies,
       frame: performance.frame(),
     }),

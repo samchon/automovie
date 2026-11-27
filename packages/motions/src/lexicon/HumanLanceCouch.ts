@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -266,7 +266,7 @@ function planHumanLanceCouch(
   const shapes: NonNullable<IAutoMovieMotionHumanPropReader["prop"]["shapes"]> =
     support.prop.shapes ?? [];
   const ease = (t: number, from: number): number =>
-    minimumJerk.share(Math.min(1, Math.max(0, (t - from) / params.lower)));
+    AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, (t - from) / params.lower)));
   const windows: IAutoMovieMotionHumanContactWindow[] = [
     ...StrikingHeld.grips(tool),
     {

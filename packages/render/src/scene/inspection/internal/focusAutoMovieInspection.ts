@@ -19,7 +19,7 @@ import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionG
  * one. It throws when a pattern matches nothing drawn, and when the flagged
  * focus finds no flagged mark, saying no mark is flagged.
  */
-export function focusAutoMovieInspection(props: AutoMovieRenderInspection.Focus.IProps): IAutoMovieViewerSubjectBounds {
+export function focusAutoMovieInspection(props: AutoMovieRenderInspection.IFocusProps): IAutoMovieViewerSubjectBounds {
   const focus: IAutoMovieInspectionFocus = props.focus;
   const flagged: boolean = focus.type === "flagged";
   const boxes: {

@@ -1,4 +1,4 @@
-import { physicalShapeBounds } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMoviePhysicalShape,
@@ -67,7 +67,7 @@ export function readAutoMovieCollisionMotion(
         return { x: world.x, y: world.y, z: world.z };
       },
     ),
-    box: physicalShapeBounds(pose, shape),
+    box: AutoMovieEnginePhysics.physicalShapeBounds(pose, shape),
     thickness: local.thickness,
   };
 }

@@ -1,13 +1,6 @@
-import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
@@ -95,8 +88,8 @@ export function standCases(
     const pitch: number = (Math.asin(forward.y) * 180) / Math.PI;
     level.push(`${name} ${pitch.toFixed(1)} deg`);
     if (Math.abs(pitch) > 2) levelOk = false;
-    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
+    const com: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
       bones,
     );
     const ahead: number = com.z - (z("leftFoot") + z("rightFoot")) / 2;

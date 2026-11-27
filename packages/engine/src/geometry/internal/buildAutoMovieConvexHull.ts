@@ -4,19 +4,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalHullFaces } from "../../physics/physicalHullFaces";
+import { AutoMoviePhysicalHullFaces } from "../../physics/AutoMoviePhysicalHullFaces";
 import { buildAutoMoviePolyhedron } from "./buildAutoMoviePolyhedron";
 
 /**
  * Build the convex hull of a point set as one closed outward mesh.
  *
- * The hull's faces are the supporting planes `physicalHullFaces` finds, each
+ * The hull's faces are the supporting planes `AutoMoviePhysicalHullFaces` finds, each
  * with its loop counter-clockwise seen from outside, and
  * `buildAutoMoviePolyhedron` fans each loop from its first corner with a flat
  * normal and metric UVs. Archetype convex cells and the form expectation
  * check's hull mutant are both this mesh. Points within the hull's coplanarity
  * tolerance of a face lie on it, so a flat ring of many points makes one face.
- * The points are read, and `physicalHullFaces` remembers the hull of this very
+ * The points are read, and `AutoMoviePhysicalHullFaces` remembers the hull of this very
  * array, so the array must not change after this call.
  *
  * @param points Points in metres, spanning positive volume.
@@ -30,7 +30,7 @@ export const buildAutoMovieConvexHull: (
 ) => IAutoMovieMesh = (
   points: readonly IAutoMovieVector3[],
 ): IAutoMovieMesh => {
-  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = AutoMoviePhysicalHullFaces.build(points);
   if (hull.faces.length === 0)
     throw new Error("A convex hull needs points spanning positive volume.");
   return buildAutoMoviePolyhedron(

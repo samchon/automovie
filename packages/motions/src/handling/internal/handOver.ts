@@ -1,4 +1,4 @@
-import { Quaternion, minimumJerk } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -321,19 +321,19 @@ export namespace handOver {
       if (t <= shared.offer) {
         wrist = out.wrist(t);
         rotation = out.turn(t);
-        share = minimumJerk.share(t / shared.offer);
+        share = AutoMovieEngineMotionSampling.minimumJerkShare(t / shared.offer);
       } else if (t <= pullback) {
         wrist = shared.giverAt.point;
         rotation = shared.giverAt.rotation;
       } else if (opens && t <= pullback + OPEN) {
         wrist = shared.giverAt.point;
         rotation = shared.giverAt.rotation;
-        digits = openAt!(minimumJerk.share((t - pullback) / OPEN));
+        digits = openAt!(AutoMovieEngineMotionSampling.minimumJerkShare((t - pullback) / OPEN));
       } else {
         const r: number = t - pullback - (opens ? OPEN : 0);
         wrist = home.wrist(r);
         rotation = home.turn(r);
-        share = 1 - minimumJerk.share(r / back);
+        share = 1 - AutoMovieEngineMotionSampling.minimumJerkShare(r / back);
         if (opens) digits = returnShape!(r / back);
       }
       const base: IAutoMovieMotionHumanPosture = leaned(share);

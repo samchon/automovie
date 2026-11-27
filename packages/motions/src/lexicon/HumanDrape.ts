@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -48,7 +48,7 @@ function planHumanDrape(context: Context): IAutoMovieMotionHumanActionPlan {
           : mixHumanPosture(
               from,
               lying,
-              minimumJerk.share(Math.min(1, t / lay)),
+              AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / lay)),
             );
       return HumanMountedFrame.move(
         shown,

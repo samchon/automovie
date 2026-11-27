@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../core";
-import { createScenicContainer } from "./createScenicContainer";
+import { createScenicContainer } from "./internal/createScenicContainer";
 
 /** Readable names for the five scene props. */
 const NAMES: Readonly<Record<createScenicContainer.Kind, string>> = {

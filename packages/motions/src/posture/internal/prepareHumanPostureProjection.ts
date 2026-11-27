@@ -1,4 +1,6 @@
-import { clampPose } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
@@ -39,7 +41,7 @@ export namespace prepareHumanPostureProjection {
   export function joints(
     body: IAutoMovieMotionHumanBody,
     source?: (pose: IAutoMoviePose) => IAutoMoviePose,
-  ): clampPose.IPrepared["joints"] | undefined {
+  ): ReturnType<typeof AutoMovieEngineKinematics.prepareClampPose>["joints"] | undefined {
     return source !== undefined && source === body.projection
       ? body.projection.joints
       : undefined;
@@ -47,7 +49,7 @@ export namespace prepareHumanPostureProjection {
 
   /**
    * The angle-taking form of the body's projector's one-joint owner
-   * (`clampPose.IPrepared.values`, a member of the projector): a joint's record
+   * (`AutoMovieEngineKinematics.prepareClampPose`, whose returned projector carries `values`): a joint's record
    * made in range from its bone and three clinical angles, the record `joints`'
    * owner gives for the record of those values. Identity with the body's
    * projector is tested first; another function declines without being
@@ -60,7 +62,7 @@ export namespace prepareHumanPostureProjection {
   export function values(
     body: IAutoMovieMotionHumanBody,
     source?: (pose: IAutoMoviePose) => IAutoMoviePose,
-  ): clampPose.IPrepared["values"] | undefined {
+  ): ReturnType<typeof AutoMovieEngineKinematics.prepareClampPose>["values"] | undefined {
     return source !== undefined && source === body.projection
       ? body.projection.values
       : undefined;

@@ -1,4 +1,4 @@
-import { AirborneTakeoffQuadrature } from "@automovie/engine";
+import { AutoMovieEngineMotionAirborneTakeoff } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -35,7 +35,7 @@ export function test_engine_motion_airborne_takeoff_quadrature(): void {
     separable: boolean,
   ): { value: number; reads: number } => {
     let reads: number = 0;
-    const value: number[] = AirborneTakeoffQuadrature({
+    const value: number[] = AutoMovieEngineMotionAirborneTakeoff.quadrature({
       t0: 0,
       t1: 1,
       read: (t: number): number[] => {

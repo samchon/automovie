@@ -1,8 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeNormal,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
@@ -357,7 +356,7 @@ export namespace HumanArmShapes {
     p: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const s: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[shape]!;
-    return physicalShapeNormal(
+    return AutoMovieEnginePhysics.physicalShapeNormal(
       s.pose,
       s.shape,
       p,
@@ -381,7 +380,7 @@ export namespace HumanArmShapes {
     b: IAutoMovieVector3,
   ): number {
     const s: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[shape]!;
-    return physicalShapeSegmentDistance(s.pose, s.shape, a, b);
+    return AutoMovieEnginePhysics.physicalShapeSegmentDistance(s.pose, s.shape, a, b);
   }
 
   /**
@@ -396,9 +395,9 @@ export namespace HumanArmShapes {
   export function prepareGap(
     at: IAutoMovieMotionHumanArmGeometry.IFrame,
     shape: number,
-  ): ReturnType<typeof physicalShapeSegmentDistance.prepare> {
+  ): ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance> {
     const s: IAutoMovieMotionHumanArmGeometry.IShape = at.shapes[shape]!;
-    return physicalShapeSegmentDistance.prepare(s.pose, s.shape);
+    return AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(s.pose, s.shape);
   }
 
   /**

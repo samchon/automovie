@@ -1,11 +1,11 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import * as THREE from "three";
-import type { AutoMovieRenderSurfaceAppearance } from "../AutoMovieRenderSurfaceAppearance.js";
 
+import type { AutoMovieRenderSurfaceAppearance } from "../AutoMovieRenderSurfaceAppearance.js";
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
-import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
+import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
 /** The largest finite binary32 magnitude a GPU vertex attribute can hold. */
 const F32_MAX: number = 3.4028234663852886e38;
@@ -17,7 +17,9 @@ const exceedsF32 = (value: number): boolean => Math.abs(value) > F32_MAX;
  * Apply provider-local color and compression to actual vertices, with owned
  * resources.
  */
-export function createAutoMovieSurfaceAppearance(input: AutoMovieRenderSurfaceAppearance.Create.IProps): AutoMovieRenderSurfaceAppearance.Create.IResult {
+export function createAutoMovieSurfaceAppearance(
+  input: AutoMovieRenderSurfaceAppearance.ICreateSurfaceAppearanceProps,
+): AutoMovieRenderSurfaceAppearance.ISurfaceAppearanceResult {
   const meshes: Set<THREE.Mesh> = new Set();
   for (const surface of input.surfaces) {
     if (meshes.has(surface.mesh))

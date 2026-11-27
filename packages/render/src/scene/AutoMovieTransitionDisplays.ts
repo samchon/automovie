@@ -6,15 +6,16 @@ import * as THREE from "three";
 
 import { AutoMovieDisplayCompositor } from "./internal/AutoMovieDisplayCompositor.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
-import { renderAutoMovieFilmFrame } from "./renderAutoMovieFilmFrame.js";
+import { renderAutoMovieFilmFrame } from "./internal/renderAutoMovieFilmFrame.js";
+import { mixAutoMovieStraightAlpha as mixStraightAlphaImplementation } from "./internal/mixAutoMovieStraightAlpha.js";
 
 /**
  * The canvas pictures of a transition's layers, held one at a time and then
- * composited through `renderAutoMovieFilmFrame`, so layers whose placement must
+ * composited through `AutoMovieTransitionDisplays.composite`, so layers whose placement must
  * be awaited reach the synchronous transition compositor.
  *
  * `hold` copies the canvas, as the last draw left it, into a numbered slot.
- * `composite` hands each layer's slot to `renderAutoMovieFilmFrame` as that
+ * `composite` hands each layer's slot to `AutoMovieTransitionDisplays.composite` as that
  * layer's source, which replays the held bytes onto the canvas with a raw copy
  * and mixes them in `AutoMovieDisplayCompositor`: two complementary layers
  * dissolve, one fractional layer fades toward opaque black, or with
@@ -76,6 +77,33 @@ export class AutoMovieTransitionDisplays {
   private readonly dissolve_: AutoMovieDisplayCompositor =
     new AutoMovieDisplayCompositor(1, 1);
 
+  /**
+   * Mix two straight-alpha RGBA byte pixels at a weight, as
+   * `AutoMovieDisplayCompositor` mixes a dissolve or a fade, and return the
+   * straight-alpha result in bytes.
+   *
+   * Each pixel's colour is first associated with its alpha (colour times alpha
+   * over 255), the associated colours and the alphas are mixed with the same
+   * weight, `(1 - weight) * outgoing + weight * incoming`, and the colour is
+   * divided by the mixed alpha back into straight colour, 0 where the mixed alpha
+   * is 0, each rounded to the nearest byte. Mixing straight colour instead lets a
+   * transparent pixel's black pull down every half-covered edge, a dark fringe
+   * when the layer is composited (Porter and Duff, "Compositing Digital Images",
+   * 1984). Two opaque pixels mix exactly as straight colour does.
+   *
+   * With `incoming` null the mix is a fade toward a fully transparent pixel:
+   * associated colour and alpha fall together, so the straight colour stays the
+   * outgoing pixel's own and only its alpha falls.
+   *
+   * It throws for a weight outside `[0, 1]`.
+   */
+  public static mixStraightAlpha(
+    outgoing: readonly [number, number, number, number],
+    incoming: readonly [number, number, number, number] | null,
+    weight: number,
+  ): [number, number, number, number] {
+    return mixStraightAlphaImplementation(outgoing, incoming, weight);
+  }
   /** Put the quad in its scene; nothing is allocated on the GPU yet. */
   public constructor() {
     this.quad_.frustumCulled = false;

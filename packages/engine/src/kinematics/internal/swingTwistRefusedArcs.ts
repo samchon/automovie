@@ -12,7 +12,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
-import { toRigAngle } from "../../rom/toRigAngle";
+import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 import { readsSwingTwistFrame } from "./readsSwingTwistFrame";
 import { swingTwistBasis } from "../swingTwistBasis";
 import { swingTwistRegion } from "../swingTwistRegion";
@@ -83,7 +83,7 @@ export function swingTwistRefusedArcs(
   // The twist past its rig interval, read on the half twist.
   const twist: IAutoMovieAngleRange = gate.twist;
   const ends: number[] = [twist.min, twist.max].map(
-    (clinical: number): number => toRigAngle(clinical, joint.frame?.twist)!,
+    (clinical: number): number => AutoMovieEngineRigAngle.toRigAngle(clinical, joint.frame?.twist)!,
   );
   const lo: number = (Math.min(...ends) / 2) * Quaternion.DEG2RAD;
   const hi: number = (Math.max(...ends) / 2) * Quaternion.DEG2RAD;

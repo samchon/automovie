@@ -1,4 +1,4 @@
-import { physicalHullFaces, physicalHullNearest } from "@automovie/engine";
+import { AutoMoviePhysicalHullFaces, AutoMoviePhysicalHull } from "@automovie/engine";
 import { AutoMovieHumanCanonicalSolids } from "@automovie/human";
 import type {
   IAutoMovieHumanBindBone,
@@ -6,10 +6,7 @@ import type {
   IAutoMovieHumanSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  type AutoMovieHumanPolygon,
-  buildHumanPolygon,
-} from "@automovie/render";
+import { AutoMovieHumanPolygon } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -74,13 +71,13 @@ export function test_human_canonical_solids_surface(): void {
     solid: IAutoMovieHumanCanonicalSolids.ISolid,
     p: IAutoMovieVector3,
   ): number =>
-    physicalHullNearest(solid.points, {
+    AutoMoviePhysicalHull.nearest(solid.points, {
       x: p.x - solid.centre.x,
       y: p.y - solid.centre.y,
       z: p.z - solid.centre.z,
     }).distance;
 
-  const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(input);
+  const drawing: AutoMovieHumanPolygon.IDrawing = AutoMovieHumanPolygon.build(input);
   const defects: string[] = [];
   let claimed: number = 0;
   let cornerWorst: number = 0;
@@ -157,7 +154,7 @@ export function test_human_canonical_solids_surface(): void {
     // 4. The solids lie on the mesh.
     const nearest: THREE.Vector3 = new THREE.Vector3();
     for (const solid of own)
-      for (const face of physicalHullFaces(solid.points).faces) {
+      for (const face of AutoMoviePhysicalHullFaces.build(solid.points).faces) {
         const loop: THREE.Vector3[] = face.loop.map(
           (p: IAutoMovieVector3): THREE.Vector3 =>
             new THREE.Vector3(

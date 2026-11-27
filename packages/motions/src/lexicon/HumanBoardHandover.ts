@@ -1,13 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBoard,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBoard, IAutoMovieMotionHumanPerformerReader, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanMountedFrame } from "./HumanMountedFrame";
 
@@ -137,7 +130,7 @@ export namespace HumanBoardHandover {
   ): IAutoMovieVector3 {
     const frame: IAutoMovieHumanoidSurfaces.IFrame =
       partner.body.surfaces.regions[region];
-    return resolveAutoMovieHumanoidSurfaces.place(
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       frame,
       partner
         .bones(film, new Set<AutoMovieHumanoidBone>([frame.bone]))

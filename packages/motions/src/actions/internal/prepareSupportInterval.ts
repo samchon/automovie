@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -294,7 +294,7 @@ export function prepareSupportInterval(
     // by what they still sink, at most LIFTS times.
     const exact: prepareSupportLiftCourse.Exact = (share: number): number => {
       // Material travels on the action clock, not on the eased pose share.
-      const s: number = sites.length === 0 ? share : minimumJerk.share(share);
+      const s: number = sites.length === 0 ? share : AutoMovieEngineMotionSampling.minimumJerkShare(share);
       const start: IAutoMovieMotionHumanPosture = placed(
         posed,
         pinned,

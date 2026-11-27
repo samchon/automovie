@@ -1,8 +1,6 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanTiming,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanTiming } from "@automovie/interface";
 
 import { walk } from "../../gait/internal/walk";
 import { walkFoot } from "../../actions/internal/walkFoot";
@@ -122,7 +120,7 @@ export namespace staggerBounds {
    * The pendulum's length in hip heights: Hof's leg length (Hof, Gazendam and
    * Sinke 2005).
    */
-  export const PENDULUM: number = resolveAutoMovieCenterOfMass.PENDULUM;
+  export const PENDULUM: number = AutoMovieEngineKinematics.AUTO_MOVIE_CENTER_OF_MASS_PENDULUM;
 
   /**
    * The most recovery steps taken (Debelle, Maganaris and O'Brien 2021, young
@@ -193,8 +191,8 @@ export namespace staggerBounds {
 
   /**
    * The pendulum's eigenfrequency `sqrt(g / l)` for a body
-   * (`resolveAutoMovieCenterOfMass.frequency`, standard gravity), `l` its
-   * pendulum's length (`resolveAutoMovieCenterOfMass.pendulum`).
+   * (`AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency`, standard gravity), `l` its
+   * pendulum's length (`AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum`).
    *
    * @param body The body.
    * @returns Radians per second.
@@ -202,8 +200,8 @@ export namespace staggerBounds {
   export function omega(
     body: IAutoMovieMotionHumanActionContext["body"],
   ): number {
-    return resolveAutoMovieCenterOfMass.frequency(
-      resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+    return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
     );
   }
 }

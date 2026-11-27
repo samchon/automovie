@@ -11,7 +11,7 @@ import {
 import { Matrix4 } from "../../math/Matrix4";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { rotationBetween } from "../../math/rotationBetween";
+import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import { applyIterativeIK } from "./applyIterativeIK";
 import { blendVec } from "./blendVec";
 import { readWorld } from "./readWorld";
@@ -216,11 +216,11 @@ const applyTwoBoneIK: (
     Vector3.scale(dir, reach),
   );
 
-  const rootDelta: IAutoMovieQuaternion = rotationBetween(
+  const rootDelta: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
     Vector3.normalize(upper),
     Vector3.normalize(Vector3.subtract(newMid, rootP)),
   );
-  const midDelta: IAutoMovieQuaternion = rotationBetween(
+  const midDelta: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
     Vector3.normalize(lower),
     Vector3.normalize(Vector3.subtract(newTip, newMid)),
   );
@@ -317,7 +317,7 @@ const aimRotation: (
   worldUp: IAutoMovieVector3,
 ): IAutoMovieQuaternion => {
   const f: IAutoMovieVector3 = Vector3.normalize(dir);
-  const r1: IAutoMovieQuaternion = rotationBetween(
+  const r1: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
     Vector3.normalize(aimAxis),
     f,
   );

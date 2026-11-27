@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmAngles,
@@ -48,10 +48,10 @@ export function staggerArms(
   const onset: number = AutoMovieMotionHumanTiming.seconds(staggerBounds.ONSET);
   const raised: (seconds: number) => number = (seconds: number): number => {
     const end: number = recovery.steps.at(-1)!.land;
-    const rise: number = minimumJerk.share(
+    const rise: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (seconds - onset) / (swing - onset))),
     );
-    const fall: number = minimumJerk.share(
+    const fall: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (seconds - end) / (duration - end))),
     );
     return staggerBounds.ABDUCTION * Math.max(0, rise - fall);

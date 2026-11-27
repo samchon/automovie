@@ -1,4 +1,4 @@
-import { physicalHullFaces } from "@automovie/engine";
+import { AutoMoviePhysicalHullFaces } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
@@ -77,7 +77,7 @@ export namespace ArchetypeShapes {
           ...base,
           kind: "hull",
           points,
-          hull: physicalHullFaces(points),
+          hull: AutoMoviePhysicalHullFaces.build(points),
         });
         continue;
       }
@@ -123,7 +123,7 @@ export namespace ArchetypeShapes {
               ...base,
               kind: "hull",
               points,
-              hull: physicalHullFaces(points),
+              hull: AutoMoviePhysicalHullFaces.build(points),
             });
           }
           break;
@@ -136,7 +136,7 @@ export namespace ArchetypeShapes {
             ...base,
             kind: "hull",
             points,
-            hull: physicalHullFaces(points),
+            hull: AutoMoviePhysicalHullFaces.build(points),
           });
           break;
         }

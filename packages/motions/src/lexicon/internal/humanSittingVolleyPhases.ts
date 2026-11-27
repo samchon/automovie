@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 /**
  * A sitting-volleyball shift's phases over its share (World ParaVolley Rule
@@ -18,13 +18,13 @@ export function humanSittingVolleyPhases(
   const RELEASE: number = humanSittingVolleyPhases.RELEASE;
   const RECEIVE: number = humanSittingVolleyPhases.RECEIVE;
   return {
-    moving: minimumJerk.share((share - PLANT) / (RELEASE - PLANT)),
+    moving: AutoMovieEngineMotionSampling.minimumJerkShare((share - PLANT) / (RELEASE - PLANT)),
     reaching:
-      minimumJerk.share(share / PLANT) *
-      (1 - minimumJerk.share((share - RELEASE) / (RECEIVE - RELEASE))),
+      AutoMovieEngineMotionSampling.minimumJerkShare(share / PLANT) *
+      (1 - AutoMovieEngineMotionSampling.minimumJerkShare((share - RELEASE) / (RECEIVE - RELEASE))),
     platform:
-      minimumJerk.share((share - RELEASE) / (RECEIVE - RELEASE)) *
-      (1 - minimumJerk.share((share - RECEIVE) / (1 - RECEIVE))),
+      AutoMovieEngineMotionSampling.minimumJerkShare((share - RELEASE) / (RECEIVE - RELEASE)) *
+      (1 - AutoMovieEngineMotionSampling.minimumJerkShare((share - RECEIVE) / (1 - RECEIVE))),
   };
 }
 

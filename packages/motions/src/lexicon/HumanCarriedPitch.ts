@@ -1,16 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCarried,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
@@ -72,7 +61,7 @@ export function HumanCarriedPitch(
         ),
     );
   const centre: IAutoMovieVector3 = read.fit.place(
-    resolveAutoMovieCenterOfMass.place(borne.massModel, read.mine),
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(borne.massModel, read.mine),
   );
   const ahead = (point: IAutoMovieVector3): number =>
     Vector3.dot(point, forward);

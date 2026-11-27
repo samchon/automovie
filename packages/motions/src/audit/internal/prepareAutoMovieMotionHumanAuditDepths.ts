@@ -1,8 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeHull,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanColliders,
@@ -79,7 +78,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
       (
         shape: IAutoMoviePhysicalShape,
       ): IAutoMoviePhysicalHullFaces.IFace[] | undefined =>
-        shape.kind === "hull" ? physicalShapeHull(shape).faces : undefined,
+        shape.kind === "hull" ? AutoMovieEnginePhysics.physicalShapeHull(shape).faces : undefined,
     );
   return (
     probes: readonly IAutoMovieVector3[],
@@ -134,7 +133,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         if (shape.kind !== "hull") {
           deepest = Math.max(
             deepest,
-            -physicalShapeSegmentDistance(IDENTITY, shape, local, local),
+            -AutoMovieEnginePhysics.physicalShapeSegmentDistance(IDENTITY, shape, local, local),
           );
           continue;
         }

@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieVector3,
@@ -74,7 +74,7 @@ export function climbStairsPelvis(
     const progress: number = interval(ends, seconds);
     if (progress < steps) {
       const begin: number = starts[progress]!;
-      const u: number = minimumJerk.share(
+      const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(1, Math.max(0, (seconds - begin) / spans[progress]!)),
       );
       const point: IAutoMovieVector3 = positions[progress]!(u);

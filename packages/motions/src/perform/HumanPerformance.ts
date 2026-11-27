@@ -1,4 +1,4 @@
-import { integrateAirborneRotation } from "@automovie/engine";
+import { AutoMovieEngineMotionAirborneRotation } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -123,7 +123,7 @@ export class HumanPerformance {
    */
   public constructor(
     input: IAutoMovieMotionHumanPerformance.IInput,
-    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
+    observation?: ReturnType<typeof AutoMovieEngineMotionAirborneRotation.observe>,
   ) {
     // Resolved afresh on every construction: a resolution is a pure function
     // of its input, so it owns its plans, schedule and contacts and shares

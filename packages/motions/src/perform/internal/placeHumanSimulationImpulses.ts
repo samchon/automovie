@@ -1,20 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanForce,
-  IAutoMovieMotionHumanImpulse,
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalSegment,
-  IAutoMoviePhysicalSimulationInput,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanImpulse, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMoviePhysicalSimulationInput, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * A performance's impulses on a simulated window's performers, as the solver's
@@ -25,7 +10,7 @@ import type {
  * is applied once before its first native step
  * (`IAutoMoviePhysicalSimulationInput.IInput.impulses`). Its point is the
  * site's world point in the displayed pose at that boundary: a region's point
- * (`resolveAutoMovieHumanoidSurfaces.place`) or a bone-local point; it acts on
+ * (`AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace`) or a bone-local point; it acts on
  * the profile segment that carries the site's bone, the bone's own or its
  * nearest ancestor's.
  *
@@ -77,7 +62,7 @@ export function placeHumanSimulationImpulses(
         const frame: IAutoMovieResolvedBone = placed.get(bone)!;
         const point: IAutoMovieVector3 =
           typeof site === "string"
-            ? resolveAutoMovieHumanoidSurfaces.place(
+            ? AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
                 body.surfaces.regions[site],
                 frame,
               ).point

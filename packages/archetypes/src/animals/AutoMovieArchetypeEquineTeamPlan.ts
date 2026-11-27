@@ -11,7 +11,7 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
 /**
  * The hitch places, the authored team course, the per-horse draught states and
  * the displayed samples of several harnessed horses put to one pole vehicle
- * (`AutoMovieArchetypeEquineTeam`).
+ * (`AutoMovieArchetypeEquineTeam.create`).
  */
 export namespace AutoMovieArchetypeEquineTeamPlan {
   /**

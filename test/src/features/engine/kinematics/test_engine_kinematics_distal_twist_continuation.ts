@@ -1,4 +1,4 @@
-import { Quaternion, solveDistalTwist } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionDistalTwist } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
@@ -52,8 +52,8 @@ export function test_engine_kinematics_distal_twist_continuation(): void {
     abduction: 0,
     twist: 0,
   };
-  const fit = (a: number): solveDistalTwist.IResult =>
-    solveDistalTwist.withProjection({
+  const fit = (a: number): AutoMovieEngineMotionDistalTwist.IResult =>
+    AutoMovieEngineMotionDistalTwist.withProjection({
       joint: { ...hand, bone: "rightLowerArm" },
       effector: hand,
       above: identity,
@@ -87,8 +87,8 @@ export function test_engine_kinematics_distal_twist_continuation(): void {
   const residualSlope: number =
     Math.sin(outsideTurn / (2 * degrees)) / Math.sin(tilt / 2);
   const residualTolerance: number = residualSlope * error + angleRoundoff;
-  const inside: solveDistalTwist.IResult = fit(d - excess);
-  const outside: solveDistalTwist.IResult = fit(outsideTurn);
+  const inside: AutoMovieEngineMotionDistalTwist.IResult = fit(d - excess);
+  const outside: AutoMovieEngineMotionDistalTwist.IResult = fit(outsideTurn);
   const selected: number = outside.joint.twist ?? 0;
   const demand: IAutoMovieQuaternion = Quaternion.multiply(
     Quaternion.fromAxisAngle(axes.twist, outsideTurn - selected),

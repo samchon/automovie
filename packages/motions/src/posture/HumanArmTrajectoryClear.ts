@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -222,7 +222,7 @@ export namespace HumanArmTrajectoryClear {
     for (const pair of pairs.embedded.values()) {
       if (pair.rested || pair.short < -M.TOLERANCE) continue;
       const p: IAutoMovieVector3 = frame.body[pair.corner]!.point;
-      const g: IAutoMovieVector3 = physicalShapeNormal(
+      const g: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalShapeNormal(
         pair.shape.pose,
         pair.shape.shape,
         p,

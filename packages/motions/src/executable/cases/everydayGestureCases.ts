@@ -1,10 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanGestureStroke,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { gestureStrokeTables } from "../../everyday/internal/gestureStrokeTables";
@@ -115,7 +111,7 @@ export function everydayGestureCases(
         kind === "touchFace"
           ? body.surfaces.regions.forehead
           : body.surfaces.regions.noseBridge;
-      const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      const at: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         region,
         mid.get(region.bone)!,
       ).point;

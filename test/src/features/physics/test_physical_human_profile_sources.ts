@@ -1,4 +1,13 @@
-import { AutoMovieMotionAudit as Audit, DEFAULT_HUMANOID_ROM, DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, scanJointRom, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  AutoMovieMotionAudit as Audit,
+  DEFAULT_HUMANOID_ROM,
+  DEFAULT_JOINT_AXES,
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  AutoMovieEnginePhysics,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import {
   AutoMovieHumanCanonicalBody,
   AutoMovieHumanCanonicalSolids,
@@ -407,7 +416,7 @@ export async function test_physical_human_profile_sources(): Promise<void> {
             0,
           );
           const displayed: number =
-            scanJointRom.overshoot(posedAngles, rom) * radian;
+            AutoMovieEngineKinematics.scanJointRomOvershoot(posedAngles, rom) * radian;
           posed++;
           if (!close(native, displayed, 1e-9))
             romDefects.push(

@@ -3,7 +3,7 @@ import type { IAutoMovieRenderSoftPropFrame } from "@automovie/interface";
 import type { IAutoMovieSceneSoftProps } from "../../scene/IAutoMovieSceneSoftProps.js";
 import { buildSceneSoftProps } from "../../scene/internal/buildSceneSoftProps.js";
 import { restoreAutoMovieRenderModeOnce } from "../../scene/internal/restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "../../scene/restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "../../scene/internal/restoreAutoMovieRenderModeState.js";
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 
 /**

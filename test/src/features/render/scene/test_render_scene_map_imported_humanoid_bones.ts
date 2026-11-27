@@ -1,9 +1,9 @@
-import { mapImportedHumanoidBones } from "@automovie/render";
+import { AutoMovieRenderImportedModel } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `mapImportedHumanoidBones` finds the nodes of an imported rig for the slots
+ * `AutoMovieRenderImportedModel.mapHumanoidBones` finds the nodes of an imported rig for the slots
  * asked.
  *
  * Scenarios:
@@ -28,7 +28,10 @@ export function test_render_scene_map_imported_humanoid_bones(): void {
   const twin: THREE.Object3D = named("mixamorigHips");
   const unwanted: THREE.Object3D = named("Head");
   root.add(hips, upper, fore, twin, unwanted);
-  const bones = mapImportedHumanoidBones(root, ["hips", "leftUpperArm", "leftLowerArm"]);
+  const bones = AutoMovieRenderImportedModel.mapHumanoidBones({
+    object: root,
+    slots: ["hips", "leftUpperArm", "leftLowerArm"],
+  });
   TestValidator.equals("slots", [...bones.keys()], ["hips", "leftUpperArm", "leftLowerArm"]);
   TestValidator.predicate("hips is the first node", bones.get("hips") === hips);
   TestValidator.predicate("direct", bones.get("leftUpperArm") === upper);
@@ -39,6 +42,9 @@ export function test_render_scene_map_imported_humanoid_bones(): void {
   pelvis.add(node);
   TestValidator.predicate(
     "pelvis alias",
-    mapImportedHumanoidBones(pelvis, ["hips"]).get("hips") === node,
+    AutoMovieRenderImportedModel.mapHumanoidBones({
+      object: pelvis,
+      slots: ["hips"],
+    }).get("hips") === node,
   );
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -191,7 +191,7 @@ export namespace HumanUnseatDrag {
           : mixHumanPosture(
               seatedAt(release),
               shown,
-              minimumJerk.share((t - release) / HumanUnseatPose.DRAW),
+              AutoMovieEngineMotionSampling.minimumJerkShare((t - release) / HumanUnseatPose.DRAW),
             );
       },
     };

@@ -1,20 +1,5 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanRopeSkipPresentation,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanRopeSkipPresentation, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFoot } from "../../posture/HumanFoot";
@@ -24,7 +9,7 @@ import { HumanHand } from "../../posture/HumanHand";
 /** Match the displayed-action seam precision in HumanSegmentPose. */
 const SEAM_SECONDS: number = 1e-12;
 
-/** The 50 mm reference grip in resolveAutoMovieHumanoidSurfaces, in metres. */
+/** The 50 mm reference grip in AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaces, in metres. */
 const REFERENCE_GRIP_RADIUS: number = 0.025;
 
 /** The measured 7/8-inch barrel used by the standard rope archetype, in metres. */
@@ -371,7 +356,7 @@ function solePoints(
 ): IAutoMovieVector3[] {
   return outline.map(
     (frame) =>
-      resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bones.get(frame.bone)!)
         .point,
   );
 }

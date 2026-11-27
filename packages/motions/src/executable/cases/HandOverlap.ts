@@ -1,4 +1,4 @@
-import { physicalShapePairDistance } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -39,7 +39,7 @@ export namespace HandOverlap {
       for (const v of others)
         least = Math.min(
           least,
-          physicalShapePairDistance(u.pose, u.shape, v.pose, v.shape),
+          AutoMovieEnginePhysics.physicalShapePairDistance(u.pose, u.shape, v.pose, v.shape),
         );
     return least;
   }

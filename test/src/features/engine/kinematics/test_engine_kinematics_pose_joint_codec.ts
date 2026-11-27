@@ -1,4 +1,4 @@
-import { poseJointCodec } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieJointConstraint,
@@ -7,9 +7,9 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `poseJointCodec(rig?)` maps a joint's clinical angles to its bone-local
+ * `AutoMovieEngineKinematics.poseJointCodec(rig?)` maps a joint's clinical angles to its bone-local
  * rotation and back on one rig, and says whether a joint is free about all
- * three axes; `poseJointCodec.index(pose)` indexes a pose's angle triples.
+ * three axes; `AutoMovieEngineKinematics.indexPoseJoints(pose)` indexes a pose's angle triples.
  *
  * Scenarios:
  *
@@ -22,7 +22,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_engine_kinematics_pose_joint_codec(): void {
   // 1.
-  const plain = poseJointCodec();
+  const plain = AutoMovieEngineKinematics.poseJointCodec();
   const back: number[] = plain.angles(
     "leftUpperArm",
     plain.rotation("leftUpperArm", [30, 20, 10]),
@@ -60,7 +60,7 @@ export function test_engine_kinematics_pose_joint_codec(): void {
       bones: [bone("hips", box(20)), bone("spine", box(0))],
     },
   };
-  const codec = poseJointCodec(rig);
+  const codec = AutoMovieEngineKinematics.poseJointCodec(rig);
   TestValidator.equals(
     "free and fixed",
     [codec.ball("hips"), codec.ball("spine")],
@@ -68,11 +68,11 @@ export function test_engine_kinematics_pose_joint_codec(): void {
   );
 
   // 3.
-  const prepared = poseJointCodec.prepare();
+  const prepared = AutoMovieEngineKinematics.preparePoseJointCodec();
   TestValidator.predicate("one codec", prepared() === prepared());
 
   // 4.
-  const indexed = poseJointCodec.index({
+  const indexed = AutoMovieEngineKinematics.indexPoseJoints({
     skeleton: "rig",
     root: null,
     joints: [

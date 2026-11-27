@@ -1,4 +1,4 @@
-import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, makeActorSynthesizer, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, AutoMovieEngineValidation, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieMotion,
@@ -39,7 +39,7 @@ export function test_perform_motion_response_clip(): void {
     ["left", { x: 2, y: 0, z: 0 }],
     ["right", { x: -2, y: 0, z: 0 }],
   ]);
-  const synth = makeActorSynthesizer(new Map([["actor", ctx]]), nodes);
+  const synth = AutoMovieEngineFilm.makeActorSynthesizer(new Map([["actor", ctx]]), nodes);
   const signal = (
     force: number,
     node: string = "front",
@@ -87,7 +87,7 @@ export function test_perform_motion_response_clip(): void {
     "mirrored displacements",
     read("left") < -0.01 && read("right") > 0.01,
   );
-  const rigless = makeActorSynthesizer(
+  const rigless = AutoMovieEngineFilm.makeActorSynthesizer(
     new Map([["actor", { ...ctx, rig: undefined }]]),
     nodes,
   );

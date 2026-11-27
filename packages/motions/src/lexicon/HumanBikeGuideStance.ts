@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -23,7 +23,7 @@ export function HumanBikeGuideStance(
 ): IHumanBikeGuidePrint {
   if (print.lift === Infinity || print.lift === -Infinity) return print;
   const mid: number = (print.land + print.lift) / 2;
-  const share: number = minimumJerk.share(
+  const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
     Math.min(1, Math.max(0, (t - mid) / (print.lift - mid))),
   );
   if (!(share > 0)) return print;

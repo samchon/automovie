@@ -12,8 +12,8 @@ import type {
 
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 
-import type { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
-import { resolveAttachment } from "../../kinematics/resolveAttachment";
+import type { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
+import { resolveAttachment } from "../../kinematics/internal/resolveAttachment";
 import { Quaternion } from "../../math/Quaternion";
 import { Transform } from "../../math/Transform";
 import { Vector3 } from "../../math/Vector3";
@@ -89,7 +89,7 @@ export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProp
   const resolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> | undefined =
     demand === undefined ? undefined : AutoMovieEngineKinematics.preparePoseResolution();
   function boneAt(pose: IAutoMoviePose): IAutoMovieTransform {
-    return resolveAttachment(
+    return resolveAttachment.run(
       pose,
       props.parentSkeleton,
       attachment,

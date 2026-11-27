@@ -24,7 +24,7 @@ export namespace IAutoMoviePrepareChainFit {
     /**
      * Exact gate overshoot scorer for this bone's fixed domain under the
      * original canonical scoring frame; the optional rotation is the one the
-     * angles were read from on that frame (`scanJointRom.prepare`).
+     * angles were read from on that frame (`AutoMovieEngineKinematics.prepareJointRomScan`).
      */
     overshoot(
       bone: AutoMovieHumanoidBone,
@@ -32,7 +32,7 @@ export namespace IAutoMoviePrepareChainFit {
 
     /**
      * The same scorer of a bone gated by swing and twist, read from the
-     * rotation alone (`scanJointRom.prepareRotated`); null for a bone the gate
+     * rotation alone (`AutoMovieEngineKinematics.prepareRotatedJointRomScan`); null for a bone the gate
      * does not hold.
      */
     rotatedOvershoot(

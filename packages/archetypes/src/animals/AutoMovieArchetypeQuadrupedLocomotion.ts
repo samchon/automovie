@@ -51,20 +51,24 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     pace: readonly IClock[];
   }
 
+  /** Deer input with an authored diagonal-trot clock table. */
+  export interface IDeerTrot {
+    /** Required authored diagonal-trot clocks in this branch. */
+    trot: readonly IClock[];
+    /** Optional authored rotary-gallop clocks, faster than trot. */
+    gallop?: readonly IClock[];
+  }
+
+  /** Deer input with rotary-gallop clocks and no authored trot. */
+  export interface IDeerGallop {
+    /** No authored trot is supplied in the gallop-only branch. */
+    trot?: undefined;
+    /** Required authored rotary-gallop clocks in this branch. */
+    gallop: readonly IClock[];
+  }
+
   /** Authored sika trot and/or rotary gallop; an absent gait stays unsupported. */
-  export type IDeer =
-    | {
-        /** Required authored diagonal-trot clocks in this branch. */
-        trot: readonly IClock[];
-        /** Optional authored rotary-gallop clocks, faster than trot. */
-        gallop?: readonly IClock[];
-      }
-    | {
-        /** No authored trot is supplied in the gallop-only branch. */
-        trot?: undefined;
-        /** Required authored rotary-gallop clocks in this branch. */
-        gallop: readonly IClock[];
-      };
+  export type IDeer = IDeerTrot | IDeerGallop;
 
   /** Coincident lateral pairs, explicitly constructed for running pace. */
   const PACE: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {

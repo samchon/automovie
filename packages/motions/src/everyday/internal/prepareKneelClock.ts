@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
@@ -51,7 +51,7 @@ export function prepareKneelClock<T extends IPrepareKneelClock>(
     return {
       phase,
       index,
-      u: minimumJerk.share(linear),
+      u: AutoMovieEngineMotionSampling.minimumJerkShare(linear),
       linear,
     };
   };

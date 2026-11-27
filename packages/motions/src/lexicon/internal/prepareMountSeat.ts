@@ -1,4 +1,5 @@
-import { Quaternion, Vector3, physicalShapeBounds, physicalShapeContactManifold, physicalShapeGjk, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
+
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePlanarPoint,
@@ -35,7 +36,7 @@ const FRAME_ROUNDOFF: number = 64 * Number.EPSILON;
  * A centred astride position supported on the actual seat deck. The pelvis
  * rests on its lowest feature and slides only along the deck's sagittal line.
  * A translated solid sweeps exactly its two-placement convex hull
- * (`physicalShapeGjk.cast`, the cast hull of Bullet and Tesseract). Use its
+ * (`AutoMovieEnginePhysics.physicalShapeGjkCast`, the cast hull of Bullet and Tesseract). Use its
  * whole-span separation and the disjoint projections of convex solids
  * (Gottschalk, Lin and Manocha 1996, §5) to bound each obstruction.
  * Tighten each obstruction by the exact prefix and suffix casts so an
@@ -51,12 +52,12 @@ export function prepareMountSeat(
   input: prepareMountSeat.IInput,
 ): prepareMountSeat.ISeat | undefined {
   const { deck, pelvis, obstacles } = input;
-  const support = physicalShapeBounds(deck.pose, deck.shape);
+  const support = AutoMovieEnginePhysics.physicalShapeBounds(deck.pose, deck.shape);
   if (pelvis.length === 0 || support.min.x > 0 || support.max.x < 0)
     return undefined;
   const bodies = pelvis.map((part: prepareMountSeat.ISolid) => ({
     part,
-    bounds: physicalShapeBounds(part.pose, part.shape),
+    bounds: AutoMovieEnginePhysics.physicalShapeBounds(part.pose, part.shape),
   }));
   const rise: number =
     support.max.y - Math.min(...bodies.map(({ bounds }) => bounds.min.y));
@@ -64,7 +65,7 @@ export function prepareMountSeat(
   let clear: Span[] = [[support.min.z, support.max.z]];
   const surrounding = obstacles.map((part: prepareMountSeat.ISolid) => ({
     part,
-    bounds: physicalShapeBounds(part.pose, part.shape),
+    bounds: AutoMovieEnginePhysics.physicalShapeBounds(part.pose, part.shape),
     faces: boxFaces(part),
   }));
   for (const { part: body, bounds } of bodies) {
@@ -72,7 +73,7 @@ export function prepareMountSeat(
       ...body.pose,
       position: Vector3.add(body.pose.position, { x: 0, y: rise, z: 0 }),
     };
-    const solid: physicalShapeGjk.ISolid = physicalShapeGjk.solid(
+    const solid: AutoMovieEnginePhysicsGjkTypes.ISolid = AutoMovieEnginePhysics.physicalShapeGjkSolid(
       raised,
       body.shape,
     );
@@ -95,7 +96,7 @@ export function prepareMountSeat(
       if (!(to > from)) continue;
       const blocked: Span | undefined = mountCastObstruction(
         solid,
-        physicalShapeGjk.solid(obstacle.pose, obstacle.shape),
+        AutoMovieEnginePhysics.physicalShapeGjkSolid(obstacle.pose, obstacle.shape),
         FORWARD,
         [from, to],
         tolerance,
@@ -123,7 +124,7 @@ export function prepareMountSeat(
 
 /** The roundoff shared by sagittal admission and a single support witness. */
 function seatPrecision(
-  support: ReturnType<typeof physicalShapeBounds>,
+  support: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>,
   rise: number,
 ): number {
   return (
@@ -148,7 +149,7 @@ function bearsPatch(
 ): boolean {
   const patch: IAutoMovieVector3[] = [];
   for (const body of pelvis)
-    for (const witness of physicalShapeContactManifold(
+    for (const witness of AutoMovieEnginePhysics.physicalShapeContactManifold(
       { ...body.pose, position: Vector3.add(body.pose.position, point) },
       body.shape,
       deck.pose,
@@ -209,7 +210,7 @@ export namespace prepareMountSeat {
     point: IAutoMovieVector3,
   ): boolean {
     const { deck, pelvis } = input;
-    const support: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(
+    const support: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> = AutoMovieEnginePhysics.physicalShapeBounds(
       deck.pose,
       deck.shape,
     );

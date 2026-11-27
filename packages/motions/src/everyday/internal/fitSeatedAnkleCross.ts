@@ -1,4 +1,12 @@
-import { HUMANOID_REST_FRAME, Quaternion, Vector3, clampPose, hingedArmSwivel, physicalShapeBounds, prepareChainPlant, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  hingedArmSwivel,
+  AutoMovieEngineMotionPlanting,
+  AutoMovieEnginePhysics,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -85,7 +93,7 @@ export function fitSeatedAnkleCross(
 
   const before = poseBones(body, entry.pose);
   const bearing = before.get(otherLower)!.worldPosition;
-  const chain = prepareChainPlant(
+  const chain = AutoMovieEngineMotionPlanting.prepareChainPlant(
     {
       skeleton: body.skeleton,
       pose: entry.pose,
@@ -145,12 +153,12 @@ export function fitSeatedAnkleCross(
     before.get(foot)!.worldPosition.y -
     Math.min(
       ...standingFoot.map(
-        ({ pose, shape }) => physicalShapeBounds(pose, shape).min.y,
+        ({ pose, shape }) => AutoMovieEnginePhysics.physicalShapeBounds(pose, shape).min.y,
       ),
     );
   if (!(outlineHeight > 0)) return undefined;
 
-  const check = clampPose.prepare(body.skeleton).joints;
+  const check = AutoMovieEngineKinematics.prepareClampPose(body.skeleton).joints;
   const admits = (leg: ILegPose): boolean =>
     [leg.hip, leg.knee].every((joint) => {
       const accepted = check(joint);

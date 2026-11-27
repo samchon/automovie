@@ -1,19 +1,5 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  Quaternion,
-  Transform,
-  Vector3,
-  jointRomOvershoot,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanProp, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
@@ -156,7 +142,7 @@ export function handoverCases(): IMotionCaptureCase[] {
       body: IAutoMovieMotionHumanBody,
       t: number,
     ): IAutoMovieVector3 =>
-      resolveAutoMovieHumanoidSurfaces.place(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         body.surfaces.regions.sternum,
         performance.bones(subject, t).get(body.surfaces.regions.sternum.bone)!,
       ).point;
@@ -222,7 +208,7 @@ export function handoverCases(): IMotionCaptureCase[] {
         for (const j of performance.pose(subject, t).joints) {
           const c = DEFAULT_HUMANOID_ROM[j.bone];
           if (c !== undefined)
-            overshoot = Math.max(overshoot, jointRomOvershoot(j, c));
+            overshoot = Math.max(overshoot, AutoMovieEngineKinematics.jointRomOvershoot(j, c));
         }
     }
     const path: IAutoMovieVector3[] = [];

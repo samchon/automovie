@@ -1,4 +1,4 @@
-import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, decomposeJointRotationOnBasis, jointToQuaternionOnBasis, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, swingTwistRange, AutoMovieEngineKinematics, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -425,7 +425,7 @@ function rotationOf(
   rig: IFrame,
 ): IAutoMovieQuaternion {
   return Quaternion.normalize(
-    jointToQuaternionOnBasis(
+    AutoMovieEngineKinematicsJointRotation.jointToQuaternionOnBasis(
       { flexion: of[0], abduction: of[1], twist: of[2] },
       rig.basis,
       rig.rest,
@@ -438,7 +438,7 @@ function readRotation(
   blended: IAutoMovieQuaternion,
   rig: IFrame,
 ): readonly [number, number, number] {
-  const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+  const read: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
     blended,
     rig.basis,
     rig.rest,

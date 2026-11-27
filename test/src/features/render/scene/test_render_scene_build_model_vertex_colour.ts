@@ -1,4 +1,4 @@
-import { AutoMovieThreeKind, buildModel } from "@automovie/render";
+import { AutoMovieThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -42,7 +42,7 @@ export function test_render_scene_build_model_vertex_colour(): void {
     },
   });
   const built: import("@automovie/render").IAutoMovieModelObject =
-    buildModel(model);
+    AutoMovieRenderSceneLayout.buildModel(model);
   const parts: THREE.Mesh[] = [...built.parts.values()].filter(
     (part: THREE.Object3D): part is THREE.Mesh =>
       AutoMovieThreeKind.isMesh(part),

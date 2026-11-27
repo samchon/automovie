@@ -17,7 +17,8 @@ import { AutoMovieDialogueMouthRecorder } from "./AutoMovieDialogueMouthRecorder
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { placeAutoMovieDrawLayer } from "./internal/placeAutoMovieDrawLayer.js";
 import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
-import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection.js";
+import { replaceAutoMovieDrawInspection as replaceAutoMovieDrawInspectionImplementation } from "./internal/replaceAutoMovieDrawInspection.js";
+import type { IAutoMovieReplaceDrawInspectionProps } from "./IAutoMovieReplaceDrawInspectionProps.js";
 
 /**
  * The draw page's placement of its subject: the current inspection, the framing
@@ -47,6 +48,15 @@ import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection
  * second.
  */
 export class AutoMovieDrawPlacement {
+  /**
+   * Restore the prior inspection, place the current subject, and inspect the
+   * graph that placement produced.
+   */
+  public static replaceInspection(
+    props: IAutoMovieReplaceDrawInspectionProps,
+  ): Promise<IAutoMovieInspectionHandle> {
+    return replaceAutoMovieDrawInspectionImplementation(props);
+  }
   /** The current inspection, or null when none is applied. */
   private applied_: IAutoMovieInspectionHandle | null = null;
 
@@ -101,7 +111,7 @@ export class AutoMovieDrawPlacement {
     const previous: IAutoMovieInspectionHandle | null = this.applied_;
     this.applied_ = null;
     const handle: IAutoMovieInspectionHandle =
-      await replaceAutoMovieDrawInspection({
+      await AutoMovieDrawPlacement.replaceInspection({
         previous,
         scene: this.scene.scene,
         request,

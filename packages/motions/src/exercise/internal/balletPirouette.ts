@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -109,15 +109,15 @@ export namespace balletPirouette {
       sense *
         360 *
         turns *
-        minimumJerk.share(clamp((t - risen) / (turned - risen)));
+        AutoMovieEngineMotionSampling.minimumJerkShare(clamp((t - risen) / (turned - risen)));
     const lift: (t: number) => number = (t: number): number =>
       t < prepared
         ? 0
         : t < risen
-          ? minimumJerk.share((t - prepared) / (risen - prepared))
+          ? AutoMovieEngineMotionSampling.minimumJerkShare((t - prepared) / (risen - prepared))
           : t < turned
             ? 1
-            : 1 - minimumJerk.share(clamp((t - turned) / (landed - turned)));
+            : 1 - AutoMovieEngineMotionSampling.minimumJerkShare(clamp((t - turned) / (landed - turned)));
     const support: (t: number) => IAutoMovieMotionHumanFoot.IPlacement = (
       t: number,
     ): IAutoMovieMotionHumanFoot.IPlacement =>
@@ -202,12 +202,12 @@ export namespace balletPirouette {
     const hips: (t: number) => IAutoMovieVector3 = (
       t: number,
     ): IAutoMovieVector3 => {
-      if (t <= set) return plie(minimumJerk.share(t / set));
+      if (t <= set) return plie(AutoMovieEngineMotionSampling.minimumJerkShare(t / set));
       if (t <= prepared) return plie(1);
       if (t <= risen) return Vector3.lerp(plie(1), over, lift(t));
       if (t <= turned) return over;
       if (t <= landed) return Vector3.lerp(over, plie(1), 1 - lift(t));
-      const up: number = minimumJerk.share(
+      const up: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         clamp((t - landed) / (end - landed)),
       );
       const low: number = standing.y - depth;

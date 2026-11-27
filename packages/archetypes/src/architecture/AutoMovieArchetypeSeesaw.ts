@@ -1,13 +1,16 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieTransform } from "@automovie/interface";
 
 import {
   type AutoMovieArchetype,
+  type AutoMovieArchetypeRefusal,
   AutoMovieArchetypeBand,
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
+import { rideSeesawImplementation } from "./internal/rideSeesaw";
 
 /** Construction sizes no source read gives, provisional. */
 const ESTIMATE: string =
@@ -46,7 +49,8 @@ export namespace AutoMovieArchetypeSeesaw {
  * The pivot axis runs along `x` at `y = pivot`, `z = 0`, above the ground at `y
  * = 0`. This model draws the fixed post. The beam with its seats and handles is
  * a separate rigid model, `createSeesaw.beam`, whose origin is the pivot, so a
- * rotation of its frame about the pivot axis rocks it (`rideSeesaw`).
+ * rotation of its frame about the pivot axis rocks it
+ * (`AutoMovieArchetypeSeesaw.ride`).
  *
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
@@ -222,4 +226,76 @@ export namespace AutoMovieArchetypeSeesaw {
 function handleId(end: BeamEnd, hand: HandSide): AutoMovieArchetypeSeesaw.BeamAffordance {
   if (end > 0) return hand === "Left" ? "frontLeftHandle" : "frontRightHandle";
   return hand === "Left" ? "rearLeftHandle" : "rearRightHandle";
+}
+/** The seesaw's ride and its parameters and readers. */
+export namespace AutoMovieArchetypeSeesaw {
+  /**
+   * A seesaw rocked by its riders' push-offs on the ride's clock: the beam model
+   * (`createSeesaw.beam`) turns about the pivot axis, positive lowering the front
+   * end at `+z`.
+   *
+   * The beam is held level while the riders sit, then let go at settle: its front
+   * end drops to the ground, the rest angle whose sine is the pivot height over
+   * half the beam. Each push-off is a rider's legs driving the low end up: the
+   * beam turns from that limit to the other one over `swing` seconds on a
+   * minimum-jerk profile, so it leaves and reaches each end at rest.
+   *
+   * @param seesaw The installed seesaw post.
+   * @param placement Its world placement.
+   * @param ride The push-off seconds and each rock's duration.
+   * @returns The beam's angle, its frame and the low end at each ride second.
+   * @throws {AutoMovieArchetypeRefusal} For push-offs out of order, or closer
+   *   than one rock.
+   */
+  export function ride(
+    seesaw: AutoMovieArchetype<
+      AutoMovieArchetypeSeesaw.Affordance,
+      AutoMovieArchetypeSeesaw.Dimension
+    >,
+    placement: IAutoMovieTransform,
+    ride: AutoMovieArchetypeSeesaw.IRideParams,
+  ): AutoMovieArchetypeSeesaw.IRideResult {
+    return rideSeesawImplementation(seesaw, placement, ride);
+  }
+
+  /** When the riders push off and how long a rock takes. */
+  export interface IRideParams {
+    /**
+     * The ride second the beam, held level while the riders sit, is let go; its
+     * front end then drops to the ground over one rock.
+     */
+    settle: number;
+
+    /**
+     * Ride seconds of each push-off, ascending, each at least one rock after
+     * the previous one or the release; the first raises the front end.
+     */
+    pushes: readonly number[];
+
+    /** Seconds a rock from one end to the other takes. */
+    swing: number;
+  }
+
+  /** One rocking seesaw's readers. */
+  export interface IRideResult {
+    /** The beam's angle with an end on the ground, degrees. */
+    limit: number;
+
+    /**
+     * The beam's angle at a ride second, degrees, positive with the front end
+     * down.
+     *
+     * @param seconds Ride seconds.
+     * @returns The angle.
+     */
+    angle(seconds: number): number;
+
+    /**
+     * The beam model's world frame at a ride second.
+     *
+     * @param seconds Ride seconds.
+     * @returns The frame.
+     */
+    beam(seconds: number): IAutoMovieTransform;
+  }
 }

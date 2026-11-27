@@ -1,4 +1,4 @@
-import { Vector3, physicalShapePairDistance } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -110,7 +110,7 @@ export function checkTourists(): void {
         ({ pose, shapes }: IAutoMovieMotionHumanColliders.IPlaced): number[] =>
           shapes.flatMap((shape: IAutoMoviePhysicalShape): number[] =>
             shell.map((part: IAutoMoviePhysicalShape): number =>
-              physicalShapePairDistance(pose, shape, frame, part),
+              AutoMovieEnginePhysics.physicalShapePairDistance(pose, shape, frame, part),
             ),
           ),
       );

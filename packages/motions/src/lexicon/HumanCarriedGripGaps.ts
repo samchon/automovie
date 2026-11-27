@@ -1,18 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCarried,
-  IAutoMovieMotionHumanCarriedCouplingPose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
@@ -72,7 +59,7 @@ export namespace HumanCarriedGripGaps {
           const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
             borne.surfaces.regions[grips[k]!];
           const local: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
-            resolveAutoMovieHumanoidSurfaces.place(
+            AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
               surface,
               mine.get(surface.bone)!,
             );

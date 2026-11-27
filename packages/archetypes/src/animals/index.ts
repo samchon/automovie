@@ -66,9 +66,9 @@ export { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 export { AutoMovieArchetypeMule } from "./AutoMovieArchetypeMule";
 export { AutoMovieArchetypeOx } from "./AutoMovieArchetypeOx";
 export { AutoMovieArchetypePony } from "./AutoMovieArchetypePony";
-export { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-export * from "./rideHorse";
-export * from "./rideQuadruped";
+export * from "./AutoMovieArchetypeQuadruped";
+export * from "./AutoMovieArchetypeHorseRide";
+
 export * from "./AutoMovieArchetypeEquineComfort";
 export * from "./AutoMovieArchetypeEquineComfortCue";
 export * from "./AutoMovieArchetypeEquine";

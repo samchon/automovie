@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -263,7 +263,7 @@ function plan(
 
       // The hand leaves and approaches the rail at zero world velocity.
       const grip: IAutoMovieVector3 = Vector3.add(
-        Vector3.add(start, Vector3.scale(delta, minimumJerk.share(coastShare))),
+        Vector3.add(start, Vector3.scale(delta, AutoMovieEngineMotionSampling.minimumJerkShare(coastShare))),
         Vector3.scale(inward, clearance * open),
       );
       const joints: IAutoMovieMotionHumanPosture["joints"] = {

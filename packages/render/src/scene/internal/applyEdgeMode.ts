@@ -7,10 +7,10 @@ import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.j
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
 import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
 import { type IAutoMovieFormationCycle, AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
-import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
+import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Inverted-hull shell material: extrude by edgeWidth along the normalized

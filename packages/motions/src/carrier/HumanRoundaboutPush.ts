@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -76,7 +76,7 @@ export function HumanRoundaboutPush(
           1,
           {},
         );
-      const closing: number = minimumJerk.share(at / reach);
+      const closing: number = AutoMovieEngineMotionSampling.minimumJerkShare(at / reach);
       const held: JointEntries = arm.fingers;
       const fingers: Record<string, JointEntries[string]> = {};
       for (const [bone, angles] of Object.entries(held))

@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 import { HumanArmRefine } from "./HumanArmRefine";
 import type { HumanArmTrajectoryEffector } from "./HumanArmTrajectoryEffector";
@@ -24,7 +24,7 @@ export function HumanArmTrajectoryBridge(
   const result: number[][][] = [];
   const end: number = times.length - 1;
   const progress: number[] = times.map((t: number): number =>
-    minimumJerk.share((t - times[0]!) / (times[end]! - times[0]!)),
+    AutoMovieEngineMotionSampling.minimumJerkShare((t - times[0]!) / (times[end]! - times[0]!)),
   );
   for (let arm: number = 0; arm < ends.length; ++arm) {
     const seconds: number[] = [times[0]!];

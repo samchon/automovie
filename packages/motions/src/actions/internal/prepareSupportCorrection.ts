@@ -1,15 +1,6 @@
-import { Vector3, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanBodyFitTypes,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanJacobian,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanContactWindow } from "../../law/HumanContactWindow";
 import { HumanPhysics } from "../../law/HumanPhysics";
@@ -82,7 +73,7 @@ export function prepareSupportCorrection(
       bearing.flatMap((c) => HumanSupportPatch(body, bones, c)),
     );
     if (hull.length === 0) return posture;
-    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+    const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
       model,
       bones,
     );

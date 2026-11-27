@@ -1,4 +1,5 @@
-import type { resolveAutoMovieMomentum } from "../../kinematics/resolveAutoMovieMomentum";
+
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { Quaternion } from "../../math/Quaternion";
 
 /** Uniform starting grid and the measured endpoint angle bound in radians. */
@@ -12,11 +13,11 @@ interface IGrid {
 /** Parallel owned arrays of increasing seconds and sampled poses. */
 interface IKnots {
   times: number[];
-  knots: resolveAutoMovieMomentum.IPosed[];
+  knots: AutoMovieEngineKinematics.IPosedBody[];
 }
 
 /** A posed shape at one representable second. */
-type IKnot = readonly [seconds: number, pose: resolveAutoMovieMomentum.IPosed];
+type IKnot = readonly [seconds: number, pose: AutoMovieEngineKinematics.IPosedBody];
 
 /**
  * Sample increasing knot seconds and their posed mass parts over a flight.
@@ -37,10 +38,10 @@ export function tabulateAirborneShapeKnots(
   read: (
     seconds: number,
     uniformIndex?: number,
-  ) => resolveAutoMovieMomentum.IPosed,
+  ) => AutoMovieEngineKinematics.IPosedBody,
 ): IKnots {
   const times: number[] = [grid.from];
-  const knots: resolveAutoMovieMomentum.IPosed[] = [read(grid.from, 0)];
+  const knots: AutoMovieEngineKinematics.IPosedBody[] = [read(grid.from, 0)];
   const spacing: number = (grid.to - grid.from) / grid.intervals;
   const refine: boolean = grid.intervals >= 4;
   const pending: IKnot[] = [];
@@ -87,8 +88,8 @@ export function tabulateAirborneShapeKnots(
 
 /** Greatest shortest-arc angle in radians among matching principal frames. */
 function maximumTurn(
-  a: resolveAutoMovieMomentum.IPosed,
-  b: resolveAutoMovieMomentum.IPosed,
+  a: AutoMovieEngineKinematics.IPosedBody,
+  b: AutoMovieEngineKinematics.IPosedBody,
 ): number {
   let largest: number = 0;
   for (let i: number = 0; i < a.parts.length; ++i) {

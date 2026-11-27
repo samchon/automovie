@@ -1,3 +1,4 @@
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
@@ -30,7 +31,7 @@ export namespace IAutoMovieResolveCenterOfMass {
     /**
      * The rotation from the principal axes to the bone's rest frame, so a posed
      * segment's axes are its bone's world rotation times this
-     * (`resolveAutoMovieMomentum.inertia`).
+     * (`AutoMovieEngineKinematics.resolveAutoMovieMomentumInertia`).
      */
     axes: IAutoMovieQuaternion;
   }

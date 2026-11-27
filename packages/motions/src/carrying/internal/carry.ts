@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, minimumJerk } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -272,7 +272,7 @@ export namespace carry {
       ),
     );
     const ramp: (seconds: number) => number = (seconds: number): number =>
-      minimumJerk.share(seconds / RAMP);
+      AutoMovieEngineMotionSampling.minimumJerkShare(seconds / RAMP);
 
     // The trunk's lean: lateral away from a one-hand or hip load, back over a
     // front box, forward over a pushed handle; chest and spine share it.

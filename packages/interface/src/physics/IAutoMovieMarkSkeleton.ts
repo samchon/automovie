@@ -12,7 +12,7 @@ export namespace IAutoMovieMarkSkeleton {
    *
    * Body ids resolve into frame.bodies; profile joints connect parent and child
    * bone origins, and profile segments supply joint-point marks in world
-   * metres. markAutoMovieSkeleton borrows profiles and the frame and allocates
+   * metres. AutoMoviePhysicalSkeleton.mark borrows profiles and the frame and allocates
    * detached mark coordinate arrays in body, joint and segment order. A missing
    * named frame segment throws with body and bone identity; an empty body list
    * returns no marks. Profiles provide topology, not a second pose source.

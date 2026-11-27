@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, gazeChainJoints } from "@automovie/engine";
+import { AutoMovieEngineKinematics, DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieJointConstraint,
@@ -11,7 +11,7 @@ import { TestValidator } from "@nestia/e2e";
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 
 /**
- * `gazeChainJoints({ rig, flexionDeg, twistDeg })` splits one aim over the neck
+ * `AutoMovieEngineKinematics.gazeChainJoints({ rig, flexionDeg, twistDeg })` splits one aim over the neck
  * and head: the head takes what its range holds on each axis, the neck the rest
  * up to its own range, and anything left stays on the head unclamped.
  *
@@ -43,20 +43,20 @@ export async function test_engine_kinematics_gaze_chain_joints(): Promise<void> 
   // 1.
   TestValidator.equals(
     "no rig",
-    gazeChainJoints({ rig: null, flexionDeg: 10, twistDeg: 5 }),
+    AutoMovieEngineKinematics.gazeChainJoints({ rig: null, flexionDeg: 10, twistDeg: 5 }),
     [{ bone: "head", flexion: 10, abduction: null, twist: 5 }],
   );
 
   // 2.
   TestValidator.equals(
     "head alone",
-    flexion(gazeChainJoints({ rig, flexionDeg: H / 2, twistDeg: 0 })),
+    flexion(AutoMovieEngineKinematics.gazeChainJoints({ rig, flexionDeg: H / 2, twistDeg: 0 })),
     [["head", H / 2]],
   );
 
   // 3.
   const split: [string, number | null][] = flexion(
-    gazeChainJoints({ rig, flexionDeg: H + 1, twistDeg: 0 }),
+    AutoMovieEngineKinematics.gazeChainJoints({ rig, flexionDeg: H + 1, twistDeg: 0 }),
   );
   TestValidator.predicate(
     "split",
@@ -69,7 +69,7 @@ export async function test_engine_kinematics_gaze_chain_joints(): Promise<void> 
 
   // 4.
   const beyond: [string, number | null][] = flexion(
-    gazeChainJoints({ rig, flexionDeg: H + N + 7, twistDeg: 0 }),
+    AutoMovieEngineKinematics.gazeChainJoints({ rig, flexionDeg: H + N + 7, twistDeg: 0 }),
   );
   TestValidator.predicate(
     "residual",
@@ -79,7 +79,7 @@ export async function test_engine_kinematics_gaze_chain_joints(): Promise<void> 
   // 5.
   TestValidator.equals(
     "prepared",
-    gazeChainJoints.prepare(rig)(H + 1, 3),
-    gazeChainJoints({ rig, flexionDeg: H + 1, twistDeg: 3 }),
+    AutoMovieEngineKinematics.prepareGazeChainJoints(rig)(H + 1, 3),
+    AutoMovieEngineKinematics.gazeChainJoints({ rig, flexionDeg: H + 1, twistDeg: 3 }),
   );
 }

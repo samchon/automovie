@@ -59,7 +59,7 @@ interface IJointRest {
  * looks right, and nothing downstream would report it.
  *
  * A prop drawing an imported appearance has no addressable parts (see
- * {@link createImportedModelObject}), so a joint of one may name no `mesh`; its
+ * {@link AutoMovieRenderImportedModel.create}), so a joint of one may name no `mesh`; its
  * frame is still built and still turns whatever it holds.
  *
  * What this does NOT do is run a prop profile's drivers. A profile's limits and

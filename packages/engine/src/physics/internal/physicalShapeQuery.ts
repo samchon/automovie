@@ -11,8 +11,8 @@ import { Vector3 } from "../../math/Vector3";
 import { bracketedMinimum } from "../../math/internal/bracketedMinimum";
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";
 import { physicalHullFacesSegment } from "./physicalHullFacesSegment";
-import { physicalShapeHull } from "../physicalShapeHull";
-import { readPhysicalHullFacesPoint } from "../readPhysicalHullFacesPoint";
+import { physicalShapeHull } from "./physicalShapeHull";
+import { readPhysicalHullFacesPoint } from "./readPhysicalHullFacesPoint";
 
 /**
  * A shape-local proximity reading before its point and normal return to world
@@ -83,7 +83,7 @@ function roundEnds(
  * reading; world vectors are fresh and nothing is retained across queries. The
  * implementation's contract below covers both overloads.
  */
-export function physicalShapeQuery(
+function physicalShapeQueryDirect(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
@@ -102,7 +102,7 @@ export function physicalShapeQuery(
  * existing owner. Endpoint transforms are shared only within this synchronous
  * pure-DTO query, and only the number escapes it.
  */
-export function physicalShapeQuery(
+function physicalShapeQueryDirect(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
@@ -112,7 +112,7 @@ export function physicalShapeQuery(
 ): number;
 
 /** The single numerical owner behind full and distance-only proximity reads. */
-export function physicalShapeQuery(
+function physicalShapeQueryDirect(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
   a: IAutoMovieVector3,
@@ -123,8 +123,6 @@ export function physicalShapeQuery(
   return query(frameOf(pose, shape), shape, a, b, taper, details);
 }
 
-/** Fixed-geometry preparation belonging to this same proximity owner. */
-export namespace physicalShapeQuery {
   /**
    * Prepare the fixed world origin, rotation, inverse and any bare-round axis
    * before reading signed distances to varying world segments. Queries use the
@@ -135,35 +133,43 @@ export namespace physicalShapeQuery {
    * @returns A distance reader of changing world segments and optional endpoint
    *   radii. Interpolation scratch and contact results belong to each query.
    */
-  export function prepare(
-    pose: IAutoMovieRigidTransform,
-    shape: IAutoMoviePhysicalShape,
-  ): (
+function physicalShapeQueryPrepare(
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
+): (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  taper?: readonly [number, number],
+) => number {
+  const fixed: IFrame = frameOf(pose, shape);
+  const prepared: IFrame = {
+    ...fixed,
+    inverse: Quaternion.inverse(fixed.rotation),
+    ...(shape.kind === "sphere" || shape.kind === "capsule"
+      ? {
+          round: roundEnds(
+            fixed.centre,
+            fixed.rotation,
+            shape.kind === "capsule" ? shape.halfLength : 0,
+          ),
+        }
+      : {}),
+  };
+  return (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
     taper?: readonly [number, number],
-  ) => number {
-    const fixed: IFrame = frameOf(pose, shape);
-    const prepared: IFrame = {
-      ...fixed,
-      inverse: Quaternion.inverse(fixed.rotation),
-      ...(shape.kind === "sphere" || shape.kind === "capsule"
-        ? {
-            round: roundEnds(
-              fixed.centre,
-              fixed.rotation,
-              shape.kind === "capsule" ? shape.halfLength : 0,
-            ),
-          }
-        : {}),
-    };
-    return (
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      taper?: readonly [number, number],
-    ): number => query(prepared, shape, a, b, taper, false);
-  }
+  ): number => query(prepared, shape, a, b, taper, false);
 }
+
+/** Internal typed entry points for full, scalar and prepared shape proximity. */
+export const physicalShapeQueryImplementation: {
+  physicalShapeQueryDirect: typeof physicalShapeQueryDirect;
+  prepare: typeof physicalShapeQueryPrepare;
+} = {
+  physicalShapeQueryDirect,
+  prepare: physicalShapeQueryPrepare,
+};
 
 /**
  * Scalar reads share this one mathematical body with the cold full-contact

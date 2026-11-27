@@ -1,4 +1,5 @@
-import { Vector3, physicalShapeGjk, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Vector3, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /** An interval of material-axis translation, metres. */
@@ -10,7 +11,7 @@ type Span = readonly [number, number];
  * configuration-space obstacle (the other solid plus the moving solid
  * reflected). A prefix and a suffix cast can each lose certification only
  * once as they grow. Use the exact hull of the two translated endpoints
- * (`physicalShapeGjk.cast`) and keep the last certified ends of their brackets.
+ * (`AutoMovieEnginePhysics.physicalShapeGjkCast`) and keep the last certified ends of their brackets.
  * The result still excludes unresolved GJK bounds and admits no overlap.
  *
  * @param moving The oriented solid at zero translation.
@@ -25,14 +26,14 @@ type Span = readonly [number, number];
  * @returns The excluded interval or undefined where the whole cast clears.
  */
 export function mountCastObstruction(
-  moving: physicalShapeGjk.ISolid,
-  obstacle: physicalShapeGjk.ISolid,
+  moving: AutoMovieEnginePhysicsGjkTypes.ISolid,
+  obstacle: AutoMovieEnginePhysicsGjkTypes.ISolid,
   axis: IAutoMovieVector3,
   possible: Span,
   precision: number,
   faces?: readonly IAutoMovieVector3[],
 ): Span | undefined {
-  const placed = (distance: number): physicalShapeGjk.ISolid => {
+  const placed = (distance: number): AutoMovieEnginePhysicsGjkTypes.ISolid => {
     const delta: IAutoMovieVector3 = Vector3.scale(axis, distance);
     return {
       points: moving.points.map(
@@ -42,8 +43,8 @@ export function mountCastObstruction(
       radius: moving.radius,
     };
   };
-  const clears = (solid: physicalShapeGjk.ISolid): boolean => {
-    const result: physicalShapeGjk.IBound = physicalShapeGjk(
+  const clears = (solid: AutoMovieEnginePhysicsGjkTypes.ISolid): boolean => {
+    const result: AutoMovieEnginePhysicsGjkTypes.IBound = AutoMovieEnginePhysics.physicalShapeGjk(
       solid,
       obstacle,
       precision,
@@ -63,16 +64,16 @@ export function mountCastObstruction(
     );
   };
   const sweep = (
-    from: physicalShapeGjk.ISolid,
-    to: physicalShapeGjk.ISolid,
-  ): boolean => clears(physicalShapeGjk.cast(from, to, 0));
+    from: AutoMovieEnginePhysicsGjkTypes.ISolid,
+    to: AutoMovieEnginePhysicsGjkTypes.ISolid,
+  ): boolean => clears(AutoMovieEnginePhysics.physicalShapeGjkCast(from, to, 0));
   const [lo, hi]: Span = possible;
-  const first: physicalShapeGjk.ISolid = placed(lo);
-  const last: physicalShapeGjk.ISolid = placed(hi);
+  const first: AutoMovieEnginePhysicsGjkTypes.ISolid = placed(lo);
+  const last: AutoMovieEnginePhysicsGjkTypes.ISolid = placed(hi);
   if (sweep(first, last)) return undefined;
 
   const boundary = (
-    end: physicalShapeGjk.ISolid,
+    end: AutoMovieEnginePhysicsGjkTypes.ISolid,
     from: number,
     to: number,
   ): number => {

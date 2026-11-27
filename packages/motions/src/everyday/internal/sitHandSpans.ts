@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmPlanned,
@@ -96,7 +96,7 @@ export namespace sitHandSpans {
     seconds: number,
   ): number {
     if (span.ready === span.start) return seconds < span.ready ? 0 : 1;
-    return minimumJerk.share(
+    return AutoMovieEngineMotionSampling.minimumJerkShare(
       (seconds - span.start) / (span.ready - span.start),
     );
   }

@@ -5,7 +5,7 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieSoftBodyObject } from "../IAutoMovieSoftBodyObject.js";
 import type { IBuildSoftBodyObjectProps } from "./IBuildSoftBodyObjectProps.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Project one canonical Engine cloth surface into an owned Three mesh.

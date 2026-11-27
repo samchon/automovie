@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -138,7 +138,7 @@ export namespace KickThrust {
       ? none
       : Quaternion.slerp(
           none,
-          rotationBetween(from, to),
+          AutoMovieEngineMath.rotationBetween(from, to),
           (angle - KickForm.PUSH_ANKLE_GIVE) / angle,
         );
   }

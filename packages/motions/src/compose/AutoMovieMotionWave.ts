@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 /** Clock-driven whole-cycle oscillation with the original minimum-jerk ramps. */
@@ -46,7 +46,7 @@ function validate(cycles: number): void {
 /** Preserve the original scalar ramp and sine product grouping exactly. */
 function signal(u: number, cycles: number, half: number): number {
   const grown: number =
-    minimumJerk.share(Math.min(1, u / half)) *
-    minimumJerk.share(Math.min(1, (1 - u) / half));
+    AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, u / half)) *
+    AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (1 - u) / half));
   return grown * Math.sin(2 * Math.PI * cycles * u);
 }

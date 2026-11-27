@@ -1,8 +1,13 @@
-import { AutoMovieArchetypeDog } from "../AutoMovieArchetypeDog";
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type AutoMovieArchetype, type AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeUnits } from "../../core";
+import {
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+} from "../../core";
+import { AutoMovieArchetypeDog } from "../AutoMovieArchetypeDog";
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "../AutoMovieArchetypeQuadrupedHeadAttachment";
 import "../AutoMovieArchetypeQuadrupedLead";
@@ -46,7 +51,12 @@ export function createDog(
     for (const key of AutoMovieArchetypeDog.COLLAR_DIMENSIONS)
       AutoMovieArchetypeDog.positive(`collar.${key}`, params.collar[key], "m");
   const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeQuadrupedBody.Dimension> =
-    new AutoMovieArchetypeDrawSession("dog", AutoMovieArchetypeDog.UNITS, seed, params);
+    new AutoMovieArchetypeDrawSession(
+      "dog",
+      AutoMovieArchetypeDog.UNITS,
+      seed,
+      params,
+    );
   const model: AutoMovieArchetypeDrawSession.IModel<
     DogCohort,
     AutoMovieArchetypeQuadrupedBody.Dimension
@@ -83,7 +93,7 @@ export function createDog(
         AutoMovieArchetypeUnits.CENTIMETRE;
       for (const side of ["left", "right"] as const) {
         const base: IAutoMovieVector3 =
-          AutoMovieArchetypeQuadrupedHeadAttachment(
+          AutoMovieArchetypeQuadrupedHeadAttachment.attach(
             rig,
             Vector3.create(
               ((side === "left" ? 1 : -1) *

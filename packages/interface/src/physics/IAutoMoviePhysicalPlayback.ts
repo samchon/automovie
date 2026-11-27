@@ -79,7 +79,7 @@ export namespace IAutoMoviePhysicalPlayback {
    *
    * Format is the literal binary layout version; duration times integer rate
    * plus one gives the frame count, and segments lists unique [body,bone] keys
-   * in record order. encodePhysicalPlayback writes metadata from a complete
+   * in record order. `AutoMoviePhysicalPlayback.encode` writes metadata from a complete
    * cache; decodePhysicalPlayback validates and freezes it before a reader
    * exposes its arrays and records. The header preserves actual
    * ownership/contact/recovery history and requested support predictions

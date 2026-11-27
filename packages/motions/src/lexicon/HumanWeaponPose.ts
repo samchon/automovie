@@ -1,18 +1,5 @@
-import {
-  ROM_TOLERANCE,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanStrikingHeld,
-  IAutoMovieMotionHumanWeaponHeld,
-  IAutoMovieMotionHumanWeaponPresent,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { ROM_TOLERANCE, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingHeld, IAutoMovieMotionHumanWeaponHeld, IAutoMovieMotionHumanWeaponPresent, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVerdicts } from "../audit/AutoMovieMotionHumanVerdicts";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -175,7 +162,7 @@ export function HumanWeaponPose(
           }
         : anchor === "arm"
           ? shoulder
-          : resolveAutoMovieHumanoidSurfaces.place(
+          : AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
               context.body.surfaces.regions.mouth,
               bones.get(context.body.surfaces.regions.mouth.bone)!,
             ).point;
@@ -361,7 +348,7 @@ export function HumanWeaponPose(
         const surface = (id: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
           const region: typeof context.body.surfaces.regions.mouth =
             context.body.surfaces.regions[id];
-          return resolveAutoMovieHumanoidSurfaces.place(
+          return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             region,
             shown.get(region.bone)!,
           ).point;
@@ -428,7 +415,7 @@ export function HumanWeaponPose(
             s.tool.side === "right" ? "chestLeft" : "chestRight"
           ];
         const breast: IAutoMovieVector3 =
-          resolveAutoMovieHumanoidSurfaces.place(
+          AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             region,
             bones.get(region.bone)!,
           ).point;

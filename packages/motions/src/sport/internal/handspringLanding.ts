@@ -1,4 +1,4 @@
-import { Vector3, carriedRate } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -149,7 +149,7 @@ export function handspringLanding(
     const u: number = ease(t / span);
     const root: IAutoMovieVector3 = Vector3.add(
       Vector3.lerp(rootDown, rootUp, u),
-      Vector3.scale(rootSpeed, carriedRate(span, t)),
+      Vector3.scale(rootSpeed, AutoMovieEngineMotionSampling.carriedRate(span, t)),
     );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of ["left", "right"] as const)

@@ -16,8 +16,8 @@ import type { AutoMovieRenderInspectionMarks } from "../AutoMovieRenderInspectio
  * object has.
  */
 export function chooseAutoMovieInspectionMarks(
-  props: AutoMovieRenderInspectionMarks.Choose.IProps,
-): AutoMovieRenderInspectionMarks.Choose.IResult {
+  props: AutoMovieRenderInspectionMarks.IChooseProps,
+): AutoMovieRenderInspectionMarks.IChooseResult {
   const marks: IAutoMovieMark[] = [];
   const sets: Map<THREE.Object3D | null, IAutoMovieMark[]> = new Map<
     THREE.Object3D | null,

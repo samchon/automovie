@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -218,7 +218,7 @@ export namespace balletPositions {
       const to: number = k + 1 <= beats.count ? ((k + 1) % 2 === 0 ? 1 : 0) : 0;
       return (
         from +
-        (to - from) * minimumJerk.share(Math.min(1, (t - at) / (next - at)))
+        (to - from) * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (t - at) / (next - at)))
       );
     }
     function key(
@@ -278,7 +278,7 @@ export namespace balletPositions {
       left: [],
       right: [],
       hips: (t: number): IAutoMovieVector3 => {
-        const moved: number = minimumJerk.share(Math.min(1, t / arrive));
+        const moved: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / arrive));
         const over: IAutoMovieVector3 = Vector3.lerp(entered, ankles, moved);
         const m: number = share(t);
         return {

@@ -18,6 +18,7 @@ const { children, field, handler, only }: typeof AutoMovieMp4Boxes =
  * holds, and `stco` or `co64` where each chunk starts, samples lying back to
  * back within a chunk. Each sample is read from the file and hashed with
  * SHA-256, then compared with the hash of the frame file at the same index.
+ * @see https://www.iso.org/standard/85596.html
  *
  * It returns the findings in the profile-finding form the render report keeps,
  * empty when the file conforms: `track` for an audio track, `sampleCount` for a

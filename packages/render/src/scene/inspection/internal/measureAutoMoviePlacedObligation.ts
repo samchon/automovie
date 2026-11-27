@@ -1,3 +1,6 @@
+import type { IObserveAutoMoviePlacedSceneNativeSupport } from "../IObserveAutoMoviePlacedSceneNativeSupport.js";
+import type { IObserveAutoMoviePlacedSceneNativeGrip } from "../IObserveAutoMoviePlacedSceneNativeGrip.js";
+import type { IObserveAutoMoviePlacedSceneCheck } from "../IObserveAutoMoviePlacedSceneCheck.js";
 import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
@@ -11,13 +14,12 @@ import { type Matrix4, type Object3D, Vector3 } from "three";
 
 import { AUTOMOVIE_PLACED_FRAME_TOLERANCE } from "../AUTOMOVIE_PLACED_FRAME_TOLERANCE.js";
 import type { IAutoMoviePlacedObligation } from "../IAutoMoviePlacedObligation.js";
-import type { IObserveAutoMoviePlacedScene } from "../IObserveAutoMoviePlacedScene.js";
 import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
 import { readAutoMovieNativeRigidFrame } from "./readAutoMovieNativeRigidFrame.js";
 
 type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
 type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
-type IInput = IObserveAutoMoviePlacedScene.ICheck["input"];
+type IInput = IObserveAutoMoviePlacedSceneCheck["input"];
 
 /**
  * Measure one placed obligation with Engine's canonical predicates.
@@ -69,8 +71,8 @@ function nativeContact(
   scene: Object3D,
   matrices: Map<Object3D, Matrix4 | undefined>,
   input:
-    | IObserveAutoMoviePlacedScene.INativeSupport
-    | IObserveAutoMoviePlacedScene.INativeGrip,
+    | IObserveAutoMoviePlacedSceneNativeSupport
+    | IObserveAutoMoviePlacedSceneNativeGrip,
 ): IAutoMoviePlacedContact.IProps {
   if (input.kind === "scene-support") {
     const { sample, path, maxGap, maxSlip } = input;

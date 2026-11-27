@@ -1,4 +1,4 @@
-import { Quaternion, Transform, physicalShapePairDistance } from "@automovie/engine";
+import { Quaternion, Transform, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieAffordance,
@@ -85,7 +85,7 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
     conventional.position.z > -0.4 &&
       conventional.position.z < 0 &&
       nclose(
-        physicalShapePairDistance(conventional, pelvis, origin, rear),
+        AutoMovieEnginePhysics.physicalShapePairDistance(conventional, pelvis, origin, rear),
         -0.045,
         roundoff,
       ),
@@ -100,17 +100,17 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
       nclose(seat.point.z, -0.2, roundoff) &&
       nclose(seat.point.y, 0, roundoff) &&
       nclose(
-        physicalShapePairDistance(placed, pelvis, origin, deck),
+        AutoMovieEnginePhysics.physicalShapePairDistance(placed, pelvis, origin, deck),
         0,
         roundoff,
       ) &&
       nclose(
-        physicalShapePairDistance(placed, pelvis, origin, rear),
+        AutoMovieEnginePhysics.physicalShapePairDistance(placed, pelvis, origin, rear),
         0.055,
         roundoff,
       ) &&
       nclose(
-        physicalShapePairDistance(placed, pelvis, origin, front),
+        AutoMovieEnginePhysics.physicalShapePairDistance(placed, pelvis, origin, front),
         0.055,
         roundoff,
       ),
@@ -181,7 +181,7 @@ export async function test_motions_mounted_seat_domain(): Promise<void> {
   );
   TestValidator.predicate(
     "a skew rail leaves the pelvis in clear bearing",
-    physicalShapePairDistance(
+    AutoMovieEnginePhysics.physicalShapePairDistance(
       { ...origin, position: narrowed.point },
       pelvis,
       origin,

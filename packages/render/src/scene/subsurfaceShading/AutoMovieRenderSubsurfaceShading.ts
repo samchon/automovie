@@ -1,6 +1,8 @@
 import { subsurfaceTable as subsurfaceTableImplementation } from "./internal/subsurfaceTable.js";
 import { subsurfaceFragment as subsurfaceFragmentImplementation } from "./internal/subsurfaceFragment.js";
 import { subsurfacePhysicalChunk as subsurfacePhysicalChunkImplementation } from "./internal/subsurfacePhysicalChunk.js";
+import * as THREE from "three";
+import { applySubsurfaceShadingImplementation } from "./internal/applySubsurfaceShadingImplementation.js";
 
 /** Public operations for Auto Movie Render Subsurface Shading. */
 export namespace AutoMovieRenderSubsurfaceShading {
@@ -32,5 +34,18 @@ export namespace AutoMovieRenderSubsurfaceShading {
    */
   export function physicalChunk(pars: string): string {
     return subsurfacePhysicalChunkImplementation(pars);
+  }
+  /**
+   * Register the existing direct-diffuse subsurface shader approximation on a new
+   * physical material, borrowing one shared lookup texture. Radius channels are
+   * admitted nonnegative finite distances in metres by Engine validation; this
+   * helper does not independently validate them or prove measured tissue
+   * response.
+   */
+  export function apply(
+    material: THREE.MeshPhysicalMaterial,
+    radius: { r: number; g: number; b: number },
+  ): void {
+    applySubsurfaceShadingImplementation(material, radius);
   }
 }

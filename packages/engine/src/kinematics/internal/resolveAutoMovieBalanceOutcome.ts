@@ -1,13 +1,11 @@
-import type {
-  IAutoMovieResolveBalanceOutcome,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieResolveBalanceOutcome, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { pointInHull } from "../../math/internal/pointInHull";
 import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
-import { resolveAutoMovieCenterOfMass } from "../resolveAutoMovieCenterOfMass";
+import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
+
 
 /**
  * What an impulse does to a standing body's balance (#3429): it absorbs it

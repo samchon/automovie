@@ -2,7 +2,7 @@ import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -298,7 +298,7 @@ export namespace squatVault {
         if (t >= touchdown) return landing;
         const u: number = t - push;
         const shaped: IAutoMovieMotionHumanPosture = flyingShape(
-          minimumJerk.share(u / flight),
+          AutoMovieEngineMotionSampling.minimumJerkShare(u / flight),
         );
         return {
           ...shaped,

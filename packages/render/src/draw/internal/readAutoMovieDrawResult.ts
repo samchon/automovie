@@ -53,7 +53,7 @@ export function readAutoMovieDrawResult(props: {
   scene: THREE.Scene;
 
   /** The view resolved at the drawn second. */
-  resolved: AutoMovieRenderInspectionCamera.ResolveView.IResult;
+  resolved: AutoMovieRenderInspectionCamera.IResolveViewResult;
 
   /** The call's shade. */
   shade: IAutoMovieDrawCall["request"]["shade"];

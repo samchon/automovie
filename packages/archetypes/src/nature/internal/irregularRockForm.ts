@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, physicalHullFaces } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMoviePhysicalHullFaces } from "@automovie/engine";
 
 import type {
   IAutoMoviePhysicalHullFaces,
@@ -122,7 +122,7 @@ export function irregularRockForm(
   );
   // The cell keeps only the hull's corners: a collider admits no point
   // inside its hull.
-  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = AutoMoviePhysicalHullFaces.build(points);
   const cell: AutoMovieArchetypeConvexCell.ICell =
     AutoMovieArchetypeConvexCell.of(hull.vertices);
   const top: IAutoMovieVector3 = hull.vertices.reduce(

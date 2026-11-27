@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -147,7 +147,7 @@ export namespace AquaticPolo {
         root: AquaticPosture.along(
           entry.posture,
           attack
-            ? 0.24 * minimumJerk.share(Math.min(1, t / performanceSeconds))
+            ? 0.24 * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / performanceSeconds))
             : 0,
           water +
             0.055 -

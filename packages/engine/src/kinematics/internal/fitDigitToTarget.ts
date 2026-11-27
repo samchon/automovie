@@ -15,13 +15,13 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { clampJointToSkeleton } from "../../rom/clampJointToSkeleton";
+
 import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { descendDigitTasks } from "./descendDigitTasks";
-import { indexSkeletonTopology } from "../indexSkeletonTopology";
+import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
-import type { prepareSkeletonPoseResolution } from "../prepareSkeletonPoseResolution";
+import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 import { swingTwistRange } from "../swingTwistRange";
 
@@ -140,7 +140,7 @@ export function fitDigitToTarget(
       records.set(record.bone, record);
 
   // The digit's free axes, in the order of its joints, and each joint's
-  // clamp under the same record (`clampJointToSkeleton.of`'s own
+  // clamp under the same record (`AutoMovieEngineKinematics.clampJointToSkeletonOf`'s own
   // preparation, given the record it would scan for).
   const variables: IVariable[] = [];
   const clamps: Map<
@@ -158,7 +158,7 @@ export function fitDigitToTarget(
         variables.push({ bone, axis, range: constraint?.[axis] ?? null });
     clamps.set(
       bone,
-      clampJointToSkeleton.resolved(
+      AutoMovieEngineKinematics.clampJointToSkeletonResolved(
         bone,
         found,
         (): IAutoMovieJointRotationFrame | undefined =>

@@ -4,7 +4,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { physicalShapeHull } from "../physicalShapeHull";
+import { physicalShapeHull } from "./physicalShapeHull";
 
 /**
  * Admit geometry and observed frames without borrowing the native mass/tree

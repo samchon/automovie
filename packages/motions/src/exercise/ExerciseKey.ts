@@ -1,14 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanExerciseKey,
-  IAutoMovieMotionHumanJoints,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanJoints, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { stand } from "../actions/internal/stand";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -214,7 +206,7 @@ export namespace ExerciseKey {
       );
       if (bone === undefined)
         throw new Error(`The rig has no bone ${socket.bone}`);
-      return resolveAutoMovieHumanoidSurfaces.point(socket, bone);
+      return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(socket, bone);
     }
     const found: IAutoMovieVector3 | undefined =
       resolved.get(pin)?.worldPosition;

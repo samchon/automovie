@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -334,19 +334,19 @@ export namespace receive {
         wrist = out.wrist(t - shared.reachStart);
         rotation = out.turn(t - shared.reachStart);
         digits = shapeAt((t - shared.reachStart) / shared.reach);
-        share = minimumJerk.share((t - shared.reachStart) / shared.reach);
+        share = AutoMovieEngineMotionSampling.minimumJerkShare((t - shared.reachStart) / shared.reach);
       } else if (t <= leave) {
         wrist = arrive;
         rotation = shared.receiverAt.rotation;
         digits = closed;
         share = 1;
       } else {
-        share = 1 - Math.min(1, minimumJerk.share((t - leave) / back));
+        share = 1 - Math.min(1, AutoMovieEngineMotionSampling.minimumJerkShare((t - leave) / back));
         wrist = home.wrist(t - leave);
         rotation = takes ? shared.receiverShown.rotation : home.turn(t - leave);
         digits = takes
           ? closed
-          : returnShape!(minimumJerk.share((t - leave) / back));
+          : returnShape!(AutoMovieEngineMotionSampling.minimumJerkShare((t - leave) / back));
       }
       const base: IAutoMovieMotionHumanPosture = leaned(share);
       return {

@@ -1,29 +1,5 @@
-import { Vector3, resolveAutoMovieCenterOfMass, AutoMovieEngineKinematics } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieMotionHumanActionName,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanForce,
-  IAutoMovieMotionHumanImpulse,
-  IAutoMovieMotionHumanLean,
-  IAutoMovieMotionHumanPerturb,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanStagger,
-  IAutoMovieMotionTarget,
-  IAutoMovieResolveBalanceOutcome,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieMotionClock, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanImpulse, IAutoMovieMotionHumanLean, IAutoMovieMotionHumanPerturb, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStagger, IAutoMovieMotionTarget, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
@@ -150,10 +126,10 @@ export namespace perturb {
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanEntryState = context.entry;
     const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
-    const length: number = resolveAutoMovieCenterOfMass.pendulum(
+    const length: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(
       body.measure.hipHeight,
     );
-    const w0: number = resolveAutoMovieCenterOfMass.frequency(length);
+    const w0: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(length);
 
     // The impulses within one pendulum time constant before the start.
     const impulses: IAutoMovieMotionHumanImpulse[] = (
@@ -186,7 +162,7 @@ export namespace perturb {
       undefined,
       requestedBones,
     );
-    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+    const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
       model,
       bones,
     );
@@ -350,8 +326,8 @@ export namespace perturb {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const w0: number = resolveAutoMovieCenterOfMass.frequency(
-      resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+    const w0: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
     );
     const speed: number = Vector3.dot(outcome.velocity, push);
 

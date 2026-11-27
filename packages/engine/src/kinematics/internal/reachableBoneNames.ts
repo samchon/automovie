@@ -4,7 +4,7 @@ import {
   type IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import { indexSkeletonTopology } from "../indexSkeletonTopology";
+import { indexSkeletonTopology } from "./indexSkeletonTopology";
 
 /**
  * The bones a skeleton's forward-kinematics walk reaches: every bone whose
@@ -19,7 +19,7 @@ import { indexSkeletonTopology } from "../indexSkeletonTopology";
  *
  * @param skeleton Rig whose reachable bones are listed.
  * @param topology Index of the same, unchanged skeleton from
- *   {@link indexSkeletonTopology}; omitted, one is built for this call.
+ *   {@link AutoMovieEngineKinematics.indexSkeletonTopology}; omitted, one is built for this call.
  * @returns A new set the caller may modify without affecting `topology`.
  */
 export const reachableBoneNames: (

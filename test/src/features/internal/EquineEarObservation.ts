@@ -1,4 +1,4 @@
-import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedGait, type AutoMovieArchetypeRide, rideQuadruped, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
+import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedGait, type AutoMovieArchetypeRide, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -183,7 +183,7 @@ export namespace EquineEarObservation {
     const ride: AutoMovieArchetypeRide.IRide<
       AutoMovieArchetypeQuadruped.Affordance,
       AutoMovieArchetypeQuadruped.Dimension
-    > = rideQuadruped(
+    > = AutoMovieArchetypeQuadruped.ride(
       model,
       {
         start: { x: 0, z: 0, heading: 0 },

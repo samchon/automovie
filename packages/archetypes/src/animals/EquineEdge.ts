@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeCourse } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * The trunk's pitch across a steep face's edge: a course pitches its root with
@@ -38,7 +38,7 @@ export namespace EquineEdge {
    * @returns The edges.
    */
   export function of(
-    legs: readonly rideQuadruped.ILeg[],
+    legs: readonly AutoMovieArchetypeQuadruped.IRideLeg[],
     index: number,
     plan: AutoMovieArchetypeCourse.IPlan,
     hooves: Readonly<
@@ -47,7 +47,7 @@ export namespace EquineEdge {
   ): IEdge[] {
     const ahead: number = hooves.leftFore.z;
     const behind: number = -hooves.leftHind.z;
-    const pitch = (leg: rideQuadruped.ILeg | undefined): number =>
+    const pitch = (leg: AutoMovieArchetypeQuadruped.IRideLeg | undefined): number =>
       leg === undefined || leg.kind !== "straight"
         ? 0
         : (-Math.atan((leg.rise ?? 0) / leg.length) * 180) / Math.PI;

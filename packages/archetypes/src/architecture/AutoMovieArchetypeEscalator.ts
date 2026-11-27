@@ -1,5 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import {
   type AutoMovieArchetype,
   AutoMovieArchetypeBand,
@@ -9,6 +13,7 @@ import {
   AutoMovieArchetypeRefusal,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import { rideEscalatorImplementation } from "./internal/rideEscalator";
 import { createEscalatorConstants } from "./internal/createEscalatorConstants";
 
 const { KONE, ESTIMATE, PITCH, RAIL_OFFSET, PLATE, LANDING } =
@@ -25,7 +30,7 @@ export namespace AutoMovieArchetypeEscalator {
    * `+Z`. The model draws the fixed structure: landing plates, the step band's
    * coarse top surface and the two handrails. The steps that move are a separate
    * rigid model, `AutoMovieArchetypeEscalator.tread`, placed along the step band by
-   * `AutoMovieArchetypeEscalator.station` on the ride's clock (`rideEscalator`).
+   * `AutoMovieArchetypeEscalator.station` on the ride's clock (`AutoMovieArchetypeEscalator.ride`).
    *
    * The rated speed and inclination are KONE's offered values. EN 115-1 allows 35
    * degrees only up to a 6 m rise at 0.5 m/s, and a speed above 0.5 m/s only up
@@ -500,5 +505,110 @@ export namespace AutoMovieArchetypeEscalator {
         aperture: 0.08,
       });
     return builder.build(15);
+  }
+}
+
+/** The escalator's ride and its contract. */
+export namespace AutoMovieArchetypeEscalator {
+  /**
+   * An escalator running at its rated speed in one direction, read on the ride's
+   * clock: second 0 is when each named station holds its tread.
+   *
+   * Every tread moves along the step band (`AutoMovieArchetypeEscalator.station`) at the
+   * rated speed and stays level. On the straight incline all treads move
+   * together, so the inclined flight is one rigid frame translating along the
+   * incline, which a climb on the moving steps reads. Each handrail moves at the
+   * step band's speed, as EN 115-1 couples them, at the handrail height above the
+   * tread under it.
+   *
+   * @param escalator The installed escalator.
+   * @param placement Its world placement.
+   * @param direction The running direction: `up` moves treads from the lower comb
+   *   to the upper comb.
+   * @returns The tread, flight and handrail frames on the ride's clock.
+   */
+  export function ride(
+    escalator: AutoMovieArchetype<
+      AutoMovieArchetypeEscalator.Affordance,
+      AutoMovieArchetypeEscalator.Dimension
+    >,
+    placement: IAutoMovieTransform,
+    direction: AutoMovieArchetypeEscalator.RideDirection,
+  ): AutoMovieArchetypeEscalator.IRideResult {
+    return rideEscalatorImplementation(
+      escalator,
+      placement,
+      direction,
+      AutoMovieArchetypeEscalator.profile,
+      AutoMovieArchetypeEscalator.station,
+    );
+  }
+
+  /** The running direction. */
+  export type RideDirection = "up" | "down";
+  /** One running escalator's readers. */
+  export interface IRideResult {
+    /** The step band of the escalator. */
+    profile: AutoMovieArchetypeEscalator.IProfile;
+    /** The running direction. */
+    direction: RideDirection;
+    /**
+     * The tread that holds `station` metres along the band at second 0, at a
+     * ride second.
+     *
+     * @param station Metres along the band from the lower comb at second 0.
+     * @param seconds Ride seconds.
+     * @returns The level tread's top centre in the world.
+     */
+    tread(station: number, seconds: number): IAutoMovieTransform;
+    /**
+     * The straight inclined flight as one rigid frame, identity placement at
+     * second 0.
+     *
+     * @param seconds Ride seconds.
+     * @returns The flight's world frame.
+     */
+    flight(seconds: number): IAutoMovieTransform;
+    /**
+     * The handrail point above the tread at `station` at second 0.
+     *
+     * @param side The handrail's side of the band, facing `+Z`.
+     * @param station Metres along the band at second 0.
+     * @param seconds Ride seconds.
+     * @returns The handrail point in the world.
+     */
+    handrail(
+      side: AutoMovieHumanSide,
+      station: number,
+      seconds: number,
+    ): IAutoMovieTransform;
+  }
+  /**
+   * The moving flight a climb in `heading` reads, refused against the running
+   * direction unless the author asks for it.
+   *
+   * @param ride The running escalator.
+   * @param heading The climb's direction on the steps.
+   * @param against Whether the author stages walking against the steps.
+   * @returns The flight's world frame on the ride's clock.
+   * @throws {AutoMovieArchetypeRefusal} When the climb runs against the steps
+   *   and `against` is not set.
+   */
+  export function climb(
+    ride: IRideResult,
+    heading: RideDirection,
+    against?: boolean,
+  ): (seconds: number) => IAutoMovieTransform {
+    if (heading !== ride.direction && against !== true)
+      throw new AutoMovieArchetypeRefusal({
+        kind: "parameter",
+        archetype: "escalator",
+        axis: "climb.heading",
+        value: heading,
+        feasible: { kind: "alternatives", values: [ride.direction] },
+        reason: `the escalator runs ${ride.direction}`,
+        fix: "climb with the steps, or state that the climb is against them",
+      });
+    return ride.flight;
   }
 }

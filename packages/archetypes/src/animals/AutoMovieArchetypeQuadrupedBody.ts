@@ -448,7 +448,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
       color: coat,
       share: share === undefined ? undefined : scale * share.neck,
     });
-    AutoMovieArchetypeQuadrupedHead(
+    AutoMovieArchetypeQuadrupedHead.lay(
       builder,
       rig,
       h,

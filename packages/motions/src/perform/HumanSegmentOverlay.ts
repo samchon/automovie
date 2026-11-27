@@ -1,4 +1,4 @@
-import { minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -159,7 +159,7 @@ export namespace HumanSegmentOverlay {
         // enters from where it ended and blends in from it, not from the
         // carrier.
         Math.min(
-          minimumJerk.share(
+          AutoMovieEngineMotionSampling.minimumJerkShare(
             Math.min(
               1,
               Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
@@ -384,7 +384,7 @@ export namespace HumanSegmentOverlay {
       // overlay leaves them: they come in with the overlay but are not
       // released to the carrier's own arm over the fade, which would carry
       // the held prop away and back.
-      const coming: number = minimumJerk.share(
+      const coming: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(
           1,
           Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),

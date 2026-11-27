@@ -20,7 +20,7 @@ import "../HORSE_BANDS";
  * trunk, the hindquarters behind it, a neck, a head and a tail, and four bones
  * down each limb. Each bone is a bar from joint to joint, so the horse is posed
  * by moving joints; `AutoMovieArchetypeEquine.rig` gives the joints at rest and
- * `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions
+ * `AutoMovieArchetypeHorseRide.ride` poses the limbs through a gait. Bone lengths are fixed fractions
  * of the height at the withers and each bone's share of the body's mass is the
  * measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry
  * the body on from the hip joint to the point of buttock, which Jensen et al.

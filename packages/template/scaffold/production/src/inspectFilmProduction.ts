@@ -5,17 +5,16 @@ import type {
 } from "@automovie/interface";
 import {
   type IAutoMovieDrawScene,
-  observeAutoMovieCollisionMotion,
+
   AutoMovieRenderInspectionCamera,
   AutoMovieRenderInspection,
-  observeAutoMovieSceneCollision,
 } from "@automovie/render";
 
 import type { IFilmProduction } from "./IFilmProduction";
 import type { FilmVerdictPacket } from "./readFilmVerdicts";
 
 /** Work a capture or delivery may spend: never a reason to defer a check. */
-const SETTLED: Parameters<typeof observeAutoMovieSceneCollision>[0]["limits"] =
+const SETTLED: AutoMovieRenderInspection.IPlacedSceneCollisionLimits =
   {
     comparisons: Number.MAX_SAFE_INTEGER,
     posedVertices: Number.MAX_SAFE_INTEGER,
@@ -39,7 +38,7 @@ const SETTLED: Parameters<typeof observeAutoMovieSceneCollision>[0]["limits"] =
  */
 const COLLISION_LIMITS: Record<
   IAutoMovieDrawScene.IPlacedSample["mode"],
-  Parameters<typeof observeAutoMovieSceneCollision>[0]["limits"]
+  AutoMovieRenderInspection.IPlacedSceneCollisionLimits
 > = {
   viewer: {
     comparisons: 850,
@@ -62,7 +61,7 @@ const COLLISION_LIMITS: Record<
  */
 const MOTION_LIMITS: Record<
   IAutoMovieDrawScene.IPlacedSample["mode"],
-  Parameters<typeof observeAutoMovieCollisionMotion>[0]["limits"]
+  AutoMovieRenderInspection.IPlacedSceneCollisionMotionLimits
 > = {
   viewer: {
     // Each extra instant costs a placement plus a collection; the work limits
@@ -125,7 +124,7 @@ export function inspectFilmProduction(props: {
   const { name, production, geometry, sample } = props;
   const layersAt = (
     seconds: number,
-  ): Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"] =>
+  ): AutoMovieRenderInspection.IPlacedSceneCollisionProps["layers"] =>
     (
       production.inspectionLayers?.({
         ...sample,
@@ -140,10 +139,10 @@ export function inspectFilmProduction(props: {
     );
   const authored: IAutoMovieInspectionDiagnostics | undefined =
     production.inspectPlaced?.(sample);
-  const layers: Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"] =
+  const layers: AutoMovieRenderInspection.IPlacedSceneCollisionProps["layers"] =
     layersAt(sample.time.filmSeconds);
   const native: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
-    AutoMovieRenderInspection.PlacedScene.observe({
+    AutoMovieRenderInspection.observePlacedScene({
       scene: sample.scene,
       camera: sample.camera,
       time: sample.time,
@@ -153,7 +152,7 @@ export function inspectFilmProduction(props: {
   const collision: Pick<
     IAutoMovieInspectionDiagnostics,
     "findings" | "coverage"
-  > = observeAutoMovieSceneCollision({
+  > = AutoMovieRenderInspection.observePlacedSceneCollisions({
     time: sample.time,
     layers,
     geometry,
@@ -216,7 +215,7 @@ function observeMotion(
   props: Parameters<typeof inspectFilmProduction>[0],
   layersAt: (
     seconds: number,
-  ) => Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"],
+  ) => AutoMovieRenderInspection.IPlacedSceneCollisionProps["layers"],
 ): Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> {
   const { production, geometry, sample, fps } = props;
   if (sample.place === undefined || fps === undefined || !(fps > 0))
@@ -240,7 +239,7 @@ function observeMotion(
             ? {}
             : { discontinuities: playback.discontinuities }),
         }).boundary;
-  return observeAutoMovieCollisionMotion({
+  return AutoMovieRenderInspection.observePlacedSceneCollisionMotion({
     time: sample.time,
     fromSeconds: Math.max(0, from),
     continuous: relation !== "cut" && relation !== "discontinuity",

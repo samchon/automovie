@@ -1,11 +1,12 @@
 import * as THREE from "three";
 
-import { planAutoMovieFilmGlare } from "../planAutoMovieFilmGlare.js";
+import { planAutoMovieFilmGlareImplementation } from "./planAutoMovieFilmGlareImplementation.js";
+import type { IAutoMovieFilmGlareKernel } from "../IAutoMovieFilmGlareKernel.js";
 
 /**
  * Make the film response stage's targets of a raster: the linear half-float
  * frame with its depth texture, the glare pyramid as deep as the deepest kernel
- * `planAutoMovieFilmGlare` plans, and a pair of blur targets per kernel at its
+ * `AutoMovieFilmResponseStage.planGlare` plans, and a pair of blur targets per kernel at its
  * level. The caller owns and disposes them.
  */
 export function allocateAutoMovieFilmTargets(
@@ -38,10 +39,10 @@ export function allocateAutoMovieFilmTargets(
     Math.max(1, Math.ceil(width / 2 ** level)),
     Math.max(1, Math.ceil(height / 2 ** level)),
   ];
-  const plans: planAutoMovieFilmGlare.IKernel[] =
-    planAutoMovieFilmGlare(height);
+  const plans: IAutoMovieFilmGlareKernel[] =
+    planAutoMovieFilmGlareImplementation(height);
   const deepest: number = Math.max(
-    ...plans.map((plan: planAutoMovieFilmGlare.IKernel): number => plan.level),
+    ...plans.map((plan: IAutoMovieFilmGlareKernel): number => plan.level),
   );
   return {
     width,
@@ -53,7 +54,7 @@ export function allocateAutoMovieFilmTargets(
     }),
     kernels: plans.map(
       (
-        plan: planAutoMovieFilmGlare.IKernel,
+        plan: IAutoMovieFilmGlareKernel,
       ): allocateAutoMovieFilmTargets.IKernelTargets => {
         const [w, h]: [number, number] = size(plan.level);
         return {
@@ -92,7 +93,7 @@ export namespace allocateAutoMovieFilmTargets {
   /** The blur targets of one glare kernel at its level. */
   export interface IKernelTargets {
     /** The kernel's plan. */
-    plan: planAutoMovieFilmGlare.IKernel;
+    plan: IAutoMovieFilmGlareKernel;
 
     /** The frame blurred along rows. */
     across: THREE.WebGLRenderTarget;

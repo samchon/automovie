@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanHookSet,
@@ -49,7 +49,7 @@ export function hookSetTip(
       rotation: Quaternion.multiply(
         Quaternion.fromAxisAngle(
           axis,
-          params.angle * minimumJerk(Math.min(1, t / params.duration)).s,
+          params.angle * AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, t / params.duration)).s,
         ),
         grip.rotation,
       ),

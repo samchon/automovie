@@ -1,6 +1,6 @@
 import {
-  physicalShapeBounds,
-  physicalShapePairDistance,
+
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -29,7 +29,7 @@ export namespace fitSeatedAnkleCrossShape {
     shape: IAutoMoviePhysicalShape;
 
     /** Its world axis-aligned bounds, metres. */
-    bounds: ReturnType<typeof physicalShapeBounds>;
+    bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>;
   }
 
   /**
@@ -53,7 +53,7 @@ export namespace fitSeatedAnkleCrossShape {
           bone,
           pose,
           shape,
-          bounds: physicalShapeBounds(pose, shape),
+          bounds: AutoMovieEnginePhysics.physicalShapeBounds(pose, shape),
         })),
       );
   }
@@ -67,7 +67,7 @@ export namespace fitSeatedAnkleCrossShape {
    * @returns Metres; negative when they overlap.
    */
   export function distance(fixed: IShape, moving: IShape): number {
-    return physicalShapePairDistance(
+    return AutoMovieEnginePhysics.physicalShapePairDistance(
       fixed.pose,
       fixed.shape,
       moving.pose,
@@ -83,8 +83,8 @@ export namespace fitSeatedAnkleCrossShape {
    * @returns Metres.
    */
   export function boundsGap(
-    a: ReturnType<typeof physicalShapeBounds>,
-    b: ReturnType<typeof physicalShapeBounds>,
+    a: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>,
+    b: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>,
   ): number {
     return Math.hypot(
       Math.max(a.min.x - b.max.x, b.min.x - a.max.x, 0),

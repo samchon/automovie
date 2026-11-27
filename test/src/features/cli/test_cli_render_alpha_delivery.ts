@@ -1,3 +1,4 @@
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   AutoMovieInspectionShade,
   IAutoMovieDrawCall,
@@ -6,9 +7,7 @@ import type {
 import {
   AUTOMOVIE_MP4_SRGB_COLOUR,
   AutoMovieRenderDelivery,
-  createAutoMovieLoudnessMeter,
-  renderAutoMovieDrawnVideo,
-
+  AutoMovieRenderVideo,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { AutoMovieCliRender } from "automovie";
@@ -53,8 +52,8 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
   const fixture: Parameters<typeof AutoMovieCliRender.renderVideo>[0] = {
     host: {
       render: {
-        renderAutoMovieDrawnVideo,
-        createAutoMovieLoudnessMeter,
+        AutoMovieRenderVideo,
+        createAutoMovieLoudnessMeter: AutoMovieEngineSound.createLoudnessMeter,
         AUTOMOVIE_MP4_SRGB_COLOUR,
         AutoMovieRenderDelivery,
       },

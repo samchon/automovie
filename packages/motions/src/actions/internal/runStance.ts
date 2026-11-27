@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
@@ -227,7 +227,7 @@ export namespace runStance {
    * @returns The claim, metres.
    */
   export function airborne(ends: readonly [number, number], u: number): number {
-    const s: number = minimumJerk.share(Math.min(1, Math.max(0, u)));
+    const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, u)));
     return ends[0] + (ends[1] - ends[0]) * s;
   }
 

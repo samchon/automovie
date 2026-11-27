@@ -7,7 +7,7 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
-import { autoMovieModelPartMatrices } from "../../autoMovieModelPartMatrices";
+import { AutoMovieEngineModel } from "../../AutoMovieEngineModel";
 import { AutoMovieEngineMeshCrossingQuery } from "../mesh-crossing/AutoMovieEngineMeshCrossingQuery";
 import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
@@ -18,7 +18,7 @@ import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
  *
  * Each mesh part is first carried into the model frame by its own transform
  * and, when attached to a bone the rest pose resolves, by that bone's rest
- * placement, the placement `autoMovieModelPartMatrices` owns; a part with
+ * placement, the placement `AutoMovieEngineModel.partMatrices` owns; a part with
  * neither keeps its coordinates exactly. Bicubic recipes use the canonical
  * engine's retained finite mesh, including declared partial output; primitives
  * and unrecognized geometry remain outside this mesh crossing query. A pair
@@ -55,7 +55,7 @@ export function measureAutoMovieModelCrossings(
   options: IAutoMovieMeasureModelCrossings.IOptions = {},
 ): IAutoMovieModelCrossing[] {
   const matrices: Map<IAutoMovieModelPart, number[] | null> =
-    autoMovieModelPartMatrices(model);
+    AutoMovieEngineModel.partMatrices(model);
   const parts: IPlacedPart[] = [];
   for (const part of model.parts) {
     if (part.geometry.type !== "mesh" && part.geometry.type !== "bicubic-atlas")

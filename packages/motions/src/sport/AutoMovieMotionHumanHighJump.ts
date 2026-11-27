@@ -1,23 +1,5 @@
-import {
-  AutoMovieGravity,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieMotionHumanActionKey,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanExerciseKey,
-  IAutoMovieMotionHumanGymnasticsTakeoff,
-  IAutoMovieMotionHumanHighJump,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieGravity, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieMotionHumanActionKey, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanExerciseKey, IAutoMovieMotionHumanGymnasticsTakeoff, IAutoMovieMotionHumanHighJump, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
@@ -303,7 +285,7 @@ export namespace AutoMovieMotionHumanHighJump {
         );
       return {
         posture: frozen.posture,
-        centre: resolveAutoMovieCenterOfMass.place(
+        centre: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
           model,
           body.colliderBones.map(frozen.pose, read()),
         ),

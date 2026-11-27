@@ -1,7 +1,7 @@
 import {
   ANKLE_DORSIFLEXION,
   DEFAULT_HUMANOID_ROM,
-  scanJointRom,
+  AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
   IAutoMovieJointConstraint,
@@ -23,7 +23,7 @@ type UnloadedBearsPart = "leftFoot" | "rightFoot";
  * and collision-free the result looks. The reading takes the displayed pose's
  * clinical joint angles at each grid instant and measures each joint against
  * the humanoid range table the pose gate enforces (`DEFAULT_HUMANOID_ROM`), by
- * the gate's own scan (`scanJointRom`): an angle outside its interval
+ * the gate's own scan (`AutoMovieEngineKinematics.scanJointRom`): an angle outside its interval
  * overshoots by its distance to the nearer bound, an angle on an axis the joint
  * does not have by its whole magnitude, and a ball joint's combined flexion and
  * abduction by what it exceeds the swing cone. A joint the table does not list
@@ -56,7 +56,7 @@ export namespace AutoMovieMotionHumanAuditRange {
         const constraint: IAutoMovieJointConstraint | undefined =
           DEFAULT_HUMANOID_ROM[joint.bone];
         if (constraint === undefined) continue;
-        scanJointRom(
+        AutoMovieEngineKinematics.scanJointRom(
           joint,
           constraint,
           (

@@ -1,4 +1,4 @@
-import { selectProductionLiveWearableSoftBodies, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -114,7 +114,7 @@ export function test_soft_body_live_wearable_selection(): void {
   TestValidator.equals(
     "a shot receives its selected moving domains with authored slots",
     {
-      selected: selectProductionLiveWearableSoftBodies(domains, [
+      selected: AutoMovieEngineSoftBody.selectProductionLiveWearableSoftBodies(domains, [
         "coat",
         "ghost",
         "cape",
@@ -129,7 +129,7 @@ export function test_soft_body_live_wearable_selection(): void {
           item.maxSubjects,
         ],
       ),
-      none: selectProductionLiveWearableSoftBodies([still("flag")], []),
+      none: AutoMovieEngineSoftBody.selectProductionLiveWearableSoftBodies([still("flag")], []),
     },
     {
       selected: [
@@ -144,7 +144,7 @@ export function test_soft_body_live_wearable_selection(): void {
     {
       repeated: throwsError(
         (): { domain: Boundary; subjectIndex: number; maxSubjects: number }[] =>
-          selectProductionLiveWearableSoftBodies(
+          AutoMovieEngineSoftBody.selectProductionLiveWearableSoftBodies(
             [still("flag"), still("flag")],
             [],
           ),
@@ -152,12 +152,12 @@ export function test_soft_body_live_wearable_selection(): void {
       ),
       unselectedMoving: throwsError(
         (): { domain: Boundary; subjectIndex: number; maxSubjects: number }[] =>
-          selectProductionLiveWearableSoftBodies(domains, ["coat"]),
+          AutoMovieEngineSoftBody.selectProductionLiveWearableSoftBodies(domains, ["coat"]),
         'Live wearable soft body "cape" declares a moving boundary but simulation.liveWearableSoftBodies does not select it.',
       ),
       selectedStatic: throwsError(
         (): { domain: Boundary; subjectIndex: number; maxSubjects: number }[] =>
-          selectProductionLiveWearableSoftBodies(domains, [
+          AutoMovieEngineSoftBody.selectProductionLiveWearableSoftBodies(domains, [
             "coat",
             "cape",
             "flag",

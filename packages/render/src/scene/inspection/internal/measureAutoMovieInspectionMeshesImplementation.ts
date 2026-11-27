@@ -18,8 +18,8 @@ import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionG
  * is set.
  */
 export function measureAutoMovieInspectionMeshesImplementation(
-  props: AutoMovieRenderInspectionGeometry.MeasureMeshes.IProps,
-): AutoMovieRenderInspectionGeometry.MeasureMeshes.IResult {
+  props: AutoMovieRenderInspectionGeometry.IMeasureMeshesProps,
+): AutoMovieRenderInspectionGeometry.IMeasureMeshesResult {
   const meshes: { path: string; mesh: THREE.Mesh }[] = [];
   for (const { path, object } of props.drawn)
     if (

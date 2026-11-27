@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -250,7 +250,7 @@ export namespace crutchSitKit {
     from: IAutoMovieHumanLimbReference,
     to: IAutoMovieHumanLimbReference,
   ): IAutoMovieHumanLimbReference {
-    const s: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
+    const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share)));
     const mix = (
       a: readonly [number, number, number],
       b: readonly [number, number, number],
@@ -278,7 +278,7 @@ export namespace crutchSitKit {
     b: IAutoMovieHumanLimbGoal,
     share: number,
   ): IAutoMovieHumanLimbGoal {
-    const s: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
+    const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share)));
     return {
       ...b,
       point: Vector3.lerp(a.point, b.point, s),

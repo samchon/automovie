@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 import { AutoMovieMotionClock } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -49,7 +49,7 @@ export function test_motions_compose_clock_native(): void {
   TestValidator.predicate(
     "a window's linear share and its minimum-jerk progress",
     clock.linear("a", "b", 2) === 0.5 &&
-      nclose(clock.progress("a", "b", 2), minimumJerk.share(0.5), ROUNDING) &&
+      nclose(clock.progress("a", "b", 2), AutoMovieEngineMotionSampling.minimumJerkShare(0.5), ROUNDING) &&
       clock.linear("a", "b", 0) === 0 &&
       clock.linear("a", "b", 4) === 1,
   );
@@ -59,7 +59,7 @@ export function test_motions_compose_clock_native(): void {
     "the envelope",
     nclose(
       clock.envelope(["start", "a"], ["a", "b"], 2),
-      1 - minimumJerk.share(0.5),
+      1 - AutoMovieEngineMotionSampling.minimumJerkShare(0.5),
       ROUNDING,
     ) && clock.envelope(["a", "b"], ["start", "a"], 2) === 0,
   );

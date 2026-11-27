@@ -9,7 +9,7 @@ import type {
 
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { physicalRecoverySwing } from "./internal/physicalRecoverySwing";
-import { physicalStanceSwing } from "./physicalStanceSwing";
+import { AutoMovieEnginePhysicalStanceSwing } from "./AutoMovieEnginePhysicalStanceSwing";
 import { samplePhysicalRecoveryGoal } from "./internal/samplePhysicalRecoveryGoal";
 
 /**
@@ -18,14 +18,14 @@ import { samplePhysicalRecoveryGoal } from "./internal/samplePhysicalRecoveryGoa
  * placed by the prepared span (`preparePhysicalDisturbanceSpan`).
  *
  * A biped's recovery swing's clearance is lowered to what the stance can carry
- * at its peak in the swing's time (`physicalStanceSwing.clearance`); a
+ * at its peak in the swing's time (`AutoMovieEnginePhysicalStanceSwing.clearance`); a
  * quadruped's step carries its own ground clearance (IHMC 201903
  * `QuadrupedSwingState` l.357), which the path rises by. Either is the sole's:
  * a foot pitched so its lowest point hangs further below its endpoint than when
  * planted flat has the endpoint raised by the difference (Pratt et al., M2V2,
  * Section VII-D1). The joints track the path with their own servos, within
  * their caps; the drive adds only the path's feed-forward through J^T
- * (`physicalStanceSwing.swingForce`).
+ * (`AutoMovieEnginePhysicalStanceSwing.swingForce`).
  *
  * The path is this phase's own, a known non-port: IHMC 201903 swings a biped by
  * an optimized two-waypoint trajectory (`TwoWaypointSwingGenerator`) and a
@@ -41,7 +41,7 @@ import { samplePhysicalRecoveryGoal } from "./internal/samplePhysicalRecoveryGoa
  */
 export function physicalBalanceSwing(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
+  sense: AutoMovieEnginePhysicalBalanceTypes.ISense;
   trace?: IAutoMoviePhysicalBalanceTrace[];
 }): physicalBalanceSwing.IResult {
   const { sense } = input;
@@ -56,12 +56,12 @@ export function physicalBalanceSwing(input: {
   if (lifted.length === 0) return { state, goals, drives };
   const paths: { height: number; hang: number }[] = [];
   for (const swing of lifted) {
-    const limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb = sense.limb(swing.bone);
+    const limb: AutoMovieEnginePhysicalBalanceTypes.ILimb = sense.limb(swing.bone);
 
     // The swinging limb's effective mass at its endpoint: the reaction its
-    // path's acceleration asks of the stance (`physicalStanceBalance`
+    // path's acceleration asks of the stance (`AutoMovieEnginePhysicalStanceBalance`
     // `.swingMass`).
-    const carried: number = physicalStanceSwing.swingMass(
+    const carried: number = AutoMovieEnginePhysicalStanceSwing.swingMass(
       sense.profile,
       sense.segments,
       limb,
@@ -70,7 +70,7 @@ export function physicalBalanceSwing(input: {
     const rise: number =
       swing.to.clearance > 0
         ? swing.to.clearance
-        : physicalStanceSwing.clearance(
+        : AutoMovieEnginePhysicalStanceSwing.clearance(
             time,
             sense.profile.mass,
             carried,
@@ -93,7 +93,7 @@ export function physicalBalanceSwing(input: {
     goals[swing.bone] = point;
     paths.push({ height: rise, hang: lowered });
     const position: IAutoMovieVector3 = sense.actual(swing.bone);
-    const force: IAutoMovieVector3 = physicalStanceSwing.swingForce({
+    const force: IAutoMovieVector3 = AutoMovieEnginePhysicalStanceSwing.swingForce({
       mass: carried,
       gravity: sense.gravity,
       acceleration: motion.acceleration,

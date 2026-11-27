@@ -9,7 +9,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquinePitch } from "./EquinePitch";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * An authored forelimb or hindlimb lameness at the walk or trot: the head and
@@ -109,7 +109,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
   export function prepare(
     archetype: string,
     lameness: ILameness | undefined,
-    legs: readonly rideQuadruped.ILeg[],
+    legs: readonly AutoMovieArchetypeQuadruped.IRideLeg[],
     fallback: AutoMovieArchetypeQuadrupedGait.Gait,
     parts: readonly IAutoMovieModelPart[],
     limbs: Readonly<
@@ -124,7 +124,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     )
       refuse("Name a limb and one of the grades subtle, mild or moderate");
     if (
-      legs.some((leg: rideQuadruped.ILeg): boolean => {
+      legs.some((leg: AutoMovieArchetypeQuadruped.IRideLeg): boolean => {
         const gait: AutoMovieArchetypeQuadrupedGait.Gait = leg.gait ?? fallback;
         return gait !== "walk" && gait !== "trot";
       })

@@ -32,8 +32,8 @@ export namespace AutoMovieArchetypeRoundabout {
  * `+y` through the origin, with the ground at `y = 0`.
  *
  * The rotating disc with its grab bars is a separate rigid model,
- * `createRoundabout.disc`, whose origin is on the spindle at ground level, so a
- * rotation of its frame about `+y` turns it (`rideRoundabout`).
+ * `AutoMovieArchetypeRoundabout.disc`, whose origin is on the spindle at ground level, so a
+ * rotation of its frame about `+y` turns it (`AutoMovieArchetypeRoundaboutRide.ride`).
  *
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.

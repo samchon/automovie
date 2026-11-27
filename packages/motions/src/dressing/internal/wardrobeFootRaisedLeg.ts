@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -88,7 +88,7 @@ export function wardrobeFootRaisedLeg(
   const posture: (seconds: number) => IAutoMovieMotionHumanPosture = (
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
-    const share: number = minimumJerk(
+    const share: number = AutoMovieEngineMotionSampling.minimumJerk(
       Math.min(1, Math.max(0, Math.min(seconds, total - seconds) / up)),
     ).s;
     if (share === 0) return start;

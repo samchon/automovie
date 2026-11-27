@@ -4,7 +4,7 @@ import type {
   IAutoMoviePhysicalFrame,
 } from "@automovie/interface";
 import {
-  type IObserveAutoMoviePlacedScene,
+  type IObserveAutoMoviePlacedSceneCheck,
   AutoMovieRenderInspection,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -55,7 +55,7 @@ export function test_render_scene_observe_placed_scene(): void {
       },
     },
   };
-  const uninstrumented = AutoMovieRenderInspection.PlacedScene.observe({
+  const uninstrumented = AutoMovieRenderInspection.observePlacedScene({
     scene,
     camera,
     time,
@@ -121,7 +121,7 @@ export function test_render_scene_observe_placed_scene(): void {
     },
     maxDistance: 0.25,
   } as const;
-  const checks: readonly IObserveAutoMoviePlacedScene.ICheck[] = [
+  const checks: readonly IObserveAutoMoviePlacedSceneCheck[] = [
     {
       key: "rook:left-sole",
       required: true,
@@ -161,7 +161,7 @@ export function test_render_scene_observe_placed_scene(): void {
     { key: "lantern:continuous", required: true, input: edge },
     { key: "lantern:cut", required: true, input: { ...edge, boundary: "cut" } },
   ];
-  const placed = AutoMovieRenderInspection.PlacedScene.observe({ scene, camera, time, checks });
+  const placed = AutoMovieRenderInspection.observePlacedScene({ scene, camera, time, checks });
   const gap = placed.findings.find(({ check }) => check === "support");
   const grip = placed.findings.find(({ check }) => check === "grip");
   const step = placed.findings.find(
@@ -201,7 +201,7 @@ export function test_render_scene_observe_placed_scene(): void {
         ({ key, status }) => key === "lantern:cut" && status === "excluded",
       ),
   );
-  const earlier = AutoMovieRenderInspection.PlacedScene.observe({
+  const earlier = AutoMovieRenderInspection.observePlacedScene({
     scene,
     camera,
     time: { filmSeconds: 1.25 },

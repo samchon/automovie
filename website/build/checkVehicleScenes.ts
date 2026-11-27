@@ -1,22 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidSocket,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanPerformer,
-  IAutoMovieMotionHumanRide,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanPerformer, IAutoMovieMotionHumanRide, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanSeat } from "@automovie/motions";
 import { HumanColliders, HumanFoot } from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
@@ -140,7 +123,7 @@ function checkRide(
     );
     const socket: IAutoMovieHumanoidSurfaces.IFrame =
       actor.body.surfaces.sockets.seat;
-    const seatPoint: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+    const seatPoint: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
       socket,
       bones.get(socket.bone)!,
     );
@@ -229,7 +212,7 @@ function checkPush(
     for (const [id, key] of PUSH_HANDLES) {
       const hand: IAutoMovieHumanoidSurfaces.IFrame =
         actor.body.surfaces.sockets[key];
-      const wrist: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+      const wrist: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
         hand,
         bones.get(hand.bone)!,
       );

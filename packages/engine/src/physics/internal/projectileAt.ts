@@ -5,10 +5,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { aimRotation } from "../../kinematics/aimRotation";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { projectileDragFlight } from "../projectileDragFlight";
+import { ProjectileDragFlightImplementation } from "./ProjectileDragFlightImplementation";
 
 /** A projectile model faces +Z; a velocity attitude turns that onto the flight. */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
@@ -40,7 +40,7 @@ export function projectileAt(
           ),
           velocity: Vector3.add(p.velocity, Vector3.scale(p.gravity, t)),
         }
-      : (p.flight ?? projectileDragFlight(p)).at(t);
+      : (p.flight ?? ProjectileDragFlightImplementation.projectileDragFlight(p)).at(t);
   if (p.attitude === undefined) return state;
   switch (p.attitude.kind) {
     case "velocity":
@@ -48,7 +48,7 @@ export function projectileAt(
         ...state,
         rotation:
           Vector3.length(state.velocity) > 0
-            ? aimRotation(FORWARD, state.velocity)
+            ? AutoMovieEngineKinematics.aimRotation(FORWARD, state.velocity)
             : IDENTITY,
       };
     case "spin":

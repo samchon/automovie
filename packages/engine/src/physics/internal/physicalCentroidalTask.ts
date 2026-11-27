@@ -29,7 +29,7 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  * @returns The task: the mass center, the force and the moment.
  */
 export function physicalCentroidalTask(
-  input: AutoMovieEnginePhysicalBalanceTypes.CentroidalTask.IInput,
+  input: AutoMovieEnginePhysicalBalanceTypes.ICentroidalTaskInput,
 ): AutoMovieXpbdWorld.IRootTask {
   let mass: number = 0;
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

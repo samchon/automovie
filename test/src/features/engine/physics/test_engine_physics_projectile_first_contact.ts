@@ -1,4 +1,4 @@
-import { Vector3, projectileFirstContact, AutoMovieEnginePhysics, AutoMovieAir } from "@automovie/engine";
+import { AutoMoviePhysicalProjectile, Vector3, AutoMovieEnginePhysics, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieHit,
   IAutoMoviePhysicalShape,
@@ -56,9 +56,9 @@ export function test_engine_physics_projectile_first_contact(): void {
     attitude: { kind: "fixed" },
   };
   const shape: IAutoMoviePhysicalShape = post(10, 0);
-  const hit: IAutoMovieHit | null = projectileFirstContact(
+  const hit: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
     arrow,
-    [projectileFirstContact.shape("post", shape, pose())],
+    [AutoMoviePhysicalProjectile.shapeCollider("post", shape, pose())],
     { from: 0, to: 1 },
     { radius: 0, tail: { x: 0, y: 0, z: -0.7 }, thickness: 0.06 },
   );
@@ -73,7 +73,7 @@ export function test_engine_physics_projectile_first_contact(): void {
       Vector3.dot(hit.normal!, { x: 0, y: 0, z: -1 }) >=
         1 - PhysicalTolerance.CONVERGED,
   );
-  const opaque: IAutoMovieHit | null = projectileFirstContact(
+  const opaque: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
     arrow,
     [
       {
@@ -97,13 +97,13 @@ export function test_engine_physics_projectile_first_contact(): void {
   );
 
   // 2. The ball on the ground.
-  const drop: IAutoMovieHit | null = projectileFirstContact(
+  const drop: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
     {
       origin: { x: 0, y: 1, z: 0 },
       velocity: zero,
       gravity: { x: 0, y: -9.80665, z: 0 },
     },
-    [projectileFirstContact.plane("ground", zero, { x: 0, y: 1, z: 0 })],
+    [AutoMoviePhysicalProjectile.planeCollider("ground", zero, { x: 0, y: 1, z: 0 })],
     { from: 0, to: 2 },
     { radius: 0, thickness: 0.05 },
   );
@@ -119,11 +119,11 @@ export function test_engine_physics_projectile_first_contact(): void {
   );
 
   // 3. Between two posts.
-  const miss: IAutoMovieHit | null = projectileFirstContact(
+  const miss: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
     arrow,
     [
-      projectileFirstContact.shape("left", post(10, 0.2), pose),
-      projectileFirstContact.shape("right", post(10, -0.2), pose),
+      AutoMoviePhysicalProjectile.shapeCollider("left", post(10, 0.2), pose),
+      AutoMoviePhysicalProjectile.shapeCollider("right", post(10, -0.2), pose),
     ],
     { from: 0, to: 1 },
     { radius: 0, tail: { x: 0, y: 0, z: -0.7 }, thickness: 0.06 },
@@ -145,12 +145,12 @@ export function test_engine_physics_projectile_first_contact(): void {
   };
   const from: number = 0.15 * step;
   const start = AutoMovieAir.projectileAt(launch, from);
-  const plane = projectileFirstContact.plane("dense-turn", start.position, {
+  const plane = AutoMoviePhysicalProjectile.planeCollider("dense-turn", start.position, {
     x: 0,
     y: 1,
     z: 0,
   });
-  const turn: IAutoMovieHit | null = projectileFirstContact(
+  const turn: IAutoMovieHit | null = AutoMoviePhysicalProjectile.firstContact(
     launch,
     [plane],
     { from, to: 0.75 * step },

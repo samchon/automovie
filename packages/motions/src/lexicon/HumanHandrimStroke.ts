@@ -1,27 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanHandrimStroke,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanHandrimStroke, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { seated } from "../everyday/internal/seated";
@@ -219,7 +197,7 @@ function planHumanHandrimStroke(
     context.body,
     context.entry.pose,
   ).get(seatBone.bone)!;
-  const socket: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+  const socket: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
     seatBone,
     hips,
   ).point;
@@ -351,7 +329,7 @@ function planHumanHandrimStroke(
     const share: number =
       at < approach
         ? AutoMovieMotionInterval.progress(0, approach, at)
-        : 1 - minimumJerk.share(recovering);
+        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare(recovering);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
       ...seated.limbs,
     };

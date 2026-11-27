@@ -10,7 +10,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { positive } from "../../geometry/positive";
+import { positive } from "../../geometry/internal/positive";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";

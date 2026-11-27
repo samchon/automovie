@@ -1,5 +1,5 @@
 import type { AutoMovieArchetypeArmour } from "@automovie/archetypes";
-import { Quaternion, Vector3, physicalHullFaces, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMoviePhysicalHullFaces, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMovieVector3,
@@ -62,7 +62,7 @@ export namespace armourJointObservation {
     epsilon: number,
   ): number {
     const faces: IAutoMoviePhysicalHullFaces.IFace[] =
-      physicalHullFaces(points).faces;
+      AutoMoviePhysicalHullFaces.build(points).faces;
     let minimum: number = Infinity;
     for (let i: number = 0; i < faces.length; i++)
       for (let j: number = i + 1; j < faces.length; j++) {

@@ -1,4 +1,4 @@
-import { Quaternion, minimumJerk } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -185,7 +185,7 @@ function planCrossAnkleOverKnee(
         path.length - 2,
         Math.floor(share * (path.length - 1)),
       );
-      const amount = minimumJerk.share(share * (path.length - 1) - phase);
+      const amount = AutoMovieEngineMotionSampling.minimumJerkShare(share * (path.length - 1) - phase);
       const posed = fitSeatedAnkleCross.interpolate(
         path[phase]!,
         path[phase + 1]!,

@@ -12,7 +12,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
+import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 import { validateDesignSourceFrame } from "./validateDesignSourceFrame";

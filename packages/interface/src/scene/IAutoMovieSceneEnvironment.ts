@@ -27,7 +27,7 @@ export interface IAutoMovieSceneEnvironment {
 
   /**
    * Positive renderer exposure multiplier for the compiled-scene pass
-   * (`renderAutoMovieScenePass`) and its render budget projection.
+   * (`AutoMovieRenderScenePass.render`) and its render budget projection.
    *
    * On the draw path, which delivers a production's film, the draw scene's
    * `optics` owns exposure instead (see {@link IAutoMovieFilmOptics}); this
@@ -37,7 +37,7 @@ export interface IAutoMovieSceneEnvironment {
 
   /**
    * Beauty-pass tone mapping of the compiled-scene pass
-   * (`renderAutoMovieScenePass`) and its render budget projection; structural
+   * (`AutoMovieRenderScenePass.render`) and its render budget projection; structural
    * passes always bypass it.
    *
    * Authoritative over {@link IAutoMovieRenderSpec.toneMapping} for every scene

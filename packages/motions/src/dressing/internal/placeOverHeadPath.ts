@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -413,7 +413,7 @@ export namespace placeOverHeadPath {
         let left: number = Math.min(1, Math.max(0, progress)) * total;
         for (let i: number = 0; i < lengths.length; ++i) {
           if (left <= lengths[i]! || i === lengths.length - 1) {
-            const s: number = minimumJerk.share(
+            const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(
               Math.min(1, left / lengths[i]!),
             );
             const a: IKey = keys[i]!;

@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk, rotationBetween } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMath,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type { IAutoMovieModelPart, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import type { AutoMovieArchetypeEquineLibertyCue } from "./AutoMovieArchetypeEquineLibertyCue";
@@ -367,7 +372,7 @@ export namespace EquineLibertyRows {
     share: number,
     tail: number,
   ): EquineBodyPose.IGoal {
-    const s: number = minimumJerk.share(Math.max(0, Math.min(1, share)));
+    const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, Math.min(1, share)));
     const limbs: Record<
       AutoMovieArchetypeQuadrupedBody.Limb,
       EquineBodyPose.Limb
@@ -379,7 +384,7 @@ export namespace EquineLibertyRows {
         limbs[limb] = EquineStanceSupport.folded(
           goal.chain,
           goal.turns,
-          minimumJerk.share(Math.max(0, Math.min(1, 2 * share))),
+          AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, Math.min(1, 2 * share))),
         );
       else if (Vector3.distance(goal.anchor, start.anchors[limb]) > 0) {
         const flat: IAutoMovieVector3 = Vector3.subtract(
@@ -398,7 +403,7 @@ export namespace EquineLibertyRows {
           direction: Quaternion.rotateVector(
             Quaternion.slerp(
               { x: 0, y: 0, z: 0, w: 1 },
-              rotationBetween(flat, goal.direction ?? flat),
+              AutoMovieEngineMath.rotationBetween(flat, goal.direction ?? flat),
               s,
             ),
             flat,

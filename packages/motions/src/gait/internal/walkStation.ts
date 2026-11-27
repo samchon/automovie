@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, seededSmoothNoise } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 import type {
   IAutoMovieMotionHumanActionContext,
@@ -477,10 +477,10 @@ export namespace walkStation {
       return HumanFormation.place(prepared.frame(seconds, read), {
         lateral:
           local.lateral +
-          dress.bound * seededSmoothNoise(lateral, u, span, DRESS_FREQUENCY),
+          dress.bound * AutoMovieEngineMotionSampling.seededSmoothNoise(lateral, u, span, DRESS_FREQUENCY),
         depth:
           local.depth +
-          dress.bound * seededSmoothNoise(depth, u, span, DRESS_FREQUENCY),
+          dress.bound * AutoMovieEngineMotionSampling.seededSmoothNoise(depth, u, span, DRESS_FREQUENCY),
       });
     };
   }

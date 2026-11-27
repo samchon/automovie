@@ -20,7 +20,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import { AutoMovieArchetypeQuadrupedRest } from "./AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQuadrupedRestPlan";
 import { EquineRecumbency } from "./EquineRecumbency";
-import { rideQuadruped } from "./rideQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * How often the mare's path is read for a following foal's course, seconds:
@@ -176,7 +176,7 @@ export namespace AutoMovieArchetypeEquineFoal {
       });
       samples.push({ seconds, x: point.x, z: point.z });
     }
-    return rideQuadruped(
+    return AutoMovieArchetypeQuadruped.ride(
       foal,
       AutoMovieArchetypeCourse.timed(foal.archetype, samples),
     );
@@ -300,7 +300,7 @@ export namespace AutoMovieArchetypeEquineFoal {
       }),
     };
     const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, Dimension> =
-      AutoMovieArchetypeQuadrupedRest(
+      AutoMovieArchetypeQuadrupedRest.plan(
         foal,
         AutoMovieArchetypeEquineLiberty.rested(foal, place, timing.foal),
       );
@@ -424,7 +424,7 @@ export namespace AutoMovieArchetypeEquineFoal {
       { x: 0, y: 0, z: 1 },
     );
     const sign: number = across >= 0 ? 1 : -1;
-    const approach: AutoMovieArchetypeRide.IRide<Id, Dimension> = rideQuadruped(
+    const approach: AutoMovieArchetypeRide.IRide<Id, Dimension> = AutoMovieArchetypeQuadruped.ride(
       foal,
       {
         start: {

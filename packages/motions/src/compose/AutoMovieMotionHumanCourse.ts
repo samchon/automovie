@@ -1,13 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanCourse,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanCourse, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanPoseResolution } from "../posture/internal/prepareHumanPoseResolution";
@@ -84,8 +76,8 @@ export namespace AutoMovieMotionHumanCourse {
         );
         return Vector3.dot(mass(posture, resolution, projection), forward);
       };
-      const omega: number = resolveAutoMovieCenterOfMass.frequency(
-        resolveAutoMovieCenterOfMass.pendulum(props.body.measure.hipHeight),
+      const omega: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
+        AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(props.body.measure.hipHeight),
       );
       const count: number = Math.max(
         1,

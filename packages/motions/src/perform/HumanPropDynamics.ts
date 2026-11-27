@@ -1,4 +1,4 @@
-import { AffordanceArticulation, AutoMovieGravity, Vector3, AutoMovieEngineViolationCollector, integrateMotionTrajectory, AutoMovieEngineValidation } from "@automovie/engine";
+import { AffordanceArticulation, AutoMovieGravity, Vector3, AutoMovieEngineViolationCollector, AutoMovieEngineMotionTrajectory, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieAffordanceArticulation,
@@ -248,7 +248,7 @@ export namespace HumanPropDynamics {
         x: readonly number[],
         until: number,
       ): IAutoMovieIntegrateMotionTrajectory.ITrajectory =>
-        integrateMotionTrajectory({
+        AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
           f: sliding,
           x0: x,
           t0: from,
@@ -258,7 +258,7 @@ export namespace HumanPropDynamics {
       let from: number = start;
       for (;;) {
         const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-          integrateMotionTrajectory({ f: law, x0, t0: from, t1: end });
+          AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({ f: law, x0, t0: from, t1: end });
         const knot = (k: number): number => path.times[k]!;
         let k: number = 1;
         while (
@@ -320,7 +320,7 @@ export namespace HumanPropDynamics {
     let x0: readonly number[] = [0, 0];
     for (const [start, end] of spans(from, to, breaks)) {
       const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-        integrateMotionTrajectory({
+        AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
           f: (
             t: number,
             x: readonly number[],

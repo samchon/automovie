@@ -16,3 +16,5 @@ export type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngPr
 export type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile";
 export type { IAutoMovieResolveProductionPngProfileProps } from "./IAutoMovieResolveProductionPngProfileProps";
 export type { IAutoMovieResolveProductionVideoProfileProps } from "./IAutoMovieResolveProductionVideoProfileProps";
+export type { IAutoMovieAuditEncodedPresentationProbe } from "./IAutoMovieAuditEncodedPresentationProbe";
+export type { IAutoMoviePlanAlphaWrapProps } from "./IAutoMoviePlanAlphaWrapProps";

@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry as Geometry, AutoMoviePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalGeometry as Geometry, AutoMoviePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalContactBinding as Binding,
   IAutoMoviePhysicalJoint,
@@ -37,7 +37,7 @@ import { PhysicalModelFixtures } from "../../internal/PhysicalModelFixtures";
 export async function test_engine_physics_physical_binding_budget(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
   const receiver: P = PhysicalFixtures.sphere();
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   /**
    * Independent separation rows exercise the real variable-row consumer without
    * introducing a body-name rule.

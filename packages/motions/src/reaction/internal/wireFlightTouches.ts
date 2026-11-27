@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -280,7 +280,7 @@ export namespace wireFlightTouches {
                 },
               },
             },
-            minimumJerk.share(w),
+            AutoMovieEngineMotionSampling.minimumJerkShare(w),
           );
         }
         return posture;

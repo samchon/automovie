@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -345,7 +345,7 @@ export namespace HumanMountRider {
 
     // The handle is the collider nearest the held point, as a grasp takes a mug by its handle and not its body: the fingers close on it, not on the leaf or the frame behind it.
     const near = (shape: IAutoMoviePhysicalShape): number =>
-      physicalShapeSegmentDistance(frame, shape, grip.point, grip.point);
+      AutoMovieEnginePhysics.physicalShapeSegmentDistance(frame, shape, grip.point, grip.point);
     let handle: IAutoMoviePhysicalShape | undefined;
     let distance: number = Infinity;
     for (const shape of shapes) {

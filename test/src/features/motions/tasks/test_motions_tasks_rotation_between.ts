@@ -1,9 +1,8 @@
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineMath, Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { rotationBetween } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../../internal/vclose";
@@ -20,7 +19,7 @@ import { vclose } from "../../internal/vclose";
  * 4. A 5e-10 radian correction toward +X reaches the requested direction.
  */
 export function test_motions_tasks_rotation_between(): void {
-  const turn: IAutoMovieQuaternion = rotationBetween(
+  const turn: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
     { x: 1, y: 0, z: 0 },
     { x: 0, y: 0, z: 1 },
   );
@@ -34,7 +33,7 @@ export function test_motions_tasks_rotation_between(): void {
   );
   TestValidator.equals(
     "no rotation onto itself",
-    rotationBetween({ x: 0, y: 1, z: 0 }, { x: 0, y: 1, z: 0 }),
+    AutoMovieEngineMath.rotationBetween({ x: 0, y: 1, z: 0 }, { x: 0, y: 1, z: 0 }),
     Quaternion.identity(),
   );
 
@@ -43,7 +42,7 @@ export function test_motions_tasks_rotation_between(): void {
   TestValidator.predicate(
     "a half turn reaches the antiparallel direction",
     vclose(
-      Quaternion.rotateVector(rotationBetween(forward, backward), forward),
+      Quaternion.rotateVector(AutoMovieEngineMath.rotationBetween(forward, backward), forward),
       backward,
       1e-12,
     ),
@@ -58,7 +57,7 @@ export function test_motions_tasks_rotation_between(): void {
   TestValidator.predicate(
     "a correction below one nanoradian remains active",
     vclose(
-      Quaternion.rotateVector(rotationBetween(forward, nearForward), forward),
+      Quaternion.rotateVector(AutoMovieEngineMath.rotationBetween(forward, nearForward), forward),
       nearForward,
       1e-12,
     ),

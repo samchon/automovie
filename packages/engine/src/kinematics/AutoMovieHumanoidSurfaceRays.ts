@@ -1,24 +1,10 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaceRays,
-  IAutoMovieHumanoidSurfaceRegions,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMoviePhysicalHullFaces,
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalSegment,
-  IAutoMoviePhysicalShape,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaceRays, IAutoMovieHumanoidSurfaceRegions, IAutoMovieHumanoidSurfaces, IAutoMoviePhysicalHullFaces, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMoviePhysicalShape, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalShapeHull } from "../physics/physicalShapeHull";
-import { physicalShapeBounds } from "../physics/physicalShapeBounds";
-import { physicalShapeNormal } from "../physics/physicalShapeNormal";
+import { physicalShapeHull } from "../physics/internal/physicalShapeHull";
+import { physicalShapeBoundsImplementation } from "../physics/internal/physicalShapeBoundsImplementation";
+import { AutoMovieEnginePhysics } from "../physics/AutoMovieEnginePhysics";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import type { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";
 import { resolvePose } from "./internal/resolvePose";
@@ -48,7 +34,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
     exit: Exit;
 
     /** The collider's surface normal reader. */
-    normal: ReturnType<typeof physicalShapeNormal.prepare>;
+    normal: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeNormalPrepare>;
   }
 
   /** The six actual rest observations consumed by anatomical surface owners. */
@@ -244,7 +230,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       if (!segments.has(part.bone)) segments.set(part.bone, part);
     const extents: Map<
       IAutoMoviePhysicalSegment,
-      ReturnType<typeof physicalShapeBounds>
+      ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds>
     > = new Map();
     const exits: Map<IAutoMoviePhysicalSegment, IShapeReading[]> = new Map();
     for (const s of segments.values()) {
@@ -255,7 +241,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
           (shape: IAutoMoviePhysicalShape): IShapeReading => ({
             shape,
             exit: prepareExit(s.neutral, shape),
-            normal: physicalShapeNormal.prepare(s.neutral, shape),
+            normal: AutoMovieEnginePhysics.physicalShapeNormalPrepare(s.neutral, shape),
           }),
         ),
       );
@@ -286,7 +272,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       bone: AutoMovieHumanoidBone,
     ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
       const s: IAutoMoviePhysicalSegment = segment(bone);
-      const known: ReturnType<typeof physicalShapeBounds> = extents.get(s)!;
+      const known: ReturnType<typeof physicalShapeBoundsImplementation.physicalShapeBounds> = extents.get(s)!;
       return { min: { ...known.min }, max: { ...known.max } };
     };
     const local = (

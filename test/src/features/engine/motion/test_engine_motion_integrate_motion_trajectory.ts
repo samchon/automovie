@@ -1,8 +1,8 @@
 import {
   MotionTrajectoryFailure,
   Quaternion,
-  integrateAirborneRotation,
-  integrateMotionTrajectory,
+  AutoMovieEngineMotionAirborneRotation,
+  AutoMovieEngineMotionTrajectory,
 } from "@automovie/engine";
 import type {
   IAutoMovieIntegrateMotionTrajectory,
@@ -71,7 +71,7 @@ const refusal: (
   props: Partial<IAutoMovieIntegrateMotionTrajectory.IProps>,
 ): boolean =>
   throwsError(() =>
-    integrateMotionTrajectory({ f: decay, x0: [1], t0: 0, t1: 1, ...props }),
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({ f: decay, x0: [1], t0: 0, t1: 1, ...props }),
   );
 
 /**
@@ -119,7 +119,7 @@ const refusal: (
  */
 export function test_engine_motion_integrate_motion_trajectory(): void {
   const ramp: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-    integrateMotionTrajectory({
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       f: (): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [1] }),
       x0: [0],
       t0: 0,
@@ -130,13 +130,13 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
     nclose(ramp.at(2).x[0]!, 2, FIXED_STEP_ERROR),
   );
   const fixed: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-    integrateMotionTrajectory({ f: decay, x0: [1], t0: 0, t1: 2 });
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({ f: decay, x0: [1], t0: 0, t1: 2 });
   TestValidator.predicate(
     "decay",
     nclose(fixed.at(1).x[0]!, Math.exp(-1), FIXED_STEP_ERROR),
   );
   const spring: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-    integrateMotionTrajectory({
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       f: (
         _t: number,
         x: readonly number[],
@@ -154,7 +154,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
       nclose(state[1]!, -Math.sin(1), FIXED_STEP_ERROR),
   );
   const controlled: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-    integrateMotionTrajectory({
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       f: decay,
       x0: [1],
       t0: 0,
@@ -179,7 +179,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
     refusal({ tolerance: { relative: 0, absolute: 0 } }),
   );
   const top: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-    integrateMotionTrajectory({
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       f: TOP,
       x0: [0.5, 0, 3],
       q0: { x: 0, y: 0, z: 0, w: 1 },
@@ -204,12 +204,12 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
     topAgrees && Quaternion.angle(top.at(0).q!, top.at(2).q!) > 0,
   );
   const at2: (h: number) => number = (h: number): number =>
-    integrateMotionTrajectory({ f: decay, x0: [1], t0: 0, t1: 2, h }).at(2)
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({ f: decay, x0: [1], t0: 0, t1: 2, h }).at(2)
       .x[0]!;
   const ratio: number = (at2(0.2) - at2(0.1)) / (at2(0.1) - at2(0.05));
   TestValidator.predicate("fourth order", ratio > 12 && ratio < 20);
   const pulsed: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-    integrateMotionTrajectory({
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       f: (
         t: number,
         x: readonly number[],
@@ -246,7 +246,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
   const once: (h: number) => IAutoMovieIntegrateMotionTrajectory.ITrajectory = (
     h: number,
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory =>
-    integrateMotionTrajectory({
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       f: decay,
       x0: [1],
       t0: 0,
@@ -272,7 +272,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
     );
   TestValidator.equals("observed orders", [order(1), order(0.5)], [6, 5]);
   const dense: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-    integrateMotionTrajectory({
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       f: (
         t: number,
         x: readonly number[],
@@ -293,7 +293,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
   }
   TestValidator.predicate("owned dense reads", owned);
   const spin: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-    integrateMotionTrajectory({
+    AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
       f: (seconds: number): IAutoMovieIntegrateMotionTrajectory.IRate => ({
         dx: [],
         w: {
@@ -342,7 +342,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
   let matrixHolds: boolean = true;
   for (const scale of [1, 1e-3, 1e3]) {
     const matrix: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-      integrateMotionTrajectory({
+      AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
         f: (t: number): IAutoMovieIntegrateMotionTrajectory.IRate => ({
           dx: [0, scale * t ** 5, 0, 0, 0, 0, 0, 0, 0],
         }),
@@ -398,7 +398,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
   for (const scope of [undefined, Symbol("integrator")]) {
     let foreign: unknown;
     try {
-      integrateMotionTrajectory({
+      AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
         f: (): IAutoMovieIntegrateMotionTrajectory.IRate => ({ dx: [1] }),
         x0: [0],
         t0: 1,
@@ -420,7 +420,7 @@ export function test_engine_motion_integrate_motion_trajectory(): void {
     for (const outer of [undefined, Symbol("airborne")]) {
       let result: unknown;
       try {
-        integrateAirborneRotation({
+        AutoMovieEngineMotionAirborneRotation.integrate({
           history: (): never => {
             ++reads;
             throw foreign;

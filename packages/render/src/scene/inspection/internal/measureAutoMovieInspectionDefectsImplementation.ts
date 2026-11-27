@@ -32,7 +32,7 @@ import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasur
  * An engine refusal of the buffers is rethrown naming the mesh's path.
  */
 export function measureAutoMovieInspectionDefectsImplementation(
-  props: AutoMovieRenderInspectionGeometry.MeasureDefects.IProps,
+  props: AutoMovieRenderInspectionGeometry.IMeasureDefectsProps,
 ): IAutoMovieInspectionMeasured {
   const mesh: THREE.Mesh = props.mesh;
   let defects: IAutoMovieMeshDefect[] | undefined = props.measured.get(

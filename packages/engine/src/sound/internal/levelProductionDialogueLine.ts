@@ -1,6 +1,6 @@
 import type { IAutoMovieLoudnessMeter } from "@automovie/interface";
 
-import { createAutoMovieLoudnessMeter } from "../createAutoMovieLoudnessMeter";
+import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
 
 /**
  * Measure one dialogue line as the mixer places it and return the gain that

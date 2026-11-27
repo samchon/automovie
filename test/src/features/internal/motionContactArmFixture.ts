@@ -1,23 +1,7 @@
-import {
-  Vector3,
-  physicalShapePairDistance,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanArmTarget,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidRegion, IAutoMovieMotionClock, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
-import {
-  AutoMovieMotionClock,
-  HumanColliders,
-} from "@automovie/motions/internal";
+import { AutoMovieMotionClock, HumanColliders } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -105,7 +89,7 @@ export namespace motionContactArmFixture {
   ): IAutoMovieVector3 {
     const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
       body.surfaces.regions[region];
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bones.get(frame.bone)!)
       .point;
   }
 
@@ -149,7 +133,7 @@ export namespace motionContactArmFixture {
           for (const right of b.shapes)
             least = Math.min(
               least,
-              physicalShapePairDistance(a.pose, left, b.pose, right),
+              AutoMovieEnginePhysics.physicalShapePairDistance(a.pose, left, b.pose, right),
             );
     return least;
   }

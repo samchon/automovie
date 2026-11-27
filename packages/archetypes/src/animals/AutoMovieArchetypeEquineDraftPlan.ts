@@ -6,7 +6,7 @@ import type {
   AutoMovieArchetypeRide,
 } from "../core";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * The authored stages, the visible trace states and the displayed samples of a
@@ -45,11 +45,11 @@ export namespace AutoMovieArchetypeEquineDraftPlan {
     /** Seconds standing while the traces are hooked, positive. */
     connect: number;
     /** The drawn legs, ending in the brake to a stop; at least one. */
-    pull: readonly rideQuadruped.ILeg[];
+    pull: readonly AutoMovieArchetypeQuadruped.IRideLeg[];
     /** Seconds standing while the traces are unhooked, positive. */
     release: number;
     /** The unloaded legs out of the shafts; at least one. */
-    depart: readonly rideQuadruped.ILeg[];
+    depart: readonly AutoMovieArchetypeQuadruped.IRideLeg[];
     /** The cruising speed, metres per second. */
     cruise: number;
     /** The acceleration, metres per second squared. */

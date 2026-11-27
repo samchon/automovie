@@ -2,7 +2,7 @@ import {
   AutoMovieHumanoidBone,
   type IAutoMovieModelPart,
 } from "@automovie/interface";
-import { buildModel } from "@automovie/render";
+import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 
@@ -40,8 +40,8 @@ export function test_render_scene_build_model_attached_bone(): void {
   TestValidator.predicate(
     "an unknown attachedBone throws",
     throwsError(
-      (): ReturnType<typeof buildModel> =>
-        buildModel({
+      (): ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> =>
+        AutoMovieRenderSceneLayout.buildModel({
           ...createModel(),
           parts: [sword("rightHand")],
         }),
@@ -52,7 +52,7 @@ export function test_render_scene_build_model_attached_bone(): void {
   // 2. negative twin: a known attachedBone rides that bone
   const model: ReturnType<typeof createModel> = createModel();
   const knownBone: AutoMovieHumanoidBone = model.skeleton!.bones[0]!.bone;
-  const built: ReturnType<typeof buildModel> = buildModel({
+  const built: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> = AutoMovieRenderSceneLayout.buildModel({
     ...model,
     parts: [sword(knownBone)],
   });
@@ -66,7 +66,7 @@ export function test_render_scene_build_model_attached_bone(): void {
   );
 
   // 3. a null attachedBone still parents to the model group
-  const loose: ReturnType<typeof buildModel> = buildModel({
+  const loose: ReturnType<typeof AutoMovieRenderSceneLayout.buildModel> = AutoMovieRenderSceneLayout.buildModel({
     ...createModel(),
     parts: [sword(null)],
   });

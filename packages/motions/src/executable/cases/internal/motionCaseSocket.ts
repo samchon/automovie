@@ -1,11 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidSocket,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * A body socket's displayed world point in a capture: the socket's bone-local
@@ -26,7 +21,7 @@ export function motionCaseSocket(
   name: AutoMovieHumanoidSocket,
 ): IAutoMovieVector3 {
   const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.sockets[name];
-  return resolveAutoMovieHumanoidSurfaces.place(
+  return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
     frame,
     performance.bones(subject, seconds).get(frame.bone)!,
   ).point;

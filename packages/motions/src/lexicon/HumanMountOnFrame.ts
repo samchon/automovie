@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -48,7 +48,7 @@ export function HumanMountOnFrame(
     seat.astride === true,
   );
   return (t: number): HumanMountOnFrame.Frame => {
-    const crossed: number = minimumJerk.share(
+    const crossed: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       (t - across[0]) / (across[1] - across[0]),
     );
     const socket: IAutoMovieVector3 = {
@@ -56,14 +56,14 @@ export function HumanMountOnFrame(
       y:
         start.y +
         (goal.y + hop - start.y) *
-          minimumJerk.share((t - 0.1 * climb) / (0.45 * climb)) -
-        hop * minimumJerk.share((t - 0.55 * climb) / (0.25 * climb)),
+          AutoMovieEngineMotionSampling.minimumJerkShare((t - 0.1 * climb) / (0.45 * climb)) -
+        hop * AutoMovieEngineMotionSampling.minimumJerkShare((t - 0.55 * climb) / (0.25 * climb)),
       z: start.z + (goal.z - start.z) * crossed,
     };
-    const settle: number = minimumJerk.share((t - 0.6 * climb) / (0.4 * climb));
+    const settle: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - 0.6 * climb) / (0.4 * climb));
     const lean: number =
       t < 0.6 * climb
-        ? HumanMount.LEAN * minimumJerk.share(t / (0.4 * climb))
+        ? HumanMount.LEAN * AutoMovieEngineMotionSampling.minimumJerkShare(t / (0.4 * climb))
         : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
     for (const [bone, a] of finish) {
@@ -77,7 +77,7 @@ export function HumanMountOnFrame(
     // The hanging arms open out while the legs climb, clear of a thigh
     // the leading leg lifts, and close again as the body settles.
     const open: number =
-      HumanMount.OPEN * minimumJerk.share(t / (0.3 * climb)) * (1 - settle);
+      HumanMount.OPEN * AutoMovieEngineMotionSampling.minimumJerkShare(t / (0.3 * climb)) * (1 - settle);
     for (const side of ["left", "right"] as const) {
       const arm: readonly [number, number, number] = joints[
         `${side}UpperArm`

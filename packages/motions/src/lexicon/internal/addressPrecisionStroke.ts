@@ -1,11 +1,6 @@
-import { Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanPlaced } from "../../compose/AutoMovieMotionHumanPlaced";
 import { HumanTrunk } from "../../everyday/HumanTrunk";
@@ -165,7 +160,7 @@ export function addressPrecisionStroke(
   // strategy: the pelvis shifts against the trunk's lean, Horak and Nashner
   // 1986).
   const centre = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
-    resolveAutoMovieCenterOfMass.place(
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
       body.massModel,
       poseBones(body, resolveHumanPosture(body, posture)),
     );

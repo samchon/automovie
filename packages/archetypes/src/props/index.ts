@@ -1,3 +1,4 @@
+export * from "./AutoMovieArchetypeScenicContainer";
 export { AutoMovieArchetypeBag } from "./AutoMovieArchetypeBag";
 export { AutoMovieArchetypeBanknote } from "./AutoMovieArchetypeBanknote";
 export { AutoMovieArchetypeBox } from "./AutoMovieArchetypeBox";
@@ -34,7 +35,6 @@ export { AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 export { AutoMovieArchetypeLongTool } from "./AutoMovieArchetypeLongTool";
 export { AutoMovieArchetypeMobilityAid } from "./AutoMovieArchetypeMobilityAid";
 export { AutoMovieArchetypePourVessel } from "./AutoMovieArchetypePourVessel";
-export * from "./createScenicContainer";
 export { AutoMovieArchetypeScenicParadeBanner } from "./AutoMovieArchetypeScenicParadeBanner";
 export { AutoMovieArchetypeScenicStandard } from "./AutoMovieArchetypeScenicStandard";
 export { AutoMovieArchetypeStageBladeProp } from "./AutoMovieArchetypeStageBladeProp";

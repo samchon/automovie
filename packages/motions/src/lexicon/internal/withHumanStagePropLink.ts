@@ -1,4 +1,4 @@
-import { AffordanceArticulation, minimumJerk } from "@automovie/engine";
+import { AffordanceArticulation, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
@@ -71,7 +71,7 @@ export function withHumanStagePropLink(
       }
       const from: withHumanStagePropLink.IKey = samples[lower]!;
       const to: withHumanStagePropLink.IKey = samples[upper]!;
-      const share: number = minimumJerk.share(
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         (seconds - from.seconds) / (to.seconds - from.seconds),
       );
       return from.degrees + share * (to.degrees - from.degrees);

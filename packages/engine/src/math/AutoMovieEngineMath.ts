@@ -1,3 +1,14 @@
+import { AutoMovieEngineMathLinearSystem } from "./internal/AutoMovieEngineMathLinearSystem";
+import { AutoMovieEngineMathRotation } from "./internal/AutoMovieEngineMathRotation";
+import { AutoMovieEngineMathPinnedElastica } from "./internal/AutoMovieEngineMathPinnedElastica";
+import { AutoMovieEngineMathDelaunay } from "./internal/AutoMovieEngineMathDelaunay";
+import { AutoMovieEngineMathSwingTwist } from "./internal/AutoMovieEngineMathSwingTwist";
+import { transformedBoxBounds as transformedBoxBoundsImplementation } from "./internal/transformedBoxBounds";
+import type { IAutoMovieSubjectBox } from "@automovie/interface";
+import type {
+  IAutoMovieSwingTwistResult,
+  IAutoMovieTetrahedralizedMesh,
+} from "@automovie/interface";
 import { addAutoMovieQuadraticProduct as addAutoMovieQuadraticProductImplementation } from "./internal/addAutoMovieQuadraticProduct";
 import { addPositiveModulo as addPositiveModuloImplementation } from "./internal/addPositiveModulo";
 import { adjacentAutoMovieFloat64 as adjacentAutoMovieFloat64Implementation } from "./internal/adjacentAutoMovieFloat64";
@@ -456,6 +467,9 @@ export namespace AutoMovieEngineMath {
    * residuals; rounded residuals cannot certify their own error.
    *
    * The regularization/refinement constants retain Clarabel 0.11.1 defaults.
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/qdldl/qdldl.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/kktsolvers/direct/quasidef/directldlkktsolver.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
    * Finite refinement is not a convergence proof: the interior-point owner must
    * still establish the original primal/dual residual and objective-gap tests.
    */
@@ -565,6 +579,8 @@ export namespace AutoMovieEngineMath {
    * The change x=D_xhat, z=E_zhat/c is invertible; it alters neither the authored
    * objective nor constraints. Original-coordinate residuals undo every scale.
    * Bounds and pass count retain the preceding Clarabel configuration.
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/problemdata.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
    */
   export function equilibrateQuadraticProgram(data: IAutoMovieQuadraticConicProgram): void {
     equilibrateAutoMovieQuadraticProgramImplementation(data);
@@ -634,6 +650,8 @@ export namespace AutoMovieEngineMath {
    * Stable Euclidean norms retain the preceding solver's residual definitions.
    * Product/addition corrections remain through sparse residuals and costs; the
    * gap is formed before the two reported costs round to individual numbers.
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/residuals.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/info.rs}
    */
   export function measureQuadraticState(data: IAutoMovieQuadraticConicProgram, state: IAutoMovieQuadraticState): IAutoMovieMeasureQuadraticState.IResult {
     return measureAutoMovieQuadraticStateImplementation(data, state);
@@ -1083,6 +1101,10 @@ export namespace AutoMovieEngineMath {
    * 4, never status 1. Finite arithmetic can refuse ill-conditioned inputs.
    * Caller-specific physical acceptance and subsequent transformations remain
    * independent obligations.
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/solver.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/variables.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/info.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
    */
   export function solveQuadraticInterior(data: IAutoMovieQuadraticConicProgram, workspace: Float64Array, originalCount: number): IAutoMovieSolveQuadraticKernel.IResult {
     return solveAutoMovieQuadraticInteriorImplementation(data, workspace, originalCount);
@@ -1102,6 +1124,7 @@ export namespace AutoMovieEngineMath {
    * diagnostics as NaN. Unsuccessful vectors must not be accepted as geometry.
    * Historical native transport and bytes remain in repository history, outside
    * shipped product paths.
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/solver.rs} for the pinned historical core.
    */
   export function solveQuadraticKernel(input: IAutoMovieSolveQuadraticKernel.IInput): IAutoMovieSolveQuadraticKernel.IResult {
     return solveAutoMovieQuadraticKernelImplementation(input);
@@ -1136,6 +1159,10 @@ export namespace AutoMovieEngineMath {
    * first-iteration damping of the preceding Clarabel configuration. Twofold sums
    * retain cancellation in the scalar Schur equation and direction
    * reconstruction. Expanding P*(xi-ci)^2-P*ci^2 removes cancelling ci squares.
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/kktsystem.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/variables.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/cones/nonnegativecone.rs}
+   * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
    */
   export function solveQuadraticStep(data: IAutoMovieQuadraticConicProgram, state: IAutoMovieQuadraticState, reading: IAutoMovieMeasureQuadraticState.IResult, factor: IAutoMovieCreateQuadraticFactor.IResult, constant: Float64Array, sigma: number, mu: number, damping: number, affine?: IAutoMovieQuadraticState): IAutoMovieQuadraticState | undefined {
     return solveAutoMovieQuadraticStepImplementation(data, state, reading, factor, constant, sigma, mu, damping, affine);
@@ -1210,5 +1237,169 @@ export namespace AutoMovieEngineMath {
    */
   export function wrapDegrees(degrees: number): number {
     return wrapDegreesImplementation(degrees);
+  }
+  /** The chord-to-arc ratio for a pinned elastica parameter. */
+  export function pinnedElasticaChord(m: number): number {
+    return AutoMovieEngineMathPinnedElastica.pinnedElasticaChord(m);
+  }
+
+  /** Find the pinned elastica parameter for a chord-to-arc ratio. */
+  export function pinnedElasticaParameter(ratio: number): number {
+    return AutoMovieEngineMathPinnedElastica.pinnedElasticaParameter(ratio);
+  }
+
+  /** The tangent angle at an arc share of a pinned elastica. */
+  export function pinnedElasticaSlope(m: number, share: number): number {
+    return AutoMovieEngineMathPinnedElastica.pinnedElasticaSlope(m, share);
+  }
+
+  /** The greatest curvature of a pinned elastica. */
+  export function pinnedElasticaCurvature(m: number, length: number): number {
+    return AutoMovieEngineMathPinnedElastica.pinnedElasticaCurvature(m, length);
+  }
+
+  /** Maximum supported pinned elastica parameter, `1 - 2^-40`. */
+  export const PINNED_ELASTICA_HIGHEST: number =
+    AutoMovieEngineMathPinnedElastica.PINNED_ELASTICA_HIGHEST;
+
+  /** Root-solving tolerance for `pinnedElasticaParameter`. */
+  export const PINNED_ELASTICA_TOLERANCE: number =
+    AutoMovieEngineMathPinnedElastica.PINNED_ELASTICA_TOLERANCE;
+
+  /** Tetrahedralize 3D points by Delaunay insertion in their given order. */
+  export function tetrahedralizeDelaunay(
+    points: readonly IAutoMovieVector3[],
+  ): IAutoMovieTetrahedralizedMesh {
+    return AutoMovieEngineMathDelaunay.tetrahedralizeAutoMovieDelaunay(points);
+  }
+
+  /** Each point's mesh neighbours in ascending order. */
+  export function delaunayNeighbours(
+    mesh: IAutoMovieTetrahedralizedMesh,
+    n: number,
+  ): number[][] {
+    return AutoMovieEngineMathDelaunay.delaunayNeighboursImplementation(mesh, n);
+  }
+
+  /** Qhull's default joggle in machine epsilons of the largest coordinate. */
+  export const DELAUNAY_JOGGLE: number = AutoMovieEngineMathDelaunay.JOGGLE;
+
+  /** Seed domain for deterministic Delaunay joggle draws. */
+  export const DELAUNAY_DOMAIN: number = AutoMovieEngineMathDelaunay.DOMAIN;
+
+  /** A tetrahedron's signed volume times six. */
+  export function delaunayVolume(
+    points: readonly IAutoMovieVector3[],
+    t: readonly [number, number, number, number],
+  ): number {
+    return AutoMovieEngineMathDelaunay.delaunayVolumeImplementation(points, t);
+  }
+
+  /** Order tetrahedron corners so its signed volume is positive. */
+  export function orientDelaunayTetrahedron(
+    points: readonly IAutoMovieVector3[],
+    t: [number, number, number, number],
+  ): [number, number, number, number] {
+    return AutoMovieEngineMathDelaunay.orientDelaunayTetrahedronImplementation(points, t);
+  }
+
+  /** Test whether a point lies strictly inside a tetrahedron's circumsphere. */
+  export function delaunayCircumscribes(
+    points: readonly IAutoMovieVector3[],
+    t: readonly [number, number, number, number],
+    p: IAutoMovieVector3,
+  ): boolean {
+    return AutoMovieEngineMathDelaunay.delaunayCircumscribesImplementation(points, t, p);
+  }
+
+  /** Split a rotation into its swing and twist components. */
+  export function decomposeSwingTwist(
+    rotation: IAutoMovieQuaternion,
+    axis: IAutoMovieVector3,
+  ): IAutoMovieSwingTwistResult {
+    return AutoMovieEngineMathSwingTwist.swingTwist(rotation, axis);
+  }
+
+  /** Return only the twist component, or null when its projection vanishes. */
+  export function swingTwistComponent(
+    rotation: IAutoMovieQuaternion,
+    axis: IAutoMovieVector3,
+  ): IAutoMovieQuaternion | null {
+    return AutoMovieEngineMathSwingTwist.swingTwistComponent(rotation, axis);
+  }
+  /**
+   * Factor an unchanged square matrix for repeated right-hand sides using
+   * partial-pivot Gaussian elimination. Inputs must be finite, square and
+   * consistently scaled with representable intermediate arithmetic. A pivot no
+   * greater than 1e-14 times the largest original entry returns null, the
+   * existing dense solver's rejection rule rather than a rank certificate.
+   *
+   * The returned solver replays the same row swaps and elimination factors on
+   * each copied right-hand side, then performs back substitution in descending
+   * row order. The source matrix may change after preparation because the factor
+   * owns its copied coefficients; prepare again to adopt changes.
+   */
+  export function prepareLinearSystem(
+    rows: readonly (readonly number[])[],
+  ): ((right: readonly number[]) => number[]) | null {
+    return AutoMovieEngineMathLinearSystem.prepare(rows);
+  }
+
+  /**
+   * Solve one square system without allocating retained factors or a solver
+   * closure. The same finite/scaled premises and strict pivot refusal apply.
+   * The right-hand side participates in each original row update before
+   * descending substitution. Pivot ties, rejection and subtraction order match
+   * repeated preparation's common numerical owner.
+   */
+  export function solveLinearSystem(
+    rows: readonly (readonly number[])[],
+    right: readonly number[],
+  ): number[] | null {
+    return AutoMovieEngineMathLinearSystem.solve(rows, right);
+  }
+
+  /**
+   * Bound a local box after carrying all eight corners through a column-major
+   * affine matrix. Negative axis scales retain ordered bounds; the matrix's
+   * final row is ignored, and NaN coordinates propagate into the result.
+   *
+   * @param box Local box in the matrix's source frame.
+   * @param matrix Sixteen column-major entries, as stored by Matrix4.
+   * @returns A new axis-aligned world box.
+   */
+  export function transformedBoxBounds(
+    box: IAutoMovieSubjectBox,
+    matrix: readonly number[],
+  ): IAutoMovieSubjectBox {
+    return transformedBoxBoundsImplementation(box, matrix);
+  }
+
+  /**
+   * Shortest-arc rotation from finite vector `a` to finite vector `b`, using
+   * atan2 without a near-parallel identity deadzone. Both inputs are normalized
+   * before computing sine and cosine. Degenerate zero or parallel inputs return
+   * identity; exact antiparallel inputs take a deterministic perpendicular
+   * half-turn. Callers needing named finite-input refusal validate first.
+   */
+  export function rotationBetween(
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): IAutoMovieQuaternion {
+    return AutoMovieEngineMathRotation.rotationBetween(a, b);
+  }
+
+  /**
+   * Normalize and own one source direction, then compute every requested
+   * target's shortest arc through the same core as `rotationBetween`. The caller
+   * supplies finite vectors; named finite refusal belongs to `aimRotation`.
+   * Changing the original source afterward does not alter this snapshot.
+   * Zero, parallel and antiparallel inputs retain the direct identity and
+   * perpendicular conventions. Setup and each query use constant work.
+   */
+  export function prepareRotationBetween(
+    source: IAutoMovieVector3,
+  ): (target: IAutoMovieVector3) => IAutoMovieQuaternion {
+    return AutoMovieEngineMathRotation.prepareRotationBetween(source);
   }
 }

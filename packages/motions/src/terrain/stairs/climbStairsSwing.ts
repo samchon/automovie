@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanClearance,
@@ -52,12 +52,12 @@ export function climbStairsSwing(
     const lifted: number = path.lifted(AutoMovieMotionHumanAuditContact.HEIGHT);
     const span: number = Math.max(1e-9, Math.min(lifted, 1 - lifted));
     return (s: number): IAutoMovieMotionHumanFoot.IPlacement => {
-      const share: number = minimumJerk.share(Math.min(1, Math.max(0, s)));
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, s)));
       const at: IAutoMovieMotionHumanClearance.IPoint = path(share);
       const released: number =
         lifted >= 1
           ? 1
-          : minimumJerk.share(
+          : AutoMovieEngineMotionSampling.minimumJerkShare(
               Math.min(1, Math.max(0, (share - lifted) / span)),
             );
       const z: number = from.z + (at.z - from.z) * released;

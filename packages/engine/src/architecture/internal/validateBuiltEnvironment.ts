@@ -14,8 +14,8 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { appendGraphCycles } from "../../validation/appendGraphCycles";
-import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
+import { appendGraphCycles } from "../../validation/internal/appendGraphCycles";
+import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 import { validateModel } from "../../validation/internal/validateModel";
 import { validateSpace } from "../../validation/internal/validateSpace";

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds, AutoMovieEnginePhysics, AutoMovieEngineValidation } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineValidation } from "@automovie/engine";
 import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
@@ -279,7 +279,7 @@ function observePhysicalPose(
         segment.shapes.map(
           (shape: (typeof segment.shapes)[number]): [string, number] => [
             shape.id,
-            physicalShapeBounds(poses[segment.bone]!, shape).min.y,
+            AutoMovieEnginePhysics.physicalShapeBounds(poses[segment.bone]!, shape).min.y,
           ],
         ),
       );

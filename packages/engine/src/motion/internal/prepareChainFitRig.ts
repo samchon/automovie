@@ -3,12 +3,13 @@ import type {
   IAutoMovieFitChainToTargetProps,
   IAutoMovieJointPose,
   IAutoMoviePreparedChainPlant,
+  IAutoMoviePrepareChainRigConstants,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../../kinematics/constants/DEFAULT_JOINT_AXES";
 import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
-import { jointToQuaternionOnBasis } from "../../kinematics/jointToQuaternionOnBasis";
+import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { Quaternion } from "../../math/Quaternion";
 import type { prepareChainFit } from "./prepareChainFit";
 import { prepareChainRigConstants } from "../prepareChainRigConstants";
@@ -42,7 +43,7 @@ export function prepareChainFitRig(
 
   // The rig-only members: those the chain's constants carry when it was
   // placed from them, else this source's own.
-  const constant: prepareChainRigConstants.IRig =
+  const constant: IAutoMoviePrepareChainRigConstants.IRig =
     prepared?.rig ?? prepareChainRigConstants(props, prepared);
   let held: IAutoMovieJointPose | undefined;
   for (const joint of props.pose.joints)
@@ -58,7 +59,7 @@ export function prepareChainFitRig(
     prepared?.effectorBaseRotation ??
       constant.bone(props.chain.effector)?.rest.rotation ??
       Quaternion.identity(),
-    jointToQuaternionOnBasis(
+    jointToQuaternionOnBasis.run(
       heldJoint,
       constant.basis(props.chain.effector, "jointToQuaternion axes"),
       props.restFrames?.[props.chain.effector],
@@ -137,7 +138,7 @@ function prepareReferences(
           joint === undefined
             ? null
             : Quaternion.normalize(
-                jointToQuaternionOnBasis(
+                jointToQuaternionOnBasis.run(
                   joint,
                   rig.jointBasis(bone, "jointToQuaternion axes"),
                   props.restFrames?.[bone],

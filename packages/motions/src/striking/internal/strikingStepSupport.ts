@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -94,7 +94,7 @@ export namespace strikingStepSupport {
   ): number {
     return seconds >= touchdown
       ? 0
-      : rise * (1 - minimumJerk.share(seconds / touchdown));
+      : rise * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(seconds / touchdown));
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   IAutoMovieHumanLimbGoal,
@@ -225,7 +225,7 @@ export namespace sitCarried {
         const approach: IAutoMovieHumanLimbGoal = fromWorld ? raw : rigid;
         const share: number = bearing
           ? 1
-          : minimumJerk.share(
+          : AutoMovieEngineMotionSampling.minimumJerkShare(
               (t - part.release) / (part.bearing - part.release),
             );
         const delta: IAutoMovieQuaternion = Quaternion.multiply(

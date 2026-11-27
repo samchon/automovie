@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -99,7 +99,7 @@ function planHumanRoman(context: Context): IAutoMovieMotionHumanActionPlan {
       const film: number = context.start + t;
       return t >= step || step === 0
         ? stand(film)
-        : mixHumanPosture(entry, stand(film), minimumJerk.share(t / step));
+        : mixHumanPosture(entry, stand(film), AutoMovieEngineMotionSampling.minimumJerkShare(t / step));
     },
   };
 }

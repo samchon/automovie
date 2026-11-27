@@ -1,4 +1,4 @@
-import { physicalShapeSegmentDistance, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEnginePhysics, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanColliders,
   IAutoMovieVector3,
@@ -40,7 +40,7 @@ export function HumanColliderDistance(
       }
       const d: number =
         reading === undefined
-          ? physicalShapeSegmentDistance(pose, shape, a, b, taper)
+          ? AutoMovieEnginePhysics.physicalShapeSegmentDistance(pose, shape, a, b, taper)
           : reading.distance(a, b, taper);
       if (best === undefined || d < best.distance) best = { distance: d, bone };
     }
@@ -68,7 +68,7 @@ export namespace HumanColliderDistance {
       for (const shape of shapes)
         prepared.push({
           bound: HumanShapeFraming.sphere(pose, shape),
-          distance: physicalShapeSegmentDistance.prepare(pose, shape),
+          distance: AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(pose, shape),
         });
     return (
       a: IAutoMovieVector3,
@@ -93,7 +93,7 @@ interface IWorldBall {
 }
 
 /** Engine-owned fixed shape geometry with no retained point or result. */
-type IDistanceReader = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
+type IDistanceReader = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;
 
 /** Fixed world screening and exact local-frame distance for one shape. */
 interface IShapeReading {

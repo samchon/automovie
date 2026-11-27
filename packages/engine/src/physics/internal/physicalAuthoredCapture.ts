@@ -54,10 +54,10 @@ export namespace physicalAuthoredCapture {
 
   /** What the capture reads of the body's readings. */
   export type ISense = Pick<
-    AutoMovieEnginePhysicalBalanceTypes.Sense.ISense,
+    AutoMovieEnginePhysicalBalanceTypes.ISense,
     "command" | "targets"
   > & {
-    profile: Pick<AutoMovieEnginePhysicalBalanceTypes.Sense.ISense["profile"], "segments" | "mass">;
+    profile: Pick<AutoMovieEnginePhysicalBalanceTypes.ISense["profile"], "segments" | "mass">;
   };
 
   /**

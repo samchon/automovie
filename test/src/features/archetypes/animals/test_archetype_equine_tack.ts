@@ -2,8 +2,7 @@ import { AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypePony, AutoMovieAr
 import {
   Quaternion,
   Vector3,
-  physicalShapeBounds,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -216,7 +215,7 @@ export function test_archetype_equine_tack(): void {
     if (
       !nclose(Math.abs(point.x), 0.15, roundoff) ||
       crest?.kind !== "hull" ||
-      physicalShapeSegmentDistance(identity, crest, point, point) > roundoff
+      AutoMovieEnginePhysics.physicalShapeSegmentDistance(identity, crest, point, point) > roundoff
     )
       findings.push(`trick saddle: ${id} is outside its connected pommel`);
   }
@@ -262,10 +261,10 @@ function astrideMaterial(
   const ordinate: number = seat.frame.translation.y;
   // Allow roundoff for the measured part bounds and composed material frames.
   const roundoff: number = 128 * Number.EPSILON * ordinate;
-  const top: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(zero, deck);
-  const throat: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(zero, waist);
-  const approach: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(zero, slope);
-  const rise: number = physicalShapeBounds(zero, pommel).max.y - ordinate;
+  const top: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> = AutoMovieEnginePhysics.physicalShapeBounds(zero, deck);
+  const throat: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> = AutoMovieEnginePhysics.physicalShapeBounds(zero, waist);
+  const approach: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> = AutoMovieEnginePhysics.physicalShapeBounds(zero, slope);
+  const rise: number = AutoMovieEnginePhysics.physicalShapeBounds(zero, pommel).max.y - ordinate;
   const taperZ: number = horse.affordance("leftStirrup").frame.translation.z;
   const slot: IAutoMovieVector3[] = twist.points.filter(
     (point: IAutoMovieVector3): boolean => nclose(point.z, taperZ, roundoff),
@@ -284,7 +283,7 @@ function astrideMaterial(
     !nclose(throat.max.z, approach.min.z, roundoff) ||
     !nclose(throat.max.y, ordinate, roundoff) ||
     !nclose(approach.max.z - approach.min.z, rise, roundoff) ||
-    !nclose(physicalShapeBounds(zero, panel).min.x, 0.025, roundoff)
+    !nclose(AutoMovieEnginePhysics.physicalShapeBounds(zero, panel).min.x, 0.025, roundoff)
   )
     findings.push("astride saddle: the declared deck, twist or panel gap differs from its solid");
 
@@ -300,7 +299,7 @@ function astrideMaterial(
       continue;
     }
     const point: IAutoMovieVector3 = metal.transform.position;
-    if (physicalShapeSegmentDistance(zero, tree, point, point) > roundoff)
+    if (AutoMovieEnginePhysics.physicalShapeSegmentDistance(zero, tree, point, point) > roundoff)
       findings.push(`astride saddle: ${id} floats away from its tree`);
   }
 
@@ -374,7 +373,7 @@ function stirrupMaterial(
       fillisHeight,
       roundoff,
     ) ||
-    physicalShapeSegmentDistance(
+    AutoMovieEnginePhysics.physicalShapeSegmentDistance(
       zero,
       tree,
       bar.transform.position,
@@ -393,9 +392,9 @@ function stirrupMaterial(
   for (const shape of shapes) {
     const leather: boolean = shape.id.startsWith("leather-left");
     if (!(leather || shape.id.startsWith("stirrup-left"))) continue;
-    if (physicalShapeBounds(zero, shape).max.x > outer + roundoff)
+    if (AutoMovieEnginePhysics.physicalShapeBounds(zero, shape).max.x > outer + roundoff)
       findings.push(`side saddle: ${shape.id} exceeds the tread's side rim`);
-    if (physicalShapeSegmentDistance(zero, shape, front, back) <= 0)
+    if (AutoMovieEnginePhysics.physicalShapeSegmentDistance(zero, shape, front, back) <= 0)
       findings.push(`side saddle: ${shape.id} closes the centre of the opening`);
     if (!leather) continue;
     if (shape.kind !== "capsule") {
@@ -407,7 +406,7 @@ function stirrupMaterial(
       { x: 0, y: shape.halfLength, z: 0 },
     );
     if (
-      physicalShapeSegmentDistance(
+      AutoMovieEnginePhysics.physicalShapeSegmentDistance(
         zero,
         trunk,
         Vector3.subtract(shape.transform.position, half),

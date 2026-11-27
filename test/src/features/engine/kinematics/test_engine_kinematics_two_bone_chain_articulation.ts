@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  twoBoneChainArticulation,
+  AutoMovieEngineKinematicsChains,
 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
@@ -11,7 +11,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `twoBoneChainArticulation(props)` returns the bone-local deltas of a resolved
+ * `AutoMovieEngineKinematicsChains.twoBoneChainArticulation(props)` returns the bone-local deltas of a resolved
  * two-segment chain that land its end on the target, bending toward world-down
  * by default; `.prepare` shares the source and target geometry.
  *
@@ -50,7 +50,7 @@ export function test_engine_kinematics_two_bone_chain_articulation(): void {
     target: IAutoMovieVector3,
     bendNormal?: IAutoMovieVector3,
   ): IAutoMovieTwoBoneArticulation =>
-    twoBoneChainArticulation({ ...chain, target, bendNormal })!;
+    AutoMovieEngineKinematicsChains.twoBoneChainArticulation({ ...chain, target, bendNormal })!;
 
   // 1.
   const straight: IAutoMovieTwoBoneArticulation = solve({ x: 0, y: -2, z: 0 });
@@ -87,7 +87,7 @@ export function test_engine_kinematics_two_bone_chain_articulation(): void {
   // 4.
   TestValidator.equals(
     "prepared",
-    twoBoneChainArticulation.prepare(chain)!.target(target)!.solve(),
+    AutoMovieEngineKinematicsChains.prepareTwoBoneChainArticulation(chain)!.target(target)!.solve(),
     solve(target),
   );
 
@@ -95,9 +95,9 @@ export function test_engine_kinematics_two_bone_chain_articulation(): void {
   TestValidator.equals(
     "degenerate",
     [
-      twoBoneChainArticulation({ ...chain, target: { x: 0, y: 0, z: 0 } }),
-      twoBoneChainArticulation({ ...chain, lower: bone(0), target }),
-      twoBoneChainArticulation({
+      AutoMovieEngineKinematicsChains.twoBoneChainArticulation({ ...chain, target: { x: 0, y: 0, z: 0 } }),
+      AutoMovieEngineKinematicsChains.twoBoneChainArticulation({ ...chain, lower: bone(0), target }),
+      AutoMovieEngineKinematicsChains.twoBoneChainArticulation({
         ...chain,
         end: { x: 0, y: -1, z: 0 },
         target,

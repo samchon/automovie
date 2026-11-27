@@ -1,20 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBend,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRest,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBend, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRest, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
 import { HumanColliders } from "../../posture/HumanColliders";
@@ -130,7 +116,7 @@ export function restGoals(
   const region = (side: AutoMovieHumanSide): HumanTrunk.ISurface => {
     const frame: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[targets[side]!];
-    return resolveAutoMovieHumanoidSurfaces.pointNormal(
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(
       frame,
       anatomy!.get(frame.bone)!,
     );

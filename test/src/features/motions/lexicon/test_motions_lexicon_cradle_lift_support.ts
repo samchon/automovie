@@ -1,24 +1,6 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  AutoMovieMotionHumanCarryPerson,
-  HumanChain,
-  HumanPerformance,
-  HumanRefusal,
-} from "@automovie/motions";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieMotionHumanCarryPerson, HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -136,7 +118,7 @@ export async function test_motions_lexicon_cradle_lift_support(): Promise<void> 
       Math.min(
         ...(["heel", "ball", "toe"] as const).map((socket): number => {
           const frame = borne!.surfaces.sockets[`${socket}${side}`];
-          return resolveAutoMovieHumanoidSurfaces.point(
+          return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
             frame,
             bones.get(frame.bone)!,
           ).y;

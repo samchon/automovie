@@ -1,4 +1,4 @@
-import { type IAutoMovieScenePassRenderer, renderAutoMovieScenePass, AutoMovieSceneShadow } from "@automovie/render";
+import { type IAutoMovieScenePassRenderer, AutoMovieRenderScenePass, AutoMovieSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -90,7 +90,7 @@ export function test_render_scene_render_scene_pass_shadow_admission(): void {
   };
   let failed: boolean = false;
   try {
-    renderAutoMovieScenePass(
+    AutoMovieRenderScenePass.render(
       renderer,
       scene,
       new THREE.Camera(),
@@ -111,7 +111,7 @@ export function test_render_scene_render_scene_pass_shadow_admission(): void {
   renderer.shadowMap.type = THREE.VSMShadowMap;
   failed = false;
   try {
-    renderAutoMovieScenePass(
+    AutoMovieRenderScenePass.render(
       renderer,
       scene,
       new THREE.Camera(),
@@ -125,7 +125,7 @@ export function test_render_scene_render_scene_pass_shadow_admission(): void {
     "inherited host VSM shares admission",
     failed && draws === 0,
   );
-  renderAutoMovieScenePass(
+  AutoMovieRenderScenePass.render(
     renderer,
     scene,
     new THREE.Camera(),

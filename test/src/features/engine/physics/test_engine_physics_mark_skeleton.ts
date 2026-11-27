@@ -1,4 +1,4 @@
-import { markAutoMovieSkeleton } from "@automovie/engine";
+import { AutoMoviePhysicalSkeleton } from "@automovie/engine";
 import type {
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
@@ -89,7 +89,7 @@ export function test_engine_physics_mark_skeleton(): void {
   ];
 
   // 1. A two-bone chain.
-  const chain: IAutoMovieMark[] = markAutoMovieSkeleton({
+  const chain: IAutoMovieMark[] = AutoMoviePhysicalSkeleton.mark({
     bodies: [{ id: "arm", profile: profile(["root", "mid", "tip"]) }],
     frame: frame({ arm: { root: [0, 1, 0], mid: [0, 2, 0], tip: [1, 2, 0] } }),
   });
@@ -114,7 +114,7 @@ export function test_engine_physics_mark_skeleton(): void {
   // 2. Two bodies.
   TestValidator.equals(
     "each body's marks under its own id",
-    markAutoMovieSkeleton({
+    AutoMoviePhysicalSkeleton.mark({
       bodies: [
         { id: "a", profile: profile(["p", "q"]) },
         { id: "b", profile: profile(["p", "q"]) },
@@ -136,7 +136,7 @@ export function test_engine_physics_mark_skeleton(): void {
 
   // 3. A missing segment.
   try {
-    markAutoMovieSkeleton({
+    AutoMoviePhysicalSkeleton.mark({
       bodies: [{ id: "arm", profile: profile(["root", "mid"]) }],
       frame: frame({ arm: { root: [0, 0, 0] } }),
     });

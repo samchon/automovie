@@ -1,17 +1,5 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  jointRomOvershoot,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { DEFAULT_HUMANOID_ROM, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFoot } from "../../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../../IMotionCaptureCase";
@@ -160,7 +148,7 @@ export namespace everydayVerdicts {
         .joints as IAutoMovieJointPose[])
         worst = Math.max(
           worst,
-          jointRomOvershoot(joint, DEFAULT_HUMANOID_ROM[joint.bone] ?? null),
+          AutoMovieEngineKinematics.jointRomOvershoot(joint, DEFAULT_HUMANOID_ROM[joint.bone] ?? null),
         );
     return worst;
   }
@@ -185,9 +173,9 @@ export namespace everydayVerdicts {
     seconds: number,
   ): number {
     const model: IAutoMovieResolveCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const com = (t: number): IAutoMovieVector3 =>
-      resolveAutoMovieCenterOfMass.place(model, performance.bones(subject, t));
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, performance.bones(subject, t));
     const h: number = 1 / 240;
     const a: IAutoMovieVector3 = com(seconds - h);
     const b: IAutoMovieVector3 = com(seconds + h);
@@ -196,12 +184,12 @@ export namespace everydayVerdicts {
       y: (b.y - a.y) / (2 * h),
       z: (b.z - a.z) / (2 * h),
     };
-    const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(
+    const xcom: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassExtrapolate(
       com(seconds),
       velocity,
-      resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
     );
-    return resolveAutoMovieCenterOfMass.margin(
+    return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(
       xcom,
       HumanFoot.base(body, performance.bones(subject, seconds)),
     );

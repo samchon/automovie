@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -302,7 +302,7 @@ function canonical(
     const pivot: IAutoMovieVector3 = position.get(`${side}${from}`)!;
     turn(
       descendants(`${side}${from}`),
-      rotationBetween(
+      AutoMovieEngineMath.rotationBetween(
         Vector3.subtract(position.get(`${side}${to}`)!, pivot),
         direction,
       ),
@@ -320,7 +320,7 @@ function canonical(
       if (end === null) return;
       turn(
         descendants(bone),
-        rotationBetween(Vector3.subtract(end, pivot), direction),
+        AutoMovieEngineMath.rotationBetween(Vector3.subtract(end, pivot), direction),
         pivot,
       );
     });

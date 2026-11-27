@@ -11,16 +11,16 @@ import type {
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../../kinematics/constants/DEFAULT_JOINT_AXES";
-import { decomposeJointRotationOnBasis } from "../../kinematics/decomposeJointRotationOnBasis";
+import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decomposeJointRotationOnBasis";
 import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
-import { jointToQuaternionOnBasis } from "../../kinematics/jointToQuaternionOnBasis";
+import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { wrapDegrees } from "../../math/internal/wrapDegrees";
 import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
 import type { IAutoMovieChainContinuationObserver } from "../IAutoMovieChainContinuationObserver";
 import { PLANT_RESIDUAL_EPSILON } from "../constants/PLANT_RESIDUAL_EPSILON";
-import { orientChainEffector } from "../orientChainEffector";
+import { orientChainEffector } from "./orientChainEffector";
 import type { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
 import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
@@ -95,14 +95,14 @@ export function continueHingedOrientation(
   const harmonic: hingedArmSwivel.IHarmonic = target.harmonic(stop.theta);
   const lower: IAutoMovieJointPose = workspace.clamp({
     bone: props.chain.lower,
-    ...decomposeJointRotationOnBasis(
+    ...decomposeJointRotationOnBasis.run(
       harmonic.lower,
       lowerBasis,
       props.restFrames?.[props.chain.lower],
       prepared.lowerDomain,
     ),
   });
-  const lowerRotation: IAutoMovieQuaternion = jointToQuaternionOnBasis(
+  const lowerRotation: IAutoMovieQuaternion = jointToQuaternionOnBasis.run(
     lower,
     lowerBasis,
     props.restFrames?.[props.chain.lower],
@@ -156,7 +156,7 @@ export function continueHingedOrientation(
       poseAt(swivel);
     const upper: IAutoMovieJointPose = workspace.clamp({
       bone: props.chain.upper,
-      ...decomposeJointRotationOnBasis(
+      ...decomposeJointRotationOnBasis.run(
         raw.upper,
         upperBasis,
         props.restFrames?.[props.chain.upper],

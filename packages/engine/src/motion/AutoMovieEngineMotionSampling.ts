@@ -1,7 +1,36 @@
 import { samplePoseVelocity as samplePoseVelocityImplementation } from "./internal/samplePoseVelocity";
 import { sampleMotion as sampleMotionImplementation } from "./internal/sampleMotion";
+import { minimumJerk as minimumJerkImplementation } from "./internal/minimumJerk";
+import {
+  carriedAcceleration as carriedAccelerationImplementation,
+} from "./internal/carriedAcceleration";
+import { carriedAccelerationPeak as carriedAccelerationPeakValue } from "./internal/carriedAccelerationPeak";
+import {
+  carriedRate as carriedRateImplementation,
+} from "./internal/carriedRate";
+import { carriedRatePeak as carriedRatePeakValue } from "./internal/carriedRatePeak";
+import { seededSmoothNoise as seededSmoothNoiseImplementation } from "./internal/seededSmoothNoise";
+import { seededSmoothNoisePrepare as seededSmoothNoisePrepareImplementation } from "./internal/seededSmoothNoisePrepare";
 import { cubicBezierEasing as cubicBezierEasingImplementation } from "./internal/cubicBezierEasing";
-import { type IAutoMovieSpringStep, type IAutoMovieSpringParams, type AutoMovieEasing, type IAutoMovieInertializeOffset, type AutoMovieMotionSampleSide, type IAutoMoviePose, type IAutoMoviePoseState, type IAutoMoviePoseRig, type IAutoMoviePoseJointCodec, type IAutoMoviePoseLayer, type IAutoMovieQuaternion, type IAutoMovieVector3, type IAutoMovieMotion, type IAutoMovieMotionSample, type IAutoMovieTransform } from "@automovie/interface";
+import {
+  type IAutoMovieSpringStep,
+  type IAutoMovieSpringParams,
+  type AutoMovieEasing,
+  type IAutoMovieInertializeOffset,
+  type AutoMovieMotionSampleSide,
+  type IAutoMoviePose,
+  type IAutoMoviePoseState,
+  type IAutoMoviePoseRig,
+  type IAutoMoviePoseJointCodec,
+  type IAutoMoviePoseLayer,
+  type IAutoMovieQuaternion,
+  type IAutoMovieVector3,
+  type IAutoMovieMotion,
+  type IAutoMovieMotionSample,
+  type IAutoMovieTransform,
+  type IAutoMovieMinimumJerk,
+  type IAutoMovieRandom,
+} from "@automovie/interface";
 import { dampedSpring as dampedSpringImplementation } from "./internal/dampedSpring";
 import { ease as easeImplementation } from "./internal/ease";
 import { inertializeOffset as inertializeOffsetImplementation } from "./internal/inertializeOffset";
@@ -14,6 +43,68 @@ import { mergePoses as mergePosesImplementation } from "../perform/internal/merg
 
 /** Public operations for Auto Movie Engine Motion Sampling. */
 export namespace AutoMovieEngineMotionSampling {
+  /**
+   * The quintic displacement per unit initial velocity, carried into a path
+   * that starts at rest. The value and its first derivative vanish at the cut
+   * and at the end; the initial slope is one.
+   */
+  export function carriedRate(duration: number, elapsed: number): number {
+    return carriedRateImplementation(duration, elapsed);
+  }
+
+  /** The peak of {@link carriedRate}, in durations. */
+  export function carriedRatePeak(): number {
+    return carriedRatePeakValue;
+  }
+
+  /** The quintic displacement per unit initial acceleration, carried into rest. */
+  export function carriedAcceleration(
+    duration: number,
+    elapsed: number,
+  ): number {
+    return carriedAccelerationImplementation(duration, elapsed);
+  }
+
+  /** The peak of {@link carriedAcceleration}, in squared durations. */
+  export function carriedAccelerationPeak(): number {
+    return carriedAccelerationPeakValue;
+  }
+
+  /**
+   * Read deterministic seeded smooth variation over one fixed action window.
+   * It vanishes with its first two derivatives at both endpoints.
+   */
+  export function seededSmoothNoise(
+    random: IAutoMovieRandom,
+    u: number,
+    duration: number,
+    maxFrequency: number,
+    terms: number = 4,
+  ): number {
+    return seededSmoothNoiseImplementation(
+      random,
+      u,
+      duration,
+      maxFrequency,
+      terms,
+    );
+  }
+
+  /** Prepare a repeated seeded smooth-noise read over fixed window parameters. */
+  export function seededSmoothNoisePrepare(
+    random: IAutoMovieRandom,
+    duration: number,
+    maxFrequency: number,
+    terms: number = 4,
+  ): (u: number) => number {
+    return seededSmoothNoisePrepareImplementation(
+      random,
+      duration,
+      maxFrequency,
+      terms,
+    );
+  }
+
   /**
    * Read the pose and its rates from a pure seconds-to-pose function, using a
    * symmetric or one-sided second-order difference. The caller owns the input
@@ -110,6 +201,62 @@ export namespace AutoMovieEngineMotionSampling {
   }
 
   /**
+   * The minimum-jerk normalized profile and its first two derivatives: the share
+   * of a point-to-point movement completed at normalized time `u`.
+   *
+   * Flash and Hogan (1985, J. Neurosci. 5:1688) showed that unconstrained
+   * point-to-point arm movements follow the trajectory minimizing integrated
+   * squared jerk, which for rest-to-rest motion is the quintic `s(u) = 10 u^3 -
+   * 15 u^4 + 6 u^5`: zero velocity and acceleration at both ends and a
+   * bell-shaped speed profile peaking at `u = 0.5` with 1.875 times the mean
+   * speed. Outside `[0, 1]` the profile holds its end value with zero
+   * derivatives, so a sum of units can be evaluated at any time.
+   *
+   * Derivatives are with respect to `u`; divide the first by the duration and the
+   * second by its square for seconds. share reads only the displacement fraction
+   * and rate only the first derivative, with identical admission, endpoint
+   * clipping and the selected polynomial arithmetic, without the unused fields or
+   * a profile record. The position uses `s(u) = 1 - s(1 - u)` above one half to
+   * keep the share in [0, 1] even at representable times immediately before the
+   * endpoint.
+   *
+   * @param u Normalized time, any finite number.
+   * @returns The share `s`, its rate `ds` and its acceleration `dds`.
+   */
+  export function minimumJerk(u: number): IAutoMovieMinimumJerk.IProfile {
+    return minimumJerkImplementation.profile(u);
+  }
+
+  /**
+   * The same normalized displacement fraction s, without derivative work or a
+   * profile record. Any finite time is admitted and outside [0,1] holds the
+   * corresponding endpoint; nonfinite time keeps the original refusal.
+   */
+  export function minimumJerkShare(u: number): number {
+    return minimumJerkImplementation.share(u);
+  }
+
+  /**
+   * The first derivative ds with respect to normalized time, without the
+   * displacement, second derivative or profile record. Finite times outside
+   * [0,1] return literal zero; nonfinite time keeps the original refusal.
+   */
+  export function minimumJerkRate(u: number): number {
+    return minimumJerkImplementation.rate(u);
+  }
+
+  /**
+   * The normalized time at which the profile has covered a share of its travel,
+   * the inverse of `share`: 0 for a share of none or less, 1 for the whole
+   * travel or more, and otherwise the time `share` reaches it at, by bisection
+   * to 2^-48 of the unit, since the quintic is strictly increasing on [0, 1]
+   * and has no closed-form inverse. A nonfinite share is refused.
+   */
+  export function minimumJerkTime(travel: number): number {
+    return minimumJerkImplementation.time(travel);
+  }
+
+  /**
    * Advance a one-dimensional damped spring one fixed timestep (semi-implicit
    * Euler): a generic numeric integrator for **secondary motion**, a value that
    * lags, overshoots, and settles toward a moving target instead of snapping to
@@ -203,11 +350,11 @@ export namespace AutoMovieEngineMotionSampling {
    * `[flexion, abduction, twist]` is an Euler chart, and at the chart's gimbal
    * nearly equal rotations have far apart triples, whose per-angle blend swings
    * the bone through poses neither side holds. The blended rotation is lowered to
-   * angles through the rig ({@link poseJointCodec}), in the chart its range of
+   * angles through the rig ({@link AutoMovieEngineKinematics.poseJointCodec}), in the chart its range of
    * motion admits best. A joint with no offset left returns the target's own
    * angles untouched.
    *
-   * A hinge or a two-axis joint (`poseJointCodec.ICodec.ball` false) is blended
+   * A hinge or a two-axis joint (`IAutoMoviePoseJointCodec.ICodec.ball` false) is blended
    * per angle instead, each angle's offset decayed with its rate offset: the
    * rotations its angles span are a lower-dimensional set, and an offset rotation
    * applied to one of them leaves that set, which the lowering would answer with

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
@@ -211,7 +211,7 @@ export namespace AquaticCrew {
 
   /** Continuous, bounded progress along one authored stage. */
   export function span(at: number, from: number, to: number): number {
-    return minimumJerk.share(
+    return AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.max(0, Math.min(1, (at - from) / (to - from))),
     );
   }

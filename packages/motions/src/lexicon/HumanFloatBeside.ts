@@ -2,7 +2,7 @@ import {
   AutoMovieHumanoidSurfaceRays,
   Quaternion,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -282,7 +282,7 @@ function planHumanFloatBeside(
       let torso: IAutoMovieMotionHumanPosture;
       if (time < transition) {
         // The seated entry is carried with the horse while it blends into the float, lifted over the saddle's side.
-        const u: number = minimumJerk.share(time / transition);
+        const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(time / transition);
         const to: IAutoMovieMotionHumanPosture = float(frame, grip.point, 0);
         const from: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
           entry,
@@ -320,7 +320,7 @@ function planHumanFloatBeside(
         torso = float(
           frame,
           grip.point,
-          minimumJerk.share(Math.min(1, kicking / HumanFloatBesideForm.KICK)) *
+          AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, kicking / HumanFloatBesideForm.KICK)) *
             Math.sin((2 * Math.PI * kicking) / HumanFloatBesideForm.KICK),
         );
       }

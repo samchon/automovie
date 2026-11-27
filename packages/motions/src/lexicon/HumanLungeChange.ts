@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
@@ -76,7 +76,7 @@ export namespace HumanLungeChange {
   ): ITarget {
     const { change, transition } = timeline;
     const phase = (start: number): number =>
-      minimumJerk.share(Math.max(0, Math.min(1, (time - start) / transition)));
+      AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, Math.min(1, (time - start) / transition)));
     if (side === timeline.line)
       return {
         line: change === undefined ? 1 : 1 - phase(change + 2 * transition),
@@ -137,7 +137,7 @@ export namespace HumanLungeChange {
     time: number,
   ): number {
     const { line, change, transition, seconds } = timeline;
-    return minimumJerk.share(
+    return AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(
         1,
         side === line ? time / transition : 1,

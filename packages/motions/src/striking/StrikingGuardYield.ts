@@ -1,17 +1,6 @@
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanGuard,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanStrikingStance,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanGuard, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingStance, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -100,7 +89,7 @@ export namespace StrikingGuardYield {
       undefined,
       new Set([region.bone]),
     );
-    const face: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+    const face: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       region,
       mine.get(region.bone)!,
     ).point;

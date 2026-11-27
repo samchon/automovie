@@ -1,4 +1,4 @@
-import { projectileFirstContact, AutoMovieAir } from "@automovie/engine";
+import { AutoMoviePhysicalProjectile, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieBody,
   IAutoMovieMotionHumanProp,
@@ -41,7 +41,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
       },
     ],
   };
-  const plane = projectileFirstContact.plane("floor", zero, up);
+  const plane = AutoMoviePhysicalProjectile.planeCollider("floor", zero, up);
   const meeting = (
     time: number,
     normal: IAutoMovieVector3 = up,
@@ -78,7 +78,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
           "sweep excludes only the departing contact",
           ++queries <= 3 && leave === undefined && departing === plane.id,
         );
-        const hit = projectileFirstContact(
+        const hit = AutoMoviePhysicalProjectile.firstContact(
           p,
           [plane],
           { from: 0, to: base.horizon - t },

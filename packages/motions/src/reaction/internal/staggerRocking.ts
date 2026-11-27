@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -143,7 +143,7 @@ export function staggerRocking(
       if (reference !== undefined && step !== undefined)
         goal.reference = {
           ...reference,
-          weight: minimumJerk.share(
+          weight: AutoMovieEngineMotionSampling.minimumJerkShare(
             (seconds - step.start) / (step.land - step.start),
           ),
         };

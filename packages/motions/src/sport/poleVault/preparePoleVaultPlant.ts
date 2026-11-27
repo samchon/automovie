@@ -1,18 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanHand } from "../../posture/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -125,7 +112,7 @@ export function preparePoleVaultPlant(
     posture: shown.posture,
     tip: endOf(shown.bones),
     grip: HumanHand.frame(props.body, shown.bones, props.side, "grip").point,
-    centre: resolveAutoMovieCenterOfMass.place(props.model, bones),
+    centre: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(props.model, bones),
   };
 }
 

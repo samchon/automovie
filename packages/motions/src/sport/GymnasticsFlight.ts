@@ -1,24 +1,5 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanLimb,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanGymnasticsFlight,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanLimb, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieJointPose, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGymnasticsFlight, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
@@ -192,7 +173,7 @@ export namespace GymnasticsFlight {
       read(),
       requested,
     );
-    return resolveAutoMovieCenterOfMass.place(model, bones);
+    return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, bones);
   }
 
   /**

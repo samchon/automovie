@@ -1,24 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeSegmentDistance,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCarried,
-  IAutoMovieMotionHumanCarriedCouplingPose,
-  IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePhysicalShape,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVerdicts } from "../audit/AutoMovieMotionHumanVerdicts";
 import { HumanHand } from "../posture/HumanHand";
@@ -29,7 +10,7 @@ import { resolveHumanPosture } from "../posture/internal/resolveHumanPosture";
 import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
 /** A shape's signed distance to a pair of world points. */
-type Distance = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
+type Distance = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;
 
 /**
  * Choose a supporting hand's tangent at its held point in the bearer's anchor.
@@ -104,7 +85,7 @@ export function HumanCarriedGrip(
     (part: IAutoMovieMotionHumanColliders.IPlaced): Distance[] =>
       part.shapes.map(
         (shape: IAutoMoviePhysicalShape): Distance =>
-          physicalShapeSegmentDistance.prepare(part.pose, shape),
+          AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(part.pose, shape),
       ),
   );
   const hand: AutoMovieHumanoidBone = `${side}Hand`;
@@ -133,7 +114,7 @@ export function HumanCarriedGrip(
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       read(HumanLimbFit.fit(body, source, `${side}Arm`, goal, placed).pose);
     const wrist: IAutoMovieResolvedBone = bones.get(hand)!;
-    const met: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+    const met: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
       surface,
       wrist,
     );

@@ -1,22 +1,5 @@
-import {
-  Quaternion,
-  minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmPlanned,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmPlanned, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { courseArmGoal } from "../compose/internal/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
@@ -234,7 +217,7 @@ export namespace AquaticTeam {
             rightHand: joint("rightHand", 18),
           },
         };
-        const blendContact: number = minimumJerk.share(
+        const blendContact: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.max(
             0,
             Math.min(
@@ -272,8 +255,8 @@ export namespace AquaticTeam {
             .bones(context.start + t, hands[index])
             .get(region.bone)!;
           const palm: ReturnType<
-            typeof resolveAutoMovieHumanoidSurfaces.place
-          > = resolveAutoMovieHumanoidSurfaces.place(region, bone);
+            typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace
+          > = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(region, bone);
           if (
             t >= gripStart &&
             t <= gripEnd &&

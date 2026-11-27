@@ -1,7 +1,7 @@
 import {
   Quaternion,
-  minimumJerk,
-  physicalShapeBounds,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
@@ -247,7 +247,7 @@ function measureOpening(
       };
       for (const shape of segment.shapes) {
         const bounds: IAutoMoviePhysicalShapeBounds.IResult =
-          physicalShapeBounds(parent, shape);
+          AutoMovieEnginePhysics.physicalShapeBounds(parent, shape);
         if (bounds.max.z < near - ROOM || bounds.min.z > far + ROOM) continue;
         envelope.left = Math.min(envelope.left, bounds.min.x);
         envelope.right = Math.max(envelope.right, bounds.max.x);
@@ -324,7 +324,7 @@ function planReducedWalk(
     const base: IAutoMovieMotionHumanPosture = walked.posture(...args);
     const depth: number = local.local(base.root).z;
     const outside: number = Math.max(0, near - depth, depth - far);
-    const lowered: number = minimumJerk.share(
+    const lowered: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, Math.max(0, (fringe - outside) / (fringe * 0.5))),
     );
     if (sideOn) return sideStepPosture(context.body, base, lowered);

@@ -1,4 +1,7 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -195,7 +198,7 @@ export namespace EquineStanceRows {
       });
       const turns: readonly [number, number, number, number] =
         cue.limb.endsWith("Fore") ? FOLDS.foreLift : FOLDS.hindLift;
-      const time: number = minimumJerk.time(LOAD);
+      const time: number = AutoMovieEngineMotionSampling.minimumJerkTime(LOAD);
       return {
         ...base,
         keys: [LOAD, 1],
@@ -296,12 +299,12 @@ export namespace EquineStanceRows {
         {
           label: `${limb}Off`,
           entry: true,
-          time: minimumJerk.time((k + LOAD) * quarter),
+          time: AutoMovieEngineMotionSampling.minimumJerkTime((k + LOAD) * quarter),
         },
         {
           label: `${limb}On`,
           entry: true,
-          time: minimumJerk.time((k + 1) * quarter),
+          time: AutoMovieEngineMotionSampling.minimumJerkTime((k + 1) * quarter),
         },
       ],
     );
@@ -344,7 +347,7 @@ export namespace EquineStanceRows {
             ),
             limbs: EquineStanceSupport.placed(before.anchors),
           };
-        const swing: number = minimumJerk.share((local - LOAD) / (1 - LOAD));
+        const swing: number = AutoMovieEngineMotionSampling.minimumJerkShare((local - LOAD) / (1 - LOAD));
         const anchor: IAutoMovieVector3 = Vector3.add(
           Vector3.lerp(
             before.anchors[limb],
@@ -431,7 +434,7 @@ export namespace EquineStanceRows {
       rear ? hips : shoulders,
     );
     const target: number = rear ? cue.pitch : -cue.pitch;
-    const time: number = minimumJerk.time(LOAD);
+    const time: number = AutoMovieEngineMotionSampling.minimumJerkTime(LOAD);
     return {
       cue,
       start,

@@ -1,22 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSurface,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSurface, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { lieDown } from "../../floor/internal/lieDown";
 import { HumanBound } from "../../law/HumanBound";
@@ -152,7 +135,7 @@ export function prepareSurfboardPhrase(
   const inverseProne: IAutoMovieQuaternion = Quaternion.inverse(proneTurn);
   const proneHeight: number =
     Quaternion.rotateVector(proneTurn, hips).y -
-    resolveAutoMovieHumanoidSurfaces.place(
+    AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       sternum,
       proneBones.get(sternum.bone)!,
     ).point.y;

@@ -17,9 +17,9 @@ import type { AutoMovieXpbdCollider } from "../AutoMovieXpbdCollider";
 import type { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
-import { physicalHullFaces } from "../physicalHullFaces";
+import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
 import { physicalHullFacesErode } from "./physicalHullFacesErode";
-import { physicalShapeHull } from "../physicalShapeHull";
+import { physicalShapeHull } from "./physicalShapeHull";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
@@ -154,7 +154,7 @@ export function bindPhysicalWorld(
         // A hull shape carries its hull from here on, built once.
         const solid: IAutoMoviePhysicalShape =
           shape.kind === "hull" && shape.hull === undefined
-            ? { ...shape, hull: physicalHullFaces(shape.points) }
+            ? { ...shape, hull: AutoMoviePhysicalHullFaces.build(shape.points) }
             : shape;
         const collider: AutoMovieXpbdCollider = restored
           ? colliders[ci++]!
@@ -202,7 +202,7 @@ export function bindPhysicalWorld(
             coreShape = {
               ...shape,
               points: eroded,
-              hull: physicalHullFaces(eroded),
+              hull: AutoMoviePhysicalHullFaces.build(eroded),
             };
           } else {
             shape satisfies never;

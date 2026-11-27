@@ -1,11 +1,20 @@
-import { type IAutoMovieProductionRenderJobPlan, type IAutoMoviePlanProductionRenderJobProps, type IAutoMovieProductionDesign, type IAutoMovieProductionRenderTier, type AutoMovieOrderedScalar } from "@automovie/interface";
+import { type IAutoMovieProductionRenderJobPlan, type IAutoMoviePlanProductionRenderJobProps, type IAutoMovieProductionDesign, type IAutoMovieProductionRenderTier, type IAutoMovieFilmTimeline, type AutoMovieOrderedScalar } from "@automovie/interface";
 import { planProductionRenderJob as planProductionRenderJobImplementation } from "./internal/planProductionRenderJob.js";
 import { resolveProductionRenderTierFrameFormat as resolveProductionRenderTierFrameFormatImplementation } from "./internal/resolveProductionRenderTierFrameFormat.js";
 import { equalOrderedScalarRows as equalOrderedScalarRowsImplementation } from "./internal/equalOrderedScalarRows.js";
 import { equalOrderedScalars as equalOrderedScalarsImplementation } from "./internal/equalOrderedScalars.js";
+import { productionVisualDeliveryOccurrence as productionVisualDeliveryOccurrenceImplementation } from "./internal/productionVisualDeliveryOccurrence.js";
 
 /** Public operations for Auto Movie Render Film. */
 export namespace AutoMovieRenderFilm {
+  /** Name one timeline segment occurrence for visual delivery identity. */
+  export function productionVisualDeliveryOccurrence(
+    segment: IAutoMovieFilmTimeline["segments"][number],
+    index: number,
+  ): string {
+    return productionVisualDeliveryOccurrenceImplementation(segment, index);
+  }
+
   /**
    * Plan the content-addressed render chunks and publication tracks of one
    * production edit at one tier.

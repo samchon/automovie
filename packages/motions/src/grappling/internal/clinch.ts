@@ -1,24 +1,6 @@
-import { Vector3, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces, AutoMovieEnginePhysics } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  AutoMovieMotionHumanActionName,
-  AutoMovieMotionHumanChannel,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmTarget,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanClinch,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionManner,
-  IAutoMoviePhysicalShapeNearest,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieMotionHumanActionName, AutoMovieMotionHumanChannel, IAutoMovieHumanoidSurfaces, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanClinch, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionManner, IAutoMoviePhysicalShapeNearest, IAutoMovieVector3 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
@@ -133,8 +115,8 @@ export namespace clinch {
     const frame: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[region];
     const placed: ReturnType<
-      typeof resolveAutoMovieHumanoidSurfaces.pointNormal
-    > = resolveAutoMovieHumanoidSurfaces.pointNormal(
+      typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal
+    > = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(
       frame,
       bones.get(frame.bone)!,
     );
@@ -308,7 +290,7 @@ export namespace clinch {
       ): IAutoMovieVector3 => {
         const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
           who.surfaces.regions[region];
-        return resolveAutoMovieHumanoidSurfaces.point(
+        return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
           frame,
           HumanTrunk.resolve(
             who,
@@ -330,7 +312,7 @@ export namespace clinch {
           : Vector3.subtract(
               {
                 ...point(partner.body, theirs, under.on),
-                y: resolveAutoMovieCenterOfMass.place(
+                y: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
                   partner.body.massModel,
                   HumanTrunk.resolve(partner.body, theirs),
                 ).y,

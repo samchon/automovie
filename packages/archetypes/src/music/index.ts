@@ -1,8 +1,5 @@
-export * from "./createCymbal";
-export * from "./createDrumstick";
-export { AutoMovieArchetypeInstrument } from "./AutoMovieArchetypeInstrument";
+export * from "./AutoMovieArchetypeInstrument";
 export { AutoMovieArchetypeMicrophone } from "./AutoMovieArchetypeMicrophone";
-export * from "./createViolinBow";
 export { AutoMovieArchetypeBugle } from "./AutoMovieArchetypeBugle";
 export { AutoMovieArchetypeGuitar } from "./AutoMovieArchetypeGuitar";
 export { AutoMovieArchetypeSideDrum } from "./AutoMovieArchetypeSideDrum";

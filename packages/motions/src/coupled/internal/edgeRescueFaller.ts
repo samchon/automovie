@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -154,7 +154,7 @@ export function edgeRescueFaller(
     if (t <= scene.release)
       return t >= SETTLE
         ? at(hung)
-        : stuntFallPose.blend(entry, at(hung), minimumJerk.share(t / SETTLE));
+        : stuntFallPose.blend(entry, at(hung), AutoMovieEngineMotionSampling.minimumJerkShare(t / SETTLE));
     const s: number = t - scene.release;
     if (!scene.holds) {
       if (s <= missFall) return at({ ...hung, y: hung.y - 0.5 * g * s * s });
@@ -174,7 +174,7 @@ export function edgeRescueFaller(
         stuntFallPose.blend(
           landed,
           lying,
-          minimumJerk.share(Math.min(1, (s - missFall) / COLLAPSE)),
+          AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (s - missFall) / COLLAPSE)),
         ),
         {
           x:
@@ -190,9 +190,9 @@ export function edgeRescueFaller(
       const u: number = Math.min(1, s / (scene.caught - scene.release));
       const target: IAutoMovieVector3 = byRight(scene.grip);
       return at({
-        x: hung.x + (target.x - hung.x) * minimumJerk.share(u),
+        x: hung.x + (target.x - hung.x) * AutoMovieEngineMotionSampling.minimumJerkShare(u),
         y: hung.y - Math.min(fallTo, 0.5 * g * s * s),
-        z: hung.z + (target.z - hung.z) * minimumJerk.share(u),
+        z: hung.z + (target.z - hung.z) * AutoMovieEngineMotionSampling.minimumJerkShare(u),
       });
     }
     if (t <= scene.kneel) return at(byRight(scene.gripAt(t)));
@@ -207,12 +207,12 @@ export function edgeRescueFaller(
     };
     const root: IAutoMovieVector3 =
       u < 0.5
-        ? Vector3.lerp(from.root, waypoint, minimumJerk.share(u * 2))
-        : Vector3.lerp(waypoint, kneelRoot, minimumJerk.share(u * 2 - 1));
+        ? Vector3.lerp(from.root, waypoint, AutoMovieEngineMotionSampling.minimumJerkShare(u * 2))
+        : Vector3.lerp(waypoint, kneelRoot, AutoMovieEngineMotionSampling.minimumJerkShare(u * 2 - 1));
     const shaped: IAutoMovieMotionHumanPosture = stuntFallPose.blend(
       from,
       { ...kneelPose, root: kneelRoot },
-      minimumJerk.share(u),
+      AutoMovieEngineMotionSampling.minimumJerkShare(u),
     );
     return { ...shaped, root };
   };

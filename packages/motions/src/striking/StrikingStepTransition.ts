@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionEvent,
@@ -360,7 +360,7 @@ export namespace StrikingStepTransition {
     window: readonly [from: number, to: number],
     local: number,
   ): number {
-    return minimumJerk.share((local - window[0]) / (window[1] - window[0]));
+    return AutoMovieEngineMotionSampling.minimumJerkShare((local - window[0]) / (window[1] - window[0]));
   }
 
   /** The bearing selection includes the anchored ball throughout its pivot. */

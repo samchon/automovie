@@ -11,7 +11,7 @@ import type {
 /**
  * Analytic solids written as construction trees, for the construction
  * spec tests: each view part is a closed form whose sections, girths and
- * meetings have exact answers ({@link ConstructionShapes.Oracle}), in
+ * meetings have exact answers, such as {@link ConstructionShapes.oraclePerimeter}, in
  * metres in the construction's frame.
  *
  * Every part's outline knots stand at its stations and carry the closed
@@ -328,54 +328,50 @@ export namespace ConstructionShapes {
       (_: unknown, i: number): number => a + ((b - a) * i) / (count - 1),
     );
   }
-
-  /** Closed forms the spec tests compare with. */
-  export namespace Oracle {
-    /**
-     * The ellipse's perimeter, exact to rounding by the arithmetic-geometric
-     * mean: `2 pi (a^2 - sum_n 2^(n-1) c_n^2) / AGM(a, b)` with `c_0^2 = a^2 - b^2`
-     * and `c_(n+1) = (a_n - b_n) / 2`; a circle gives `2 pi a`.
-     */
-    export function perimeter(a: number, b: number): number {
-      let an: number = Math.max(a, b);
-      let bn: number = Math.min(a, b);
-      let sum: number = 0.5 * (an * an - bn * bn);
-      let power: number = 0.5;
-      for (let i: number = 0; i < 40 && Math.abs(an - bn) > 1e-15 * an; i++) {
-        const c: number = (an - bn) / 2;
-        const next: number = (an + bn) / 2;
-        bn = Math.sqrt(an * bn);
-        an = next;
-        power *= 2;
-        sum += power * c * c;
-      }
-      return (2 * Math.PI * (Math.max(a, b) ** 2 - sum)) / an;
+  /**
+   * The ellipse's perimeter, exact to rounding by the arithmetic-geometric
+   * mean: `2 pi (a^2 - sum_n 2^(n-1) c_n^2) / AGM(a, b)` with `c_0^2 = a^2 - b^2`
+   * and `c_(n+1) = (a_n - b_n) / 2`; a circle gives `2 pi a`.
+   */
+  export function oraclePerimeter(a: number, b: number): number {
+    let an: number = Math.max(a, b);
+    let bn: number = Math.min(a, b);
+    let sum: number = 0.5 * (an * an - bn * bn);
+    let power: number = 0.5;
+    for (let i: number = 0; i < 40 && Math.abs(an - bn) > 1e-15 * an; i++) {
+      const c: number = (an - bn) / 2;
+      const next: number = (an + bn) / 2;
+      bn = Math.sqrt(an * bn);
+      an = next;
+      power *= 2;
+      sum += power * c * c;
     }
+    return (2 * Math.PI * (Math.max(a, b) ** 2 - sum)) / an;
+  }
 
-    /**
-     * The Steinmetz curve where a cylinder of radius `r` along `z` meets a
-     * cylinder of radius `R >= r` along `x`, both through the origin, on the
-     * side `z > 0`: `(r cos t, r sin t, sqrt(R^2 - r^2 sin^2 t))`.
-     */
-    export function steinmetz(
-      r: number,
-      R: number,
-      t: number,
-    ): IAutoMovieVector3 {
-      return {
-        x: r * Math.cos(t),
-        y: r * Math.sin(t),
-        z: Math.sqrt(R * R - r * r * Math.sin(t) ** 2),
-      };
-    }
+  /**
+   * The Steinmetz curve where a cylinder of radius `r` along `z` meets a
+   * cylinder of radius `R >= r` along `x`, both through the origin, on the
+   * side `z > 0`: `(r cos t, r sin t, sqrt(R^2 - r^2 sin^2 t))`.
+   */
+  export function oracleSteinmetz(
+    r: number,
+    R: number,
+    t: number,
+  ): IAutoMovieVector3 {
+    return {
+      x: r * Math.cos(t),
+      y: r * Math.sin(t),
+      z: Math.sqrt(R * R - r * r * Math.sin(t) ** 2),
+    };
+  }
 
-    /** Signed distance of a point from a sphere's surface, metres: positive outside. */
-    export function sphere(
-      p: IAutoMovieVector3,
-      centre: IAutoMovieVector3,
-      R: number,
-    ): number {
-      return Math.hypot(p.x - centre.x, p.y - centre.y, p.z - centre.z) - R;
-    }
+  /** Signed distance of a point from a sphere's surface, metres: positive outside. */
+  export function oracleSphere(
+    p: IAutoMovieVector3,
+    centre: IAutoMovieVector3,
+    R: number,
+  ): number {
+    return Math.hypot(p.x - centre.x, p.y - centre.y, p.z - centre.z) - R;
   }
 }

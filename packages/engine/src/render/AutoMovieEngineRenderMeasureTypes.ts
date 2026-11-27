@@ -7,117 +7,111 @@ import type {
 
 /** Type-only data contracts for Auto Movie Engine Render Measure. */
 export namespace AutoMovieEngineRenderMeasureTypes {
-  /** What the feed layers commit. */
-  export namespace measureAutoMovieRenderFeeds {
-    /** One track's feed render targets and its most feeds shown at once. */
-    export interface ITrack {
-      /** The track's mask owner, `surface-graphic:<node>/<surface>`. */
-      owner: string;
+  /** One track's feed render targets and its most feeds shown at once. */
+  export interface IFeedTrack {
+    /** The track's mask owner, `surface-graphic:<node>/<surface>`. */
+    owner: string;
 
-      /**
-       * Texture allocations its keys' feed layers hold: each layer's target and,
-       * under a film's optics, its response stage's targets.
-       */
-      targets: number;
+    /**
+     * Texture allocations its keys' feed layers hold: each layer's target and,
+     * under a film's optics, its response stage's targets.
+     */
+    targets: number;
 
-      /** Bytes those targets hold. */
-      bytes: number;
+    /** Bytes those targets hold. */
+    bytes: number;
 
-      /** Most feed layers one key shows, each one scene pass per frame. */
-      passes: number;
-    }
-
-    /** The tracks with feeds and their sums. */
-    export interface IResult {
-      /** One row per track with at least one feed layer, in track order. */
-      tracks: ITrack[];
-
-      /** Every texture allocation the shot's feeds hold. */
-      targets: number;
-
-      /** Bytes of those allocations. */
-      bytes: number;
-
-      /** Most scene passes the feeds add to one frame. */
-      passes: number;
-    }
+    /** Most feed layers one key shows, each one scene pass per frame. */
+    passes: number;
   }
 
-  /** What the film stage phase reads and returns. */
-  export namespace measureAutoMovieRenderFilmStage {
-    /** The subject, the raster, the frame so far and the sinks. */
-    export interface IProps {
-      /** The measured subject; only `film` and `scene.medium` are read. */
-      subject: IAutoMovieRenderSubject;
+  /** The tracks with feeds and their sums. */
+  export interface IFeedResult {
+    /** One row per track with at least one feed layer, in track order. */
+    tracks: IFeedTrack[];
 
-      /** The target settings whose drawing buffer the beauty pass draws into. */
-      settings?: IAutoMovieRenderTargetSettings;
+    /** Every texture allocation the shot's feeds hold. */
+    targets: number;
 
-      /** Draw calls of the opaque frame, before any pass. */
-      drawCalls: number;
+    /** Bytes of those allocations. */
+    bytes: number;
 
-      /** Triangles of the opaque frame, before any pass. */
-      triangles: number;
+    /** Most scene passes the feeds add to one frame. */
+    passes: number;
+  }
 
-      /** The lights that render a shadow map with every scene pass. */
-      casters: readonly ICaster[];
+  /** The subject, the raster, the frame so far and the sinks. */
+  export interface IFilmStageProps {
+    /** The measured subject; only `film` and `scene.medium` are read. */
+    subject: IAutoMovieRenderSubject;
 
-      /** Appends one owner row. */
-      add: IAutoMovieMeasureRenderSimulation.IProps["add"];
+    /** The target settings whose drawing buffer the beauty pass draws into. */
+    settings?: IAutoMovieRenderTargetSettings;
 
-      /** Receives a gap for each total the missing raster leaves unknown. */
-      gaps: IAutoMovieRenderAnalysisGap[];
-    }
+    /** Draw calls of the opaque frame, before any pass. */
+    drawCalls: number;
 
-    /** One shadow caster's per-pass cost, as the texture phase lists it. */
-    export interface ICaster {
-      /** Depth views the caster renders the opaque frame into. */
-      depthFaces: number;
+    /** Triangles of the opaque frame, before any pass. */
+    triangles: number;
 
-      /** Fullscreen filtering draws of a VSM caster. */
-      filterDraws: number;
-    }
+    /** The lights that render a shadow map with every scene pass. */
+    casters: readonly IFilmStageCaster[];
 
-    /** Draw calls and triangles of some passes. */
-    export interface IPass {
-      /** Draw calls. */
-      draws: number;
+    /** Appends one owner row. */
+    add: IAutoMovieMeasureRenderSimulation.IFilmStageProps["add"];
 
-      /** Triangles. */
-      triangles: number;
-    }
+    /** Receives a gap for each total the missing raster leaves unknown. */
+    gaps: IAutoMovieRenderAnalysisGap[];
+  }
 
-    /** One stage's allocations and passes. */
-    export interface IRow {
-      /** The `render-pass:film-*` owner. */
-      owner: string;
+  /** One shadow caster's per-pass cost, as the texture phase lists it. */
+  export interface IFilmStageCaster {
+    /** Depth views the caster renders the opaque frame into. */
+    depthFaces: number;
 
-      /** The setting that makes the stage allocate and draw. */
-      source: string;
+    /** Fullscreen filtering draws of a VSM caster. */
+    filterDraws: number;
+  }
 
-      /** Texture allocations. */
-      targets: number;
+  /** Draw calls and triangles of some passes. */
+  export interface IFilmStagePass {
+    /** Draw calls. */
+    draws: number;
 
-      /** Their bytes at the raster; NaN without one. */
-      bytes: number;
+    /** Triangles. */
+    triangles: number;
+  }
 
-      /** The further draw calls and triangles of one frame. */
-      passes: IPass;
-    }
+  /** One stage's allocations and passes. */
+  export interface IFilmStageRow {
+    /** The `render-pass:film-*` owner. */
+    owner: string;
 
-    /** What the film stage adds to the frame's totals. */
-    export interface IResult {
-      /** Texture allocations, or null when no settings give the raster. */
-      targets: number | null;
+    /** The setting that makes the stage allocate and draw. */
+    source: string;
 
-      /** Their bytes, or null when no settings give the raster. */
-      bytes: number | null;
+    /** Texture allocations. */
+    targets: number;
 
-      /** Further draw calls, or null when glare's raster is unknown. */
-      drawCalls: number | null;
+    /** Their bytes at the raster; NaN without one. */
+    bytes: number;
 
-      /** Further triangles, or null when glare's raster is unknown. */
-      triangles: number | null;
-    }
+    /** The further draw calls and triangles of one frame. */
+    passes: IFilmStagePass;
+  }
+
+  /** What the film stage adds to the frame's totals. */
+  export interface IFilmStageResult {
+    /** Texture allocations, or null when no settings give the raster. */
+    targets: number | null;
+
+    /** Their bytes, or null when no settings give the raster. */
+    bytes: number | null;
+
+    /** Further draw calls, or null when glare's raster is unknown. */
+    drawCalls: number | null;
+
+    /** Further triangles, or null when glare's raster is unknown. */
+    triangles: number | null;
   }
 }

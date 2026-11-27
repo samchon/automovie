@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -186,7 +186,7 @@ export namespace AquaticFin {
         ],
         posture: (time: number): IAutoMovieMotionHumanPosture => {
           const t: number = Math.max(0, Math.min(seconds, time));
-          const settle: number = minimumJerk.share(Math.min(1, t));
+          const settle: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t));
           const travelled: number = speed * Math.max(0, t - 0.5);
           return place(
             kick(prone, t),
@@ -250,7 +250,7 @@ export namespace AquaticFin {
       ),
     );
     const grow: (seconds: number) => number = (seconds: number): number =>
-      minimumJerk.share(Math.max(0, Math.min(1, seconds / KICK_IN)));
+      AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, Math.min(1, seconds / KICK_IN)));
     const a: ReturnType<typeof AquaticPosture.blend> = AquaticPosture.blend(
       prone,
       pike,

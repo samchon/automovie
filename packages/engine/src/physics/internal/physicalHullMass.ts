@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalHullFaces } from "../physicalHullFaces";
+import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
 import { physicalHullFacesMass } from "./physicalHullFacesMass";
 
 /**
@@ -19,5 +19,5 @@ import { physicalHullFacesMass } from "./physicalHullFacesMass";
 export function physicalHullMass(
   points: readonly IAutoMovieVector3[],
 ): IAutoMoviePhysicalHullMass.IResult {
-  return physicalHullFacesMass(physicalHullFaces(points));
+  return physicalHullFacesMass(AutoMoviePhysicalHullFaces.build(points));
 }

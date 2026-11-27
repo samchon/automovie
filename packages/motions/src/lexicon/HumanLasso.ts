@@ -2,7 +2,7 @@ import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -195,7 +195,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   }
   const raise: number =
     ((context.tempo ?? 1) *
-      minimumJerk.rate(0.5) *
+      AutoMovieEngineMotionSampling.minimumJerkRate(0.5) *
       Vector3.distance(rest, arrival) *
       period) /
     (2 * Math.PI * SWING.radius);
@@ -362,7 +362,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             ? Vector3.lerp(
                 thrown,
                 wrap,
-                minimumJerk.share((t - release) / flight),
+                AutoMovieEngineMotionSampling.minimumJerkShare((t - release) / flight),
               )
             : wrap;
       }

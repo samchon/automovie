@@ -2,14 +2,17 @@ import type {
   AutoMovieInspectionShade,
   IAutoMovieFilmOptics,
   IAutoMoviePlaybackLayer,
+  IAutoMoviePlanFilmSamples,
 } from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../scene/IAutoMovieRenderModeHandle.js";
-import { applyRenderMode } from "../scene/applyRenderMode.js";
+import { applyRenderMode } from "../scene/internal/applyRenderMode.js";
 import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
 import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
 import type { AutoMovieDrawBeauty } from "./internal/AutoMovieDrawBeauty.js";
+import { accumulateAutoMovieFilmSamples as accumulateAutoMovieFilmSamplesImplementation } from "./internal/accumulateAutoMovieFilmSamples.js";
+import type { IAutoMovieAccumulateFilmSamplesProps } from "./IAutoMovieAccumulateFilmSamplesProps.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { placeAutoMovieDrawLayer } from "./internal/placeAutoMovieDrawLayer.js";
 import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
@@ -86,6 +89,15 @@ export class AutoMovieDrawFilm<
     this.byShot = plan.shown !== null && !plan.shown.live;
   }
 
+  /**
+   * Draw every shutter and lens sample of a frame into its running average,
+   * then place the frame's own second again.
+   */
+  public static accumulateSamples(
+    props: IAutoMovieAccumulateFilmSamplesProps,
+  ): Promise<IAutoMoviePlanFilmSamples.ISample[]> {
+    return accumulateAutoMovieFilmSamplesImplementation(props);
+  }
   /** Whether the picture composites a transition's layers. */
   public get composites(): boolean {
     return this.layers !== null;

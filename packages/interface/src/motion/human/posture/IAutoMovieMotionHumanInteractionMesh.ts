@@ -1,4 +1,4 @@
-import type { IAutoMovieTetrahedralizeDelaunay } from "../../../core/math/IAutoMovieTetrahedralizeDelaunay";
+import type { IAutoMovieTetrahedralizedMesh } from "../../../core/math/IAutoMovieTetrahedralizedMesh";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 
 /**
@@ -12,7 +12,7 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * points coinciding or held at a fixed offset.
  *
  * - **Mesh.** The Delaunay tetrahedralization of the points
- *   (`tetrahedralizeAutoMovieDelaunay`, Bowyer-Watson on Qhull's joggled
+ *   (`AutoMovieEngineMath.tetrahedralizeDelaunay`, Bowyer-Watson on Qhull's joggled
  *   input). Its edges are the points' neighbourhoods.
  * - **Laplacian coordinates.** Each point's offset from the inverse-distance
  *   weighted mean of its neighbours, excluding bone edges so deformation does
@@ -88,7 +88,7 @@ export namespace IAutoMovieMotionHumanInteractionMesh {
     start?: readonly IAutoMovieVector3[];
 
     /** The reference's mesh, when built before; built here when absent. */
-    mesh?: IAutoMovieTetrahedralizeDelaunay.IMesh;
+    mesh?: IAutoMovieTetrahedralizedMesh;
   }
 
   /** Adapt a key pose. The adaptation's result. */
@@ -97,6 +97,6 @@ export namespace IAutoMovieMotionHumanInteractionMesh {
     points: IAutoMovieVector3[];
 
     /** The mesh it kept. */
-    mesh: IAutoMovieTetrahedralizeDelaunay.IMesh;
+    mesh: IAutoMovieTetrahedralizedMesh;
   }
 }

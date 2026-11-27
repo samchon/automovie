@@ -1,24 +1,5 @@
-import {
-  AutoMovieGravity,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanForce,
-  IAutoMovieMotionHumanForceResponse,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSustainedForce,
-  IAutoMovieResolveBalanceOutcome,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSustainedForce, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
@@ -59,8 +40,8 @@ export function humanForceRespond(
   const body: IAutoMovieMotionHumanBody = context.body;
   const model: IAutoMovieResolveCenterOfMass.IModel =
     GymnasticsFlight.model(body);
-  const w: number = resolveAutoMovieCenterOfMass.frequency(
-    resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+  const w: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
   );
 
   // The pull open at the start.
@@ -103,7 +84,7 @@ export function humanForceRespond(
     body,
     context.entry.pose,
   );
-  const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+  const centre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
     model,
     bones,
   );
@@ -160,7 +141,7 @@ export function humanForceRespond(
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
       prepareHumanPostureProjection(body);
     const shown = (root: IAutoMovieVector3): IAutoMovieVector3 =>
-      resolveAutoMovieCenterOfMass.place(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
         model,
         poseBones(
           body,
@@ -278,7 +259,7 @@ export function humanForceRespond(
       posture: (seconds: number): IAutoMovieMotionHumanPosture =>
         drawBack(
           plan.posture(seconds),
-          shift * minimumJerk.share(Math.min(1, Math.max(0, seconds * w))),
+          shift * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, seconds * w))),
         ),
     };
   }

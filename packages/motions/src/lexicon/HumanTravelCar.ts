@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -177,7 +177,7 @@ export namespace HumanTravelCar {
         const swung = (u: number): IAutoMovieMotionHumanPosture =>
           carryHumanPosture(end, seatedFrame, {
             position: pivot,
-            rotation: HumanFrame.turn(turn * minimumJerk.share(Math.min(1, u))),
+            rotation: HumanFrame.turn(turn * AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, u))),
           });
         const undocked: IAutoMovieMotionHumanActionPlan["posture"] = (
           t: number,
@@ -295,7 +295,7 @@ export namespace HumanTravelCar {
             most = Math.max(
               most,
               need.degrees *
-                minimumJerk.share(
+                AutoMovieEngineMotionSampling.minimumJerkShare(
                   Math.min(
                     1,
                     Math.max(

@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
 import { type resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
@@ -19,7 +19,7 @@ export function pianoScoreHand(
     return {
       note: final,
       previous: undefined,
-      transport: 1 - minimumJerk.share(Math.min(1, share)),
+      transport: 1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, share)),
     };
   }
 

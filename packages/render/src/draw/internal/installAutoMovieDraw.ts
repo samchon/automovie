@@ -257,9 +257,9 @@ async function drawCall(
   }
   const resolveAt: (
     at: number,
-  ) => AutoMovieRenderInspectionCamera.ResolveView.IResult = (
+  ) => AutoMovieRenderInspectionCamera.IResolveViewResult = (
     at: number,
-  ): AutoMovieRenderInspectionCamera.ResolveView.IResult =>
+  ): AutoMovieRenderInspectionCamera.IResolveViewResult =>
     AutoMovieRenderInspectionCamera.resolveView({
       view,
       text: call.view,

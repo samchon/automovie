@@ -18,7 +18,7 @@ import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
 import { initialPhysicalContactTargets } from "./initialPhysicalContactTargets";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
-import { linearizePhysicalSeparation } from "../linearizePhysicalSeparation";
+import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 import { physicalContactBindingRows } from "./physicalContactBindingRows";
 import { physicalContactSupportRows } from "./physicalContactSupportRows";
 import { physicalPointProjection } from "./physicalPointProjection";
@@ -190,7 +190,7 @@ export function preparePhysicalContactTargetRows(
         const model: (
           first: IAutoMovieRigidTransform,
           second: IAutoMovieRigidTransform,
-        ) => number = linearizePhysicalSeparation(
+        ) => number = AutoMovieEnginePhysics.linearizePhysicalSeparation(
           input.geometry,
           collider(pair.a, poses),
           collider(pair.b, poses),

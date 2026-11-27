@@ -2,7 +2,7 @@ import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -229,11 +229,11 @@ export function stuntFallStairs(
             Math.cos(
               2 * Math.PI * Math.max(0, Math.min(1, (t - FALL) / (end - FALL))),
             );
-    const into: number = minimumJerk.share(Math.min(1, t / FALL));
+    const into: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / FALL));
     // On its back the body lies along the flight, the head uphill, so it is
     // its back that rests on the nosings and not its heels a leg further
     // down; it lies level again over the run to the floor.
-    const level: number = minimumJerk.share(
+    const level: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.max(0, Math.min(1, (t - times.at(-2)!) / (end - times.at(-2)!))),
     );
     const tilt: number = p.slide === true ? 0 : slope * (1 - level);

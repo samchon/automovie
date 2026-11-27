@@ -3,7 +3,7 @@ import type { IAutoMovieRenderReport } from "./IAutoMovieRenderReport.js";
 
 /**
  * A declared render-cost report paired with actual submitted-work observations.
- * auditAutoMovieRenderObservation compares observable metrics only; a null
+ * AutoMovieRenderBudgetPreflight.auditObservation compares observable metrics only; a null
  * observation cannot establish agreement and no pixel quality or
  * released-memory claim follows.
  */

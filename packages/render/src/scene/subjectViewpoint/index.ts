@@ -1,5 +1,6 @@
 export * from "./AutoMovieViewerSubjectKind.js";
 export * from "./IAutoMovieViewerSubject.js";
+export * from "./IAutoMovieUpdateComparisonCameraProps.js";
 export * from "./IAutoMovieViewerSubjectBounds.js";
 export * from "./IAutoMovieViewerViewpoint.js";
 export * from "./IAutoMovieViewerSubjectLens.js";
@@ -12,7 +13,6 @@ export * from "./IAutoMovieViewerSubjectViewRequest.js";
 
 
 
-export * from "./autoMovieViewerPoseFromHeading.js";
 
 
 

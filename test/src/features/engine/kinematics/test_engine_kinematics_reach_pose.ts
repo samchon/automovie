@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, prepareSkeletonPoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, AutoMovieEngineSkeletonPose } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -15,7 +15,7 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 /**
  * `reachPose(skeleton, side, target)` poses an arm so the hand lands on the
  * target, the elbow turning only about its flexion axis, and extends the arm
- * toward an unreachable target; `prepareSkeletonPoseResolution` is the prepared
+ * toward an unreachable target; `AutoMovieEngineSkeletonPose.prepareSkeletonPoseResolution` is the prepared
  * forward kinematics the pose is read back through.
  *
  * Fixture: the average adult body (`humanFixtureBody`), resolved with the
@@ -108,7 +108,7 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   );
 
   // 5.
-  const rig = prepareSkeletonPoseResolution(
+  const rig = AutoMovieEngineSkeletonPose.prepareSkeletonPoseResolution(
     skeleton,
     axes,
     HUMANOID_REST_FRAME,
@@ -116,7 +116,7 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   TestValidator.equals("prepared pose", rig.resolve(pose), resolve(pose));
   TestValidator.equals(
     "prepared rest",
-    prepareSkeletonPoseResolution.rest(rig),
+    AutoMovieEngineSkeletonPose.preparedSkeletonRest(rig),
     rest,
   );
 }

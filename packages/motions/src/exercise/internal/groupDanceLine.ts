@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -144,7 +144,7 @@ export namespace groupDanceLine {
         c + 7,
         home,
         (t: number): IAutoMovieMotionHumanFoot.IPlacement => {
-          const s: number = minimumJerk.share(
+          const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(
             Math.max(0, Math.min(1, (t - from) / (to - from))),
           );
           return s <= 0
@@ -192,7 +192,7 @@ export namespace groupDanceLine {
           else if (t > turn.from)
             yaw =
               turn.yaw +
-              90 * minimumJerk.share((t - turn.from) / (turn.to - turn.from));
+              90 * AutoMovieEngineMotionSampling.minimumJerkShare((t - turn.from) / (turn.to - turn.from));
         return yaw;
       },
       joints: (): IAutoMovieMotionHumanPosture["joints"] => arms,

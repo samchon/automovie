@@ -20,7 +20,7 @@ import { reachesXpbdJointBound } from "./reachesXpbdJointBound";
 import { readXpbdJointCoordinate } from "./readXpbdJointCoordinate";
 import { readXpbdJointDirections } from "./readXpbdJointDirections";
 import { readXpbdJointRelation } from "./readXpbdJointRelation";
-import { solveXpbdArticulation } from "../solveXpbdArticulation";
+import { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
 import type { solveXpbdContacts } from "../solveXpbdContacts";
 
 /**
@@ -48,20 +48,20 @@ export function respondXpbdArticulation(
   joints: readonly AutoMovieXpbdJoint[],
   contacts: readonly solveXpbdContacts.IContact[],
 ): IAutoMovieXpbdResponder {
-  const kept: solveXpbdArticulation.IForest =
-    solveXpbdArticulation.forest(joints);
+  const kept: AutoMovieXpbdArticulation.IForest =
+    AutoMovieXpbdArticulation.forest(joints);
 
   // Each tree a contact touches, prepared once for the pass by its root, and
   // each of its bodies' root.
-  const prepared: Map<solveXpbdArticulation.INode, IPrepared | null> =
+  const prepared: Map<AutoMovieXpbdArticulation.INode, IPrepared | null> =
     new Map();
-  const owners: Map<AutoMovieXpbdBody, solveXpbdArticulation.INode> = new Map();
+  const owners: Map<AutoMovieXpbdBody, AutoMovieXpbdArticulation.INode> = new Map();
   for (const contact of contacts)
     for (const body of [contact.a.body, contact.b.body]) {
-      const node: solveXpbdArticulation.INode | undefined =
+      const node: AutoMovieXpbdArticulation.INode | undefined =
         kept.nodes.get(body);
       if (node === undefined || !body.dynamic) continue;
-      const top: solveXpbdArticulation.INode = solveXpbdArticulation.root(node);
+      const top: AutoMovieXpbdArticulation.INode = AutoMovieXpbdArticulation.root(node);
       if (prepared.has(top)) continue;
       const tree: IPrepared | null = prepare(top);
       prepared.set(top, tree);
@@ -70,7 +70,7 @@ export function respondXpbdArticulation(
     }
   return {
     has: (body: AutoMovieXpbdBody): boolean => {
-      const top: solveXpbdArticulation.INode | undefined = owners.get(body);
+      const top: AutoMovieXpbdArticulation.INode | undefined = owners.get(body);
       return body.dynamic && top !== undefined && prepared.get(top) !== null;
     },
     respond: (
@@ -121,9 +121,9 @@ interface IRelation {
 }
 
 /** Build and factor one tree for a position pass; none when singular. */
-function prepare(top: solveXpbdArticulation.INode): IPrepared | null {
+function prepare(top: AutoMovieXpbdArticulation.INode): IPrepared | null {
   const joints: AutoMovieXpbdJoint[] = [];
-  const tree: AutoMovieXpbdArticulation.ITree = solveXpbdArticulation.build(
+  const tree: AutoMovieXpbdArticulation.ITree = AutoMovieXpbdArticulation.build(
     top,
     joints,
   );
@@ -158,15 +158,15 @@ function prepare(top: solveXpbdArticulation.INode): IPrepared | null {
  * row's generalised inverse mass read from the sum.
  */
 function respond(
-  prepared: Map<solveXpbdArticulation.INode, IPrepared | null>,
-  owners: ReadonlyMap<AutoMovieXpbdBody, solveXpbdArticulation.INode>,
+  prepared: Map<AutoMovieXpbdArticulation.INode, IPrepared | null>,
+  owners: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdArticulation.INode>,
   impulses: readonly IAutoMovieXpbdPointImpulse[],
 ): IAutoMovieXpbdPointResponse | null {
   // Each impulse's tree; a body no prepared tree holds has none.
-  const tops: solveXpbdArticulation.INode[] = [];
+  const tops: AutoMovieXpbdArticulation.INode[] = [];
   const ready: IPrepared[] = [];
   for (const impulse of impulses) {
-    const top: solveXpbdArticulation.INode | undefined = owners.get(
+    const top: AutoMovieXpbdArticulation.INode | undefined = owners.get(
       impulse.body,
     );
     if (top === undefined) return null;
@@ -179,7 +179,7 @@ function respond(
     (impulse: IAutoMovieXpbdPointImpulse, i: number): number =>
       ready[i]!.index.get(impulse.body)!,
   );
-  const moves: Map<solveXpbdArticulation.INode, IMove> = new Map();
+  const moves: Map<AutoMovieXpbdArticulation.INode, IMove> = new Map();
   impulses.forEach((impulse: IAutoMovieXpbdPointImpulse, i: number): void => {
     const response: AutoMovieXpbdArticulation.IResponse =
       AutoMovieXpbdArticulation.propagate(
@@ -233,8 +233,8 @@ function respond(
  * for the rest of the pass. True when any axis was newly held.
  */
 function limit(
-  prepared: Map<solveXpbdArticulation.INode, IPrepared | null>,
-  moves: ReadonlyMap<solveXpbdArticulation.INode, IMove>,
+  prepared: Map<AutoMovieXpbdArticulation.INode, IPrepared | null>,
+  moves: ReadonlyMap<AutoMovieXpbdArticulation.INode, IMove>,
   scale: number,
 ): boolean {
   let held: boolean = false;

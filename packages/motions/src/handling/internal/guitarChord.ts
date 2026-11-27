@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -148,7 +148,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const pass: IAutoMovieVector3 = Vector3.subtract(second, first);
 
   // A symmetric extension makes one minimum-jerk stroke cross at both time thirds.
-  const firstShare: number = minimumJerk.share(1 / 3);
+  const firstShare: number = AutoMovieEngineMotionSampling.minimumJerkShare(1 / 3);
   const extension: number = firstShare / (1 - 2 * firstShare);
   const overrun: IAutoMovieVector3 = Vector3.scale(pass, extension);
   if (

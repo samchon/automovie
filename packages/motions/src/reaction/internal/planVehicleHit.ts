@@ -1,23 +1,5 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanLieDown,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanVehicleHit,
-  IAutoMovieQuaternion,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanVehicleHit, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { lieDown } from "../../floor/internal/lieDown";
 import { createHumanPostureRotation } from "../../posture/internal/createHumanPostureRotation";
@@ -126,7 +108,7 @@ export function planVehicleHit(
   // The class reads the body's centre of mass against the leading edge.
   const centre: IAutoMovieVector3 = vehicleFront.local(
     struck,
-    resolveAutoMovieCenterOfMass.place(
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
       body.massModel,
       poseBones(body, context.entry.pose),
     ),
@@ -378,7 +360,7 @@ export function planVehicleHit(
     // slides to rest on it.
     if (t < land) {
       const tau: number = t - leave;
-      const w: number = minimumJerk.share(flight > 0 ? tau / flight : 1);
+      const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(flight > 0 ? tau / flight : 1);
       const shape: IAutoMovieMotionHumanPosture["joints"] = blend(w);
       const turn: IAutoMovieQuaternion = Quaternion.slerp(qS, qLie, w);
       const offset: IAutoMovieVector3 = stuntFallPose.offset(body, bare(shape));

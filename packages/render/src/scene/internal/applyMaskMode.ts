@@ -5,10 +5,10 @@ import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.j
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
 import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
 import { type IAutoMovieFormationCycle, AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
-import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
-import { maskColor } from "../maskColor.js";
+import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
+import { AutoMovieRenderSemanticMask } from "../semanticMask/index.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Per-top-level-node flat colors on a black background.
@@ -68,7 +68,7 @@ export const applyMaskMode: (
         let material: THREE.Material<THREE.MaterialEventMap> | undefined =
           byMethod.get(dual);
         if (material === undefined) {
-          material = new THREE.MeshBasicMaterial({ color: maskColor(index) });
+          material = new THREE.MeshBasicMaterial({ color: AutoMovieRenderSemanticMask.colorForIndex(index) });
           if (cycle !== null) AutoMovieRenderFormationCycle.applyFormationCycleMaterial(material, cycle);
           if (dual) AutoMovieRenderDualQuaternionSkinning.apply(material);
           byMethod.set(dual, material);

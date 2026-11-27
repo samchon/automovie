@@ -1,4 +1,4 @@
-import { Quaternion, physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
@@ -77,20 +77,20 @@ export function QuadrupedRestFloor(
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   if (shape.type === "sphere")
-    return physicalShapeBounds(placement, {
+    return AutoMovieEnginePhysics.physicalShapeBounds(placement, {
       ...base,
       kind: "sphere",
       radius: shape.radius,
     }).min.y;
   if (shape.type === "capsule")
-    return physicalShapeBounds(placement, {
+    return AutoMovieEnginePhysics.physicalShapeBounds(placement, {
       ...base,
       kind: "capsule",
       radius: shape.radius,
       halfLength: shape.height / 2,
     }).min.y;
   if (shape.type === "box")
-    return physicalShapeBounds(placement, {
+    return AutoMovieEnginePhysics.physicalShapeBounds(placement, {
       ...base,
       kind: "box",
       halfExtents: {

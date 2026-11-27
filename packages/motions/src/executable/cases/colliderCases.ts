@@ -1,8 +1,8 @@
 import {
   Quaternion,
   Vector3,
-  physicalHullFaces,
-  physicalShapeSegmentDistance,
+  AutoMoviePhysicalHullFaces,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
@@ -13,10 +13,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  type AutoMovieHumanPolygon,
-  buildHumanPolygon,
-} from "@automovie/render";
+import { AutoMovieHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -67,7 +64,7 @@ export function* colliderCases(
     if (only !== undefined && !only(`colliders-${name}`)) continue;
     const body: IAutoMovieHumanCanonicalBody.IBody =
       MotionBodies.population(name).body;
-    const drawing: AutoMovieHumanPolygon.IDrawing = buildHumanPolygon(
+    const drawing: AutoMovieHumanPolygon.IDrawing = AutoMovieHumanPolygon.build(
       AutoMovieHumanCanonicalBody.display(body),
     );
     const meshes: IMesh[] = [];
@@ -131,7 +128,7 @@ export function* colliderCases(
         Math.min(
           ...segment.shapes.map((shape: IAutoMoviePhysicalShape): number =>
             Math.abs(
-              physicalShapeSegmentDistance(segment.neutral, shape, p, p),
+              AutoMovieEnginePhysics.physicalShapeSegmentDistance(segment.neutral, shape, p, p),
             ),
           ),
         );
@@ -143,7 +140,7 @@ export function* colliderCases(
           0,
           Math.min(
             ...segment.shapes.map((shape: IAutoMoviePhysicalShape): number =>
-              physicalShapeSegmentDistance(segment.neutral, shape, p, p),
+              AutoMovieEnginePhysics.physicalShapeSegmentDistance(segment.neutral, shape, p, p),
             ),
           ),
         );
@@ -286,7 +283,7 @@ function samples(
     out.push(new THREE.Vector3(p.x, p.y, p.z));
   };
   if (shape.kind === "hull") {
-    for (const face of physicalHullFaces(shape.points).faces) {
+    for (const face of AutoMoviePhysicalHullFaces.build(shape.points).faces) {
       let middle: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (const p of face.loop)
         middle = Vector3.add(middle, Vector3.scale(p, 1 / face.loop.length));

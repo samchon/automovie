@@ -2,7 +2,7 @@ import {
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -314,10 +314,10 @@ export namespace legTouch {
     ): IAutoMovieMotionHumanPosture => {
       const s: number =
         t < reach
-          ? minimumJerk.share(t / reach)
+          ? AutoMovieEngineMotionSampling.minimumJerkShare(t / reach)
           : t <= relax
             ? 1
-            : 1 - minimumJerk.share((t - relax) / reach);
+            : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - relax) / reach);
       return moved(
         base.posture(t, undefined, source, nativeProjection),
         Vector3.scale(shift, s),

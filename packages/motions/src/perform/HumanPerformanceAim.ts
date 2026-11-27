@@ -1,20 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformanceAim,
-  IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionTarget,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceAim, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanSegment, IAutoMovieMotionTarget, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -103,8 +88,8 @@ export namespace HumanPerformanceAim {
         // two performers aiming at each other would each read the posture
         // still being solved.
         const placed: ReturnType<
-          typeof resolveAutoMovieHumanoidSurfaces.place
-        > = resolveAutoMovieHumanoidSurfaces.place(
+          typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace
+        > = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           region,
           HumanPerformanceRead.bones(
             self,
@@ -131,8 +116,8 @@ export namespace HumanPerformanceAim {
             fix: "aim at one of the regions the body declares",
           });
         const placed: ReturnType<
-          typeof resolveAutoMovieHumanoidSurfaces.place
-        > = resolveAutoMovieHumanoidSurfaces.place(
+          typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace
+        > = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           region,
           frame.bones(new Set([region.bone])).get(region.bone)!,
         );

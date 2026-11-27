@@ -3,7 +3,7 @@ import {
   AutoMovieXpbdWorld,
   Quaternion,
   Vector3,
-  accumulatePhysicalMotorTorques,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSegment,
@@ -94,7 +94,7 @@ export async function test_engine_physics_accumulate_physical_contact_carrier():
         const sign: number = reverse ? -1 : 1;
         for (const carrier of ["carrier", "source"]) {
           const torques: Map<string, V> = new Map();
-          accumulatePhysicalMotorTorques({
+          AutoMovieEnginePhysics.accumulatePhysicalMotorTorques({
             profile,
             segments,
             chain: ["carrier", "source"],

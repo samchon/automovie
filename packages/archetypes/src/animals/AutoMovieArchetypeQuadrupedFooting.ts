@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -359,7 +359,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         );
         for (const pole of poles)
           if (
-            physicalShapeSegmentDistance(
+            AutoMovieEnginePhysics.physicalShapeSegmentDistance(
               {
                 position: { x: 0, y: 0, z: 0 },
                 rotation: Quaternion.identity(),

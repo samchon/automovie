@@ -2,7 +2,7 @@ import {
   Quaternion,
   RigidCarrierSample,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -264,7 +264,7 @@ export namespace HumanRide {
         const now: IAutoMovieRigidTransform = support.frame(film);
         const sample: RigidCarrierSample.IRead | undefined =
           RigidCarrierSample.playback(support.prop)?.sample(film);
-        const taken: number = minimumJerk.share(Math.min(1, at / TAKE));
+        const taken: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, at / TAKE));
         const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(
           film,
           now,

@@ -1,3 +1,6 @@
+import type { IObserveAutoMoviePlacedSceneResult } from "../IObserveAutoMoviePlacedSceneResult.js";
+import type { IObserveAutoMoviePlacedSceneProps } from "../IObserveAutoMoviePlacedSceneProps.js";
+import type { IObserveAutoMoviePlacedSceneCheck } from "../IObserveAutoMoviePlacedSceneCheck.js";
 import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
@@ -7,17 +10,16 @@ import type {
 import type { Matrix4, Object3D } from "three";
 
 import type { IAutoMoviePlacedObligation } from "../IAutoMoviePlacedObligation.js";
-import type { IObserveAutoMoviePlacedScene } from "../IObserveAutoMoviePlacedScene.js";
 import { inspectAutoMovieNativePlacement } from "./inspectAutoMovieNativePlacement.js";
 import { measureAutoMoviePlacedObligation } from "./measureAutoMoviePlacedObligation.js";
 
-type IReport = IObserveAutoMoviePlacedScene.IResult;
+type IReport = IObserveAutoMoviePlacedSceneResult;
 type IFinding = IAutoMovieInspectionDiagnostics.IFinding;
 type ICoverage = IAutoMovieInspectionDiagnostics.ICoverage;
 type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
 type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
 type ITime = IAutoMovieInspectionDiagnostics.ITime;
-type IInput = IObserveAutoMoviePlacedScene.ICheck["input"];
+type IInput = IObserveAutoMoviePlacedSceneCheck["input"];
 type IIdentity = {
   readonly check: string;
   readonly key: string;
@@ -66,7 +68,7 @@ const SOURCE_CHECKS: readonly string[] = [
  * names repeat.
  */
 export function observeAutoMoviePlacedSceneImplementation(
-  props: IObserveAutoMoviePlacedScene.IProps,
+  props: IObserveAutoMoviePlacedSceneProps,
 ): IReport {
   const { scene, camera, physicalFrame, checks, time } = props;
   const findings: IFinding[] = [];
@@ -158,11 +160,11 @@ export function observeAutoMoviePlacedSceneImplementation(
  * unsupported with the producer's reason when the pair was unobservable.
  */
 function receivedCoverage(
-  rule: IObserveAutoMoviePlacedScene.ICheck,
+  rule: IObserveAutoMoviePlacedSceneCheck,
   check: string,
   time: ITime | undefined,
 ): ICoverage | undefined {
-  const touch: IObserveAutoMoviePlacedScene.ICheck["observedContact"] =
+  const touch: IObserveAutoMoviePlacedSceneCheck["observedContact"] =
     rule.observedContact;
   if (touch === undefined || touch.seconds !== time?.filmSeconds)
     return undefined;
@@ -183,10 +185,10 @@ function receivedCoverage(
  */
 function withReceivedContact(
   witness: IWitness,
-  rule: IObserveAutoMoviePlacedScene.ICheck,
+  rule: IObserveAutoMoviePlacedSceneCheck,
   time: ITime | undefined,
 ): IWitness {
-  const touch: IObserveAutoMoviePlacedScene.ICheck["observedContact"] =
+  const touch: IObserveAutoMoviePlacedSceneCheck["observedContact"] =
     rule.observedContact;
   if (touch === undefined || touch.seconds !== time?.filmSeconds)
     return witness;

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
-import type { createScenicContainer } from "./createScenicContainer";
+import type { createScenicContainer } from "./internal/createScenicContainer";
 
 /** Middle Kingdom basket with a fitted lid, used as a silhouette reference. */
 const COIL: string =

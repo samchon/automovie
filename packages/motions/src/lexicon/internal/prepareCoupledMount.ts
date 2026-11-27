@@ -1,19 +1,6 @@
-import { Quaternion, Vector3, physicalShapeBounds, physicalShapeContactManifold, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanBodyFitTypes,
-  IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePhysicalShape,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { sitPlace } from "../../everyday/internal/sitPlace";
 import { HumanPropFrame } from "../../perform/HumanPropFrame";
@@ -140,7 +127,7 @@ export function prepareCoupledMount(
     }));
   // Keep each whole tread as an obstacle. Only its top layer can hold a foot.
   const treadSurfaces = treads.map(({ frame, plate }) => {
-    const { min, max } = physicalShapeBounds(plate.pose, plate.shape);
+    const { min, max } = AutoMovieEnginePhysics.physicalShapeBounds(plate.pose, plate.shape);
     const depth = Math.min(max.y - min.y, prepareCoupledMount.PRECISION);
     return {
       subject: support.subject,
@@ -234,7 +221,7 @@ export function prepareCoupledMount(
     subjectBones,
   );
   const pelvisFrame: IAutoMovieRigidTransform = {
-    position: resolveAutoMovieHumanoidSurfaces.point(
+    position: AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
       seatSocket,
       bones.get(seatSocket.bone)!,
     ),
@@ -475,7 +462,7 @@ function bearingPoints(
   const points: IAutoMovieVector3[] = [];
   for (const actor of actors)
     for (const shape of actor.shapes)
-      for (const { pointA, pointB } of physicalShapeContactManifold(
+      for (const { pointA, pointB } of AutoMovieEnginePhysics.physicalShapeContactManifold(
         actor.pose,
         shape,
         owner,
@@ -562,8 +549,8 @@ function tread(
         item: IAutoMoviePhysicalShape,
       ): item is Extract<IAutoMoviePhysicalShape, { kind: "box" }> => {
         if (item.kind !== "box") return false;
-        const { min, max }: ReturnType<typeof physicalShapeBounds> =
-          physicalShapeBounds(local, item);
+        const { min, max }: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds> =
+          AutoMovieEnginePhysics.physicalShapeBounds(local, item);
         return (
           Math.abs(min.x + width / 2) <= precision &&
           Math.abs(max.x - width / 2) <= precision &&
@@ -607,7 +594,7 @@ function admitted(
     Quaternion.inverse(frame.rotation),
     Vector3.subtract(witness.pointB, frame.position),
   );
-  const { min, max } = physicalShapeBounds(plate.pose, plate.shape);
+  const { min, max } = AutoMovieEnginePhysics.physicalShapeBounds(plate.pose, plate.shape);
   const top = {
     x: Math.max(min.x, Math.min(max.x, local.x)),
     y: max.y,

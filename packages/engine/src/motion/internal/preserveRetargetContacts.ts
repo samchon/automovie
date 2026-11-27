@@ -15,15 +15,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { indexSkeletonTopology } from "../../kinematics/indexSkeletonTopology";
+import { indexSkeletonTopology } from "../../kinematics/internal/indexSkeletonTopology";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { reachableBoneNames } from "../../kinematics/internal/reachableBoneNames";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { Vector3 } from "../../math/Vector3";
 import { groundFunction } from "../../space/internal/groundFunction";
 import { HUMANOID_LEG_CHAINS } from "../constants/HUMANOID_LEG_CHAINS";
-import { contactMask } from "../contactMask";
-import { fitSeededChainToTarget } from "../fitSeededChainToTarget";
+import { contactMask } from "./contactMask";
+import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 
 /** Only the actual FK position is observed by contact classification/correction. */
 type IPoint = Pick<IAutoMovieResolvedBone, "worldPosition">;

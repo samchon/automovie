@@ -1,4 +1,4 @@
-import { Vector3, physicalShapePairDistance } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -83,7 +83,7 @@ export namespace lieTogetherReach {
             for (const b of y.shapes)
               least = Math.min(
                 least,
-                physicalShapePairDistance(pose, a, y.pose, b),
+                AutoMovieEnginePhysics.physicalShapePairDistance(pose, a, y.pose, b),
               );
       }
       return least;

@@ -7,7 +7,7 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { prepareLinearSystem } from "../../math/prepareLinearSystem";
+import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
 import { AutoMovieXpbdMath } from "../AutoMovieXpbdMath";
@@ -16,7 +16,7 @@ import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { readXpbdJointCoordinate } from "./readXpbdJointCoordinate";
 import { readXpbdJointDirections } from "./readXpbdJointDirections";
-import type { solveXpbdArticulation } from "../solveXpbdArticulation";
+import type { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
 
 /**
  * The joints' position pass over one articulation at once: every joint's anchor
@@ -59,10 +59,10 @@ export namespace solveXpbdJointTree {
   /**
    * Project one tree's joints onto their anchors and admitted rotations.
    *
-   * @param top The tree's root node (`solveXpbdArticulation.forest`).
+   * @param top The tree's root node (`AutoMovieXpbdArticulation.forest`).
    * @param h The substep, seconds.
    */
-  export function project(top: solveXpbdArticulation.INode, h: number): void {
+  export function project(top: AutoMovieXpbdArticulation.INode, h: number): void {
     const order: IVisit[] = visit(top);
     if (order.length === 0) return;
     for (let iteration: number = 0; iteration < ITERATIONS; ++iteration) {
@@ -110,11 +110,11 @@ export namespace solveXpbdJointTree {
 }
 
 /** The tree's joints, parents before children. */
-function visit(top: solveXpbdArticulation.INode): solveXpbdJointTree.IVisit[] {
+function visit(top: AutoMovieXpbdArticulation.INode): solveXpbdJointTree.IVisit[] {
   const out: solveXpbdJointTree.IVisit[] = [];
-  const stack: solveXpbdArticulation.INode[] = [top];
+  const stack: AutoMovieXpbdArticulation.INode[] = [top];
   while (stack.length !== 0) {
-    const node: solveXpbdArticulation.INode = stack.pop()!;
+    const node: AutoMovieXpbdArticulation.INode = stack.pop()!;
     for (const next of node.children) {
       out.push({ joint: next.edge!, parent: node.body, child: next.body });
       stack.push(next);
@@ -230,7 +230,7 @@ function inverse(
   basis: readonly IAutoMovieVector3[],
 ): IAutoMovieVector3[] | null {
   const solve: ((right: readonly number[]) => number[]) | null =
-    prepareLinearSystem([
+    AutoMovieEngineMath.prepareLinearSystem([
       [basis[0]!.x, basis[0]!.y, basis[0]!.z],
       [basis[1]!.x, basis[1]!.y, basis[1]!.z],
       [basis[2]!.x, basis[2]!.y, basis[2]!.z],
@@ -251,7 +251,7 @@ function inverse(
  * back-substituted, with its decrement; none when a block is singular.
  */
 function solve(
-  top: solveXpbdArticulation.INode,
+  top: AutoMovieXpbdArticulation.INode,
   order: readonly solveXpbdJointTree.IVisit[],
   rows: readonly solveXpbdJointTree.IJointRows[],
 ): solveXpbdJointTree.IStep | null {
@@ -297,7 +297,7 @@ function solve(
   for (let i: number = nodes.length - 1; i >= 0; --i) {
     const node: INode = nodes[i]!;
     const factor: ((right: readonly number[]) => number[]) | null =
-      prepareLinearSystem(node.matrix);
+      AutoMovieEngineMath.prepareLinearSystem(node.matrix);
     if (factor === null) return null;
     solves[i] = factor;
     if (node.parent < 0) continue;
@@ -398,7 +398,7 @@ function mass(body: AutoMovieXpbdBody): number[][] {
     body.frozen.slice(6, 9),
   ];
   const solveInverse: ((right: readonly number[]) => number[]) | null =
-    prepareLinearSystem(inverse);
+    AutoMovieEngineMath.prepareLinearSystem(inverse);
   const columns: number[][] =
     solveInverse === null
       ? [

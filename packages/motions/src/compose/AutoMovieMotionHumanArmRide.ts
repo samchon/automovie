@@ -1,8 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeNormal,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -107,7 +106,7 @@ export namespace AutoMovieMotionHumanArmRide {
     );
     let least: number = Infinity;
     for (const shape of segment?.shapes ?? []) {
-      const d: number = physicalShapeSegmentDistance(
+      const d: number = AutoMovieEnginePhysics.physicalShapeSegmentDistance(
         segment!.pose,
         shape,
         point,
@@ -115,7 +114,7 @@ export namespace AutoMovieMotionHumanArmRide {
       );
       if (d < least) {
         least = d;
-        normal = physicalShapeNormal(segment!.pose, shape, point, normal);
+        normal = AutoMovieEnginePhysics.physicalShapeNormal(segment!.pose, shape, point, normal);
       }
     }
     return {

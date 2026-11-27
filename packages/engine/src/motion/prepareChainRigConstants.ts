@@ -7,7 +7,6 @@ import type {
   IAutoMovieJointRotationDomain,
   IAutoMovieJointRotationFrame,
   IAutoMoviePrepareChainRigConstants,
-  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
   IAutoMovieRestFrame,
 } from "@automovie/interface";
@@ -15,17 +14,17 @@ import type {
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { hingedArmSpan } from "../kinematics/internal/hingedArmSpan";
-import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
-import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
+import { prepareJointRomOvershoot } from "../kinematics/internal/prepareJointRomOvershoot";
+import { jointToQuaternionOnBasis } from "../kinematics/internal/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { skeletonJointAxes } from "../kinematics/internal/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
-import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
 import { getConstraint } from "../rom/internal/getConstraint";
-import { scanJointRom } from "../rom/scanJointRom";
-import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
-import { solveDistalTwist } from "./solveDistalTwist";
+import { AutoMovieEngineJointRomScan } from "../rom/internal/AutoMovieEngineJointRomScan";
+import { AutoMovieEngineMotionJointProjection } from "./AutoMovieEngineMotionJointProjection";
+import { AutoMovieEngineMotionDistalTwist } from "./AutoMovieEngineMotionDistalTwist";
 
 /** One chain joint's rig-only members, prepared with the rig. */
 interface IJoint {
@@ -87,8 +86,8 @@ export function prepareChainRigConstants(
     IAutoMovieFitChainToTargetProps,
     "skeleton" | "chain" | "jointAxes" | "restFrames"
   >,
-  fixed: prepareChainRigConstants.IFixed | null,
-): prepareChainRigConstants.IRig {
+  fixed: IAutoMoviePrepareChainRigConstants.IFixed | null,
+): IAutoMoviePrepareChainRigConstants.IRig {
   const recordOf = (bone: AutoMovieHumanoidBone): IAutoMovieBone | undefined =>
     props.skeleton.bones.find(
       (candidate: IAutoMovieBone): boolean => candidate.bone === bone,
@@ -146,14 +145,17 @@ export function prepareChainRigConstants(
         basisOf(bone, "jointToQuaternion axes"),
         frame,
       ),
-      clamp: clampJointToSkeleton.resolved(
+      clamp: AutoMovieEngineKinematics.clampJointToSkeletonResolved(
         bone,
         record,
         (): IAutoMovieJointRotationFrame | undefined =>
           rangeOf(bone, domain, clampAxes[bone]),
       ),
-      overshoot: jointRomOvershoot.prepare(bone, domain.constraint),
-      rotatedOvershoot: scanJointRom.prepareRotated(bone, domain.constraint),
+      overshoot: prepareJointRomOvershoot(bone, domain.constraint),
+      rotatedOvershoot: AutoMovieEngineJointRomScan.prepareRotatedJointRomScan(
+        bone,
+        domain.constraint,
+      ),
     };
   };
   const joints: IJoint[] = [
@@ -170,15 +172,15 @@ export function prepareChainRigConstants(
     jointOf(props.chain.effector).record?.rest.rotation ??
     Quaternion.identity();
   const effector: IJoint = jointOf(props.chain.effector);
-  const project: ReturnType<typeof prepareJointRotationProjection> =
-    prepareJointRotationProjection({
+  const project: ReturnType<typeof AutoMovieEngineMotionJointProjection.prepare> =
+    AutoMovieEngineMotionJointProjection.prepare({
       domain: effector.domain,
       basis: effector.basis,
       frame: props.restFrames?.[props.chain.effector],
       clamp: effector.clamp,
     });
-  const distal: ReturnType<typeof solveDistalTwist.prepare> =
-    solveDistalTwist.prepare({
+  const distal: ReturnType<typeof AutoMovieEngineMotionDistalTwist.prepare> =
+    AutoMovieEngineMotionDistalTwist.prepare({
       effectorRest,
       effectorBasis: effector.basis,
       effectorFrame: props.restFrames?.[props.chain.effector],
@@ -189,7 +191,7 @@ export function prepareChainRigConstants(
     jointOf(props.chain.upper).domain,
     HUMANOID_JOINT_AXES[props.chain.upper],
   );
-  const rig: prepareChainRigConstants.IRig = {
+  const rig: IAutoMoviePrepareChainRigConstants.IRig = {
     span:
       fixed === null
         ? hingedArmSpan.empty()
@@ -238,34 +240,14 @@ export function prepareChainRigConstants(
       bone: AutoMovieHumanoidBone,
     ): ((rotation: IAutoMovieQuaternion) => number) | null =>
       jointOf(bone).rotatedOvershoot,
-    effectorProjection: (): ReturnType<typeof prepareJointRotationProjection> =>
+    effectorProjection: (): ReturnType<typeof AutoMovieEngineMotionJointProjection.prepare> =>
       project,
     effectorRestInverse: (): IAutoMovieQuaternion => restInverse,
-    distalTwist: (): ReturnType<typeof solveDistalTwist.prepare> => distal,
+    distalTwist: (): ReturnType<typeof AutoMovieEngineMotionDistalTwist.prepare> => distal,
     hingeRange: (
       read: () => { min: number; max: number } | null,
     ): { min: number; max: number } | null => read(),
     upperRange,
   };
   return rig;
-}
-
-/** The records of {@link prepareChainRigConstants}. */
-export namespace prepareChainRigConstants {
-  /**
-   * The pose-independent records of a chain that the readers read: its two
-   * joints' domains and its fixed lower-to-effector rotation.
-   */
-  export type IFixed = Pick<
-    IAutoMoviePreparedChainPlant,
-    | "upperDomain"
-    | "lowerDomain"
-    | "effectorBaseRotation"
-    | "lowerOffset"
-    | "lowerRotation"
-    | "effectorOffset"
-  >;
-
-  /** The interface contract (`IAutoMoviePrepareChainRigConstants.IRig`). */
-  export type IRig = IAutoMoviePrepareChainRigConstants.IRig;
 }

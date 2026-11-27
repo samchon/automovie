@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
@@ -66,7 +66,7 @@ export class HumanMountedTimeline {
     const span: number = this.arrivals[index]! - this.starts[index]!;
     return {
       index,
-      share: minimumJerk.share(
+      share: AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.max(0, Math.min(1, (at - this.starts[index]!) / span)),
       ),
     };

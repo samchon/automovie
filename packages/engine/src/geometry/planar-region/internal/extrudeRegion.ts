@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { emptyMeshTarget } from "../../internal/emptyMeshTarget";
-import { positive } from "../../positive";
+import { positive } from "../../internal/positive";
 import { triangulateRegion } from "./triangulateRegion";
 
 /**

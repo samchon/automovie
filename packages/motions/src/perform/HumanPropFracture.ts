@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Quaternion, physicalShapeBounds, AutoMovieAir } from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, AutoMovieEnginePhysics, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieInteractionEvent,
   IAutoMovieMotionHumanObject,
@@ -85,7 +85,7 @@ function flight(
   const shapes: readonly IAutoMoviePhysicalShape[] = model.shapes?.() ?? [];
   let height: number = Infinity;
   for (const shape of shapes)
-    height = Math.min(height, physicalShapeBounds(frame, shape).min.y);
+    height = Math.min(height, AutoMovieEnginePhysics.physicalShapeBounds(frame, shape).min.y);
   if (!(height >= 0 && height < Infinity))
     throw new RangeError(
       "A departing fragment needs finite colliders on or above the floor at the fracture.",

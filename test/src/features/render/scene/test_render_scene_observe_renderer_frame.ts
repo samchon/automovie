@@ -1,8 +1,8 @@
-import { observeAutoMovieRendererFrame } from "@automovie/render";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `observeAutoMovieRendererFrame` counts the submissions of one drawn frame.
+ * `AutoMovieRenderInspection.observeRendererFrame` counts the submissions of one drawn frame.
  *
  * Scenarios:
  *
@@ -28,13 +28,16 @@ export function test_render_scene_observe_renderer_frame(): void {
     },
   };
   const seen: boolean[] = [];
-  const result = observeAutoMovieRendererFrame({ info }, (): string => {
-    seen.push(info.autoReset);
-    render.calls += 2;
-    render.triangles += 10;
-    render.calls += 1;
-    render.triangles += 4;
-    return "done";
+  const result = AutoMovieRenderInspection.observeRendererFrame({
+    renderer: { info },
+    draw: (): string => {
+      seen.push(info.autoReset);
+      render.calls += 2;
+      render.triangles += 10;
+      render.calls += 1;
+      render.triangles += 4;
+      return "done";
+    },
   });
   TestValidator.equals("output", result.output, "done");
   TestValidator.equals(
@@ -45,8 +48,11 @@ export function test_render_scene_observe_renderer_frame(): void {
   TestValidator.equals("reset disabled while drawing", seen, [false]);
   TestValidator.equals("restored", info.autoReset, true);
   TestValidator.error("throwing draw", (): void => {
-    observeAutoMovieRendererFrame({ info }, (): void => {
-      throw new Error("draw failed");
+    AutoMovieRenderInspection.observeRendererFrame({
+      renderer: { info },
+      draw: (): void => {
+        throw new Error("draw failed");
+      },
     });
   });
   TestValidator.equals("restored after throw", info.autoReset, true);

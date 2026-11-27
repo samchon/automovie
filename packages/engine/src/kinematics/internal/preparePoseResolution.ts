@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../constants/DEFAULT_JOINT_AXES";
-import { jointToQuaternionOnBasis } from "../jointToQuaternionOnBasis";
+import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { resolvePoseBone } from "./resolvePoseBone";
 
@@ -18,7 +18,7 @@ const READER: IReader = {
     axes: IAutoMovieJointAxes | undefined,
     frame: IAutoMovieRestFrame | undefined,
   ): IAutoMovieQuaternion =>
-    jointToQuaternionOnBasis(
+    jointToQuaternionOnBasis.run(
       joint,
       normalizeJointAxes(
         axes === undefined ? DEFAULT_JOINT_AXES : axes,

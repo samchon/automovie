@@ -8,7 +8,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { aimRotation } from "../../../kinematics/aimRotation";
+import { AutoMovieEngineKinematics } from "../../../kinematics/AutoMovieEngineKinematics";
 import { Transform } from "../../../math/Transform";
 
 /** A light aims its local `-Z`, the glTF camera and light convention. */
@@ -45,7 +45,7 @@ export function lowerLightPlacement(
     light.position ?? { x: 0, y: 0, z: 0 },
     light.direction === undefined
       ? identityRotation()
-      : aimRotation(FORWARD, light.direction),
+      : AutoMovieEngineKinematics.aimRotation(FORWARD, light.direction),
   );
   const color: IAutoMovieColor = light.color ?? {
     r: 1,

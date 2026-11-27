@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { aimRotation } from "../../kinematics/aimRotation";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { Quaternion } from "../../math/Quaternion";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { LIGHT_CHANNEL_PROPERTIES } from "../../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
@@ -94,7 +94,7 @@ export function compilePracticalLightMotion(
   );
   const emitterRotation: IAutoMovieQuaternion = Quaternion.multiply(
     emitter.frame.rotation,
-    aimRotation(SPOT_FORWARD, EMITTER_FORWARD),
+    AutoMovieEngineKinematics.aimRotation(SPOT_FORWARD, EMITTER_FORWARD),
   );
   const positions: number[] = [];
   const rotations: number[] = [];
@@ -118,7 +118,7 @@ export function compilePracticalLightMotion(
       const rotation: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(
           world.rotation,
-          Quaternion.multiply(aimRotation(forward, scaled), emitterRotation),
+          Quaternion.multiply(AutoMovieEngineKinematics.aimRotation(forward, scaled), emitterRotation),
         ),
       );
       rotations.push(rotation.x, rotation.y, rotation.z, rotation.w);

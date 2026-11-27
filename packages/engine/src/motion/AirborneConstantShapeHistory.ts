@@ -1,23 +1,16 @@
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBodyMomentum,
-  IAutoMovieIntegrateAirborneRotation,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
+import type { AutoMovieHumanoidBone, IAutoMovieBodyMomentum, IAutoMovieIntegrateAirborneRotation, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
 
-import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
-import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
+import { indexSkeletonTopology } from "../kinematics/internal/indexSkeletonTopology";
+
 import { resolveAutoMovieBoneRates } from "../kinematics/internal/resolveAutoMovieBoneRates";
-import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
+
 import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
 import { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
-import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
+import { AutoMoviePhysicalInertiaTensor } from "../physics/AutoMoviePhysicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
-import type { integrateAirborneRotation } from "./integrateAirborneRotation";
+import type { AutoMovieEngineMotionAirborneRotation } from "./AutoMovieEngineMotionAirborneRotation";
 
 /**
  * Construct a genuinely fixed root-frame shape from copied rig/bone values.
@@ -35,12 +28,12 @@ import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 export function AirborneConstantShapeHistory(
   model:
     | IAutoMovieResolveCenterOfMass.IModel
-    | prepareAutoMovieMassModel.IPrepared,
+    | AutoMovieEngineKinematics.IPreparedMassModel,
   skeleton: IAutoMovieSkeleton,
   source: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   span?: { from: number; to: number },
   observation?: AirborneShapeStatistics.IObserver,
-): integrateAirborneRotation.ICachedHistory | undefined {
+): AutoMovieEngineMotionAirborneRotation.ICachedHistory | undefined {
   if (span !== undefined && !(span.to > span.from))
     throw new Error("A constant airborne shape needs a finite increasing span");
   const statistics: AirborneShapeStatistics.IStatistics | undefined =
@@ -65,17 +58,17 @@ export function AirborneConstantShapeHistory(
     for (const segment of model.segments)
       if (!rates.has(segment.bone)) return undefined;
   } else
-    for (const bone of prepareAutoMovieMassModel.bones(model))
+    for (const bone of AutoMovieEngineKinematics.prepareAutoMovieMassModelBones(model))
       if (!rates.has(bone)) return undefined;
-  const posed: resolveAutoMovieMomentum.IPosed =
+  const posed: AutoMovieEngineKinematics.IPosedBody =
     "segments" in model
-      ? resolveAutoMovieMomentum.pose(model, bones)
-      : prepareAutoMovieMassModel.pose(model, bones);
+      ? AutoMovieEngineKinematics.resolveAutoMovieMomentumPose(model, bones)
+      : AutoMovieEngineKinematics.prepareAutoMovieMassModelPose(model, bones);
   if (statistics !== undefined) statistics.uniqueNumericNodes++;
   const matrix: number[][] =
     "segments" in model
-      ? physicalInertiaTensor(posed.parts, posed.centre)
-      : prepareAutoMovieMassModel.inertia(model, posed);
+      ? AutoMoviePhysicalInertiaTensor.compute(posed.parts, posed.centre)
+      : AutoMovieEngineKinematics.prepareAutoMovieMassModelInertia(model, posed);
   let scale: number = Number.NEGATIVE_INFINITY;
   for (const row of matrix)
     for (const value of row) scale = Math.max(scale, Math.abs(value));
@@ -83,7 +76,7 @@ export function AirborneConstantShapeHistory(
   const momentum: IAutoMovieBodyMomentum =
     "segments" in model
       ? resolveAutoMovieMomentumRates(model, posed, bones, rates)
-      : prepareAutoMovieMassModel.rates(model, posed, bones, rates);
+      : AutoMovieEngineKinematics.prepareAutoMovieMassModelRates(model, posed, bones, rates);
   if (
     !(
       momentum.angular.x === 0 &&
@@ -103,7 +96,7 @@ function numericHistory(
   matrix: number[][],
   span: { from: number; to: number } | undefined,
   statistics: AirborneShapeStatistics.IStatistics | undefined,
-): integrateAirborneRotation.ICachedHistory {
+): AutoMovieEngineMotionAirborneRotation.ICachedHistory {
   if (statistics !== undefined) statistics.factorizations++;
   const state: AirborneConstantShapeHistory.IConstant = {
     matrix,

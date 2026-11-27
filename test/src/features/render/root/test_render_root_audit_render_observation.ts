@@ -3,7 +3,7 @@ import {
   IAutoMovieRenderObservation,
   IAutoMovieRenderReport,
 } from "@automovie/interface";
-import { auditAutoMovieRenderObservation } from "@automovie/render";
+import { AutoMovieRenderBudgetPreflight } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 const METRICS: readonly AutoMovieRenderMetric[] = [
@@ -116,7 +116,7 @@ const observation: (
 export function test_render_root_audit_render_observation(): void {
   TestValidator.equals(
     "actual counts within every measured preflight bound agree",
-    auditAutoMovieRenderObservation({
+    AutoMovieRenderBudgetPreflight.auditObservation({
       report: report(),
       observed: observation({ triangles: 10, instanceSlots: 10 }),
     }),
@@ -125,7 +125,7 @@ export function test_render_root_audit_render_observation(): void {
 
   TestValidator.equals(
     "every exceeded bound is named in canonical metric order",
-    auditAutoMovieRenderObservation({
+    AutoMovieRenderBudgetPreflight.auditObservation({
       report: report({ triangles: 8, materials: 1 }),
       observed: observation(),
     }),
@@ -141,7 +141,7 @@ export function test_render_root_audit_render_observation(): void {
 
   TestValidator.equals(
     "an absent report measurement stays unchecked",
-    auditAutoMovieRenderObservation({
+    AutoMovieRenderBudgetPreflight.auditObservation({
       report: report({ triangles: null }),
       observed: observation({ triangles: 1_000 }),
     }),
@@ -150,7 +150,7 @@ export function test_render_root_audit_render_observation(): void {
 
   TestValidator.equals(
     "preflight-only metrics are not claimed as live observations",
-    auditAutoMovieRenderObservation({
+    AutoMovieRenderBudgetPreflight.auditObservation({
       report: report({ vertices: null, textureBytes: null }),
       observed: observation(),
     }).unchecked,
@@ -160,7 +160,7 @@ export function test_render_root_audit_render_observation(): void {
   const base: IAutoMovieRenderReport = report();
   TestValidator.equals(
     "duplicate report metrics are ambiguous",
-    auditAutoMovieRenderObservation({
+    AutoMovieRenderBudgetPreflight.auditObservation({
       report: {
         ...base,
         findings: [...base.findings, base.findings[0]!],
@@ -173,7 +173,7 @@ export function test_render_root_audit_render_observation(): void {
   for (const [title, bound] of [["negative report bounds", -1]] as const)
     TestValidator.equals(
       title,
-      auditAutoMovieRenderObservation({
+      AutoMovieRenderBudgetPreflight.auditObservation({
         report: report({ triangles: bound }),
         observed: observation(),
       }).unchecked,
@@ -186,7 +186,7 @@ export function test_render_root_audit_render_observation(): void {
   ] as const)
     TestValidator.equals(
       title,
-      auditAutoMovieRenderObservation({
+      AutoMovieRenderBudgetPreflight.auditObservation({
         report: report(),
         observed: observation({ triangles }),
       }).unchecked,

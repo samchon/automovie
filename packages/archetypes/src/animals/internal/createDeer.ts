@@ -1,4 +1,3 @@
-import { AutoMovieArchetypeDeer } from "../AutoMovieArchetypeDeer";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -6,11 +5,12 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeRefusal,
 } from "../../core/index";
+import { AutoMovieArchetypeDeer } from "../AutoMovieArchetypeDeer";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "../AutoMovieArchetypeQuadrupedHeadAttachment";
-import { createCohortQuadruped } from "./createCohortQuadruped";
 import { DeerCohorts } from "../deer/internal/DeerCohorts";
 import { buildDeerBody } from "../deer/internal/buildDeerBody";
+import { createCohortQuadruped } from "./createCohortQuadruped";
 
 /**
  * A coarse adult Boso sika reference with sex-matched controls and male
@@ -84,17 +84,19 @@ export function createDeer(
         return;
       }
       if (params.antlers === false) return;
-      const a: typeof AutoMovieArchetypeDeer.ANTLERS = AutoMovieArchetypeDeer.ANTLERS;
+      const a: typeof AutoMovieArchetypeDeer.ANTLERS =
+        AutoMovieArchetypeDeer.ANTLERS;
       const radius: number = (a.baseLong + a.baseShort) / 4;
-      const base: IAutoMovieVector3 = AutoMovieArchetypeQuadrupedHeadAttachment(
-        rig,
-        {
-          x: rig.poll.x + rig.headRadius,
-          y: rig.poll.y + rig.headRadius,
-          z: rig.poll.z,
-        },
-        radius,
-      );
+      const base: IAutoMovieVector3 =
+        AutoMovieArchetypeQuadrupedHeadAttachment.attach(
+          rig,
+          {
+            x: rig.poll.x + rig.headRadius,
+            y: rig.poll.y + rig.headRadius,
+            z: rig.poll.z,
+          },
+          radius,
+        );
       const root: number = base.x - rig.poll.x;
       const lateral: number = a.tipWidth / 2 - root;
       const rise: number = Math.sqrt(a.curve * a.curve - lateral * lateral);
@@ -123,11 +125,17 @@ export function createDeer(
             },
             { color: "#b2a184" },
           );
-          for (let i: number = 1; i <= AutoMovieArchetypeDeer.CONSTRUCTION.tines; i++) {
-            const share: number = i / (AutoMovieArchetypeDeer.CONSTRUCTION.tines + 1);
+          for (
+            let i: number = 1;
+            i <= AutoMovieArchetypeDeer.CONSTRUCTION.tines;
+            i++
+          ) {
+            const share: number =
+              i / (AutoMovieArchetypeDeer.CONSTRUCTION.tines + 1);
             const startX: number = rig.poll.x + sign * (root + lateral * share);
             const startY: number = base.y + rise * share;
-            const length: number = a.curve * AutoMovieArchetypeDeer.CONSTRUCTION.tineLength;
+            const length: number =
+              a.curve * AutoMovieArchetypeDeer.CONSTRUCTION.tineLength;
             builder.rod(
               `${side}AntlerTine${i}`,
               radius * AutoMovieArchetypeDeer.CONSTRUCTION.tineRadius,

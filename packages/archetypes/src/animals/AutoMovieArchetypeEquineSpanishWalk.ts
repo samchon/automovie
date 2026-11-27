@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -103,7 +103,7 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
         const carpus: IAutoMovieVector3 = start(cannon);
         const straighten: IAutoMovieQuaternion = Quaternion.slerp(
           { x: 0, y: 0, z: 0, w: 1 },
-          rotationBetween(
+          AutoMovieEngineMath.rotationBetween(
             Vector3.subtract(end(cannon), carpus),
             Vector3.subtract(end(forearm), start(forearm)),
           ),

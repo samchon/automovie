@@ -6,7 +6,7 @@ import type {
 
 import { ffmpegArgs } from "../../internal/ffmpegArgs.js";
 import { framePattern } from "../../framePattern.js";
-import { autoMovieVideoFrameRate } from "../autoMovieVideoFrameRate.js";
+import { autoMovieVideoFrameRate } from "./autoMovieVideoFrameRate.js";
 
 /**
  * Most frames one video may hold: a million, eleven hours at 25 fps, which

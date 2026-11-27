@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanKickGeometry,
   IAutoMovieMotionHumanPosture,
@@ -118,7 +118,7 @@ export namespace KickPlans {
         (u: IAutoMovieSuperposeMinimumJerk.IUnit, i: number): IStarted => ({
           from: plans[i]!,
           to: plans[i + 1]!,
-          weight: minimumJerk.share(
+          weight: AutoMovieEngineMotionSampling.minimumJerkShare(
             (props.t0 + clock - u.start) / Math.max(1e-9, u.duration),
           ),
         }),

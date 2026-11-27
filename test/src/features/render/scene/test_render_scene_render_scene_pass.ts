@@ -1,4 +1,4 @@
-import { type IAutoMovieScenePassRenderer, renderAutoMovieScenePass, AutoMovieSceneShadow } from "@automovie/render";
+import { type IAutoMovieScenePassRenderer, AutoMovieRenderScenePass, AutoMovieSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -59,7 +59,7 @@ export function test_render_scene_render_scene_pass(): void {
     shadows: { enabled: false, type: "pcf" as const },
   };
   const before: number = first.version;
-  renderAutoMovieScenePass(
+  AutoMovieRenderScenePass.render(
     renderer,
     scene,
     new THREE.Camera(),
@@ -72,7 +72,7 @@ export function test_render_scene_render_scene_pass(): void {
     before + 2,
   );
   const same: number = first.version;
-  renderAutoMovieScenePass(
+  AutoMovieRenderScenePass.render(
     renderer,
     scene,
     new THREE.Camera(),
@@ -84,7 +84,7 @@ export function test_render_scene_render_scene_pass(): void {
     first.version,
     same,
   );
-  renderAutoMovieScenePass(
+  AutoMovieRenderScenePass.render(
     renderer,
     scene,
     new THREE.Camera(),
@@ -108,7 +108,7 @@ export function test_render_scene_render_scene_pass(): void {
   failedScene.add(new THREE.Mesh(geometry, failedMaterial));
   let caught: unknown;
   try {
-    renderAutoMovieScenePass(
+    AutoMovieRenderScenePass.render(
       renderer,
       failedScene,
       new THREE.Camera(),

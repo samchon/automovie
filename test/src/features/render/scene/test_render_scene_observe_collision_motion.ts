@@ -1,10 +1,10 @@
-import { preparePhysicalGeometry } from "@automovie/engine";
-import { observeAutoMovieCollisionMotion } from "@automovie/render";
+import { AutoMoviePhysicalGeometry } from "@automovie/engine";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `observeAutoMovieCollisionMotion` searches the span between two placed
+ * `AutoMovieRenderInspection.observePlacedSceneCollisionMotion` searches the span between two placed
  * instants for the first contact of moving meshes.
  *
  * Scenarios:
@@ -15,7 +15,7 @@ import * as THREE from "three";
  *    left to the placed-frame observation.
  */
 export async function test_render_scene_observe_collision_motion(): Promise<void> {
-  const geometry = await preparePhysicalGeometry();
+  const geometry = await AutoMoviePhysicalGeometry.prepare();
   const run = (endX: number) => {
     const root: THREE.Scene = new THREE.Scene();
     const still: THREE.Mesh = new THREE.Mesh(
@@ -42,7 +42,7 @@ export async function test_render_scene_observe_collision_motion(): Promise<void
       posedVertices: 0,
       surfaceTriangles: 0,
     };
-    const result = observeAutoMovieCollisionMotion({
+    const result = AutoMovieRenderInspection.observePlacedSceneCollisionMotion({
       time: { filmSeconds: 1 },
       fromSeconds: 0,
       continuous: true,

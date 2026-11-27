@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
-import { readAutoMovieDisplayDestinationEncoding } from "../readAutoMovieDisplayDestinationEncoding.js";
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
+import { AutoMovieSceneFramebuffer } from "../AutoMovieSceneFramebuffer.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * GPU composition of the same display bytes a direct canvas capture reads.
@@ -183,7 +183,7 @@ export class AutoMovieDisplayCompositor {
       captureAutoMovieFramebufferRestore(renderer);
     const destinationSRGB: boolean =
       target !== null &&
-      readAutoMovieDisplayDestinationEncoding(renderer) === "srgb";
+      AutoMovieSceneFramebuffer.readDestinationEncoding(renderer) === "srgb";
     const autoClear: boolean = renderer.autoClear;
     const clearColor: THREE.Color = renderer
       .getClearColor(new THREE.Color())

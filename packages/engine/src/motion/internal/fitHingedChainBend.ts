@@ -9,7 +9,7 @@ import type {
 import { DEFAULT_JOINT_AXES } from "../../kinematics/constants/DEFAULT_JOINT_AXES";
 import { Vector3 } from "../../math/Vector3";
 import { PLANT_RESIDUAL_EPSILON } from "../constants/PLANT_RESIDUAL_EPSILON";
-import { fitHingedChainCandidate } from "../fitHingedChainCandidate";
+import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "../resolvePreparedChainEffector";
 

@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { physicalRecoverySupportGoals } from "../physicalRecoverySupportGoals";
+import { AutoMovieEnginePhysicalRecoverySupportGoals } from "../AutoMovieEnginePhysicalRecoverySupportGoals";
 import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
-import { physicalShapeBounds } from "../physicalShapeBounds";
+import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
@@ -38,7 +38,7 @@ export function physicalContactSupportGoals(
   ];
   for (const pattern of patterns) {
     const goals: Record<string, IAutoMovieVector3> =
-      physicalRecoverySupportGoals(body, target, pattern, state, seconds);
+      AutoMovieEnginePhysicalRecoverySupportGoals.compute(body, target, pattern, state, seconds);
     for (const limb of pattern.limbs) {
       if (
         pattern !== body.balance?.pattern &&
@@ -90,7 +90,7 @@ export function physicalContactSupportGoals(
                 .flatMap((segment: IAutoMoviePhysicalSegment): number[] =>
                   segment.shapes.map(
                     (shape: IAutoMoviePhysicalShape): number =>
-                      physicalShapeBounds(target.segments[segment.bone]!, shape)
+                      physicalShapeBoundsImplementation.physicalShapeBounds(target.segments[segment.bone]!, shape)
                         .min.y + shift.y,
                   ),
                 ),

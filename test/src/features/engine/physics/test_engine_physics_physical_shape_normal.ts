@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -66,7 +66,7 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
   const radial: IAutoMovieVector3 = Vector3.normalize({ x: 1, y: -2, z: 0.5 });
   near(
     "sphere",
-    physicalShapeNormal(
+    AutoMovieEnginePhysics.physicalShapeNormal(
       turned,
       sphere,
       Vector3.add(turned.position, Vector3.scale(radial, 0.1)),
@@ -91,7 +91,7 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
   });
   near(
     "capsule side",
-    physicalShapeNormal(
+    AutoMovieEnginePhysics.physicalShapeNormal(
       turned,
       capsule,
       Vector3.add(
@@ -106,7 +106,7 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
   const cap: IAutoMovieVector3 = Vector3.normalize({ x: 0.6, y: 0.8, z: 0 });
   near(
     "capsule cap",
-    physicalShapeNormal(
+    AutoMovieEnginePhysics.physicalShapeNormal(
       still,
       capsule,
       Vector3.add({ x: 0, y: 0.2, z: 0 }, Vector3.scale(cap, 0.05)),
@@ -138,7 +138,7 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
   for (const shape of [box, hull])
     near(
       `${shape.kind} face`,
-      physicalShapeNormal(still, shape, { x: 0.1, y: 0.02, z: -0.03 }, up),
+      AutoMovieEnginePhysics.physicalShapeNormal(still, shape, { x: 0.1, y: 0.02, z: -0.03 }, up),
       { x: 1, y: 0, z: 0 },
       0.5,
     );
@@ -146,7 +146,7 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
   // 3. The edge between the +X and the +Z faces.
   near(
     "box edge",
-    physicalShapeNormal(still, box, { x: 0.1, y: 0, z: 0.1 }, up),
+    AutoMovieEnginePhysics.physicalShapeNormal(still, box, { x: 0.1, y: 0, z: 0.1 }, up),
     { x: 1, y: 0, z: 1 },
     NORMAL,
   );
@@ -173,7 +173,7 @@ export async function test_engine_physics_physical_shape_normal(): Promise<void>
   ];
   let previous: IAutoMovieVector3 | null = null;
   for (const point of path) {
-    const normal: IAutoMovieVector3 = physicalShapeNormal(
+    const normal: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalShapeNormal(
       still,
       box,
       point,

@@ -12,11 +12,11 @@ import type {
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
-import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
+import type { AutoMovieEngineSkeletonPose } from "../kinematics/AutoMovieEngineSkeletonPose";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { getConstraint } from "../rom/internal/getConstraint";
-import { resolveBoneMap } from "./resolveBoneMap";
+import { resolveBoneMap } from "./internal/resolveBoneMap";
 import { resolveChainEffectorBaseRotation } from "./internal/resolveChainEffectorBaseRotation";
 
 /**
@@ -34,7 +34,7 @@ export function prepareChainPlant(
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >,
   resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
-  poseResolution?: prepareSkeletonPoseResolution.IRig,
+  poseResolution?: AutoMovieEngineSkeletonPose.IRig,
 ): IAutoMoviePreparedChainPlant | null {
   const { chain }: typeof props = props;
   // The limb at rest under the current parent pose: zero its own articulation

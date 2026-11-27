@@ -1,4 +1,4 @@
-import { measureAutoMovieGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometryObservation } from "@automovie/engine";
 import type {
   IAutoMovieCompiledShotSource,
   IAutoMovieFilmTime,
@@ -156,8 +156,8 @@ function measure(props: {
     "id" | "fps" | "totalFrames" | "segments"
   > | null;
 }): Record<string, number | string | boolean> {
-  const result: ReturnType<typeof measureAutoMovieGeometry> =
-    measureAutoMovieGeometry({
+  const result: ReturnType<typeof AutoMovieEngineGeometryObservation.measure> =
+    AutoMovieEngineGeometryObservation.measure({
       request: props.request,
       design: {
         production:

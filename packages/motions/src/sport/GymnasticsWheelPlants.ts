@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -207,8 +207,8 @@ export function GymnasticsWheelPlants(
     const before: number = l.opens ? -Infinity : l.from - lead;
     const after: number = l.closes ? Infinity : l.to + lead;
     if (seconds <= before || seconds >= after) return 0;
-    if (seconds < l.from) return minimumJerk.share((seconds - before) / lead);
-    if (seconds > l.to) return 1 - minimumJerk.share((seconds - l.to) / lead);
+    if (seconds < l.from) return AutoMovieEngineMotionSampling.minimumJerkShare((seconds - before) / lead);
+    if (seconds > l.to) return 1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - l.to) / lead);
     return 1;
   };
   // Each window's laid limb is solved once per key over its write interval.

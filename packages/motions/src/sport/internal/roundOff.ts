@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -118,8 +118,8 @@ export namespace roundOff {
   export function turned(sign: number, angle: number): number {
     return (
       sign *
-      (90 * minimumJerk.share(angle / ENTRY) +
-        90 * minimumJerk.share((angle - 180) / SNAP))
+      (90 * AutoMovieEngineMotionSampling.minimumJerkShare(angle / ENTRY) +
+        90 * AutoMovieEngineMotionSampling.minimumJerkShare((angle - 180) / SNAP))
     );
   }
   /**
@@ -144,7 +144,7 @@ export namespace roundOff {
       .plan({ ...context, params: { hold: 1 } })
       .posture(0);
     const ease: (x: number) => number = (x: number): number =>
-      minimumJerk.share(x);
+      AutoMovieEngineMotionSampling.minimumJerkShare(x);
     const wheeled: IAutoMovieMotionHumanExerciseKey.IKey =
       cartwheel.wheel(body);
     // The wheel leaves the body as the entry shows it, its stance and feet.

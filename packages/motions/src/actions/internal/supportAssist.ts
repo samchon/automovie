@@ -1,18 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineCompositionPose } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSupport,
-  IAutoMovieMotionMeeting,
-  IAutoMovieMotionMeetingKind,
-  IAutoMovieMotionMeetingRole,
-  IAutoMovieMotionMeetingTiming,
-  IAutoMovieResolveMutualGoal,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieMotionMeeting, IAutoMovieMotionMeetingKind, IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingTiming, IAutoMovieResolveMutualGoal, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionMeeting } from "../../compose/AutoMovieMotionMeeting";
@@ -99,7 +87,7 @@ function kind(side: AutoMovieHumanSide): IAutoMovieMotionMeetingKind {
           side === "left" ? "palmLeft" : "palmRight"
         ];
       return {
-        take: resolveAutoMovieHumanoidSurfaces.point(
+        take: AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
           frame,
           helped.bones.get(frame.bone)!,
         ),

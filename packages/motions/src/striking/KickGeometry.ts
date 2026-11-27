@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
@@ -231,11 +231,11 @@ export namespace KickGeometry {
         1e-3,
         timing.duration - s - StrikingStroke.DWELL,
       );
-      const w: number = minimumJerk.share(
+      const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         (t - s - StrikingStroke.DWELL) / rest,
       );
       const back: number = s * (1 - w);
-      const stepped: number = minimumJerk.share(
+      const stepped: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
       );
       const base: IAutoMovieMotionHumanPosture = parts.base(

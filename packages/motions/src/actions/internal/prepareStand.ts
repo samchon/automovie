@@ -1,4 +1,4 @@
-import { minimumJerk, seededSmoothNoise } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -106,14 +106,14 @@ export function prepareStand(
     const settle: number = Math.min(stand.SETTLE, duration);
     const sx: IAutoMovieRandom = context.random("swayX");
     const sz: IAutoMovieRandom = context.random("swayZ");
-    const noiseX: ReturnType<typeof seededSmoothNoise.prepare> =
-      seededSmoothNoise.prepare(sx, duration, stand.SWAY_FREQUENCY);
-    const noiseZ: ReturnType<typeof seededSmoothNoise.prepare> =
-      seededSmoothNoise.prepare(sz, duration, stand.SWAY_FREQUENCY);
+    const noiseX: ReturnType<typeof AutoMovieEngineMotionSampling.seededSmoothNoisePrepare> =
+      AutoMovieEngineMotionSampling.seededSmoothNoisePrepare(sx, duration, stand.SWAY_FREQUENCY);
+    const noiseZ: ReturnType<typeof AutoMovieEngineMotionSampling.seededSmoothNoisePrepare> =
+      AutoMovieEngineMotionSampling.seededSmoothNoisePrepare(sz, duration, stand.SWAY_FREQUENCY);
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...aligned };
     const write = (seconds: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
-      const s: number = minimumJerk.share(t / settle);
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / settle);
       const u: number = t / duration;
       const feet: standFeet.ISample = course.sample(s);
       const offset: IAutoMovieVector3 = feet.offset;

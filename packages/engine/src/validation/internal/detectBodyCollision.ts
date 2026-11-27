@@ -15,7 +15,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { indexSkeletonTopology } from "../../kinematics/indexSkeletonTopology";
+import { indexSkeletonTopology } from "../../kinematics/internal/indexSkeletonTopology";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { Vector3 } from "../../math/Vector3";
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";

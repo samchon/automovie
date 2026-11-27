@@ -1,4 +1,7 @@
-import { validateFluidDomain, AutoMovieEngineService } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+  AutoMovieEngineService,
+} from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieFluidDomain,
@@ -97,7 +100,7 @@ export function assertWetZoneDrainageLowering(
       ["sill", () => nclose(lowered.drains[0]!.sillLevel, 0.125, 1e-15)],
       ["opensAtOnce", () => nclose(lowered.drains[0]!.start, 0, 0)],
       ["neverCloses", () => lowered.drains[0]!.end === null],
-      ["stillValid", () => validateFluidDomain({ domain: lowered }).success],
+      ["stillValid", () => AutoMovieEngineFluid.validateFluidDomain({ domain: lowered }).success],
       [
         "latticeUntouched",
         () => lowered.grid === bathFloor().grid || lowered.grid.columns === 4,

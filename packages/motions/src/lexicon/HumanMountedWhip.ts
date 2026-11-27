@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -125,7 +125,7 @@ export namespace HumanMountedWhip {
   ): number {
     for (const stroke of strokes)
       if (stroke.side === side && Math.abs(at - stroke.at) < REACH)
-        return minimumJerk.share(1 - Math.abs(at - stroke.at) / REACH);
+        return AutoMovieEngineMotionSampling.minimumJerkShare(1 - Math.abs(at - stroke.at) / REACH);
     return 0;
   }
 

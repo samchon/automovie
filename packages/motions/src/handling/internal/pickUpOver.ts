@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -233,7 +233,7 @@ export namespace pickUpOver {
                   up,
                   rise > 0
                     ? lift *
-                        minimumJerk.share(Math.min(1, (t - liftOff) / rise))
+                        AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (t - liftOff) / rise))
                     : 0,
                 ),
               );

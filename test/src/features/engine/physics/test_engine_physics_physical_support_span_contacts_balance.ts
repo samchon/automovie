@@ -1,7 +1,7 @@
 import {
-  physicalIcpController,
-  physicalPlanarPolygon,
-  physicalSupportSpanContacts,
+  AutoMovieEnginePhysicalIcpController,
+  AutoMovieEnginePhysicalPlanarPolygon,
+  AutoMovieEnginePhysicalSupportSpanContacts,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -9,8 +9,8 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 
 /**
  * One balance for every body: IHMC's capture-point controller
- * (`physicalIcpController`) on the hull of the planted contacts
- * (`physicalSupportSpanContacts.hull`), whatever their number.
+ * (`AutoMovieEnginePhysicalIcpController`) on the hull of the planted contacts
+ * (`AutoMovieEnginePhysicalSupportSpanContacts.hull`), whatever their number.
  *
  * Scenarios, N = 3, 4, 6 and 8 point contacts on a 0.15 m circle about (0.4,
  * -0.2), the plan at rest at that centre, omega = sqrt(9.81 / 0.9), Zulu's
@@ -28,14 +28,14 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 export function test_engine_physics_physical_support_span_contacts_balance(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);
   const centre: { x: number; z: number } = { x: 0.4, z: -0.2 };
-  const frame = physicalSupportSpanContacts.WORLD;
-  const desired = physicalPlanarPolygon.local(frame, centre);
+  const frame = AutoMovieEnginePhysicalSupportSpanContacts.WORLD;
+  const desired = AutoMovieEnginePhysicalPlanarPolygon.local(frame, centre);
   const run = (
-    support: physicalPlanarPolygon.IPoint[],
-    error: physicalPlanarPolygon.IPoint,
-  ): physicalIcpController.IResult =>
-    physicalIcpController({
-      state: physicalIcpController.create(),
+    support: AutoMovieEnginePhysicalPlanarPolygon.IPoint[],
+    error: AutoMovieEnginePhysicalPlanarPolygon.IPoint,
+  ): AutoMovieEnginePhysicalIcpController.IResult =>
+    AutoMovieEnginePhysicalIcpController.update({
+      state: AutoMovieEnginePhysicalIcpController.create(),
       support,
       desired,
       desiredVelocity: { x: 0, y: 0 },
@@ -46,11 +46,11 @@ export function test_engine_physics_physical_support_span_contacts_balance(): vo
     });
 
   for (const n of [3, 4, 6, 8]) {
-    const hull: physicalPlanarPolygon.IPoint[] =
-      physicalSupportSpanContacts.hull(
+    const hull: AutoMovieEnginePhysicalPlanarPolygon.IPoint[] =
+      AutoMovieEnginePhysicalSupportSpanContacts.hull(
         Array.from(
           { length: n },
-          (_, i: number): physicalSupportSpanContacts.IContact => ({
+          (_, i: number): AutoMovieEnginePhysicalSupportSpanContacts.IContact => ({
             bone: `limb${i}`,
             points: [
               {
@@ -64,7 +64,7 @@ export function test_engine_physics_physical_support_span_contacts_balance(): vo
     TestValidator.equals(`${n}: hull`, hull.length, n);
 
     // 1. Quiet stance.
-    const quiet: physicalIcpController.IResult = run(hull, { x: 0, y: 0 });
+    const quiet: AutoMovieEnginePhysicalIcpController.IResult = run(hull, { x: 0, y: 0 });
     TestValidator.predicate(
       `${n}: quiet stance`,
       quiet.state.copDelta.x === 0 &&
@@ -74,8 +74,8 @@ export function test_engine_physics_physical_support_span_contacts_balance(): vo
     );
 
     // 2. A small error: inside, on its side, the capture point driven back.
-    const error: physicalPlanarPolygon.IPoint = { x: 0.016, y: -0.012 };
-    const small: physicalIcpController.IResult = run(hull, error);
+    const error: AutoMovieEnginePhysicalPlanarPolygon.IPoint = { x: 0.016, y: -0.012 };
+    const small: AutoMovieEnginePhysicalIcpController.IResult = run(hull, error);
     const shift = {
       x: small.cop.x - desired.x,
       y: small.cop.y - desired.y,
@@ -86,18 +86,18 @@ export function test_engine_physics_physical_support_span_contacts_balance(): vo
     };
     TestValidator.predicate(
       `${n}: small error`,
-      physicalPlanarPolygon.inside(hull, small.cop) &&
+      AutoMovieEnginePhysicalPlanarPolygon.inside(hull, small.cop) &&
         shift.x * error.x + shift.y * error.y > 0 &&
         rate.x * error.x + rate.y * error.y < 0,
     );
 
     // 3. Past the hull: saturated on the shrunk edge.
-    const far: physicalIcpController.IResult = run(hull, { x: 0.4, y: 0.3 });
+    const far: AutoMovieEnginePhysicalIcpController.IResult = run(hull, { x: 0.4, y: 0.3 });
     TestValidator.predicate(
       `${n}: saturated`,
       Math.abs(
-        physicalPlanarPolygon.signedDistance(hull, far.cop) +
-          physicalIcpController.ZULU.safeCopDistance,
+        AutoMovieEnginePhysicalPlanarPolygon.signedDistance(hull, far.cop) +
+          AutoMovieEnginePhysicalIcpController.ZULU.safeCopDistance,
       ) < PhysicalTolerance.CONVERGED,
     );
   }

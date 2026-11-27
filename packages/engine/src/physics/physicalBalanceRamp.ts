@@ -2,20 +2,20 @@ import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysi
 import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
-import { physicalStanceSeat } from "./physicalStanceSeat";
+import { AutoMovieEnginePhysicalStanceSeat } from "./AutoMovieEnginePhysicalStanceSeat";
 
 /**
  * The balance controller's landing-ramp phase (`advancePhysicalBalance`): each
- * stance foot's seating advanced by one substep (`physicalStanceSeat`), its
+ * stance foot's seating advanced by one substep (`AutoMovieEnginePhysicalStanceSeat`), its
  * sole's seating, its low-passed measured load, which decides lift-off and
  * touchdown, and its bearing, flatness and entry shares by geometry, each
- * ramping over `physicalStanceBalance.FADE`; a landed foot starts full, as
+ * ramping over `AutoMovieEnginePhysicalStanceBalance.FADE`; a landed foot starts full, as
  * both of IHMC 201903's controllers seat it at touchdown,
  * and a foot seated anew otherwise ramps in from nothing here. A first stance
  * starts borne and flat. A foot's world
  * orientation is latched where it actually stands when its stance begins, at
  * the first step or on landing, its planted-foot hold
- * (`physicalStanceJointTarget`), and latched again when it touches again after
+ * (`AutoMovieEnginePhysicalStanceJointTarget`), and latched again when it touches again after
  * leaving the holds, added with zero error where it stands as a landed foot is
  * (design-4017-qp3, Section 3, rules 2 and 3).
  *
@@ -32,7 +32,7 @@ import { physicalStanceSeat } from "./physicalStanceSeat";
  */
 export function physicalBalanceRamp(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
+  sense: AutoMovieEnginePhysicalBalanceTypes.ISense;
 }): IAutoMoviePhysicalRecoveryState {
   const { state, sense } = input;
   const first: boolean = state.seating === undefined;
@@ -40,9 +40,9 @@ export function physicalBalanceRamp(input: {
   for (const limb of sense.limbs) {
     if (physicalRecoveryLimbSwing(state, limb.bone)) continue;
     const spread: number = sense.spread(limb.bone);
-    const existing: physicalStanceSeat.ISeat | undefined =
+    const existing: AutoMovieEnginePhysicalStanceSeat.ISeat | undefined =
       seating?.[limb.bone];
-    const seat: physicalStanceSeat.ISeat = existing
+    const seat: AutoMovieEnginePhysicalStanceSeat.ISeat = existing
       ? { ...existing }
       : {
           seated: first,
@@ -55,7 +55,7 @@ export function physicalBalanceRamp(input: {
           anchor: sense.latch(limb),
         };
     if (
-      physicalStanceSeat({
+      AutoMovieEnginePhysicalStanceSeat.advance({
         seat,
         spread,
         load: sense.load(limb.bone),

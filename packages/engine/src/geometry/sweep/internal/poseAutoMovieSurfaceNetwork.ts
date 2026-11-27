@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../../../math/Quaternion";
-import { createAutoMovieBoneMotion } from "../createAutoMovieBoneMotion";
+import { createAutoMovieBoneMotion } from "./createAutoMovieBoneMotion";
 import { poseAutoMovieSweep } from "./poseAutoMovieSweep";
 
 /**

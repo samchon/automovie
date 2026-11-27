@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -68,7 +68,7 @@ export function riseBody(
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
     if (t < prepared) {
       const socket: IAutoMovieVector3 =
-        edged !== undefined ? edged(minimumJerk.share(t / edging)) : begin;
+        edged !== undefined ? edged(AutoMovieEngineMotionSampling.minimumJerkShare(t / edging)) : begin;
       const root: IAutoMovieVector3 = entryRoot(socket);
       return {
         root,
@@ -80,10 +80,10 @@ export function riseBody(
       };
     }
     const u: number = t - prepared;
-    const forward: number = minimumJerk.share(
+    const forward: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       (u - away) / (STOOD * rising - away),
     );
-    const up: number = minimumJerk.share(
+    const up: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       (u - away - LAG * rising) / ((STOOD - LAG) * rising - away),
     );
     const socket: IAutoMovieVector3 = {
@@ -94,7 +94,7 @@ export function riseBody(
     const pitch: number =
       u < flex
         ? pitchAt(u, peak)
-        : peak * (1 - minimumJerk.share((u - flex) / (rising - flex)));
+        : peak * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((u - flex) / (rising - flex)));
     const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
       joints,
       pitch,
@@ -141,7 +141,7 @@ export function riseBody(
       yaw,
       t < prepared
         ? 1
-        : 1 - minimumJerk.share((t - prepared - away) / releasing),
+        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - prepared - away) / releasing),
     );
   };
   const palmRoll: ReturnType<typeof prepareRisePalmRoll> = prepareRisePalmRoll(
@@ -154,8 +154,8 @@ export function riseBody(
   const supported = (t: number): IAutoMovieMotionHumanPosture =>
     palmRoll(
       risingPosture(t),
-      minimumJerk.share((t - prepared) / away) *
-        (1 - minimumJerk.share((t - seatOff) / releasing)),
+      AutoMovieEngineMotionSampling.minimumJerkShare((t - prepared) / away) *
+        (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - seatOff) / releasing)),
     );
   const bearing: ReturnType<typeof AutoMovieMotionHumanArmChain.continued> =
     AutoMovieMotionHumanArmChain.continued(body, released, supported);

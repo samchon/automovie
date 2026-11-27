@@ -1,19 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanCurtsy,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRoot,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanCurtsy, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRoot, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
@@ -385,7 +372,7 @@ function solePoints(
     ),
     ...HumanFoot.outline(body, side).map(
       (frame): IAutoMovieVector3 =>
-        resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bones.get(frame.bone)!)
           .point,
     ),
   ];

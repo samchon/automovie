@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -90,7 +90,7 @@ export function kneelWrite(scope: kneelWrite.IScope): kneelWrite.Write {
       // A knee placed aside carries the hips aside as the foot travels.
       const flat: IAutoMovieVector3 = Vector3.add(
         Vector3.add(standing.root, Vector3.scale(solved.forward, s)),
-        Vector3.scale(aside, minimumJerk.share(step)),
+        Vector3.scale(aside, AutoMovieEngineMotionSampling.minimumJerkShare(step)),
       );
       const reach: number =
         (solved.extension + (REACH - solved.extension) * step) * length;
@@ -163,9 +163,9 @@ export function kneelWrite(scope: kneelWrite.IScope): kneelWrite.Write {
       const weight: number = kneelKeys.still(leftKey, nextKey)
         ? 0
         : linear < lift
-          ? minimumJerk.share(linear / lift)
+          ? AutoMovieEngineMotionSampling.minimumJerkShare(linear / lift)
           : linear > strike
-            ? 1 - minimumJerk.share((linear - strike) / (1 - strike))
+            ? 1 - AutoMovieEngineMotionSampling.minimumJerkShare((linear - strike) / (1 - strike))
             : Math.min(
                 lift > 0 ? 1 : ease(linear),
                 strike < 1 ? 1 : ease(1 - linear),

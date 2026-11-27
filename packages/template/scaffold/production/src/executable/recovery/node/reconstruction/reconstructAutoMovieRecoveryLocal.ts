@@ -1,4 +1,4 @@
-import { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieLocalHermiteStream64,
@@ -320,7 +320,7 @@ export function reconstructAutoMovieRecoveryLocal(
             reversals[i]!,
           ),
       );
-      iterator = T({
+      iterator = AutoMovieEngineCurve.tessellateLocalHermite64({
         name: id,
         topologyDomain: id,
         stations: nodes.map(

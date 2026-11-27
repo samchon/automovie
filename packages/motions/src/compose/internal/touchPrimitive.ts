@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPrimitive,
@@ -77,7 +77,7 @@ export function touchPrimitive(
             props,
             // The lean's share shown at a weight: none until the last `TIP`.
             (weight: number): number =>
-              minimumJerk.share(
+              AutoMovieEngineMotionSampling.minimumJerkShare(
                 Math.max(0, (weight - (1 - TOUCH_TIP)) / TOUCH_TIP),
               ),
           ),

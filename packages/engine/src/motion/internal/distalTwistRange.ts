@@ -12,7 +12,7 @@ import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
 import { swivelJointReadings } from "../../kinematics/swivelJointReadings";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import type { solveDistalTwist } from "../solveDistalTwist";
+import type { AutoMovieEngineMotionDistalTwist } from "../AutoMovieEngineMotionDistalTwist";
 
 /**
  * The swivels of one bend branch at which a prepared chain's distally twisting
@@ -42,7 +42,7 @@ export function distalTwistRange(props: {
   axis: IAutoMovieVector3;
   frame: IAutoMovieAxisFrame | undefined;
   flexion: IAutoMovieVector3;
-  fixed: solveDistalTwist.IPrepared;
+  fixed: AutoMovieEngineMotionDistalTwist.IPrepared;
   posed: ReturnType<typeof hingedArmSwivel.pose>;
   rotation: IAutoMovieQuaternion;
 }): distalTwistSwivelRange.IRange | null {
@@ -53,7 +53,7 @@ export function distalTwistRange(props: {
     return null;
   const twist: IAutoMovieAngleRange | null = constraint.twist;
   if (twist === null) return null;
-  const { cosine, sine }: solveDistalTwist.IZero = props.fixed.zero();
+  const { cosine, sine }: AutoMovieEngineMotionDistalTwist.IZero = props.fixed.zero();
   const abduction: IAutoMovieVector3 = props.fixed.abduction();
   const flexion: IAutoMovieVector3 = props.fixed.flexion();
   const wanted: IAutoMovieQuaternion = Quaternion.normalize(props.rotation);

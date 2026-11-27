@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieArchetypeEquineGait, rideHorse, AutoMovieArchetypeHorse } from "../animals";
+import { AutoMovieArchetypeEquineGait, AutoMovieArchetypeHorseRide, AutoMovieArchetypeHorse } from "../animals";
 import type { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeDoor, AutoMovieArchetypeWindow, AutoMovieArchetypeAppliance, AutoMovieArchetypeSanitary } from "../architecture";
 import { type AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
@@ -77,7 +77,7 @@ export function archetypeCaptureCatalog(): Readonly<
   for (const gait of AutoMovieArchetypeEquineGait.GAITS)
     gaits[`ride-horse-${gait}`] = moving(
       "horse",
-      rideHorse(
+      AutoMovieArchetypeHorseRide.ride(
         horse,
         {
           ...archetypeCaptureCourse,

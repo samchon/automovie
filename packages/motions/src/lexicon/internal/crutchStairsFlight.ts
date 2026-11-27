@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanCrutchStairs,
   IAutoMovieRigidTransform,
@@ -198,7 +198,7 @@ export namespace crutchStairsFlight {
         const a: IAutoMovieVector3 = level(climb, move.level);
         const b: IAutoMovieVector3 = level(climb, move.level + 1);
         const clamp = (v: number): number =>
-          minimumJerk.share(Math.min(1, Math.max(0, v)));
+          AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, v)));
         const along: number =
           climb.sign > 0 ? clamp((s - 0.3) / 0.7) : clamp(s / 0.6);
         const rise: number =

@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -77,7 +77,7 @@ export function HumanMountedKeys(
       for (const shape of support.prop.shapes ?? [])
         least = Math.min(
           least,
-          physicalShapeSegmentDistance(placed, shape, world(a), world(b)),
+          AutoMovieEnginePhysics.physicalShapeSegmentDistance(placed, shape, world(a), world(b)),
         );
       return least;
     },

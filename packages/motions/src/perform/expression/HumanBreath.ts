@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBreath,
@@ -184,8 +184,8 @@ export namespace HumanBreath {
     const f: number = cycles - cycle;
     const shape: number =
       f < INSPIRATION
-        ? minimumJerk.share(f / INSPIRATION)
-        : 1 - minimumJerk.share((f - INSPIRATION) / (1 - INSPIRATION));
+        ? AutoMovieEngineMotionSampling.minimumJerkShare(f / INSPIRATION)
+        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((f - INSPIRATION) / (1 - INSPIRATION));
     const period: number = 60 / perMinute;
     const sighs: boolean =
       sigh.float(Math.max(0, cycle)) < period / SIGH_INTERVAL;

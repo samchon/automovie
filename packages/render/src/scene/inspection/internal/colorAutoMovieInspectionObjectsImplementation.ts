@@ -16,7 +16,7 @@ import type { AutoMovieRenderInspectionMaterial } from "../AutoMovieRenderInspec
  * other shade is a pass that encodes a quantity in colour, so a match under it
  * throws instead of hiding that quantity.
  */
-export function colorAutoMovieInspectionObjectsImplementation(props: AutoMovieRenderInspectionMaterial.ColorObjects.IProps): () => void {
+export function colorAutoMovieInspectionObjectsImplementation(props: AutoMovieRenderInspectionMaterial.IColorObjectsProps): () => void {
   const swaps: {
     mesh: THREE.Mesh;
     prior: THREE.Material | THREE.Material[];

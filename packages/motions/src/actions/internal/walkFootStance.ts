@@ -1,4 +1,4 @@
-import { carriedRate, minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
@@ -104,13 +104,13 @@ export function walkFootStance(
       // up about the heel before the toe-off.
       if (struck && t < settled) {
         const degrees: number =
-          push * (1 - minimumJerk.share((t - strike) / settle));
+          push * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - strike) / settle));
         return { placement: pivots.mtp(degrees), toes: -degrees };
       }
       if (leaves && t > heelStart) {
         const degrees: number =
           walkFootStance.STRIKE *
-          minimumJerk.share((t - heelStart) / (toeOff - heelStart));
+          AutoMovieEngineMotionSampling.minimumJerkShare((t - heelStart) / (toeOff - heelStart));
         return { placement: pivots.heel(degrees), toes: 0 };
       }
       return flatFoot();
@@ -127,11 +127,11 @@ export function walkFootStance(
       // and the forefoot rocker's pitch where it is steeper.
       const held: number =
         raised *
-        (struck ? 1 : minimumJerk.share(t / walkFootStance.RISE)) *
+        (struck ? 1 : AutoMovieEngineMotionSampling.minimumJerkShare(t / walkFootStance.RISE)) *
         (leaves ? 1 : 0);
       const degrees: number = Math.min(
         -held,
-        t > rise ? push * minimumJerk.share((t - rise) / pushSpan) : 0,
+        t > rise ? push * AutoMovieEngineMotionSampling.minimumJerkShare((t - rise) / pushSpan) : 0,
       );
       return { placement: pivots.mtp(degrees), toes: -degrees };
     };
@@ -139,14 +139,14 @@ export function walkFootStance(
     if (struck && t < heelEnd) {
       const degrees: number =
         walkFootStance.STRIKE *
-        (1 - minimumJerk.share((t - strike) / heelSpan));
+        (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - strike) / heelSpan));
       return { placement: pivots.heel(degrees), toes: 0 };
     }
     if (leaves && t > rise) {
       const u: number = (t - rise) / pushSpan;
       const degrees: number =
         push *
-        (minimumJerk.share(u) - walkFootStance.LEAVE * carriedRate(1, 1 - u));
+        (AutoMovieEngineMotionSampling.minimumJerkShare(u) - walkFootStance.LEAVE * AutoMovieEngineMotionSampling.carriedRate(1, 1 - u));
       return { placement: pivots.mtp(degrees), toes: -degrees };
     }
     return flatFoot();

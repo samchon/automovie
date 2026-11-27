@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieTransform,
@@ -12,7 +16,7 @@ import {
 import { AutoMovieArchetypeEquineBank } from "./AutoMovieArchetypeEquineBank";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A horse's scramble up a steep bank on a supported route: on a face too steep
@@ -114,7 +118,7 @@ export namespace AutoMovieArchetypeEquineScramble {
   export function admit(
     archetype: string,
     index: number,
-    leg: rideQuadruped.ILeg,
+    leg: AutoMovieArchetypeQuadruped.IRideLeg,
     technique: IScramble,
     legs: number,
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -211,7 +215,7 @@ export namespace AutoMovieArchetypeEquineScramble {
       (w: IWindow): boolean => seconds > w.from && seconds < w.to,
     );
     if (window === undefined || footing === undefined) return goal;
-    const amount: number = minimumJerk.share(
+    const amount: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(
         1,
         (seconds - window.from) / window.entry,

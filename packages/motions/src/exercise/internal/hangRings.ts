@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -127,9 +127,9 @@ export function hangRings(
           const to: number = c.to * duration;
           const share: number =
             seconds < from
-              ? minimumJerk.share(Math.max(0, 1 - (from - seconds) / REACH))
+              ? AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, 1 - (from - seconds) / REACH))
               : seconds > to
-                ? minimumJerk.share(Math.max(0, 1 - (seconds - to) / REACH))
+                ? AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, 1 - (seconds - to) / REACH))
                 : 1;
           w = Math.max(w, share);
         }

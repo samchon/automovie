@@ -24,7 +24,7 @@ const { part, top, shape } = EquineFordBarReads;
  *
  * The water is a horizontal plane at `water`, and every bed and bank is an
  * authored world plane of `footing` (`AutoMovieArchetypeQuadrupedFooting`). The
- * wading and climbing are the grounded ride (`rideQuadruped`) on that footing,
+ * wading and climbing are the grounded ride (`AutoMovieArchetypeQuadruped.ride`) on that footing,
  * the wading course ending, and the climbing course starting, at the swim's
  * speed. Between them the animal floats with its back `immersion` below the
  * water, its trunk level on the wading course's final heading, travelling
@@ -70,7 +70,7 @@ const { part, top, shape } = EquineFordBarReads;
  *   transition or a bed met while swimming; and as the grounded ride refuses
  *   its courses and footing.
  */
-export function AutoMovieArchetypeEquineFord<
+function equineFord<
   Id extends string,
   D extends string,
 >(
@@ -425,7 +425,7 @@ export function AutoMovieArchetypeEquineFord<
     startSpeed: number,
     endSpeed: number,
   ): AutoMovieArchetypeRide.IRide<Id, Dimension> {
-    return AutoMovieArchetypeQuadrupedDatumRide(
+    return AutoMovieArchetypeQuadrupedDatumRide.ride(
       animal,
       {
         start,
@@ -491,5 +491,28 @@ export function AutoMovieArchetypeEquineFord<
         swim.neck,
         `the head's lowest surface at ${lowest} m does not clear the water at ${water} m`,
       );
+  }
+}
+/** Operations for an equid crossing authored water and banks. */
+export namespace AutoMovieArchetypeEquineFord {
+  /**
+   * Build the wading, swimming and climbing take on one film clock.
+   *
+   * @param animal The equid, in its neutral pose.
+   * @param params The water, footing, three courses and authored swim.
+   * @returns The crossing, sampled by film second.
+   * @throws {AutoMovieArchetypeRefusal} For invalid water or swim conditions, unreachable banks, collision with the bed or water, and refusals from the grounded rides.
+   */
+  export function create<Id extends string, D extends string>(
+    animal: AutoMovieArchetype<
+      Id,
+      D | AutoMovieArchetypeQuadrupedBody.Dimension
+    >,
+    params: AutoMovieArchetypeEquineFordPlan.IParams,
+  ): AutoMovieArchetypeEquineFordPlan.IClip<
+    Id,
+    D | AutoMovieArchetypeQuadrupedBody.Dimension
+  > {
+    return equineFord(animal, params);
   }
 }

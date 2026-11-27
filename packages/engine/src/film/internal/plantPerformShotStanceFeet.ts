@@ -18,11 +18,11 @@ import type {
   IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
-import { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
+import { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { STATIC_SUPPORT_HEIGHT_EPSILON } from "../../motion/constants/STATIC_SUPPORT_HEIGHT_EPSILON";
-import { plantStanceFeet } from "../../motion/plantStanceFeet";
+import { AutoMovieEngineMotionPlanting } from "../../motion";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { sampleStanceTimes } from "../../motion/internal/sampleStanceTimes";
 import { spaceGround } from "../../space/internal/spaceGround";
@@ -250,12 +250,12 @@ export function plantPerformShotStanceFeet(
     const restFrames:
       | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
       | undefined = props.restFrames?.(actor);
-    const planted: IAutoMoviePlantedFeet = plantStanceFeet({
+    const planted: IAutoMoviePlantedFeet = AutoMovieEngineMotionPlanting.plantStanceFeet({
       skeleton: rig,
       motion,
       jointAxes,
       restFrames,
-      poseResolution: prepareSkeletonPoseResolution(rig, jointAxes, restFrames),
+      poseResolution: prepareSkeletonPoseResolution.run(rig, jointAxes, restFrames),
       groundY: modelGround,
       support,
       openingPlants: (prior ?? []).map(

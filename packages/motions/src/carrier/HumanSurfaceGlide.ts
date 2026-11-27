@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -349,8 +349,8 @@ export namespace HumanSurfaceGlide {
             Quaternion.fromAxisAngle(UP, angle / Quaternion.DEG2RAD),
           ),
         };
-        const set: number = minimumJerk.share(acquired);
-        const finish: number = minimumJerk.share(braked);
+        const set: number = AutoMovieEngineMotionSampling.minimumJerkShare(acquired);
+        const finish: number = AutoMovieEngineMotionSampling.minimumJerkShare(braked);
         const turnLean: number = Math.min(
           7,
           Math.max(-7, speed * speed * curvature * 3),

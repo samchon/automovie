@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { reportAutoMovieResourceRetirement } from "../../reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "../../internal/reportAutoMovieResourceRetirement.js";
 
 /**
  * Own the optional part-colour materials beside an existing polygon drawing.

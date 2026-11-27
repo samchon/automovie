@@ -71,14 +71,14 @@ const FRAMING_FAILURES: Readonly<
  * @returns Findings and one coverage row per check and requirement.
  */
 export function observeAutoMoviePlacedCamera(
-  props: AutoMovieRenderInspectionCamera.ObservePlaced.IProps,
-): AutoMovieRenderInspectionCamera.ObservePlaced.IResult {
+  props: AutoMovieRenderInspectionCamera.IObservePlacedProps,
+): AutoMovieRenderInspectionCamera.IObservePlacedResult {
   const { sample, targets } = props;
   const findings: IAutoMovieInspectionDiagnostics.IFinding[] = [];
   const coverage: IAutoMovieInspectionDiagnostics.ICoverage[] = [];
-  const distinct: Map<string, AutoMovieRenderInspectionCamera.ObservePlaced.IRequirement> = new Map(
+  const distinct: Map<string, AutoMovieRenderInspectionCamera.IObservePlacedRequirement> = new Map(
     targets.map(
-      (requirement: AutoMovieRenderInspectionCamera.ObservePlaced.IRequirement): [string, AutoMovieRenderInspectionCamera.ObservePlaced.IRequirement] => [
+      (requirement: AutoMovieRenderInspectionCamera.IObservePlacedRequirement): [string, AutoMovieRenderInspectionCamera.IObservePlacedRequirement] => [
         requirement.path,
         requirement,
       ],
@@ -94,7 +94,7 @@ export function observeAutoMoviePlacedCamera(
   const clipTriangles: number = share(PREVIEW_NEAR_CLIP_TRIANGLE_BUDGET);
   for (const requirement of distinct.values()) {
     const { path, target, targetBounds, maxOcclusionRatio } = requirement;
-    const input: AutoMovieRenderInspectionCamera.Observe.IProps = {
+    const input: AutoMovieRenderInspectionCamera.IObserveProps = {
       scene: sample.scene,
       camera: sample.camera,
       target,
@@ -166,7 +166,7 @@ export function observeAutoMoviePlacedCamera(
       target === undefined || sample.scene.overrideMaterial !== null
         ? undefined
         : listAutoMovieCameraSubjectMeshes(target, sample.camera);
-    const clip: AutoMovieRenderInspectionCamera.NearClip.IResult =
+    const clip: AutoMovieRenderInspectionCamera.INearClipResult =
       measureAutoMovieCameraNearClip({
         camera: sample.camera,
         meshes,
@@ -392,7 +392,7 @@ function reportPixels(
 function reportFrameEdge(
   findings: IAutoMovieInspectionDiagnostics.IFinding[],
   row: IRow,
-  result: AutoMovieRenderInspectionCamera.FrameEdge.IResult,
+  result: AutoMovieRenderInspectionCamera.IFrameEdgeResult,
 ): IAutoMovieInspectionDiagnostics.ICoverage {
   if (result.status === "unmeasured")
     return { ...row, status: "unsupported", reason: result.reason };
@@ -400,12 +400,12 @@ function reportFrameEdge(
     return { ...row, status: "checked" };
   const { crossings, surface } = result;
   const extents: number[] = crossings.flatMap(
-    (crossing: AutoMovieRenderInspectionCamera.FrameEdge.ICrossing): number[] =>
+    (crossing: AutoMovieRenderInspectionCamera.IFrameEdgeCrossing): number[] =>
       crossing.extent === undefined ? [] : [crossing.extent],
   );
   const sides: string = crossings
     .map(
-      (crossing: AutoMovieRenderInspectionCamera.FrameEdge.ICrossing): string =>
+      (crossing: AutoMovieRenderInspectionCamera.IFrameEdgeCrossing): string =>
         crossing.side,
     )
     .join(" ");
@@ -424,7 +424,7 @@ function reportFrameEdge(
         { name: "crossed-sides", value: sides, unit: "sides" },
         ...crossings.flatMap(
           (
-            crossing: AutoMovieRenderInspectionCamera.FrameEdge.ICrossing,
+            crossing: AutoMovieRenderInspectionCamera.IFrameEdgeCrossing,
           ): IAutoMovieInspectionDiagnostics.IMeasurement[] =>
             crossing.extent === undefined
               ? []

@@ -1,14 +1,6 @@
-import { AutoMovieHumanoidSurfaceRays, Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMoviePhysicalSegment,
-  IAutoMoviePhysicalShape,
-  IAutoMovieQuaternion,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieHumanoidSurfaceRays, Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMoviePhysicalSegment, IAutoMoviePhysicalShape, IAutoMovieQuaternion, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 /** The alternatives of `OfReadSide`'s site. */
 type OfReadSide = "Left" | "Right";
@@ -40,7 +32,7 @@ export function HumanFootOutline(
   const Side: OfReadSide = side === "left" ? "Left" : "Right";
   const heel: IAutoMovieHumanoidSurfaces.IFrame =
     body.surfaces.sockets[`heel${Side}`];
-  const floor: number = resolveAutoMovieHumanoidSurfaces.point(
+  const floor: number = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
     heel,
     tools.at(heel.bone),
   ).y;

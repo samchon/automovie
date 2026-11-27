@@ -1,7 +1,8 @@
 import { auditAutoMovieDecodedFrames as auditAutoMovieDecodedFramesImplementation } from "./internal/auditAutoMovieDecodedFrames.js";
 import { auditAutoMovieDeliveryContent as auditAutoMovieDeliveryContentImplementation } from "./internal/auditAutoMovieDeliveryContent.js";
+import { auditAutoMovieEncodedPresentation as auditAutoMovieEncodedPresentationImplementation } from "./internal/auditAutoMovieEncodedPresentation.js";
 
-import { type IAutoMovieProductionAudioProbe, type IAutoMovieAssertProductionPngPictureProps, type IAutoMovieProductionPngProfile, type IAutoMovieResolveProductionPngProfileProps, type IAutoMovieAssertProductionVideoProfileProps, type IAutoMovieProductionVideoProfile, type IAutoMovieResolveProductionVideoProfileProps, type IAutoMovieDecodedFrameAudit, type IAutoMovieDeliveryContentAudit } from "@automovie/interface";
+import { type IAutoMovieProductionAudioProbe, type IAutoMovieAssertProductionPngPictureProps, type IAutoMovieProductionPngProfile, type IAutoMovieResolveProductionPngProfileProps, type IAutoMovieAssertProductionVideoProfileProps, type IAutoMovieProductionVideoProfile, type IAutoMovieResolveProductionVideoProfileProps, type IAutoMovieDecodedFrameAudit, type IAutoMovieDeliveryContentAudit, type IAutoMovieAuditEncodedPresentationExpected, type IAutoMovieAuditEncodedPresentationProbe } from "@automovie/interface";
 
 import { assertProductionAacProfile } from "./internal/assertProductionAacProfile.js";
 import { assertProductionVideoProfile } from "./internal/assertProductionVideoProfile.js";
@@ -34,6 +35,14 @@ export class AutoMovieRenderDelivery {
     props: IAutoMovieDeliveryContentAudit.IProps,
   ): IAutoMovieDeliveryContentAudit.IResult {
     return auditAutoMovieDeliveryContentImplementation(props);
+  }
+
+  /** Audit an encoded file against its commissioned stream profile and exact duration. */
+  public static auditEncodedPresentation(
+    probe: IAutoMovieAuditEncodedPresentationProbe,
+    expected: IAutoMovieAuditEncodedPresentationExpected,
+  ): void {
+    auditAutoMovieEncodedPresentationImplementation(probe, expected);
   }
 
   private constructor() {}

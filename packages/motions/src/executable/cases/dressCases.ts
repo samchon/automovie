@@ -1,17 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
@@ -96,7 +84,7 @@ export function dressCases(
         side: AutoMovieHumanSide,
       ): IAutoMovieVector3 =>
         item === "hat"
-          ? resolveAutoMovieHumanoidSurfaces.place(
+          ? AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
               who.body.surfaces.sockets[
                 side === "left" ? "palmLeft" : "palmRight"
               ],
@@ -110,7 +98,7 @@ export function dressCases(
         const region =
           item === "hat" ? "crown" : side === "left" ? "earLeft" : "earRight";
         const frame = who.body.surfaces.regions[region];
-        const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        const at: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           bones.get(frame.bone)!,
         ).point;
@@ -147,7 +135,7 @@ export function dressCases(
               dressCaseWearable.WEAR[item].translation,
             ),
           ),
-          resolveAutoMovieHumanoidSurfaces.place(
+          AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
             region,
             bones.get(region.bone)!,
           ).point,

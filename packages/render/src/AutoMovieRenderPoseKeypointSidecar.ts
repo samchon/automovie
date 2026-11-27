@@ -1,8 +1,14 @@
-import { type IAutoMoviePoseKeypointSidecar } from "@automovie/interface";
+import type { IAutoMoviePlanPoseKeypointSidecarProps, IAutoMoviePoseKeypointSidecar } from "@automovie/interface";
 import { renderPoseKeypointSidecar as renderPoseKeypointSidecarImplementation } from "./internal/renderPoseKeypointSidecar.js";
+import { planPoseKeypointSidecar as planPoseKeypointSidecarImplementation } from "./internal/planPoseKeypointSidecar.js";
 
 /** Public operations for Auto Movie Render Pose Keypoint Sidecar. */
 export namespace AutoMovieRenderPoseKeypointSidecar {
+  /** Plan the pose-keypoint sidecar for a production sequence. */
+  export function plan(props: IAutoMoviePlanPoseKeypointSidecarProps): IAutoMoviePoseKeypointSidecar {
+    return planPoseKeypointSidecarImplementation(props);
+  }
+
   /**
    * Serialize a pose-keypoint sidecar for the host to write: JSON indented by two
    * spaces, properties in declaration order, ending with one newline.

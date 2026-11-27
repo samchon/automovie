@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMinimumJerk,
@@ -187,11 +187,11 @@ export function staggerClose(
   const jump: IAutoMovieVector3 = Vector3.subtract(
     landed,
     nearest(
-      Vector3.subtract(begin, Vector3.scale(travel, minimumJerk(0).ds / rate)),
+      Vector3.subtract(begin, Vector3.scale(travel, AutoMovieEngineMotionSampling.minimumJerk(0).ds / rate)),
     ),
   );
   for (let i: number = 1; i * STEP <= longest; i++) {
-    const reference: IAutoMovieMinimumJerk.IProfile = minimumJerk(
+    const reference: IAutoMovieMinimumJerk.IProfile = AutoMovieEngineMotionSampling.minimumJerk(
       ((i - 1) * STEP) / righting,
     );
     const towards: IAutoMovieVector3 = Vector3.lerp(begin, rest, reference.s);
@@ -206,7 +206,7 @@ export function staggerClose(
         aimed,
         Vector3.scale(
           jump,
-          1 - minimumJerk.share(Math.min(1, ((i - 1) * STEP) / loading)),
+          1 - AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, ((i - 1) * STEP) / loading)),
         ),
       ),
     );

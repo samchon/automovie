@@ -1,8 +1,8 @@
 import {
   Quaternion,
   Vector3,
-  physicalHullFaces,
-  physicalShapeBounds,
+  AutoMoviePhysicalHullFaces,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -200,7 +200,7 @@ function minima(
     );
     if (selection !== undefined && groups === undefined) continue;
     for (const shape of shapes[i]!) {
-      const low: number = physicalShapeBounds.lowestFromParent(
+      const low: number = AutoMovieEnginePhysics.physicalShapeBoundsLowestFromParent(
         positions[i]!,
         rotations[i]!,
         shape,
@@ -324,7 +324,7 @@ function mirrored(segment: ISided, bone: string): ISided {
           rotation: mirrorTurn(shape.transform.rotation),
         };
         if (shape.kind !== "hull") return { ...shape, transform };
-        const points: IAutoMovieVector3[] = physicalHullFaces.mirrorX(
+        const points: IAutoMovieVector3[] = AutoMoviePhysicalHullFaces.mirrorX(
           shape.points,
         );
         return {
@@ -333,7 +333,7 @@ function mirrored(segment: ISided, bone: string): ISided {
           points,
           ...(shape.hull === undefined
             ? {}
-            : { hull: physicalHullFaces.mirrorHull(points, shape.hull) }),
+            : { hull: AutoMoviePhysicalHullFaces.mirrorHull(points, shape.hull) }),
         };
       },
     ),

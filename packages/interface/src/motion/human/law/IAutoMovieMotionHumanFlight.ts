@@ -17,7 +17,7 @@ export interface IAutoMovieMotionHumanFlight {
   /**
    * The whole-body angular momentum about the centre of mass: given, world kg
    * m²/s, or solved from the turns the flight must make
-   * (`solveAirborneTakeoff`).
+   * (`AutoMovieEngineMotionAirborneTakeoff`).
    */
   momentum:
     | IAutoMovieMotionHumanFlightMomentum

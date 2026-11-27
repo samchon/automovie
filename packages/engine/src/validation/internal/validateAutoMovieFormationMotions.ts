@@ -11,7 +11,7 @@ import {
   IAutoMovieShotParticipant,
 } from "@automovie/interface";
 
-import { autoMovieModelGaits } from "../../autoMovieModelGaits";
+import { AutoMovieEngineModel } from "../../AutoMovieEngineModel";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { engineDiagnostic } from "./engineDiagnostic";
 
@@ -69,7 +69,7 @@ export function validateAutoMovieFormationMotions(
               );
               return model === undefined
                 ? []
-                : autoMovieModelGaits(model).map(
+                : AutoMovieEngineModel.gaits(model).map(
                     (gait: IAutoMovieGait): string => gait.name,
                   );
             },

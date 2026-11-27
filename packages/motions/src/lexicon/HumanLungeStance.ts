@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -100,7 +100,7 @@ export function HumanLungeStance(
   ): IAutoMovieMotionHumanPosture => {
     const facing: number =
       entry.yaw +
-      minimumJerk.share(Math.min(1, time / transition)) *
+      AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, time / transition)) *
         (unwrap(raw(time), bearing(time)) - entry.yaw);
     const placed = {} as Record<
       AutoMovieHumanSide,

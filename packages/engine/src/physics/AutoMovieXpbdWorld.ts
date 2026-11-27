@@ -11,11 +11,11 @@ import { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import { AutoMovieXpbdIntegration } from "./AutoMovieXpbdIntegration";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdSnapshot } from "./AutoMovieXpbdSnapshot";
+import type { IAutoMovieXpbdResponder } from "./internal/IAutoMovieXpbdResponder";
 import { readXpbdManifolds } from "./internal/readXpbdManifolds";
 import { respondXpbdArticulation } from "./internal/respondXpbdArticulation";
 import { solveXpbdContactVelocities } from "./internal/solveXpbdContactVelocities";
 import { solveXpbdContacts } from "./solveXpbdContacts";
-import { solveXpbdJoints } from "./solveXpbdJoints";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
 /**
@@ -61,7 +61,7 @@ export class AutoMovieXpbdWorld {
   public contactFrequency: number = 30;
 
   /** The last step's contacts, sensors included. */
-  private found: solveXpbdContacts.IContact[] = [];
+  private found: AutoMovieXpbdWorld.IContact[] = [];
 
   /**
    * The ground-reaction wrench each articulation's root controller asks of its
@@ -184,7 +184,7 @@ export class AutoMovieXpbdWorld {
    *
    * @param filter Whether two colliders may touch; every pair when absent.
    */
-  public step(filter?: solveXpbdContacts.Filter): void {
+  public step(filter?: AutoMovieXpbdWorld.Filter): void {
     const h: number = this.timestep;
     for (const body of this.bodies) {
       AutoMovieXpbdIntegration.predict(body, this.gravity, h);
@@ -195,7 +195,7 @@ export class AutoMovieXpbdWorld {
         key(joint.parent, joint.child),
       ),
     );
-    this.found = solveXpbdContacts.detect(
+    this.found = AutoMovieXpbdWorld.detect(
       this.colliders,
       (a: AutoMovieXpbdCollider, b: AutoMovieXpbdCollider): boolean =>
         !joined.has(key(a.body, b.body)) &&
@@ -205,11 +205,11 @@ export class AutoMovieXpbdWorld {
     const dynamic: AutoMovieXpbdBody[] = this.bodies.filter(
       (body: AutoMovieXpbdBody): boolean => body.dynamic,
     );
-    solveXpbdJoints.positions(this.joints, h);
+    AutoMovieXpbdJoint.positions(this.joints, h);
     // The contacts' corrections move each jointed body's whole tree along
     // its joints' free axes (`respondXpbdArticulation`), so a contact
     // no longer pulls a body off its joints after the joints' pass.
-    solveXpbdContacts.positions(
+    AutoMovieXpbdWorld.positions(
       this.found,
       h,
       this.allowedError,
@@ -218,7 +218,7 @@ export class AutoMovieXpbdWorld {
     );
     for (const body of dynamic) AutoMovieXpbdIntegration.derive(body, h);
     solveXpbdContactVelocities(this.found, h, Vector3.length(this.gravity));
-    solveXpbdJoints.motors(
+    AutoMovieXpbdJoint.motors(
       this.joints,
       h,
       this.found,
@@ -247,12 +247,12 @@ export class AutoMovieXpbdWorld {
   public intersections(): AutoMovieXpbdWorld.IIntersection[] {
     return this.found
       .filter(
-        (contact: solveXpbdContacts.IContact): boolean =>
+        (contact: AutoMovieXpbdWorld.IContact): boolean =>
           contact.a.sensor || contact.b.sensor,
       )
       .map(
         (
-          contact: solveXpbdContacts.IContact,
+          contact: AutoMovieXpbdWorld.IContact,
         ): AutoMovieXpbdWorld.IIntersection => ({
           a: contact.a,
           b: contact.b,
@@ -297,7 +297,7 @@ export class AutoMovieXpbdWorld {
    *
    * @returns The world's own records, read-only; a snapshot copies them.
    */
-  public lastContacts(): readonly solveXpbdContacts.IContact[] {
+  public lastContacts(): readonly AutoMovieXpbdWorld.IContact[] {
     return this.found;
   }
 
@@ -308,7 +308,7 @@ export class AutoMovieXpbdWorld {
    * @param contacts The contacts, their colliders this world's; held, not
    *   copied.
    */
-  public adoptContacts(contacts: solveXpbdContacts.IContact[]): void {
+  public adoptContacts(contacts: AutoMovieXpbdWorld.IContact[]): void {
     this.found = contacts;
   }
 
@@ -469,6 +469,92 @@ export namespace AutoMovieXpbdWorld {
 
     /** The second collider. */
     b: AutoMovieXpbdCollider;
+  }
+
+  /** One contact from a world step. */
+  export type IContact = solveXpbdContacts.IContact;
+
+  /** Whether a collider pair may participate in contact response. */
+  export type Filter = solveXpbdContacts.Filter;
+
+  /** Articulated response used by the contact position pass. */
+  export type IArticulationResponder = IAutoMovieXpbdResponder;
+
+  /**
+   * Find the overlapping pairs at the predicted poses and their manifolds: each
+   * responding pair contributes one contact per point of its patch
+   * (`physicalShapeContactManifold`, features within `band` of the deepest
+   * plane), or its nearest-feature witnesses when the patch is a single
+   * crossing; a pair with a sensor contributes one overlap record.
+   *
+   * @param colliders Every collider, in creation order.
+   * @param filter The pair filter.
+   * @param band Depth below a support plane still counted as touching, metres.
+   * @returns The contacts, in pair order; sensors included, flagged by their
+   *   colliders.
+  */
+  export function detect(
+    colliders: readonly AutoMovieXpbdCollider[],
+    filter: Filter,
+    band: number,
+  ): IContact[] {
+    return solveXpbdContacts.detect(colliders, filter, band);
+  }
+
+  /**
+   * One position pass over the contacts.
+   *
+   * @param contacts The step's contacts; sensors are skipped.
+   * @param h The substep, seconds.
+   * @param allowed The depth left uncorrected, metres.
+   * @param frequency The contact spring's natural frequency, hertz.
+   * @param trees The pass's articulated response (`respondXpbdArticulation`): a
+   *   jointed body's correction moves its whole tree along its joints' free
+   *   axes; each body alone when absent.
+  */
+  export function positions(
+    contacts: readonly IContact[],
+    h: number,
+    allowed: number,
+    frequency: number,
+    trees?: IArticulationResponder,
+  ): void {
+    solveXpbdContacts.positions(contacts, h, allowed, frequency, trees);
+  }
+
+  /**
+   * The responding contacts grouped by collider pair, in pair order; sensors
+   * are left out.
+   *
+   * @param contacts The step's contacts, the points of one pair adjacent.
+   * @returns One array per pair; the contacts are the given records.
+  */
+  export function manifolds(contacts: readonly IContact[]): IContact[][] {
+    return solveXpbdContacts.manifolds(contacts);
+  }
+
+  /**
+   * The mean of body-frame offsets.
+   *
+   * @param points The offsets, at least one.
+   * @returns Their mean.
+  */
+  export function centroid(points: readonly IAutoMovieVector3[]): IAutoMovieVector3 {
+    return solveXpbdContacts.centroid(points);
+  }
+
+  /**
+   * A body-frame offset from the centre as a world arm.
+   *
+   * @param body The body.
+   * @param offset The offset in its frame, metres.
+   * @returns The world arm, metres.
+  */
+  export function arm(
+    body: AutoMovieXpbdBody,
+    offset: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return solveXpbdContacts.arm(body, offset);
   }
 }
 

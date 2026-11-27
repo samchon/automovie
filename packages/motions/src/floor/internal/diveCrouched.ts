@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -29,8 +29,8 @@ export function diveCrouched(
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
   ): IAutoMovieMotionHumanPosture => {
-    const share: number = minimumJerk.share(seconds / crouch);
-    const toe: number = minimumJerk.share(
+    const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(seconds / crouch);
+    const toe: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.max(0, (seconds - (crouch - toeOff)) / toeOff),
     );
     if (!(toe > 0 && (lift.left > 0 || lift.right > 0)))

@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -152,10 +152,10 @@ function plan(
     contacts: schedule.contacts,
     posture: (time: number): IAutoMovieMotionHumanPosture => {
       if (time <= from) return entry;
-      const travel: number = minimumJerk.share(
+      const travel: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(1, (time - from) / (to - from)),
       );
-      const recovery: number = minimumJerk.share(
+      const recovery: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(1, Math.max(0, (time - to) / (settle - to))),
       );
       const trailing: number = Math.min(1, (time - from) / (settle - from));
@@ -171,7 +171,7 @@ function plan(
       );
       // The step lifts the foot off in the first third of the recovery,
       // travels in the middle third and only sets it down in the last.
-      const step: number = minimumJerk.share(
+      const step: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(
           1,
           Math.max(
@@ -238,7 +238,7 @@ function plan(
               share,
         ),
       });
-      const landing: number = minimumJerk.share(
+      const landing: number = AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(
           1,
           Math.max(

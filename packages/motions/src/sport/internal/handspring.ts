@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
@@ -165,7 +165,7 @@ export namespace handspring {
       .posture(0);
     const yaw: number = standing.yaw;
     const ease: (x: number) => number = (x: number): number =>
-      minimumJerk.share(x);
+      AutoMovieEngineMotionSampling.minimumJerkShare(x);
     const reached: IAutoMovieMotionHumanExerciseKey.IKey = left
       ? lunged(body)
       : ExerciseKey.mirror(lunged(body));

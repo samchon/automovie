@@ -1,8 +1,8 @@
 import {
   Quaternion,
   Vector3,
-  minimumJerk,
-  rotationBetween,
+  AutoMovieEngineMath,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
@@ -157,7 +157,7 @@ export namespace EquineComfortRows {
       y: 0,
       z: 0,
     });
-    const toe: IAutoMovieQuaternion = rotationBetween(
+    const toe: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
       flat,
       Quaternion.rotateVector(Quaternion.fromAxisAngle(lateral, REST.tip), {
         x: 0,
@@ -186,7 +186,7 @@ export namespace EquineComfortRows {
         z: 0,
       },
     );
-    const time: number = minimumJerk.time(LOAD);
+    const time: number = AutoMovieEngineMotionSampling.minimumJerkTime(LOAD);
     return {
       cue,
       start,
@@ -203,7 +203,7 @@ export namespace EquineComfortRows {
             trunk: EquineStanceSupport.blend(start.trunk, loaded, share / LOAD),
             limbs: EquineStanceSupport.placed(start.anchors),
           };
-        const s: number = minimumJerk.share((share - LOAD) / (1 - LOAD));
+        const s: number = AutoMovieEngineMotionSampling.minimumJerkShare((share - LOAD) / (1 - LOAD));
         return {
           trunk: AutoMovieArchetypeFrame.chain(
             EquineBodyPose.turn(0, roll * s, pivot, ZERO, heading),

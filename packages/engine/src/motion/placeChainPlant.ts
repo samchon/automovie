@@ -6,7 +6,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { prepareChainConstants } from "./prepareChainConstants";
+import type { IAutoMoviePrepareChainConstants } from "@automovie/interface";
 
 /**
  * A chain's articulation-free frames under a pose, from the rig's constants
@@ -22,7 +22,7 @@ import type { prepareChainConstants } from "./prepareChainConstants";
  * @returns The prepared chain, as `prepareChainPlant` returns it.
  */
 export function placeChainPlant(
-  constants: prepareChainConstants.IConstants,
+  constants: IAutoMoviePrepareChainConstants.IConstants,
   parent: {
     worldPosition: IAutoMovieVector3;
     worldRotation: IAutoMovieQuaternion;

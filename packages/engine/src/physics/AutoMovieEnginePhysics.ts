@@ -1,3 +1,6 @@
+import { solveDenseActiveSet as solveDenseActiveSetImplementation } from "./internal/solveDenseActiveSet";
+import { solveXpbdDualActiveSet as solveXpbdDualActiveSetImplementation } from "./internal/solveXpbdDualActiveSet";
+import { linearizePhysicalSeparation as linearizePhysicalSeparationImplementation } from "./internal/linearizePhysicalSeparation";
 import { admitPhysicalPointBounds as admitPhysicalPointBoundsImplementation } from "./internal/admitPhysicalPointBounds";
 import { impactRecoil as impactRecoilImplementation } from "./internal/impactRecoil";
 import { inPhysicalFloorBounds as inPhysicalFloorBoundsImplementation } from "./internal/inPhysicalFloorBounds";
@@ -48,6 +51,12 @@ import { solvePhysicalTargetStep as solvePhysicalTargetStepImplementation } from
 import { admitPhysicalContactBindings as admitPhysicalContactBindingsImplementation } from "./internal/admitPhysicalContactBindings";
 import { admitPhysicalSupportPattern as admitPhysicalSupportPatternImplementation } from "./internal/admitPhysicalSupportPattern";
 import { type AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import { type AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
+import { accumulatePhysicalMotorTorques as accumulatePhysicalMotorTorquesImplementation } from "./internal/accumulatePhysicalMotorTorques";
+import { configurePhysicalJointMotor as configurePhysicalJointMotorImplementation } from "./internal/configurePhysicalJointMotor";
+import type { IAutoMovieConfigurePhysicalJointMotor } from "@automovie/interface";
+import { physicalAuthoredCenter as physicalAuthoredCenterImplementation } from "./internal/physicalAuthoredCenter";
+import { advancePhysicalOwnership as advancePhysicalOwnershipImplementation } from "./internal/advancePhysicalOwnership";
 import { type IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { collectPhysicalContacts as collectPhysicalContactsImplementation } from "./internal/collectPhysicalContacts";
 import { compileImpactEffects as compileImpactEffectsImplementation } from "./internal/compileImpactEffects";
@@ -84,6 +93,12 @@ import { samplePhysicalRecoverySupport as samplePhysicalRecoverySupportImplement
 import { solvePhysicalCompliantContacts as solvePhysicalCompliantContactsImplementation } from "./internal/solvePhysicalCompliantContacts";
 import { suggestCollisionResponse as suggestCollisionResponseImplementation } from "./internal/suggestCollisionResponse";
 import { warmPhysicalSupportTargets as warmPhysicalSupportTargetsImplementation } from "./internal/warmPhysicalSupportTargets";
+import { trackPhysicalBalanceTargets as trackPhysicalBalanceTargetsImplementation } from "./internal/trackPhysicalBalanceTargets";
+import { trackPhysicalContactTargets as trackPhysicalContactTargetsImplementation } from "./internal/trackPhysicalContactTargets";
+import { trackPhysicalRootSupportTargets as trackPhysicalRootSupportTargetsImplementation } from "./internal/trackPhysicalRootSupportTargets";
+import { physicalRootExternal as physicalRootExternalImplementation } from "./internal/physicalRootExternal";
+import { physicalRootTransitions as physicalRootTransitionsImplementation } from "./internal/physicalRootTransitions";
+import type { AutoMovieEnginePhysicsTrackingTypes } from "./AutoMovieEnginePhysicsTrackingTypes";
 
 import { type IAutoMovieCombinePhysicalMassProperties, type IAutoMovieFootfallPattern, type IAutoMovieModel, type IAutoMoviePhysicalHullFaces, type IAutoMoviePhysicalHullMass, type IAutoMoviePhysicalProfile, type IAutoMoviePhysicalShape, type IAutoMoviePhysicalShapePairContact, type IAutoMoviePrimitiveShape, type IAutoMovieRigidTransform, type IAutoMovieVector3, type IAutoMovieMotionGeometry, type IAutoMovieDerivePhysicalProfile, type IAutoMovieQuaternion, type IAutoMoviePrincipalTensorFrame, type IAutoMoviePhysicalJoint, type IAutoMovieSamplePhysicalTarget, type IAutoMoviePhysicalShapeNearest, type IAutoMoviePhysicalShapeSurfaceAnchor, type IAutoMoviePhysicalFrame, type IAutoMoviePhysicalSimulationInput, type IAutoMoviePreparePhysicalGeometry, type IAutoMovieContactReceipt, type IAutoMoviePhysicalSegment, type IAutoMovieDerivePhysicalActuators, type IAutoMoviePoses, type IAutoMovieLinearizePhysicalTargetRows, type IAutoMovieMeasurePhysicalJointLimits, type IAutoMovieMeasurePhysicalMotionConstraint, type IAutoMoviePhysicalSegmentState, type IAutoMoviePhysicalGravityTorques, type IAutoMoviePhysicalJointEffort, type IAutoMoviePhysicalJointMotorCommand, type IAutoMoviePhysicalJointAxis, type IAutoMovieSolvePhysicalArticulationTargets, type IAutoMovieSolvePhysicalChainTarget, type IAutoMovieSolvePhysicalTargetStep, type IAutoMoviePhysicalContactBinding, type IAutoMoviePhysicalPointBound, type IAutoMovieCompiledEffect, type IAutoMovieCompileImpactEffects, type IAutoMovieDistributePhysicalSupportWrench, type IAutoMovieRecoilPush, type IAutoMoviePhysicalContactBindingRows, type IAutoMoviePhysicalContactSupportRows, type IAutoMoviePhysicalRecoveryState, type IAutoMovieStepPlanner, type IAutoMoviePhysicalSupportRootDrop, type IAutoMoviePlanPhysicalContactTargets, type IAutoMoviePlanPhysicalFloorSupportTargets, type IAutoMoviePlanPhysicalRootSupportTargets, type IAutoMoviePlanPhysicalSupportTargets, type IAutoMovieProjectPhysicalSupportReach, type IAutoMovieRecordPhysicalContact, type IAutoMovieImpact, type IAutoMovieImpactBodyState, type IAutoMovieResolvePhysicalSupportRedundancy, type IAutoMovieSampleContactSurfaceResponse, type IAutoMovieSamplePhysicalRecoveryGoal, type IAutoMovieSamplePhysicalRecoverySupport, type IAutoMovieSolvePhysicalCompliantContacts, type IAutoMovieCollisionResponse, type IAutoMovieSuggestCollisionResponse, type IAutoMovieWarmPhysicalSupportTargets, type IAutoMoviePose, type AutoMovieHumanoidBone, type IAutoMovieSkeleton } from "@automovie/interface";
 
@@ -98,8 +113,405 @@ import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
 import { primitiveCentroid as readPrimitiveCentroid } from "./internal/primitiveCentroid";
 import { primitiveVolume as readPrimitiveVolume } from "./internal/primitiveVolume";
 
+import { physicalShapeFaceContactImplementation } from "./internal/physicalShapeFaceContactImplementation";
+import { physicalShapeContactManifold as physicalShapeContactManifoldImplementation } from "./internal/physicalShapeContactManifold";
+import { physicalShapeGjkCast as physicalShapeGjkCastImplementation } from "./internal/physicalShapeGjkCast";
+import { physicalShapeGjkSolid as physicalShapeGjkSolidImplementation } from "./internal/physicalShapeGjkSolid";
+import { physicalShapeGjkWitness as physicalShapeGjkWitnessImplementation } from "./internal/physicalShapeGjkWitness";
+import { physicalShapeNormalPrepare as physicalShapeNormalPrepareImplementation } from "./internal/physicalShapeNormalPrepare";
+import { physicalShapeNormalImplementation } from "./internal/physicalShapeNormalImplementation";
+import { physicalShapeHull as physicalShapeHullImplementation } from "./internal/physicalShapeHull";
+import { physicalShapeBoundsImplementation } from "./internal/physicalShapeBoundsImplementation";
+import { physicalShapeQueryImplementation } from "./internal/physicalShapeQuery";
+import { physicalShapeGjkImplementation } from "./internal/physicalShapeGjkImplementation";
+import { physicalShapePairDistanceWires as physicalShapePairDistanceWiresImplementation } from "./internal/physicalShapePairDistanceWires";
+import { physicalShapePairDistanceImplementation } from "./internal/physicalShapePairDistanceImplementation";
+import type { AutoMovieEnginePhysicsFaceContactTypes } from "./AutoMovieEnginePhysicsFaceContactTypes";
+import type { AutoMovieEnginePhysicsGjkTypes } from "./AutoMovieEnginePhysicsGjkTypes";
+import type { AutoMovieEnginePhysicsPairDistanceTypes } from "./AutoMovieEnginePhysicsPairDistanceTypes";
 /** Neutral contact, mass and support geometry operations. */
 export namespace AutoMovieEnginePhysics {
+  /** One inequality row `a x <= b` in a dense active-set problem. */
+  export interface ISolveDenseActiveSetRow {
+    /** The row coefficients, one per variable. */
+    a: readonly number[];
+    /** The row bound. */
+    b: number;
+  }
+
+  /** A positive-definite quadratic program with inequality rows. */
+  export interface ISolveDenseActiveSetProblem {
+    /** Symmetric positive-definite objective matrix, row by row. */
+    quadratic: readonly (readonly number[])[];
+    /** The objective's linear term h in `-h^T x`. */
+    linear: readonly number[];
+    /** The inequality rows. */
+    rows: readonly ISolveDenseActiveSetRow[];
+  }
+
+  /** One sparse row `a x = value` or `a x >= value`. */
+  export interface ISolveXpbdDualActiveSetRow {
+    /** Variable indexes read by the row. */
+    indices: number[];
+    /** Coefficients aligned with `indices`. */
+    weights: number[];
+    /** The row's right side. */
+    value: number;
+  }
+
+  /** A strictly convex diagonal quadratic program. */
+  export interface ISolveXpbdDualActiveSetProblem {
+    /** Positive objective diagonal. */
+    diagonal: number[];
+    /** The objective's linear term. */
+    linear: number[];
+    /** Equality rows. */
+    equalities: ISolveXpbdDualActiveSetRow[];
+    /** Inequality rows. */
+    inequalities: ISolveXpbdDualActiveSetRow[];
+    /** Violated inequalities to try first, usually the previous active set. */
+    prefer: readonly number[];
+  }
+
+  /** The minimizer and inequalities active at it. */
+  export interface ISolveXpbdDualActiveSetResult {
+    /** The minimizer. */
+    primal: number[];
+    /** Active inequality indexes. */
+    active: number[];
+  }
+
+  /** A frozen contact side used by a separation linearization. */
+  export interface IPhysicalSeparationSide {
+    /** Unit world normal from the first collider toward the second. */
+    normal: IAutoMovieVector3;
+    /** Separation at the linearized pose, metres. */
+    separation: number;
+    /** Frozen patch witnesses. */
+    witnesses: IPhysicalSeparationWitness[];
+  }
+
+  /** A frozen witness point in each collider's local frame. */
+  export interface IPhysicalSeparationWitness {
+    /** First witness in the first bone frame, metres. */
+    localA: IAutoMovieVector3;
+    /** Second witness in the second bone frame, metres. */
+    localB: IAutoMovieVector3;
+    /** Second witness less first at the linearized pose, world metres. */
+    difference: IAutoMovieVector3;
+  }
+  /**
+   * Measure the signed distance between two admitted shapes and their parent poses.
+   *
+   * @param poseA The first shape's parent pose, world metres.
+   * @param shapeA The first shape.
+   * @param poseB The second shape's parent pose, world metres.
+   * @param shapeB The second shape.
+   * @returns Metres, negative when the shapes overlap.
+   */
+  export function physicalShapePairDistance(
+    poseA: IAutoMovieRigidTransform,
+    shapeA: IAutoMoviePhysicalShape,
+    poseB: IAutoMovieRigidTransform,
+    shapeB: IAutoMoviePhysicalShape,
+  ): number {
+    return physicalShapePairDistanceImplementation.physicalShapePairDistance(
+      poseA,
+      shapeA,
+      poseB,
+      shapeB,
+    );
+  }
+
+  /**
+   * The wire frame of one shape: a sphere's centre and a capsule's axis widened
+   * by their radius, a box's and a hull's edges widened by nothing. A hull's
+   * edges are kept per point list.
+   *
+   * @param shape The shape.
+   * @returns Its wire frame, shape-local metres.
+   */
+  export function physicalShapePairDistanceWires(
+    shape: IAutoMoviePhysicalShape,
+  ): AutoMovieEnginePhysicsPairDistanceTypes.IWires {
+    return physicalShapePairDistanceWiresImplementation(shape);
+  }
+
+  /**
+   * Read the outward unit normal of a collider at a point of its surface.
+   * Spheres use the radial direction, capsules use their nearest axis point, and
+   * boxes and hulls use the smooth maximum of their face planes. The fallback
+   * applies when the radius or axis offset has no length.
+   *
+   * @param frame The segment pose.
+   * @param shape The collider.
+   * @param point The surface point in the frame.
+   * @param fallback The direction used when the normal has no direction.
+   * @returns The outward unit normal.
+   */
+  export function physicalShapeNormal(
+    frame: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
+    point: IAutoMovieVector3,
+    fallback: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return physicalShapeNormalImplementation.physicalShapeNormal(
+      frame,
+      shape,
+      point,
+      fallback,
+    );
+  }
+  /**
+   * Read normals on one unchanged admitted frame/shape during an operation. The
+   * centre, rotation and the kind's axis, inverse rotation and planes are
+   * prepared once here; every point retains the original radial checks, plane
+   * heights, exponential weights, summation order and normalization.
+   */
+  export function physicalShapeNormalPrepare(
+    frame: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
+  ): (
+    point: IAutoMovieVector3,
+    fallback: IAutoMovieVector3,
+  ) => IAutoMovieVector3 {
+    return physicalShapeNormalPrepareImplementation(frame, shape);
+  }
+
+  /**
+   * Read signed distance, metres, from a world segment to an admitted shape.
+   *
+   * @param pose The shape's parent pose, world metres.
+   * @param shape The admitted shape.
+   * @param a One end of the segment, world metres.
+   * @param b The other end, world metres.
+   * @param taper Optional endpoint radii, metres.
+   * @returns The signed distance, metres; negative inside.
+   */
+  export function physicalShapeSegmentDistance(
+    pose: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    taper?: readonly [number, number],
+  ): number {
+    return physicalShapeQueryImplementation.physicalShapeQueryDirect(
+      pose,
+      shape,
+      a,
+      b,
+      taper,
+      false,
+    );
+  }
+
+  /** Prepare one shape frame for repeated signed segment-distance queries. */
+  export function preparePhysicalShapeSegmentDistance(
+    pose: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
+  ): ReturnType<typeof physicalShapeQueryImplementation.prepare> {
+    return physicalShapeQueryImplementation.prepare(pose, shape);
+  }
+
+  /**
+   * Read the exact world-axis bounds of an admitted shape.
+   *
+   * @param pose Parent pose in world metres and an admitted unit rotation.
+   * @param shape Admitted local shape geometry and transform, in metres.
+   * @returns Fresh world-axis minimum and maximum coordinates.
+   */
+  export function physicalShapeBounds(
+    pose: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
+  ): IAutoMoviePhysicalShapeBounds.IResult {
+    return physicalShapeBoundsImplementation.physicalShapeBounds(pose, shape);
+  }
+
+  /** Return the exact minimum world Y of an admitted placed shape. */
+  export function physicalShapeBoundsLowest(
+    pose: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
+  ): number {
+    return physicalShapeBoundsImplementation.physicalShapeBoundsLowest(pose, shape);
+  }
+
+  /** Return the exact minimum world Y from the parent's Y and rotation. */
+  export function physicalShapeBoundsLowestFromParent(
+    parentY: number,
+    parentRotation: IAutoMovieRigidTransform["rotation"],
+    shape: IAutoMoviePhysicalShape,
+  ): number {
+    return physicalShapeBoundsImplementation.physicalShapeBoundsLowestFromParent(
+      parentY,
+      parentRotation,
+      shape,
+    );
+  }
+
+  /** Read exact bounds from an already composed shape frame. */
+  export function physicalShapeBoundsFromFrame(
+    center: IAutoMovieVector3,
+    rotation: IAutoMovieRigidTransform["rotation"],
+    shape: IAutoMoviePhysicalShape,
+    takeHullPoint?: (point: IAutoMovieVector3) => void,
+  ): IAutoMoviePhysicalShapeBounds.IResult {
+    return physicalShapeBoundsImplementation.physicalShapeBoundsFromFrame(
+      center,
+      rotation,
+      shape,
+      takeHullPoint,
+    );
+  }
+
+  /**
+   * Read the admitted faces, vertices and radii of a convex hull shape.
+   *
+   * @param shape A convex-hull collider.
+   * @returns Its faces, vertices and bounding radii.
+   */
+  export function physicalShapeHull(
+    shape: Extract<IAutoMoviePhysicalShape, { kind: "hull" }>,
+  ): IAutoMoviePhysicalHullFaces.IHull {
+    return physicalShapeHullImplementation(shape);
+  }
+
+  /**
+   * Find the lowest signed contact witness of a placed shape over a bounded face
+   * outline. Clearance is measured along face-local +Y; concave boundaries and
+   * either outline winding are preserved.
+   *
+   * @param pose The shape parent pose, world metres.
+   * @param shape The physical collider or emitted round solid.
+   * @param face The face pose.
+   * @param outline The bounded face outline in face-local metres.
+   * @param column The face-space direction of the contact columns.
+   * @returns The selected face witness and signed clearance, or `undefined`.
+   */
+  export function physicalShapeFaceContact(
+    pose: IAutoMovieRigidTransform,
+    shape: AutoMovieEnginePhysicsFaceContactTypes.Shape,
+    face: IAutoMovieRigidTransform,
+    outline: readonly IAutoMovieVector3[],
+    column?: IAutoMovieVector3,
+  ): AutoMovieEnginePhysicsFaceContactTypes.IContact | undefined {
+    return physicalShapeFaceContactImplementation.physicalShapeFaceContact(
+      pose,
+      shape,
+      face,
+      outline,
+      column,
+    );
+  }
+  /**
+   * Build the touching patch between two convex colliders along a known normal.
+   *
+   * @param poseA The first shape's parent pose, world metres.
+   * @param shapeA The first shape.
+   * @param poseB The second shape's parent pose, world metres.
+   * @param shapeB The second shape.
+   * @param normal Unit world normal from the first shape toward the second.
+   * @param band Depth below a support plane still counted as touching, metres.
+   * @returns The patch points in hull order; empty for crossing edges.
+   */
+  export function physicalShapeContactManifold(
+    poseA: IAutoMovieRigidTransform,
+    shapeA: IAutoMoviePhysicalShape,
+    poseB: IAutoMovieRigidTransform,
+    shapeB: IAutoMoviePhysicalShape,
+    normal: IAutoMovieVector3,
+    band: number,
+  ): AutoMovieEnginePhysicsContactTypes.IPoint[] {
+    return physicalShapeContactManifoldImplementation(
+      poseA,
+      shapeA,
+      poseB,
+      shapeB,
+      normal,
+      band,
+    );
+  }
+
+  /**
+   * Prepare a face outline for repeated shape placements. The column direction
+   * is expressed in face space and has nonzero Y. Its default follows the face
+   * normal. A terrain owning world-horizontal bounds can pass its local world
+   * vertical instead, preserving the same boundary at every height.
+   */
+  export function physicalShapeFaceContactPrepare(
+    face: IAutoMovieRigidTransform,
+    outline: readonly IAutoMovieVector3[],
+    column?: IAutoMovieVector3,
+  ): (
+    pose: IAutoMovieRigidTransform,
+    shape: AutoMovieEnginePhysicsFaceContactTypes.Shape,
+  ) => AutoMovieEnginePhysicsFaceContactTypes.IContact | undefined {
+    return physicalShapeFaceContactImplementation.physicalShapeFaceContactPrepare(face, outline, column);
+  }
+
+  /**
+   * Bound the signed distance between two convex solids using GJK support points.
+   *
+   * @param a One solid.
+   * @param b The other solid.
+   * @param floor Optional distance at which the query may stop once decided.
+   * @returns Signed distance bounds; the lower bound is negative infinity when
+   *   the cores meet.
+   */
+  export function physicalShapeGjk(
+    a: AutoMovieEnginePhysicsGjkTypes.ISolid,
+    b: AutoMovieEnginePhysicsGjkTypes.ISolid,
+    floor?: number,
+  ): AutoMovieEnginePhysicsGjkTypes.IBound {
+    return physicalShapeGjkImplementation.physicalShapeGjk(a, b, floor);
+  }
+  /**
+   * Closest distance and a witness on the second support-mapped solid. Uses the
+   * same simplex reduction as the point/radius query. Original second-solid
+   * vertices are retained alongside the simplex for its witness.
+   */
+  export function physicalShapeGjkWitness(
+    a: AutoMovieEnginePhysicsGjkTypes.Support,
+    b: AutoMovieEnginePhysicsGjkTypes.Support,
+    tolerance: number,
+  ): { distance: number; point: IAutoMovieVector3 } {
+    return physicalShapeGjkWitnessImplementation(a, b, tolerance);
+  }
+
+  /**
+   * A placed shape as a solid: a sphere's centre, a capsule's axis ends, a
+   * box's corners or a hull's vertices in the world, widened by the sphere's or
+   * the capsule's radius.
+   *
+   * @param pose The shape's parent pose, world metres.
+   * @param shape The shape.
+   * @returns The solid.
+   */
+  export function physicalShapeGjkSolid(
+    pose: IAutoMovieRigidTransform,
+    shape: IAutoMoviePhysicalShape,
+  ): AutoMovieEnginePhysicsGjkTypes.ISolid {
+    return physicalShapeGjkSolidImplementation(pose, shape);
+  }
+
+  /**
+   * The solid a shape sweeps between two placements, as a convex hull: both
+   * placements' core points, widened by the larger radius and by a further
+   * margin, the most any point of the shape strays from the straight chord
+   * between its two places over the motion.
+   *
+   * @param from The shape at one end.
+   * @param to The same shape at the other end, in the same frame.
+   * @param stray The margin, metres, not negative.
+   * @returns The cast.
+   */
+  export function physicalShapeGjkCast(
+    from: AutoMovieEnginePhysicsGjkTypes.ISolid,
+    to: AutoMovieEnginePhysicsGjkTypes.ISolid,
+    stray: number,
+  ): AutoMovieEnginePhysicsGjkTypes.ISolid {
+    return physicalShapeGjkCastImplementation(from, to, stray);
+  }
+
   /** Reads the declared center of mass or derives it from primitive solids. */
   export function centerOfMass(model: IAutoMovieModel): IAutoMovieVector3 | null {
     return bodyCenterOfMass(model);
@@ -1162,10 +1574,67 @@ export namespace AutoMovieEnginePhysics {
    *   the first toward the second, impulse (N s), the normal impulse each side
    *   received, and the separation (m).
    */
-  export function solvePhysicalCompliantContacts(world: AutoMovieXpbdWorld, surfaces: ReadonlyMap<
-    number,
-    IAutoMovieSolvePhysicalCompliantContacts.ISurface
-  >, seconds: number, dt: number): IAutoMovieSolvePhysicalCompliantContacts.IMeasurement[] {
+  /** Solve a positive-definite dense quadratic program by active set. */
+  export function solveDenseActiveSet(
+    problem: ISolveDenseActiveSetProblem,
+  ): number[] | null {
+    return solveDenseActiveSetImplementation(problem);
+  }
+
+  /** Solve a diagonal XPBD quadratic program with its warm active set. */
+  export function solveXpbdDualActiveSet(
+    problem: ISolveXpbdDualActiveSetProblem,
+  ): ISolveXpbdDualActiveSetResult | null {
+    return solveXpbdDualActiveSetImplementation(problem);
+  }
+
+  /** Freeze a contact patch and return its signed-separation linearization. */
+  export function linearizePhysicalSeparation(
+    geometry: IAutoMoviePreparePhysicalGeometry.IQueries,
+    a: IAutoMoviePreparePhysicalGeometry.ICollider,
+    b: IAutoMoviePreparePhysicalGeometry.ICollider,
+    measured?: ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>,
+  ): (
+    first: IAutoMovieRigidTransform,
+    second: IAutoMovieRigidTransform,
+  ) => number {
+    return linearizePhysicalSeparationImplementation(geometry, a, b, measured);
+  }
+  /**
+   * Apply implicit Kelvin-Voigt surface impulses to the sensor overlaps of the
+   * world's last step. A compliant surface is a sensor collider; its rigid core,
+   * a separate collider at the declared compression limit, takes part in the
+   * rigid solve instead.
+   *
+   * Each overlapping pair with a compliant first surface (`surfaces`, the lower
+   * collider order first) is measured once at the current poses by convex signed
+   * distance; a pair that has separated, or whose surfaces belong to one scene
+   * body, gets nothing. The normal impulse solves the implicit law over `dt`,
+   * using the two compliances in series, compliance-weighted damping and
+   * effective inverse mass at the witness midpoint. Coulomb friction opposes
+   * tangential slip, bounded by the mean friction times the normal impulse and
+   * by the impulse that stops the slip. Dynamic bodies receive the combined
+   * impulse times their surface's response gain; kinematic bodies receive none.
+   * The next step integrates the response.
+   *
+   * @param world The world after a step, including its sensor overlaps and bodies.
+   * @param surfaces Each bound collider's compliance (m/N), damping (s), friction
+   *   and gain, by handle.
+   * @param seconds Seconds that stamp the measurements.
+   * @param dt The substep, in seconds.
+   * @returns One measurement per responding pair: the handles, point, normal from
+   *   the first toward the second, impulse (N s), the normal impulse each side
+   *   received, and the separation (m).
+   */
+  export function solvePhysicalCompliantContacts(
+    world: AutoMovieXpbdWorld,
+    surfaces: ReadonlyMap<
+      number,
+      IAutoMovieSolvePhysicalCompliantContacts.ISurface
+    >,
+    seconds: number,
+    dt: number,
+  ): IAutoMovieSolvePhysicalCompliantContacts.IMeasurement[] {
     return solvePhysicalCompliantContactsImplementation(world, surfaces, seconds, dt);
   }
 
@@ -1235,5 +1704,158 @@ export namespace AutoMovieEnginePhysics {
     Record<string, Readonly<Record<string, IAutoMovieRigidTransform>>>
   >, bound: IAutoMoviePhysicalPointBound, poses: Readonly<Record<string, IAutoMovieRigidTransform>>): number {
     return physicalPointProjectionImplementation(body, profiles, actual, bound, poses);
+  }
+  /**
+   * The authored pose's centre of mass and its velocity, world: each segment's
+   * centre of mass carried by its sampled authored pose, p + R c, and moving with
+   * its sampled linear and angular velocity, v + w x (R c), weighted by the
+   * segment's share of the body's mass.
+   *
+   * @param profile The body's provider profile.
+   * @param goals The authored targets sampled this substep, by bone.
+   * @returns The centre, metres, and its velocity, metres per second.
+   */
+  export function physicalAuthoredCenter(
+    profile: IAutoMoviePhysicalProfile,
+    goals: Readonly<Record<string, IAutoMovieSamplePhysicalTarget.IResult>>,
+  ): IAuthoredCenter {
+    return physicalAuthoredCenterImplementation(profile, goals);
+  }
+
+  /** The authored pose's world centre of mass and its velocity. */
+  export interface IAuthoredCenter {
+    /** Mass-weighted world centre of mass, metres. */
+    center: IAutoMovieVector3;
+    /** Mass-weighted world velocity, metres per second. */
+    velocity: IAutoMovieVector3;
+  }
+
+  /**
+   * Switch native ownership at declared subtree boundaries. Activation retains
+   * the actual transform and explicitly carries the native kinematic COM and
+   * angular velocities. Return uses cubic Hermite corrections in parent-local
+   * transforms; SO(3)'s left Jacobian preserves the initial angular derivative. A
+   * return starts from the solved joint rotation post-stabilized onto the joint's
+   * limit box (Cline and Pai 2003), removing the drift finite solver iterations
+   * leave, and records that projection's angle on its event. Both colliders and
+   * cache readers follow these same native placements. This never blends a
+   * rendered skeleton over a different physical body.
+   *
+   * @param input The admitted body, native binding, target goals, tick and rate.
+   * @returns The bones whose native ownership changed.
+   */
+  export function advancePhysicalOwnership(input: {
+    /** Admitted provider and ownership duration. */ body: IAutoMoviePhysicalSimulationInput.IBody;
+    /** Current causal ownership selection. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
+    /** Native handles and serialized transition state. */ bound: Bound;
+    /** Authored or contact-fitted world goals. */ goals: Record<string, IAutoMovieSamplePhysicalTarget.IResult>;
+    /** Exact next solver tick. */ tick: number;
+    /** Declared integer native ticks per second. */ nativeRate: number;
+  }): Set<string> {
+    return advancePhysicalOwnershipImplementation(input);
+  }
+
+  /**
+   * Map a Cartesian actuator demand through virtual work, tau=J^T wrench (Pratt
+   * et al., ICRA 1997). A point-force column is axis cross lever; reverse
+   * traversal controls a proximal body relative to the support. Accumulate in
+   * each actual parent joint frame. Existing implicit joint motors apply these
+   * demands within their torque caps.
+   *
+   * @param input The admitted chain, force, moment and existing torque demands.
+   */
+  export function accumulatePhysicalMotorTorques(input: {
+    /** Admitted articulated geometry. */ profile: IAutoMoviePhysicalProfile;
+    /** Current actual native segments. */ segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+    /** Actuator path from proximal to distal. */ chain: readonly string[];
+    /** Segment carrying the application point. */ carrier: string;
+    /** World point controlled by the force. */ point: IAutoMovieVector3;
+    /** Bounded Cartesian demand, newtons. */ force: IAutoMovieVector3;
+    /** Bounded world moment at that point, N m. */ torque: IAutoMovieVector3;
+    /** Control the proximal root relative to a distal support when true. */ reverse: boolean;
+    /** Existing joint-frame feed-forward demands to accumulate. */ torques: Map<string, IAutoMovieVector3>;
+  }): void {
+    accumulatePhysicalMotorTorquesImplementation(input);
+  }
+
+  /**
+   * Apply one joint's bounded quaternion PD command to its implicit velocity
+   * motors, each with its axis's declared torque bound in both directions.
+   *
+   * @param input The world, joint, measured and target state, and gains.
+   * @returns The configured motor's angular result.
+   */
+  export function configurePhysicalJointMotor(input: {
+    world: AutoMovieXpbdWorld;
+    native: AutoMovieXpbdJoint;
+    joint: IAutoMoviePhysicalJoint;
+    current: IAutoMovieQuaternion;
+    target: IAutoMovieQuaternion;
+    velocity: IAutoMovieVector3;
+    targetVelocity: IAutoMovieVector3;
+    strength: number;
+    feedForward?: IAutoMovieVector3;
+    stiffnessScale?: number;
+    dampingScale?: number;
+  }): IAutoMovieConfigurePhysicalJointMotor.IResult {
+    return configurePhysicalJointMotorImplementation(input);
+  }
+  /**
+   * Fit the body's coherent balance posture for the current native interval.
+   *
+   * @param input The admitted body, support state, goals and interval context.
+   * @returns The balance posture targets and interval result.
+   */
+  export function trackPhysicalBalanceTargets(
+    input: Parameters<typeof trackPhysicalBalanceTargetsImplementation>[0],
+  ): AutoMovieEnginePhysicsTrackingTypes.IBalanceTargetsResult {
+    return trackPhysicalBalanceTargetsImplementation(input);
+  }
+
+  /**
+   * Resolve contact relationships into motor targets for the current interval.
+   *
+   * @param args The simulation, body, target, interval and cached scene inputs.
+   * @returns The updated scene when one is available.
+   */
+  export function trackPhysicalContactTargets(
+    ...args: Parameters<typeof trackPhysicalContactTargetsImplementation>
+  ): AutoMovieEnginePhysicsTrackingTypes.IContactTargetsResult {
+    return trackPhysicalContactTargetsImplementation(...args);
+  }
+
+  /**
+   * Fit root support endpoint targets that remain disjoint from balance posture.
+   *
+   * @param input The admitted body, root pose, excluded joints and interval.
+   */
+  export function trackPhysicalRootSupportTargets(
+    input: Parameters<typeof trackPhysicalRootSupportTargetsImplementation>[0],
+  ): void {
+    trackPhysicalRootSupportTargetsImplementation(input);
+  }
+
+  /**
+   * Compute the bounded external root force and torque for one integration step.
+   *
+   * @param input The body's root state, authored goal, gravity and duration.
+   * @returns The bounded world force and torque.
+   */
+  export function physicalRootExternal(
+    input: Parameters<typeof physicalRootExternalImplementation>[0],
+  ): AutoMovieEnginePhysicsTrackingTypes.IRootExternalResult {
+    return physicalRootExternalImplementation(input);
+  }
+
+  /**
+   * Resolve the support bounds, released contacts and stance carriers for a root task.
+   *
+   * @param input The support pattern, selected limbs, bodies, seating and load.
+   * @returns The populated root-task transition fields.
+   */
+  export function physicalRootTransitions(
+    input: Parameters<typeof physicalRootTransitionsImplementation>[0],
+  ): AutoMovieEnginePhysicsTrackingTypes.IRootTransitionsResult {
+    return physicalRootTransitionsImplementation(input);
   }
 }

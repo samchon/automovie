@@ -1,4 +1,7 @@
-import { Vector3, integrateMotionTrajectory } from "@automovie/engine";
+import {
+  Vector3,
+  AutoMovieEngineMotionTrajectory,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieIntegrateMotionTrajectory,
@@ -338,7 +341,7 @@ export namespace AutoMovieArchetypeTrack {
         ArchetypeMassArithmetic.product(-amplitude, omega, Math.sin(phase));
     } else {
       const steps: number = Math.ceil(
-        phaseEnd / integrateMotionTrajectory.STEP,
+        phaseEnd / AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep(),
       );
 
       // The integrator advances one exactly indexed step at a time.
@@ -354,7 +357,7 @@ export namespace AutoMovieArchetypeTrack {
           fix: "use a representable finite phase interval",
         });
       const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-        integrateMotionTrajectory({
+        AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
           f: (
             _t: number,
             x: readonly number[],
@@ -384,7 +387,7 @@ export namespace AutoMovieArchetypeTrack {
       if (Math.abs(theta0) <= SMALL)
         atPhase = Math.acos(amplitude === 0 ? 1 : target / amplitude);
       else if (Math.abs(theta0) > SMALL) {
-        const step: number = integrateMotionTrajectory.STEP;
+        const step: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
         const gap: (phase: number) => number = (phase: number): number =>
           angle(phase) - target;
         for (let phase: number = 0; phase < phaseEnd; phase += step) {

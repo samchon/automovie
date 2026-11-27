@@ -1,19 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanRegrasp,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanRegrasp, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieMotionHumanPrehension } from "@automovie/motions";
 import { poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -82,7 +68,7 @@ export async function test_motions_handling_regrasp_grip_frame(): Promise<void> 
       body,
       context.entry.pose,
     ).get(`${side}Hand`)!;
-    const socket: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+    const socket: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       body.surfaces.sockets[side === "right" ? "gripRight" : "gripLeft"],
       wrist,
     ).point;

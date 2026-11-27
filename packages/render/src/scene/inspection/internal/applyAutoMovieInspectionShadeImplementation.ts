@@ -2,7 +2,7 @@ import type { AutoMovieInspectionShade } from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IAutoMovieRenderModeHandle } from "../../IAutoMovieRenderModeHandle.js";
-import { applyRenderMode } from "../../applyRenderMode.js";
+import { applyRenderMode } from "../../internal/applyRenderMode.js";
 import { overrideAutoMovieRenderModeMaterials } from "../../internal/overrideAutoMovieRenderModeMaterials.js";
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "../AUTO_MOVIE_INSPECTION_PALETTE.js";
 

@@ -1,18 +1,5 @@
-import {
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-  superposeMinimumJerk,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanSword,
-  IAutoMovieMotionTarget,
-  IAutoMovieSuperposeMinimumJerk,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3, AutoMovieEngineKinematics, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanSword, IAutoMovieMotionTarget, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * How a blade's landing follows a target that moves after the attack is
@@ -71,7 +58,7 @@ export function HumanSwordFollow(
     );
     const region: IAutoMovieHumanoidSurfaces.IFrame =
       other.body.surfaces.regions[target.region];
-    return resolveAutoMovieHumanoidSurfaces.place(
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       region,
       other
         .bones(
@@ -90,7 +77,7 @@ export function HumanSwordFollow(
     at: (seconds: number): IAutoMovieVector3 =>
       seconds <= 0
         ? { x: 0, y: 0, z: 0 }
-        : superposeMinimumJerk.position({ x: 0, y: 0, z: 0 }, [unit], seconds),
+        : AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition({ x: 0, y: 0, z: 0 }, [unit], seconds),
   };
 }
 

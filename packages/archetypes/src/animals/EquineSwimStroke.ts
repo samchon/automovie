@@ -1,4 +1,6 @@
-import { minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 
 /**
  * The included joint angles of one horse limb at a phase of its swimming
@@ -170,10 +172,10 @@ function cycle(joint: EquineSwimStroke.IJoint, phase: number): number {
   const toFlexion: number = wrap(flexed - extended);
   const since: number = wrap(phase - extended);
   if (since <= toFlexion)
-    return extension + (flexion - extension) * minimumJerk(since / toFlexion).s;
+    return extension + (flexion - extension) * AutoMovieEngineMotionSampling.minimumJerk(since / toFlexion).s;
   return (
     flexion +
-    (extension - flexion) * minimumJerk((since - toFlexion) / (1 - toFlexion)).s
+    (extension - flexion) * AutoMovieEngineMotionSampling.minimumJerk((since - toFlexion) / (1 - toFlexion)).s
   );
 }
 

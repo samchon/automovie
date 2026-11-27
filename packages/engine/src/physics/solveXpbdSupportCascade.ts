@@ -1,5 +1,5 @@
 import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
-import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
+import type { AutoMovieEnginePhysics } from "./AutoMovieEnginePhysics";
 import { solveXpbdSupportLevels as Levels } from "./solveXpbdSupportLevels";
 
 /**
@@ -83,8 +83,8 @@ function cascade(
   const moved: number = wrench + width;
   const held: number = moved + motion.length;
   const count: number = held + (relaxed ? holds.length : 0);
-  const equalities: ActiveSet.IRow[] = [];
-  const inequalities: ActiveSet.IRow[] = [];
+  const equalities: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow[] = [];
+  const inequalities: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow[] = [];
   const keys: string[] = [];
   const inequality = (
     key: string,
@@ -216,8 +216,8 @@ function cascade(
       value: target[m]!,
     });
   // The motion's residual m = W x - w, one variable per motion row.
-  const rates: ActiveSet.IRow[] = motion.map(
-    (row: solveXpbdSupportCascade.IMotion, i: number): ActiveSet.IRow => ({
+  const rates: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow[] = motion.map(
+    (row: solveXpbdSupportCascade.IMotion, i: number): AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow => ({
       indices: [
         ...row.weights.map((_: number, s: number): number => s),
         moved + i,
@@ -236,16 +236,16 @@ function cascade(
     solution: number[],
     from: number,
     to: number,
-  ): ActiveSet.IRow[] =>
+  ): AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow[] =>
     solution.slice(from, to).map(
-      (value: number, i: number): ActiveSet.IRow => ({
+      (value: number, i: number): AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow => ({
         indices: [from + i],
         weights: [1],
         value,
       }),
     );
   const zero: number[] = new Array<number>(count).fill(0);
-  let fixed: ActiveSet.IRow[] = [];
+  let fixed: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetRow[] = [];
   if (relaxed) {
     const hold: number[] | null = Levels.level(
       weigh(held, count),

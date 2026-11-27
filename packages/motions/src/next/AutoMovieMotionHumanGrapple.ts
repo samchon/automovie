@@ -1,3 +1,4 @@
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { HumanForceExchange as HumanForceExchangeLaw } from "../grappling/HumanForceExchange";
 import { HumanForceResponse as HumanForceResponseLaw } from "../grappling/HumanForceResponse";
 import { HumanForceThrow as HumanForceThrowLaw } from "../grappling/HumanForceThrow";
@@ -191,7 +192,7 @@ export namespace AutoMovieMotionHumanGrapple {
    *   swing's law from the momentum the pull left, leaves it at `release` where
    *   its centre comes level with the fulcrum, and flies, its centre on the
    *   parabola from the release and its orientation from the conserved angular
-   *   momentum (`integrateAirborneRotation`), until its lowest joint reaches
+   *   momentum (`AutoMovieEngineMotionAirborneRotation`), until its lowest joint reaches
    *   the floor (`land`). A throw with no fulcrum, or whose swing stops before
    *   the vertical, is refused. The composition cuts into the fall or the
    *   breakfall at `land`.
@@ -212,7 +213,7 @@ export namespace AutoMovieMotionHumanGrapple {
    * throw's rotation about the thrower's fulcrum.
    *
    * - **Off-balancing.** The partner is a linear inverted pendulum of its own
-   *   mass `M` and length `l` (`resolveAutoMovieCenterOfMass.pendulum`), with
+   *   mass `M` and length `l` (`AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum`), with
    *   eigenfrequency `ω = sqrt(g / l)` (Hof, Gazendam and Sinke 2005). A
    *   constant horizontal pull `F` at rest gives `x'' = ω² x + F / M`, so the
    *   centre moves `x(t) = (F / M ω²)(cosh ωt - 1)` along the pull and its

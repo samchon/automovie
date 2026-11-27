@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeSegmentDistance, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShapeNearest,
   IAutoMovieVector3,
@@ -57,8 +57,8 @@ export function HumanArmSurfaceLift(
   );
   if (deepest.distance >= height) return local();
   let low: number = Vector3.dot(Vector3.subtract(deepest.at, contact), normal);
-  const gap: ReturnType<typeof physicalShapeSegmentDistance.prepare> =
-    physicalShapeSegmentDistance.prepare(shape.pose, shape.shape);
+  const gap: ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance> =
+    AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(shape.pose, shape.shape);
   // The signed distance is nondecreasing after the ray's minimum. Keep the
   // outward bracket so its reported correction reaches the admitted side.
   while (high - low > resolution) {

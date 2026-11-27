@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalShapeBounds } from "../physicalShapeBounds";
+import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { planPhysicalSupportTargets } from "./planPhysicalSupportTargets";
-import { solvePhysicalFloorChainTarget } from "../solvePhysicalFloorChainTarget";
+import { AutoMovieEnginePhysicalFloorChainTarget } from "../AutoMovieEnginePhysicalFloorChainTarget";
 
 /**
  * Fit declared support patches to a plane using their actual convex geometry.
@@ -108,7 +108,7 @@ export function planPhysicalFloorSupportTargets(
     for (const limb of input.pattern.limbs) {
       const planted: boolean = input.planted.includes(limb.bone);
       const fitted: IAutoMovieSolvePhysicalArticulationTargets.IResult =
-        solvePhysicalFloorChainTarget({
+        AutoMovieEnginePhysicalFloorChainTarget.solve({
           profile: input.profile,
           targets,
           chain: limb.chain,
@@ -153,7 +153,7 @@ export function planPhysicalFloorSupportTargets(
           throw new Error(`Missing support patch ${bone}`);
         return segment.shapes.map(
           (shape: IAutoMoviePhysicalShape): number =>
-            physicalShapeBounds(targets[bone]!, shape).min.y,
+            physicalShapeBoundsImplementation.physicalShapeBounds(targets[bone]!, shape).min.y,
         );
       },
     );

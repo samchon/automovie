@@ -1,7 +1,4 @@
-import type {
-  prepareChainConstants,
-  prepareSkeletonPoseResolution,
-} from "@automovie/engine";
+import { AutoMovieEngineMotionPlanting, AutoMovieEngineSkeletonPose } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -37,9 +34,9 @@ type HumanLimbReadsReadObstacles =
  */
 export function humanLimbReads(
   skeleton: IAutoMovieSkeleton,
-  resolution: prepareSkeletonPoseResolution.IRig,
+  resolution: AutoMovieEngineSkeletonPose.IRig,
   chains: Readonly<
-    Partial<Record<AutoMovieHumanLimb, prepareChainConstants.IConstants>>
+    Partial<Record<AutoMovieHumanLimb, AutoMovieEngineMotionPlanting.IChainConstants>>
   >,
 ): humanLimbReads.IReads {
   const parents: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =
@@ -79,7 +76,7 @@ export function humanLimbReads(
     // root's parent where it has one.
     const requested: Set<AutoMovieHumanoidBone> = new Set(obstacles);
     requested.add(`${side}${arm ? "Hand" : "Foot"}`);
-    const constants: prepareChainConstants.IConstants | undefined =
+    const constants: AutoMovieEngineMotionPlanting.IChainConstants | undefined =
       chains[limb];
     if (constants !== undefined && constants.parent !== null)
       requested.add(constants.parent);

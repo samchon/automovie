@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -57,7 +61,7 @@ export namespace EquineExpressionAdmission {
    */
   export function envelope(cue: Held, seconds: number): number {
     if (!(seconds > cue.from && seconds < cue.to)) return 0;
-    return minimumJerk.share(
+    return AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(
         1,
         (seconds - cue.from) / cue.ease,

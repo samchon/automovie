@@ -7,7 +7,7 @@ import type {
 
 import { DEFAULT_JOINT_AXES } from "../../kinematics/constants/DEFAULT_JOINT_AXES";
 import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
-import { basisOf } from "../basisOf";
+import { basisOf } from "./basisOf";
 import { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
 

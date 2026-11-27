@@ -9,7 +9,7 @@ import { productionFrameBoundaryToGridTick } from "../../film/internal/productio
 import { resolveProductionFrameRate } from "../../film/internal/resolveProductionFrameRate";
 import { AUTOMOVIE_TRUE_PEAK_LIMITER } from "../AUTOMOVIE_TRUE_PEAK_LIMITER";
 import { analyzeProductionSound } from "./analyzeProductionSound";
-import { createAutoMovieLoudnessMeter } from "../createAutoMovieLoudnessMeter";
+import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
 import { limitAutoMovieTruePeak } from "./limitAutoMovieTruePeak";
 
 /**

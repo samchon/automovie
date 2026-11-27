@@ -1,6 +1,6 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-import { prepareLinearSystem } from "../../math/prepareLinearSystem";
+import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 
 /**
  * The vector algebra the solid operators share: world vectors in millimetres as
@@ -199,6 +199,6 @@ export namespace AutoMovieSolidVector {
     rows: readonly (readonly number[])[],
     b: readonly number[],
   ): number[] | null {
-    return prepareLinearSystem.solve(rows, b);
+    return AutoMovieEngineMath.solveLinearSystem(rows, b);
   }
 }

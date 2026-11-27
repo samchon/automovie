@@ -3,7 +3,7 @@ export * from "./AutoMovieBernsteinAlgebra64";
 export * from "./AutoMovieBernsteinGrid64";
 export * from "./AutoMovieBernsteinRational64";
 export * from "./AutoMovieBernsteinSubdivision64";
-export * from "./AutoMovieBicubicAtlasEmit64";
+export * from "./AutoMovieEngineCurveBicubicAtlasEmit64";
 
 
 
@@ -43,14 +43,14 @@ export * from "./AutoMovieEngineCurveAssembly64";
 
 
 
-export * from "./tessellateAutoMovieBicubicAtlas64";
 
 
 
-export * from "./tessellateAutoMovieLocalHermite64";
+
+
 
 
 
 export * from "./AutoMovieEngineCurveGrid64";
 
-export { AutoMovieEngineCurve } from "./AutoMovieEngineCurve";
+export * from "./AutoMovieEngineCurve";

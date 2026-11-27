@@ -1,9 +1,4 @@
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaceRegions,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRegions, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * The costal margin's lowest point as a share of stature: the tenth rib height

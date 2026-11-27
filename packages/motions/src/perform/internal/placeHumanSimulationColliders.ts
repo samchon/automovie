@@ -1,7 +1,7 @@
 import {
   Quaternion,
-  physicalHullFaces,
-  physicalShapeBounds,
+  AutoMoviePhysicalHullFaces,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanObstacle,
@@ -100,7 +100,7 @@ export function placeHumanSimulationColliders(
         },
         kind: "hull",
         points: prismPoints,
-        hull: physicalHullFaces(prismPoints),
+        hull: AutoMoviePhysicalHullFaces.build(prismPoints),
       },
     ];
     if (!within(frames, prism, reach)) continue;
@@ -208,7 +208,7 @@ function within(
 ): boolean {
   return frames.some((pose: IAutoMovieRigidTransform): boolean =>
     shapes.some((shape: IAutoMoviePhysicalShape): boolean => {
-      const bounds: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBounds(
+      const bounds: IAutoMoviePhysicalShapeBounds.IResult = AutoMovieEnginePhysics.physicalShapeBounds(
         pose,
         shape,
       );
@@ -232,7 +232,7 @@ function grow(
 ): void {
   for (const pose of frames)
     for (const shape of shapes) {
-      const bounds: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBounds(
+      const bounds: IAutoMoviePhysicalShapeBounds.IResult = AutoMovieEnginePhysics.physicalShapeBounds(
         pose,
         shape,
       );

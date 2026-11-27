@@ -1,6 +1,7 @@
-import { type IAutoMovieResolveMutualGoal, type IAutoMovieResolveRelationalGoal } from "@automovie/interface";
+import { type IAutoMovieResolveMutualGoal, type IAutoMovieResolveRelationalGoal, type IAutoMovieFramingGoal, type IAutoMovieResolveFraming, type IAutoMovieVector3 } from "@automovie/interface";
 import { resolveAutoMovieMutualGoal as resolveAutoMovieMutualGoalImplementation } from "./internal/resolveAutoMovieMutualGoal";
 import { resolveAutoMovieRelationalGoal as resolveAutoMovieRelationalGoalImplementation } from "./internal/resolveAutoMovieRelationalGoal";
+import { resolveAutoMovieFraming as resolveAutoMovieFramingImplementation } from "./internal/resolveAutoMovieFraming";
 
 /** Public operations for Auto Movie Engine Composition Pose. */
 export namespace AutoMovieEngineCompositionPose {
@@ -72,4 +73,9 @@ export namespace AutoMovieEngineCompositionPose {
   export function relationalGoal(input: IAutoMovieResolveRelationalGoal.IInput): IAutoMovieResolveRelationalGoal.IResult {
     return resolveAutoMovieRelationalGoalImplementation(input);
   }
+  /** Resolve a camera pose that meets a framing goal. */
+  export function resolveFraming(goal: IAutoMovieFramingGoal, state: Readonly<Record<string, { center: IAutoMovieVector3; radius: number }>>): IAutoMovieResolveFraming.ICamera {
+    return resolveAutoMovieFramingImplementation(goal, state);
+  }
+
 }

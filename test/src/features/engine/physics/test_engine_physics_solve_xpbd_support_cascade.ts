@@ -1,8 +1,8 @@
 import {
   type AutoMovieXpbdBody,
   type AutoMovieXpbdWorld,
-  solveXpbdArticulationContacts,
-  solveXpbdSupportCascade,
+  AutoMovieXpbdArticulation,
+  AutoMovieXpbdSupportRows,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,12 +43,12 @@ export function test_engine_physics_solve_xpbd_support_cascade(): void {
     x: number;
     y: number;
     z: number;
-  }): Pick<solveXpbdArticulationContacts.IRow, "direction"> => ({
+  }): Pick<AutoMovieXpbdArticulation.IRow, "direction"> => ({
     direction,
   });
 
   // 1. The rows.
-  const normal: number[] = solveXpbdArticulationContacts.objectiveRow(
+  const normal: number[] = AutoMovieXpbdArticulation.objectiveRow(
     row({ x: 0, y: 1, z: 0 }),
     { x: 0.1, y: 0, z: 0.2 },
     counted,
@@ -61,7 +61,7 @@ export function test_engine_physics_solve_xpbd_support_cascade(): void {
     )
   )
     failures.push(`normal row ${JSON.stringify(normal)}`);
-  const tangent: number[] = solveXpbdArticulationContacts.objectiveRow(
+  const tangent: number[] = AutoMovieXpbdArticulation.objectiveRow(
     row({ x: 1, y: 0, z: 0 }),
     { x: 0.1, y: 0, z: 0.2 },
     counted,
@@ -74,7 +74,7 @@ export function test_engine_physics_solve_xpbd_support_cascade(): void {
     )
   )
     failures.push(`tangential row ${JSON.stringify(tangent)}`);
-  const elsewhere: number[] = solveXpbdArticulationContacts.objectiveRow(
+  const elsewhere: number[] = AutoMovieXpbdArticulation.objectiveRow(
     row({ x: 0, y: 1, z: 0 }),
     { x: 0.1, y: 0, z: 0.2 },
     other,
@@ -102,22 +102,22 @@ export function test_engine_physics_solve_xpbd_support_cascade(): void {
       force: { x: 0.5, y: 0.02, z: 0.5 },
       pressure: { point: { x: cop.x, y: 0, z: cop.z }, weight: 15 },
     };
-    const rows: solveXpbdSupportCascade.IRow[] = feet.map(
-      (foot: { x: number; z: number }): solveXpbdSupportCascade.IRow => ({
+    const rows: AutoMovieXpbdSupportRows.IRow[] = feet.map(
+      (foot: { x: number; z: number }): AutoMovieXpbdSupportRows.IRow => ({
         state: 0,
         point: { x: foot.x, y: 0, z: foot.z },
         direction: { x: 0, y: 1, z: 0 },
         velocity: 0,
       }),
     );
-    const x: number[] | null = solveXpbdSupportCascade({
+    const x: number[] | null = AutoMovieXpbdSupportRows.cascade({
       k: feet.map((_, i: number): number[] =>
         feet.map((__, k: number): number => (i === k ? 1 : 0)),
       ),
       u: feet.map((): number => 0),
       columns: rows.map(
-        (entry: solveXpbdSupportCascade.IRow, i: number): number[] =>
-          solveXpbdArticulationContacts.objectiveRow(
+        (entry: AutoMovieXpbdSupportRows.IRow, i: number): number[] =>
+          AutoMovieXpbdArticulation.objectiveRow(
             entry,
             { x: feet[i]!.x, y: 0, z: feet[i]!.z },
             counted,

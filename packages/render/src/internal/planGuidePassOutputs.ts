@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlanGuidePassOutputsProps,
 } from "@automovie/interface";
 
-import { guidePassFrameName } from "../guidePassFrameName.js";
+import { guidePassFrameName } from "./guidePassFrameName.js";
 import { guidePassFramePattern } from "./guidePassFramePattern.js";
 import { normalizeGuidePasses } from "./normalizeGuidePasses.js";
 

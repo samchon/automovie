@@ -1,4 +1,4 @@
-import { Vector3, physicalSpanPose, AutoMovieEnginePhysics, AutoMoviePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
+import { Vector3, AutoMoviePhysicalSpanPose, AutoMovieEnginePhysics, AutoMoviePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
 import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
@@ -15,7 +15,7 @@ import { PhysicalModelFixtures } from "../../internal/PhysicalModelFixtures";
 const PLACE: number = 1e-3;
 
 /**
- * A body's pose synthesized from its push response (`physicalSpanPose`) is one
+ * A body's pose synthesized from its push response (`AutoMoviePhysicalSpanPose`) is one
  * rigid body chain standing on the response's feet: the four-support primitive
  * standing on two diagonal supports, its 0.24 x 0.2 m boxes, pushed forward at
  * 2 m/s, the capture point past their front edge, the response prepared from
@@ -63,7 +63,7 @@ export function test_engine_physics_physical_span_pose(): void {
   const omega: number = PhysicalDisturbance.omegaOf(subject);
   const placed = limbs.map((limb) => endpoint(goals, limb.bone));
   const middle: number = (placed[0]!.x + placed[1]!.x) / 2;
-  const span: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan({
+  const span: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult = AutoMoviePhysicalBalance.prepareDisturbanceSpan({
     seconds: 0.2,
     center,
     velocity: { x: 0, y: 0, z: 2 },
@@ -71,7 +71,7 @@ export function test_engine_physics_physical_span_pose(): void {
     mass: subject.profile.mass,
     gravity: 9.81,
     feet: limbs.map(
-      (limb, i: number): AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IFoot => ({
+      (limb, i: number): AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot => ({
         bone: limb.bone,
         side: placed[i]!.x > middle ? "left" : "right",
         frame: {
@@ -104,8 +104,8 @@ export function test_engine_physics_physical_span_pose(): void {
   for (const share of [0.1, 0.4, 0.7, 0.95]) {
     const t: number =
       trigger.seconds + share * (touchdown.seconds - trigger.seconds);
-    const sample: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample = span.sample(t);
-    const pose = physicalSpanPose({ body, goals, sample });
+    const sample: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanSample = span.sample(t);
+    const pose = AutoMoviePhysicalSpanPose.pose({ body, goals, sample });
     for (const joint of subject.profile.joints) {
       const parent = pose[joint.parent];
       const child = pose[joint.child];

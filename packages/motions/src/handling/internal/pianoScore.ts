@@ -2,7 +2,7 @@ import {
   AffordanceArticulation,
   Quaternion,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
@@ -372,7 +372,7 @@ function depression(
     seconds < score.at
       ? (seconds - score.from) / (score.at - score.from)
       : (score.to - seconds) / (score.to - score.release);
-  return Math.min(1, minimumJerk.share(share));
+  return Math.min(1, AutoMovieEngineMotionSampling.minimumJerkShare(share));
 }
 
 /** Read the wrist and elbow goals shared by planning and playback. */

@@ -1,8 +1,8 @@
 import {
-  physicalStanceBalance,
-  physicalStanceSeat,
-  physicalStanceSupport,
-  physicalStanceSwing,
+  AutoMovieEnginePhysicalStanceBalance,
+  AutoMovieEnginePhysicalStanceSeat,
+  AutoMovieEnginePhysicalStanceSupport,
+  AutoMovieEnginePhysicalStanceSwing,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -37,9 +37,9 @@ export function test_engine_physics_physical_stance_seat(): void {
   const findings: string[] = [];
   const dt: number = 1 / 960;
   const weight: number = 700;
-  const ramp: number = Math.round(physicalStanceBalance.FADE / dt);
-  const margin: number = physicalStanceBalance.MARGIN;
-  const seat = (bearing: number): physicalStanceSeat.ISeat => ({
+  const ramp: number = Math.round(AutoMovieEnginePhysicalStanceBalance.FADE / dt);
+  const margin: number = AutoMovieEnginePhysicalStanceBalance.MARGIN;
+  const seat = (bearing: number): AutoMovieEnginePhysicalStanceSeat.ISeat => ({
     seated: true,
     since: 0,
     bearing,
@@ -48,7 +48,7 @@ export function test_engine_physics_physical_stance_seat(): void {
     relief: 0,
   });
   const advance = (
-    foot: physicalStanceSeat.ISeat,
+    foot: AutoMovieEnginePhysicalStanceSeat.ISeat,
     load: number,
     grounded: boolean,
     steps: number,
@@ -57,7 +57,7 @@ export function test_engine_physics_physical_stance_seat(): void {
     let entered: boolean = false;
     for (let i: number = 0; i < steps; i++)
       entered =
-        physicalStanceSeat({
+        AutoMovieEnginePhysicalStanceSeat.advance({
           seat: foot,
           spread: 0,
           load,
@@ -72,7 +72,7 @@ export function test_engine_physics_physical_stance_seat(): void {
 
   // 1. Unloaded but grounded feet keep bearing.
   const loads: number[] = [weight / 2, weight / 2, 0, 0];
-  const four: physicalStanceSeat.ISeat[] = loads.map(() => seat(1));
+  const four: AutoMovieEnginePhysicalStanceSeat.ISeat[] = loads.map(() => seat(1));
   four.forEach((foot, i: number): void => {
     advance(foot, loads[i]!, true, 48);
   });
@@ -86,7 +86,7 @@ export function test_engine_physics_physical_stance_seat(): void {
     { x: 0.3, y: 0, z: -0.4 },
     { x: -0.3, y: 0, z: -0.4 },
   ];
-  const polygon: IAutoMovieVector3[] = physicalStanceSupport.support(
+  const polygon: IAutoMovieVector3[] = AutoMovieEnginePhysicalStanceSupport.support(
     corners.map((corner: IAutoMovieVector3, i: number) => ({
       limb: i,
       outline: square(corner.x, corner.z, 0.05),
@@ -107,7 +107,7 @@ export function test_engine_physics_physical_stance_seat(): void {
     findings.push(`the four-foot support spans ${span("x")} by ${span("z")}`);
 
   // 2. A lifted foot bears nothing at once; a grounded one ramps in.
-  const lifted: physicalStanceSeat.ISeat = seat(1);
+  const lifted: AutoMovieEnginePhysicalStanceSeat.ISeat = seat(1);
   advance(lifted, weight, false, 1);
   if (lifted.bearing !== 0)
     findings.push(`a lifted foot bears ${lifted.bearing}`);
@@ -120,7 +120,7 @@ export function test_engine_physics_physical_stance_seat(): void {
 
   // 3. A leaving foot's outline is drawn in by its share.
   for (const share of [1, 0.5, 0.25, 0]) {
-    const support: IAutoMovieVector3[] = physicalStanceSupport.support([
+    const support: IAutoMovieVector3[] = AutoMovieEnginePhysicalStanceSupport.support([
       {
         limb: "staying",
         outline: square(0.1, 0, 0.05),
@@ -151,7 +151,7 @@ export function test_engine_physics_physical_stance_seat(): void {
   // 4. The room from an edge point and from inside.
   const box: IAutoMovieVector3[] = square(0, 0, 0.1);
   const room = (from: IAutoMovieVector3, z: number): number =>
-    physicalStanceSwing.reach(box, from, { x: 0, y: 0, z });
+    AutoMovieEnginePhysicalStanceSwing.reach(box, from, { x: 0, y: 0, z });
   for (const x of [-0.05, 0, 0.0731]) {
     const edge: IAutoMovieVector3 = { x, y: 0, z: 0.1 };
     if (
@@ -173,7 +173,7 @@ export function test_engine_physics_physical_stance_seat(): void {
     );
 
   // 5. Entry: a foot that left the holds ramps its share back in.
-  const rear: physicalStanceSeat.ISeat = seat(1);
+  const rear: AutoMovieEnginePhysicalStanceSeat.ISeat = seat(1);
   if (advance(rear, 0, true, 48, true) || rear.entry !== 1)
     findings.push(`a touching unloaded foot has entry ${rear.entry}`);
   advance(rear, weight, true, 1, false);

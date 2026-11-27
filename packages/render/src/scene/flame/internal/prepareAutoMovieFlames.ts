@@ -1,4 +1,7 @@
-import { AutoMovieEngineFlame, AutoMovieEngineRenderNode } from "@automovie/engine";
+import {
+  AutoMovieEngineFlame,
+  AutoMovieEngineRenderNode,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieClip,
@@ -12,7 +15,7 @@ import type {
 import * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "../../IAutoMovieModelObject.js";
-import { readAutoMovieBufferAttribute } from "../../readAutoMovieBufferAttribute.js";
+import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
 import type { IAutoMovieFlamesObject } from "../IAutoMovieFlamesObject.js";
 import type { IPrepareAutoMovieFlamesProps } from "../IPrepareAutoMovieFlamesProps.js";
 import { createAutoMovieFlameMaterial } from "./createAutoMovieFlameMaterial.js";

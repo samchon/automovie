@@ -1,4 +1,4 @@
-import { hingedArmSwivel, poseJointCodec, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { hingedArmSwivel, AutoMovieEngineKinematics, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -115,7 +115,7 @@ export namespace HumanSegmentPose {
       return undefined;
     const rig: IAutoMoviePoseRig = humanRig(person.performer.body);
     const codec: () => IAutoMoviePoseJointCodec.ICodec =
-      poseJointCodec.prepare(rig);
+      AutoMovieEngineKinematics.preparePoseJointCodec(rig);
     const source = continued(
       (t: number, near?: INear): ISeeded =>
         seeded(person, transition.source, t, near, prepared),

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { poleVaultLean } from "./poleVault/poleVaultLean";
 import type {
   AutoMovieHumanSide,
@@ -302,7 +302,7 @@ export namespace AutoMovieMotionHumanPoleVault {
         resolution,
         projection,
       );
-      const u: number = minimumJerk.share(t / off);
+      const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / off);
       const shift: IAutoMovieVector3 = Vector3.subtract(base.root, rootT);
       const grip: IAutoMovieVector3 = Vector3.add(
         Vector3.add(base.root, Vector3.lerp(pathFrom, pathTo, u)),

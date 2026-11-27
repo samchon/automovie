@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, rotationBetween, AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -307,7 +307,7 @@ export namespace EquineBodyPose {
           AutoMovieArchetypeQuadrupedBody.BONES[limb].forEach(
             (bone: AutoMovieArchetypeQuadrupedBody.Bone, k: number): void => {
               const frame: IAutoMovieTransform = rest.get(bone)!;
-              const turn: IAutoMovieQuaternion = rotationBetween(
+              const turn: IAutoMovieQuaternion = AutoMovieEngineMath.rotationBetween(
                 Vector3.subtract(source[k + 1]!, source[k]!),
                 Vector3.subtract(solved[k + 1]!, solved[k]!),
               );

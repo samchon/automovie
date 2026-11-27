@@ -1,22 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanLimb,
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbReference,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanBodyFitTypes,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSupport,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanLimb, AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbReference, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { poseBones } from "../../posture/internal/poseBones";
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -148,7 +131,7 @@ export function prepareSupportHeldFrames(
       else {
         const [heel, ball]: IAutoMovieVector3[] = soles(limb).map(
           (frame: IAutoMovieHumanoidSurfaces.IFrame): IAutoMovieVector3 =>
-            resolveAutoMovieHumanoidSurfaces.point(frame, a0),
+            AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(frame, a0),
         );
         // The socket the foot holds through its whole window, so every
         // interval of the window turns it about the same point.

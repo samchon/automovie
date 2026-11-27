@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -165,8 +165,8 @@ function stepped(
         clock.at("start") + (ready - clock.at("start")) * landed;
       const flat: number = relax + (clock.at("end") - relax) * (1 - landed);
       return (
-        minimumJerk.share((seconds - up) / (ready - up)) -
-        minimumJerk.share((seconds - relax) / (flat - relax))
+        AutoMovieEngineMotionSampling.minimumJerkShare((seconds - up) / (ready - up)) -
+        AutoMovieEngineMotionSampling.minimumJerkShare((seconds - relax) / (flat - relax))
       );
     },
   );

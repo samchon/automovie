@@ -12,12 +12,17 @@ import { overflowsBinary64 } from "./overflowsBinary64";
  * equality rows and s/z for inequalities. Symbolic elimination and ordering are
  * reused within this solve; only diagonal values change between iterations.
  * Davis's left-looking elimination-tree LDL algorithm computes actual fill.
+ * This adaptation follows the pinned Clarabel.rs QDLDL implementation:
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/qdldl/qdldl.rs
  * Signed static/dynamic pivot stabilization affects factors only; every solve
  * refines against the original, unregularized KKT matrix. Twofold product sums
  * retain cancellation in elimination, substitution and original-system
  * residuals; rounded residuals cannot certify their own error.
  *
  * The regularization/refinement constants retain Clarabel 0.11.1 defaults.
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/qdldl/qdldl.rs}
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/kktsolvers/direct/quasidef/directldlkktsolver.rs}
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
  * Finite refinement is not a convergence proof: the interior-point owner must
  * still establish the original primal/dual residual and objective-gap tests.
  */

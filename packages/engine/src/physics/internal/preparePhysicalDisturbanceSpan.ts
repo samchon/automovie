@@ -4,30 +4,29 @@
 // computeDesiredCapturePointPosition, and capturePoint/
 // CoMIntegrationTools.java integrateCoMPositionWithConstantCMP l.136-170 and
 // integrateCoMPositionOverPolynomial l.355-370.
-// See vendor/ihmc/NOTICE.
 import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
 
-import { physicalDisturbanceBranches as Branches } from "../physicalDisturbanceBranches";
-import { physicalDisturbanceFollow } from "../physicalDisturbanceFollow";
-import { physicalDisturbanceForm } from "../physicalDisturbanceForm";
-import { physicalDisturbanceResponse as Response } from "../physicalDisturbanceResponse";
-import type { physicalIcpPlannerTools as Tools } from "../physicalIcpPlannerTools";
+import { AutoMovieEnginePhysicalDisturbanceBranches as Branches } from "../AutoMovieEnginePhysicalDisturbanceBranches";
+import { AutoMovieEnginePhysicalDisturbanceFollow } from "../AutoMovieEnginePhysicalDisturbanceFollow";
+import { AutoMovieEnginePhysicalDisturbanceForm } from "../AutoMovieEnginePhysicalDisturbanceForm";
+import { AutoMovieEnginePhysicalDisturbanceResponse as Response } from "../AutoMovieEnginePhysicalDisturbanceResponse";
+import type { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "../AutoMovieEnginePhysicalIcpPlannerTools";
 
 /** A planted foot. */
-type Foot = AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IFoot;
+type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;
 
 /** One closed-form piece of the response. */
-type IPiece = physicalDisturbanceForm.IPiece;
+type IPiece = AutoMovieEnginePhysicalDisturbanceForm.IPiece;
 
 /** One swing foot's cubic. */
-type ISwing = physicalDisturbanceFollow.ISwing;
+type ISwing = AutoMovieEnginePhysicalDisturbanceFollow.ISwing;
 
 /** The response's following and sampling. */
-const { follow, span, swingAt }: typeof physicalDisturbanceFollow =
-  physicalDisturbanceFollow;
+const { follow, span, swingAt }: typeof AutoMovieEnginePhysicalDisturbanceFollow =
+  AutoMovieEnginePhysicalDisturbanceFollow;
 
 /** A planted limb's outline. */
-const { outline }: typeof physicalDisturbanceForm = physicalDisturbanceForm;
+const { outline }: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;
 
 /**
  * A biped's response to a stated disturbance, prepared once for the span: IHMC
@@ -40,17 +39,17 @@ const { outline }: typeof physicalDisturbanceForm = physicalDisturbanceForm;
  *
  * - A push: the centre of mass's velocity jumps by the push's impulse over the
  *   mass, the capture point by that over omega. In double support the push
- *   recovery's fall test runs (`physicalPushRecovery.doubleSupport`), and a
+ *   recovery's fall test runs (`AutoMovieEnginePhysicalPushRecovery.doubleSupport`), and a
  *   fall triggers a step the policy's reaction time after the capture point
  *   left the support; in single support the footstep is checked again against
  *   the capture region with the swing time left and, when it moves, the plan is
  *   made again from then (`WalkingSingleSupportState` l.136-163) and the swing
  *   foot's cubic re-aimed from where it is.
  * - The trigger: the footstep in the support foot's one-step capture region
- *   (`physicalPushRecovery.checkAndUpdate`) and the single-support plan to it
- *   (`physicalIcpPlanner.singleSupport`).
+ *   (`AutoMovieEnginePhysicalPushRecovery.checkAndUpdate`) and the single-support plan to it
+ *   (`AutoMovieEnginePhysicalIcpPlanner.singleSupport`).
  * - The touchdown, the swing time after the trigger (`ZULU.swingTime`): the
- *   transfer to standing (`physicalIcpPlanner.toStanding`), done once its
+ *   transfer to standing (`AutoMovieEnginePhysicalIcpPlanner.toStanding`), done once its
  *   duration has run and the capture point is within `maxErrorToStanding` of
  *   its hold (`TransferToStandingState.isDone`), found in closed form from the
  *   error's decay.
@@ -58,13 +57,13 @@ const { outline }: typeof physicalDisturbanceForm = physicalDisturbanceForm;
  *   trigger or after a push in single support, ends the response there; the
  *   body is handed back to the physics, which takes the fall's contacts.
  * - Standing: the cubic to the authored capture point
- *   (`physicalIcpPlanner.standing`), and at its end the authored capture point
+ *   (`AutoMovieEnginePhysicalIcpPlanner.standing`), and at its end the authored capture point
  *   at rest.
  *
  * Between them each plan's capture point xi_d is a chain of closed forms read
  * off the built plan on fixed soles: an exponential from a constant pivot, q +
  * r e^(omega t), or a cubic, a0 + a1 t + a2 t^2 + a3 t^3. The ICP controller
- * acts on the error e = xi - xi_d (`physicalIcpController`, Zulu's gains):
+ * acts on the error e = xi - xi_d (`AutoMovieEnginePhysicalIcpController`, Zulu's gains):
  *
  * - Its proportional law, the pivot xi_d - xi_d' / omega + (1 + K_p) e, gives
  *   e(t) = e0 e^(-omega K_p t) along and across the plan's motion, split at
@@ -88,17 +87,19 @@ const { outline }: typeof physicalDisturbanceForm = physicalDisturbanceForm;
  * between them.
  *
  * A swing foot follows the planner's velocity-constrained cubic to its footstep
- * at rest (`physicalIcpPlannerTools.cubic`), on the floor as the recovery
+ * at rest (`AutoMovieEnginePhysicalIcpPlannerTools.cubic`), on the floor as the recovery
  * step's clearance is zero.
  *
  * Points are world floor points (x, z), metres; times local seconds.
  *
  * @param input The state just after the first push and the pushes after it.
  * @returns The prepared span.
+ * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/CapturePointTools.java
+ * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/CoMIntegrationTools.java
  */
 export function preparePhysicalDisturbanceSpan(
-  input: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IInput,
-): AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan {
+  input: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanInput,
+): AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult {
   const scope: Response.IResponse = Response.create(input);
   const { omega, t0, pieces, branches, tolerance, across, swings, contacts } =
     scope;

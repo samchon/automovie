@@ -1,13 +1,32 @@
 import type {
   AutoMovieWaterFeatureMode,
+  IAutoMovieFluidSpraySample,
   IAutoMovieFluidSurface,
 } from "@automovie/interface";
 import type * as THREE from "three";
+import type { IAutoMovieFluidSprayObject } from "../IAutoMovieFluidSprayObject.js";
 import type { IAutoMovieFluidSurfaceObject } from "../IAutoMovieFluidSurfaceObject.js";
-import { buildFluidSurfaceObject as buildFluidSurfaceObjectImplementation } from "../internal/buildFluidSurfaceObject.js";
+import {
+  buildFluidSprayObject as buildFluidSprayObjectImplementation,
+} from "../internal/buildFluidSprayObject.js";
+import {
+  buildFluidSurfaceObject as buildFluidSurfaceObjectImplementation,
+} from "../internal/buildFluidSurfaceObject.js";
 
 /** Public operations for Auto Movie Render Fluid Surface. */
 export namespace AutoMovieRenderFluidSurface {
+  /**
+   * Project one engine-derived spray sample into a point cloud. The Engine
+   * supplies the bounded particle population. A default material is owned
+   * when the caller does not provide one.
+   */
+  export function buildSprayObject(props: {
+    sample: IAutoMovieFluidSpraySample;
+    material?: THREE.PointsMaterial;
+  }): IAutoMovieFluidSprayObject {
+    return buildFluidSprayObjectImplementation(props);
+  }
+
   /**
    * Project one engine-derived free surface into a `three.js` mesh.
    *

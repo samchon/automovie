@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { toRigAngle } from "../../rom/toRigAngle";
-import type { jointToQuaternionOnBasis } from "../jointToQuaternionOnBasis";
+import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
+import type { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 
 /** Clinical coordinates owned by the inverse's resolved-angle representation. */
 type ClinicalAxis = keyof IAutoMovieResolvedJointAngles;
@@ -34,19 +34,19 @@ export function prepareJointRotationFactor(
   let previousAngle: number | undefined;
   let previous: IAutoMovieQuaternion | undefined;
   let reader: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined;
-  let rigAngle: ReturnType<typeof toRigAngle.prepare> | undefined;
+  let rigAngle: ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle> | undefined;
   return (
     axis: IAutoMovieVector3,
     frame: IAutoMovieAxisFrame | undefined,
     clinical: number | null,
   ): IAutoMovieQuaternion => {
     let angle: number;
-    if (mutable) angle = toRigAngle(clinical, frame) ?? 0;
+    if (mutable) angle = AutoMovieEngineRigAngle.toRigAngle(clinical, frame) ?? 0;
     else if (clinical === null) angle = 0;
     else if (frame === undefined) angle = clinical;
     else {
-      const read: ReturnType<typeof toRigAngle.prepare> =
-        rigAngle ?? operation?.rigAngles[key] ?? toRigAngle.prepare();
+      const read: ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle> =
+        rigAngle ?? operation?.rigAngles[key] ?? AutoMovieEngineRigAngle.prepareToRigAngle();
       angle = read(clinical, frame) ?? 0;
       rigAngle = read;
     }
@@ -126,7 +126,7 @@ export namespace prepareJointRotationFactor {
     /** The three immutable affine readers. */
     readonly rigAngles: Record<
       ClinicalAxis,
-      ReturnType<typeof toRigAngle.prepare>
+      ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle>
     >;
     /** Borrowed immutable rig coordinates, at most two per axis. */
     fixedAngles?: jointToQuaternionOnBasis.IFixedAngles;
@@ -154,9 +154,9 @@ export namespace prepareJointRotationFactor {
     const prepared: IOperation = {
       axisReaders,
       rigAngles: {
-        flexion: toRigAngle.prepare(),
-        abduction: toRigAngle.prepare(),
-        twist: toRigAngle.prepare(),
+        flexion: AutoMovieEngineRigAngle.prepareToRigAngle(),
+        abduction: AutoMovieEngineRigAngle.prepareToRigAngle(),
+        twist: AutoMovieEngineRigAngle.prepareToRigAngle(),
       },
     };
     if (fixedAngles === undefined) return prepared;

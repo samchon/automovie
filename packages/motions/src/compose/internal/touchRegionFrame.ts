@@ -1,14 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanArmCarry,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanTarget,
-  IAutoMovieMotionTarget,
-  IAutoMovieResolvedBone,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanArmCarry, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionTarget, IAutoMovieResolvedBone } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../AutoMovieMotionHumanTarget";
 
@@ -52,8 +44,8 @@ export function touchRegionFrame(
     if (!AutoMovieMotionHumanTarget.TRUNK.has(frame.bone)) {
       // The bones are read only here, so a region on the trunk never calls
       // the supplier.
-      const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-        resolveAutoMovieHumanoidSurfaces.place(
+      const placed: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> =
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           entry().get(frame.bone)!,
         );

@@ -11,7 +11,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { decomposeAutoMovieSingularMatrix } from "../../math/internal/decomposeAutoMovieSingularMatrix";
 import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
-import { physicalSingularBudget } from "../physicalSingularBudget";
+import { AutoMovieEnginePhysicalSingularBudget } from "../AutoMovieEnginePhysicalSingularBudget";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
@@ -164,7 +164,10 @@ export function resolvePhysicalSupportRedundancy(
     columns.map((column: number[]): number => column[row]!),
   );
   const decomposition: IAutoMovieSingularDecomposition =
-    decomposeAutoMovieSingularMatrix(design, physicalSingularBudget);
+    decomposeAutoMovieSingularMatrix(
+      design,
+      AutoMovieEnginePhysicalSingularBudget.DEFAULTS,
+    );
   // Each right singular direction k moves the linearized task by
   // sigma_k * |v_k . d| along an orthonormal left direction, so returning a
   // set of directions moves it by the root-sum-square of their effects.

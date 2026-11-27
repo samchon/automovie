@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -202,7 +202,7 @@ function plan(
         travel: (seconds: number): number =>
           length *
           (1 -
-            minimumJerk(
+            AutoMovieEngineMotionSampling.minimumJerk(
               Math.min(
                 1,
                 Math.max(0, (seconds / duration - entry) / (placed - entry)),

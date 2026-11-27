@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalJointChart, AutoMovieXpbdBody, AutoMovieXpbdJoint, AutoMovieXpbdWorld, Quaternion, Vector3, configurePhysicalJointMotor, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalJointChart, AutoMovieXpbdBody, AutoMovieXpbdJoint, AutoMovieXpbdWorld, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
@@ -215,7 +215,7 @@ function frame(substeps: number): IReading {
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(
         above.rotation(),
       );
-      configurePhysicalJointMotor({
+      AutoMovieEnginePhysics.configurePhysicalJointMotor({
         world,
         native,
         joint,

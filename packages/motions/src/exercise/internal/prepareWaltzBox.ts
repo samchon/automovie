@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanDance,
   IAutoMovieMotionHumanFoot,
@@ -51,7 +51,7 @@ export function prepareWaltzBox(
   const turn: number = options.turn ?? 0;
   const travel: IAutoMovieVector3 = options.travel ?? { x: 0, y: 0, z: 0 };
   const progress = (seconds: number): number =>
-    minimumJerk.share(seconds / Math.max(beatPeriod, lastBeat));
+    AutoMovieEngineMotionSampling.minimumJerkShare(seconds / Math.max(beatPeriod, lastBeat));
   const yaw = (seconds: number): number => turn * progress(seconds);
   return {
     yaw,
@@ -59,8 +59,8 @@ export function prepareWaltzBox(
       const beat: number = 1 + (seconds - firstBeat) / beatPeriod;
       const lowered: number = (1 - Math.cos((2 * Math.PI * beat) / 3)) / 2;
       const gate: number =
-        minimumJerk.share(seconds / beatPeriod) *
-        minimumJerk.share((duration - seconds) / beatPeriod);
+        AutoMovieEngineMotionSampling.minimumJerkShare(seconds / beatPeriod) *
+        AutoMovieEngineMotionSampling.minimumJerkShare((duration - seconds) / beatPeriod);
       return 0.012 * metre * lowered * gate;
     },
     rotate: (

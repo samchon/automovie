@@ -1,11 +1,6 @@
-import { AutoMovieGravity, Vector3, integrateMotionTrajectory, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanForceSite,
-  IAutoMovieIntegrateMotionTrajectory,
-  IAutoMovieMotionHumanForceExchange,
-  IAutoMovieMotionHumanSustainedForce,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieGravity, Vector3, AutoMovieEngineMotionTrajectory, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanForceSite, IAutoMovieIntegrateMotionTrajectory, IAutoMovieMotionHumanForceExchange, IAutoMovieMotionHumanSustainedForce, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanForceDrawn } from "./HumanForceDrawn";
 
@@ -15,7 +10,7 @@ import { HumanForceDrawn } from "./HumanForceDrawn";
  * rotation about the thrower's fulcrum.
  *
  * - **Off-balancing.** The partner is a linear inverted pendulum of its own mass
- *   `M` and length `l` (`resolveAutoMovieCenterOfMass.pendulum`), with
+ *   `M` and length `l` (`AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum`), with
  *   eigenfrequency `ω = sqrt(g / l)` (Hof, Gazendam and Sinke 2005). A constant
  *   horizontal pull `F` at rest gives `x'' = ω² x + F / M`, so the centre moves
  *   `x(t) = (F / M ω²)(cosh ωt - 1)` along the pull and its extrapolated centre
@@ -188,12 +183,12 @@ export namespace HumanForceExchange {
     let t0: number = 0;
     for (;;) {
       const trajectory: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-        integrateMotionTrajectory({
+        AutoMovieEngineMotionTrajectory.integrateMotionTrajectory({
           f: rate,
           x0: state,
           t0,
           t1: t0 + span,
-          h: integrateMotionTrajectory.STEP,
+          h: AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep(),
         });
       spans.push(trajectory);
       const end: readonly number[] = trajectory.at(t0 + span).x;
@@ -218,7 +213,7 @@ export namespace HumanForceExchange {
       (seconds: number): boolean => at(seconds)[0]! < Math.PI / 2,
       last.t0,
       last.t1,
-      integrateMotionTrajectory.STEP ** 2,
+      AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep() ** 2,
     );
     return {
       release,

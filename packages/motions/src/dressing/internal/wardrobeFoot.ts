@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -271,7 +271,7 @@ export function wardrobeFoot(
           wardrobeHands.grip(body, held(at), hand),
         target(at),
       );
-      const u: number = minimumJerk.share(fraction);
+      const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(fraction);
       return {
         position: Vector3.scale(full.position, u),
         rotation: Quaternion.slerp(

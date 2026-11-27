@@ -1,4 +1,4 @@
-import { fluidCourantNumber } from "@automovie/engine";
+import { AutoMovieEngineFluid } from "@automovie/engine";
 import type { IAutoMovieFluidDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,14 +24,14 @@ export function test_engine_fluid_courant_number(): void {
   // 1. The worked number.
   TestValidator.predicate(
     "the worked Courant number",
-    nclose(fluidCourantNumber(domain), Math.SQRT2 / 2, 1e-15),
+    nclose(AutoMovieEngineFluid.fluidCourantNumber(domain), Math.SQRT2 / 2, 1e-15),
   );
 
   // 2. Linear in the step.
   TestValidator.predicate(
     "half the step, half the number",
     nclose(
-      fluidCourantNumber(
+      AutoMovieEngineFluid.fluidCourantNumber(
         fluidDomain({
           solver: { ...solver, referenceDepth: 2, fixedStepSeconds: 1 / 16 },
         }),

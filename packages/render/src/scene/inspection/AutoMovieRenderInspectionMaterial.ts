@@ -6,16 +6,15 @@ import { resolveAutoMovieInspectionColors as resolveAutoMovieInspectionColorsImp
 /** Public operations for Auto Movie Render Inspection Material. */
 export namespace AutoMovieRenderInspectionMaterial {
   /** Named input contract for colouring selected inspection meshes. */
-  export namespace ColorObjects {
     /** One drawn mesh and its inspection path. */
-    export interface IMesh {
+    export interface IColorObjectsMesh {
       /** Mesh to recolour. */
       mesh: THREE.Mesh;
       /** Path matched by request colour patterns. */
       path: string;
     }
     /** Request colour assignments and their drawn meshes. */
-    export interface IProps {
+    export interface IColorObjectsProps {
       /** Drawn meshes and their inspection paths. */
       meshes: readonly IMesh[];
       /** Shade currently used to draw the picture. */
@@ -23,7 +22,6 @@ export namespace AutoMovieRenderInspectionMaterial {
       /** Request colour assignments, last matching entry taking precedence. */
       color: readonly IAutoMovieInspectionColorAssignment[];
     }
-  }
   /**
    * Shade each mesh a request colour pattern matches and return the call that
    * gives each mesh its own material back. The last matching entry wins.
@@ -31,7 +29,7 @@ export namespace AutoMovieRenderInspectionMaterial {
    * skinning, morphing, formation cycles and dual-quaternion skin. Other shades
    * encode quantities, so a colour match throws rather than hiding that data.
    */
-  export function colorObjects(props: ColorObjects.IProps): () => void {
+  export function colorObjects(props: IColorObjectsProps): () => void {
     return colorAutoMovieInspectionObjectsImplementation(props);
   }
   /**

@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -230,7 +230,7 @@ export namespace GymnasticsWheel {
     let high: number = 1;
     for (let i: number = 0; i < 30; i++) {
       const middle: number = (low + high) / 2;
-      if (until * minimumJerk.share(middle) < angle) low = middle;
+      if (until * AutoMovieEngineMotionSampling.minimumJerkShare(middle) < angle) low = middle;
       else high = middle;
     }
     return ((low + high) / 2) * duration;

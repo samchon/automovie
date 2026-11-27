@@ -77,7 +77,7 @@ export interface IAutoMovieScene {
    * `null` means none. A scene carries a fog or a medium, never both; staging
    * refuses both. `applySceneMedium` attaches it to a built scene, and a
    * directly rendered film draws it in its linear beauty target, so a draw
-   * scene with a medium must supply `optics`, and `renderAutoMovieScenePass`,
+   * scene with a medium must supply `optics`, and `AutoMovieRenderScenePass.render`,
    * which has no linear target, refuses it.
    */
   medium?: IAutoMovieMedium | null;

@@ -20,6 +20,18 @@ import { armChainFault as armChainFaultImplementation } from "./internal/armChai
 import { decomposeJointRotation as decomposeJointRotationImplementation } from "./internal/decomposeJointRotation";
 import { jointToQuaternion as jointToQuaternionImplementation } from "./internal/jointToQuaternion";
 import { reachableBoneNames as reachableBoneNamesImplementation } from "./internal/reachableBoneNames";
+import { indexSkeletonTopology as indexSkeletonTopologyImplementation } from "./internal/indexSkeletonTopology";
+import { indexSkeletonTopologyChildren as indexSkeletonTopologyChildrenImplementation } from "./internal/indexSkeletonTopologyChildren";
+import { jointRomOvershoot as jointRomOvershootImplementation } from "./internal/jointRomOvershoot";
+import { gazeChainJointsImplementation } from "./internal/gazeChainJointsImplementation";
+import { aimRotationImplementation } from "./internal/aimRotationImplementation";
+import { poseJointCodecImplementation } from "./internal/poseJointCodecImplementation";
+import { AutoMovieEngineClampJointToSkeleton } from "../rom/internal/AutoMovieEngineClampJointToSkeleton";
+import { AutoMovieEngineClampPose } from "../rom/internal/AutoMovieEngineClampPose";
+import { AutoMovieEngineJointRomScan } from "../rom/internal/AutoMovieEngineJointRomScan";
+import { AutoMovieEngineClinicalAngle } from "../rom/internal/AutoMovieEngineClinicalAngle";
+import { AutoMovieEngineRigAngle } from "../rom/internal/AutoMovieEngineRigAngle";
+import { prepareJointRomOvershoot as prepareJointRomOvershootImplementation } from "./internal/prepareJointRomOvershoot";
 
 import { aimYawPitch as aimYawPitchImplementation } from "./internal/aimYawPitch";
 import { alternateRigJointAngles as alternateRigJointAnglesImplementation } from "./internal/alternateRigJointAngles";
@@ -33,8 +45,17 @@ import { prepareArticulatedRig as prepareArticulatedRigImplementation } from "./
 import { normalizeJointAxes as normalizeJointAxesImplementation } from "./internal/normalizeJointAxes";
 import { reachPose as reachPoseImplementation } from "./internal/reachPose";
 import { resolveAutoMovieBalanceOutcome as resolveAutoMovieBalanceOutcomeImplementation } from "./internal/resolveAutoMovieBalanceOutcome";
-import { type resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
+
+
+
+
+
 import { resolveAutoMovieMomentumRates as resolveAutoMovieMomentumRatesImplementation } from "./internal/resolveAutoMovieMomentumRates";
+import { measureAutoMovieHumanoidBody as measureAutoMovieHumanoidBodyImplementation } from "./internal/measureAutoMovieHumanoidBody";
+import { resolveAutoMovieHumanoidSurfaces as resolveAutoMovieHumanoidSurfacesImplementation } from "./internal/resolveAutoMovieHumanoidSurfaces";
+import { prepareAutoMovieMassModel as prepareAutoMovieMassModelImplementation } from "./internal/prepareAutoMovieMassModel";
+import { resolveAutoMovieCenterOfMass as resolveAutoMovieCenterOfMassImplementation } from "./internal/resolveAutoMovieCenterOfMass";
+import { resolveAutoMovieMomentum as resolveAutoMovieMomentumImplementation } from "./internal/resolveAutoMovieMomentum";
 import { resolveAutoMovieHumanoidRingModules as resolveAutoMovieHumanoidRingModulesImplementation } from "./internal/resolveAutoMovieHumanoidRingModules";
 import { AutoMovieHumanoidDigitSurfaces as AutoMovieHumanoidDigitSurfacesImplementation } from "./internal/AutoMovieHumanoidDigitSurfaces";
 import { AutoMovieHumanoidSurfaceExtents as AutoMovieHumanoidSurfaceExtentsImplementation } from "./internal/AutoMovieHumanoidSurfaceExtents";
@@ -50,7 +71,14 @@ import { type distalTwistSwivelRange } from "./distalTwistSwivelRange";
 import { distalEndSwivelNearest as distalEndSwivelNearestImplementation } from "./internal/distalEndSwivelNearest";
 import { immobileAxisSwivels as immobileAxisSwivelsImplementation } from "./internal/immobileAxisSwivels";
 
-import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation, type IAutoMovieAngleRange, type IAutoMovieValidateJointRom, type AutoMovieBodyRegion, type IAutoMovieActorWorldFrame, type IAutoMovieActorContext, type IAutoMovieMotion, type IAutoMovieActionTarget, type IAutoMovieActionCall } from "@automovie/interface";
+import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation, type IAutoMovieAngleRange, type IAutoMovieValidateJointRom, type AutoMovieBodyRegion, type IAutoMovieActorWorldFrame, type IAutoMovieActorContext, type IAutoMovieMotion, type IAutoMovieActionTarget, type IAutoMovieActionCall, type IAutoMovieGazeChainJoints, type IAutoMoviePoseJointCodec, type IAutoMoviePoseRig } from "@automovie/interface";
+
+
+
+
+
+
+
 
 import { resolveLookAt as resolveLookAtImplementation } from "./internal/resolveLookAt";
 import { resolvePose as resolvePoseImplementation } from "./internal/resolvePose";
@@ -58,6 +86,8 @@ import { resolvePose as resolvePoseImplementation } from "./internal/resolvePose
 import type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
 import { preparePoseResolution as preparePoseResolutionImplementation } from "./internal/preparePoseResolution";
 import { readPreparedBendClinical as readPreparedBendClinicalImplementation } from "./internal/readPreparedBendClinical";
+import type { IAutoMovieBodyMeasure } from "@automovie/interface";
+import type { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 
 /** Pure forward-kinematics and authored-gaze operations for AutoMovie poses. */
 export namespace AutoMovieEngineKinematics {
@@ -87,6 +117,85 @@ export namespace AutoMovieEngineKinematics {
     );
   }
 
+    /**
+   * Distribute one solved aim over the gaze chain, `neck` then `head`, so a gaze
+   * the rig's declared ranges can hold compiles inside them.
+   *
+   * The head takes as much of each axis as its range holds, since its rotation
+   * points the eyes, and the neck takes what remains up to its own range. An aim
+   * the head holds alone therefore compiles to the single `head` joint, and the
+   * neck appears only when it carries something. Whatever neither range can hold
+   * stays on the head unclamped, so the shot's ROM gate reports the head
+   * overshooting by exactly the amount the whole chain falls short, as an
+   * impossible reach does; bending the aim into range would point the actor
+   * somewhere it was never told to look.
+   *
+   * Splitting relies on the two joints' angles adding along the chain. Both use
+   * the default clinical basis, so this holds exactly for a split on one axis
+   * when the head rests unrotated relative to the neck, as the canonical humanoid
+   * does. Flexion and twist split together compose two non-commuting rotations,
+   * so the combined aim then differs slightly from the single-bone aim.
+   *
+   * The aim stays on the single `head` joint when there is no rig (`null`; the
+   * perform-shot ROM gate does not run for a rig-less actor), when the rig
+   * declares no `head` or `neck`, or when the head's parent is not the neck,
+   * because rotating a neck the head does not hang from would not move the head.
+   * A missing per-bone constraint falls back to the default humanoid ROM, as the
+   * gate does.
+   *
+   * @param props.rig The actor's resolved skeleton, or `null` when it has none.
+   * @param props.flexionDeg Sagittal aim in degrees, `+` down, matching the pose
+   *   axis.
+   * @param props.twistDeg Transverse aim in degrees about the chain's long axis.
+   * @returns The joints of the aim pose, parent first; abduction is always
+   *   `null`, and a neck axis that carries nothing is `null`.
+   */
+  export function gazeChainJoints(
+    props: IAutoMovieGazeChainJoints.IProps,
+  ): IAutoMovieJointPose[] {
+    return gazeChainJointsImplementation.run(props);
+  }
+
+  /** Fixed-rig preparation for the same canonical cervical distribution. */
+    /**
+   * Bind one unchanged rig for repeated actual clinical-degree aims.
+   *
+   * @param rig The unchanged resolved skeleton, or null for the original
+   *   single-head policy.
+   * @returns Fresh parent-first joints at every flexion/twist pair. Rig
+   *   structure and constraints are first demanded by an actual query; each
+   *   axis and only its used min/max bound is captured on first actual need,
+   *   after which that metadata must remain unchanged.
+   *
+   *   Defines fixed rig/ROM lifetime, degree signs inherited from
+   *   AutoMovieEngineKinematics.gazeChainJoints, lazy first-use admission, original fallback and fresh
+   *   outputs. The same greedy head-first capacity and unclamped residual owner
+   *   distributes every current axis. Fixed topology selects the same
+   *   head/neck/default constraints, with null axes immobile and a missing or
+   *   disconnected chain retaining the single-head result. One lazy cervical
+   *   source preparation feeds the shared raw numerical owner; private lazy
+   *   range snapshots preserve first-needed axis/bound order without a second
+   *   split algorithm. Original null/fallback/parent rules, shareOf formulas,
+   *   residuals, nullable neck axes and output order remain. Unused bounds are
+   *   not eagerly read, failed field reads are not retained, and no aim is
+   *   clamped to hide insufficient combined range. Two O(B) bone searches and
+   *   constraint selection run once across Q aims; at most four axis references
+   *   and eight min/max scalar observations are prepared lazily. Each query
+   *   retains fixed scalar arithmetic and fresh output joints, with no measured
+   *   speedup claim. This explicit API requires the rig/default cervical
+   *   metadata to stay unchanged. Only topology and first-observed range
+   *   prerequisites are shared; each flexion/twist request is evaluated afresh
+   *   and no joint, pose, direction, target or time answer is reused. The
+   *   caller owns one reader, its fixed rig and at most two constraints/four
+   *   range snapshots/eight bound scalars until release. Queries add no
+   *   retained aim, output, dynamic workspace or growing history.
+   */
+  export function prepareGazeChainJoints(
+    rig: IAutoMovieSkeleton | null,
+  ): (flexionDeg: number, twistDeg: number) => IAutoMovieJointPose[] {
+    return gazeChainJointsImplementation.prepare(rig);
+  }
+
   /**
    * Apply a declared bone gaze to a sampled pose. Non-bone or absent gaze, or
    * an expression without gaze channels, returns the input sample itself. A
@@ -99,7 +208,116 @@ export namespace AutoMovieEngineKinematics {
     return resolveLookAtImplementation(sample, lookAt);
   }
 
+    /**
+   * The two maps between a joint's clinical angles and its bone-local rotation on
+   * one rig, for work that must treat a pose's joints as rotations.
+   *
+   * A joint's `[flexion, abduction, twist]` is an Euler chart of a rotation: at
+   * the chart's gimbal (a hanging arm on a T-pose rig, where the shoulder's
+   * abduction is 90 degrees from rest) two of the angles turn about one axis, so
+   * nearly equal rotations have far apart triples, and a difference or blend
+   * taken per angle swings the bone through poses neither side holds. Differences
+   * and blends are therefore taken on the rotation, and the result is lowered to
+   * angles once.
+   *
+   * `rotation` is {@link jointToQuaternion} with the rig's axes (a bone's own
+   * declaration before the host table, {@link skeletonJointAxes}) and rest frame.
+   * `angles` is {@link decomposeJointRotation} with the same two and the bone's
+   * effective range of motion ({@link getConstraint}), so of the equivalent
+   * triples it returns the one the range admits best, as the limb fits do.
+   * Without a rig both use the default basis with rest-relative angles and the
+   * principal chart.
+   *
+   * That holds for a joint free about all three axes. A hinge or a two-axis joint
+   * spans a lower-dimensional set of rotations, which a composed rotation leaves,
+   * and its angles have no gimbal inside their range; `ball` tells the two apart
+   * so a caller keeps such a joint on its own angles.
+   *
+   * @param rig The rig the angles are read through; the default basis when
+   *   omitted.
+   * @returns The forward and inverse maps.
+   */
+  export function poseJointCodec(
+    rig?: IAutoMoviePoseRig,
+  ): IAutoMoviePoseJointCodec.ICodec {
+    return poseJointCodecImplementation.create(rig);
+  }
+
+    /**
+   * Own one actual codec across related velocity reads and offset capture. Keep
+   * the rig unchanged through those construction stages. The codec is made at
+   * preparation. No pose, quaternion or angle result is cached.
+   *
+   * @param rig The same rig both sampled states and the offset use.
+   * @returns A one-codec getter.
+   */
+  export function preparePoseJointCodec(
+    rig?: IAutoMoviePoseRig,
+  ): () => IAutoMoviePoseJointCodec.ICodec {
+    return poseJointCodecImplementation.prepare(rig);
+  }
+
+    /**
+   * Fresh clinical tuples indexed in source order, LAST duplicate wins. Null
+   * angles keep their clinical-zero reading. The caller owns the map and
+   * tuples; nothing is retained. O(J) output and the existing entry array
+   * preserve the original map admission, with no per-call mapper closure.
+   *
+   * @param pose The actual pose whose joint channels are read.
+   * @returns Fresh indexed clinical-degree tuples.
+   */
+  export function indexPoseJoints(
+    pose: IAutoMoviePose,
+  ): Map<AutoMovieHumanoidBone, [number, number, number]> {
+    return poseJointCodecImplementation.index(pose);
+  }
+
   /**
+   * The shortest-arc rotation that turns the direction of `from` onto the
+   * direction of `to`.
+   *
+   * It is the core of an aim or look-at driver, such as a light aimed along its
+   * direction or a projectile turned along its velocity, and of the analytic
+   * two-bone solves (`twoBoneChainArticulation`, `hingedArmArticulation`). Pass
+   * the bone's rest forward axis as `from` and `target - bonePosition` as `to`,
+   * and the result orients the bone at the target.
+   *
+   * The direction of each input is normalized and passed to the engine's single
+   * shortest-arc primitive {@link rotationBetween}, the same deadzone-free `atan2`
+   * helper the world-driver IK path uses, so the analytic and iterative IK
+   * families use the same turn. Representable nonzero cross products remain
+   * active, subject to binary64 precision in the normalized directions and
+   * result.
+   *
+   * Aligned inputs return the identity, and antiparallel inputs a 180 degree turn
+   * about a deterministic perpendicular. A zero-length input has no direction and
+   * also returns the identity, which keeps a projectile at rest facing its
+   * authored forward axis.
+   *
+   * @param from Direction to turn, any length.
+   * @param to Direction to turn onto, any length.
+   * @returns A unit quaternion.
+   */
+  export function aimRotation(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+  ): IAutoMovieQuaternion {
+    return aimRotationImplementation.run(from, to);
+  }
+
+  /** Aiming from one unchanged source direction. */
+    /**
+   * Prepare the normalized source once and return the reader that turns it onto
+   * each target by the exact shortest-arc solve. A changed source requires
+   * another reader.
+   */
+  export function prepareAimRotation(
+    from: IAutoMovieVector3,
+  ): (to: IAutoMovieVector3) => IAutoMovieQuaternion {
+    return aimRotationImplementation.prepare(from);
+  }
+
+/**
    * The yaw and pitch, in degrees, that aim from `from` at `to` for an actor
    * facing `facingDeg` about +Y: the angles a head, an eye or a camera turns
    * through to look at a target.
@@ -530,7 +748,7 @@ export namespace AutoMovieEngineKinematics {
    *   positive, part count/masses do not match, or a segment's bone/rate is
    *   missing.
    */
-  export function resolveAutoMovieMomentumRates(model: IAutoMovieResolveCenterOfMass.IModel, posed: resolveAutoMovieMomentum.IPosed, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate>): IAutoMovieBodyMomentum {
+  export function resolveAutoMovieMomentumRates(model: IAutoMovieResolveCenterOfMass.IModel, posed: resolveAutoMovieMomentumImplementation.IPosed, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, rates: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate>): IAutoMovieBodyMomentum {
     return resolveAutoMovieMomentumRatesImplementation(model, posed, bones, rates);
   }
 
@@ -691,7 +909,7 @@ export namespace AutoMovieEngineKinematics {
    * base of support as the polygon around the support points on the floor plane.
    *
    * The base of support is the convex hull of the support points in the
-   * horizontal XZ plane, as `resolveAutoMovieCenterOfMass.margin` measures
+   * horizontal XZ plane, as `resolveAutoMovieCenterOfMassImplementation.margin` measures
    * balance on it, drawn as a closed polyline through the hull's points at their
    * own heights; one support point is drawn as a point and two as a segment. The
    * centre is flagged when its margin of stability on that base is negative, that
@@ -707,8 +925,8 @@ export namespace AutoMovieEngineKinematics {
    *
    * @param props.path The body's path, which the marks extend.
    * @param props.centre The centre the caller balances on, world metres: the
-   *   centre of mass of `resolveAutoMovieCenterOfMass.place`, or its
-   *   extrapolation by `resolveAutoMovieCenterOfMass.extrapolate` (Hof 2005).
+   *   centre of mass of `resolveAutoMovieCenterOfMassImplementation.place`, or its
+   *   extrapolation by `resolveAutoMovieCenterOfMassImplementation.extrapolate` (Hof 2005).
    * @param props.support The support contact points, world metres.
    * @returns The centre's mark, then the base's.
    */
@@ -1014,6 +1232,34 @@ export namespace AutoMovieEngineKinematics {
   }
 
   /**
+   * Index a skeleton's parent-child topology once, for forward-kinematics work
+   * repeated over many poses of the same skeleton.
+   *
+   * `childrenByParent` lists each bone under its parent, in declaration order,
+   * with null-parent roots under `SKELETON_ROOT_PARENT`. `reachableBones` holds
+   * every bone whose parent chain ends at such a root: a bone whose parent is
+   * undeclared, or whose chain is a cycle, is never entered from a root and is
+   * absent. The index is a snapshot; it holds the skeleton's bone objects, so a
+   * caller that later changes `skeleton.bones` must build a new one. Duplicate
+   * bone names throw before traversal because one identity cannot own two parent
+   * links or two rest transforms.
+   *
+   * @param skeleton Rig to index; read, never modified.
+   */
+  export function indexSkeletonTopology(skeleton: IAutoMovieSkeleton): IAutoMovieSkeletonTopology {
+    return indexSkeletonTopologyImplementation(skeleton);
+  }
+
+  /**
+   * Parent-child indexing for readers that perform their own root traversal.
+   *
+   * Group declared bones by parent. Reject duplicate names before traversal.
+   */
+  export function indexSkeletonTopologyChildren(skeleton: IAutoMovieSkeleton): IAutoMovieSkeletonTopology["childrenByParent"] {
+    return indexSkeletonTopologyChildrenImplementation(skeleton);
+  }
+
+  /**
    * The bones a skeleton's forward-kinematics walk reaches: every bone whose
    * parent chain ends at a null-parent root.
    *
@@ -1026,7 +1272,7 @@ export namespace AutoMovieEngineKinematics {
    *
    * @param skeleton Rig whose reachable bones are listed.
    * @param topology Index of the same, unchanged skeleton from
-   *   {@link indexSkeletonTopology}; omitted, one is built for this call.
+   *   {@link AutoMovieEngineKinematics.indexSkeletonTopology}; omitted, one is built for this call.
    * @returns A new set the caller may modify without affecting `topology`.
    */
   export function reachableBoneNames(skeleton: IAutoMovieSkeleton, topology?: IAutoMovieSkeletonTopology): Set<AutoMovieHumanoidBone> {
@@ -1139,7 +1385,7 @@ export namespace AutoMovieEngineKinematics {
    * `1e-6`, or `R` below `1e-9`, a hinge parallel to the far segment that cannot
    * change the span ({@link armChainFault} reports that rig).
    */
-  export function hingedArmArticulation(props: AutoMovieEngineKinematicsTypes.HingedArmArticulation.IProps): IAutoMovieHingedArticulation | null {
+  export function hingedArmArticulation(props: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps): IAutoMovieHingedArticulation | null {
     return hingedArmArticulationImplementation(props);
   }
 
@@ -1163,7 +1409,7 @@ export namespace AutoMovieEngineKinematics {
    * can retain its generic sampled path. Inputs are read without modification;
    * the successful map and every velocity record are fresh and caller-owned.
    */
-  export function resolveAutoMovieBoneRates(topology: IAutoMovieSkeletonTopology, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, localBodyAngularRates: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>, root: AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRoot): Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.ResolveAutoMovieBoneRates.IRate> | undefined {
+  export function resolveAutoMovieBoneRates(topology: IAutoMovieSkeletonTopology, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, localBodyAngularRates: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>, root: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsRootRate): Map<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate> | undefined {
     return resolveAutoMovieBoneRatesImplementation(topology, bones, localBodyAngularRates, root);
   }
 
@@ -1198,11 +1444,63 @@ export namespace AutoMovieEngineKinematics {
    * @returns Fresh rates/diagnostics, or an explicit unsupported, pivot-refused
    *   or unrepresentable result.
    */
-  export function solveResolvedRate(jacobian: readonly (readonly number[])[], goalRate: readonly number[], rowScale: readonly number[]): AutoMovieEngineKinematicsTypes.SolveResolvedRate.IResult {
+  export function solveResolvedRate(jacobian: readonly (readonly number[])[], goalRate: readonly number[], rowScale: readonly number[]): AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsSolveResolvedRateResult {
     return solveResolvedRateImplementation(jacobian, goalRate, rowScale);
   }
 
 
+
+  /**
+   * The total range-of-motion overshoot of one joint's clinical angles, in
+   * degrees, or `0` when the joint is within its constraint.
+   *
+   * It sums the overshoot of every fault {@link AutoMovieEngineKinematics.scanJointRom} reports, the measure
+   * the pose gate's `validateJointRom` words into its violations, so a solver
+   * that ranks candidates by this number cannot judge itself by a kinder rule
+   * than the gate, and a ranking over hundreds of candidates builds no message
+   * for any of them. A non-finite angle is reported without an overshoot and
+   * scores `Infinity`, so it never wins a ranking. A `null` constraint scores
+   * `0`.
+   *
+   * @param joint Clinical angles of one joint; `null` axes are at rest.
+   * @param constraint The joint's resolved ROM, or `null` when unconstrained.
+   * @param rig The bone's frame as the caller's rig resolves it, for a joint
+   *   gated by swing and twist; the humanoid tables' when absent.
+   */
+  export function jointRomOvershoot(
+    joint: IAutoMovieJointPose,
+    constraint: IAutoMovieJointConstraint | null,
+    rig?: swingTwistRange.IPrepared,
+  ): number {
+    return jointRomOvershootImplementation(joint, constraint, rig);
+  }
+
+  /**
+   * Prepare the gate's exact overshoot sum for joints of one fixed bone. The
+   * bone, constraint and optional frame stay unchanged for the scorer's
+   * synchronous operation. A null constraint still scores zero without
+   * admitting any coordinate. The scanner owns lazy prepared basis/factor
+   * sharing for gated joints; every candidate retains its original finite
+   * checks, numerical reading and fault order.
+   *
+   * Constant setup owns one closure and the scanner's fixed-size optional
+   * frame/composer until caller release. No target or joint result survives a
+   * score, and a changed rig or ROM requires a new scorer.
+   *
+   * Every supplied joint must name the prepared bone. The scanner keeps its
+   * canonical humanoid frame fallback when no rig is supplied and owns all
+   * finite, interval, cone and swing-twist rules. Preparation adds no
+   * tolerance, alternative frame or candidate-answer cache; each actual score
+   * is scanned. The optional rotation is the one the angles were read from on
+   * the range's own frame (`AutoMovieEngineKinematics.prepareJointRomScan`).
+   */
+  export function prepareJointRomOvershoot(
+    bone: AutoMovieHumanoidBone,
+    constraint: IAutoMovieJointConstraint | null,
+    rig?: swingTwistRange.IPrepared,
+  ): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number {
+    return prepareJointRomOvershootImplementation(bone, constraint, rig);
+  }
 
   /**
    * A joint's admitted abduction interval at a flexion: its `abduction` interval,
@@ -1245,7 +1543,366 @@ export namespace AutoMovieEngineKinematics {
     return clampJointRomImplementation(joint, constraint, rig);
   }
 
-  /**
+    /**
+   * Clamp one joint using its skeleton override, otherwise the humanoid default
+   * table. Unconstrained joints return by identity. This targeted seam lets
+   * derived contact/retarget corrections leave authored neighboring joints
+   * alone.
+   */
+export function clampJointToSkeleton(
+    joint: Parameters<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeleton>[0],
+    skeleton: Parameters<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeleton>[1],
+  ): ReturnType<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeleton> {
+    return AutoMovieEngineClampJointToSkeleton.clampJointToSkeleton(joint, skeleton);
+  }
+
+    /**
+   * Prepare actual joint clamps for one unchanged rig operation. The first
+   * requested joint builds a first-bone index; each distinct name then reads
+   * its constraint and frame once, and every incoming joint is projected.
+   *
+   * An optional axes table must be the complete result of
+   * skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES) for this same operation.
+   * Without it, that merge is made only when a constrained joint first needs
+   * its frame. Axis admission still occurs inside the actual projection.
+   *
+   * Metadata setup costs O(B+D), followed by the existing projection per input
+   * joint, for B bones and D requested names. The returned function owns at
+   * most B first-bone records, D clamp closures with optional lazy swing-twist
+   * bases and one axes table; release it when the operation ends, including
+   * failure. A later solve creates a new preparation, so no mutable skeleton
+   * identity is cached.
+   *
+   * @param skeleton The rig, unchanged until the returned clamp is released.
+   * @param resolvedAxes Its already resolved canonical axes table, when
+   *   available.
+   * @returns A clamp that preserves each unconstrained input joint by identity,
+   *   carrying its angle-taking form (IPrepared.values).
+   */
+export function prepareClampJointToSkeleton(
+    skeleton: Parameters<typeof AutoMovieEngineClampJointToSkeleton.prepareClampJointToSkeleton>[0],
+    resolvedAxes?: Parameters<typeof AutoMovieEngineClampJointToSkeleton.prepareClampJointToSkeleton>[1],
+  ): ReturnType<typeof AutoMovieEngineClampJointToSkeleton.prepareClampJointToSkeleton> {
+    return AutoMovieEngineClampJointToSkeleton.prepareClampJointToSkeleton(skeleton, resolvedAxes);
+  }
+
+    /**
+   * One bone's clamp under a skeleton, its override or the humanoid table and
+   * its swing-twist frame resolved once, for a caller that clamps the same bone
+   * many times within one solve (a sweep's candidates): each call clamps
+   * exactly as `AutoMovieEngineKinematics.clampJointToSkeleton` does with the skeleton as it stood when
+   * the clamp was made. Nothing is kept beyond the closure, since a skeleton's
+   * contents may change between solves.
+   *
+   * @param bone The bone.
+   * @param skeleton The skeleton.
+   * @returns The clamp of a joint of that bone.
+   *
+   *   States the one-bone closure, fixed-input operation scope, skeleton mutation
+   *   boundary and caller-owned lifetime. Uses the first matching bone for
+   *   override precedence and the shared private constraint gate, resolving a
+   *   current skeleton frame only for an actual swing-twist clamp. One
+   *   first-bone lookup and one shared clamp preparation; numerical projection
+   *   stays in clampJointRom. Missing bones preserve default ROM, and an
+   *   unconstrained bone never resolves a swing-twist frame. O(B) lookup and,
+   *   only for a swing-twist constraint, an O(B) axis merge are paid once per
+   *   closure; box/cone clamps skip unused axes metadata and later invocations
+   *   perform the existing projection only. The closure borrows this
+   *   operation's resolved constraint and frame; a new preparation reads
+   *   current skeleton contents, including axes replaced on the same bones
+   *   list. The caller owns one closure borrowing one constraint and frame
+   *   until its solve ends; no global skeleton cache, task or handle is
+   *   retained.
+   */
+export function clampJointToSkeletonOf(
+    bone: Parameters<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonOf>[0],
+    skeleton: Parameters<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonOf>[1],
+  ): ReturnType<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonOf> {
+    return AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonOf(bone, skeleton);
+  }
+
+    /**
+   * Prepare the same one-bone clamp from a caller's first matching bone and
+   * frame reader, allowing one pose operation to share its index and axes. The
+   * supplied record must belong to bone; undefined preserves named default ROM.
+   * The frame reader runs only after the joint is constrained.
+   *
+   * @param bone The joint's bone name.
+   * @param found The first matching skeleton bone, or undefined when absent.
+   * @param readRig The frame resolved from that same unchanged skeleton.
+   * @returns A clamp for joints of bone, borrowing the resolved constraint and
+   *   frame.
+   *
+   *   States lookup provenance, absent-bone default behavior, frame-reader
+   *   ordering and the closure's fixed bone and lifetime. getConstraint owns
+   *   override/default precedence; an unconstrained joint returns by identity,
+   *   otherwise the frame is read once and clampJointRom performs each actual
+   *   projection. This shared preparation separates bone lookup from the
+   *   unchanged constraint gate and projection used by standalone and full-pose
+   *   clamps. Does not validate skeleton membership, repair axes or cache a
+   *   clamped answer; the caller supplies the actual first matching bone and
+   *   same-skeleton rig reader. Constant preparation apart from the caller's
+   *   frame reader, then the existing projection for every joint; no bone scan
+   *   is performed here. Reuses this operation's constraint/frame and a
+   *   swing-twist frame's lazy basis while preserving every actual projection;
+   *   no state is shared across solves. One returned clamp owns its optional
+   *   prepared frame, private readers and at most one admitted-axis reference
+   *   and one swing basis plus borrowed constraint/axis/frame records, released
+   *   with the operation; ordinary box clamps keep no prepared swing basis and
+   *   a one-shot swing clamp pays the fixed-size wrapper and its three
+   *   closures.
+   */
+export function clampJointToSkeletonResolved(
+    bone: Parameters<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonResolved>[0],
+    found: Parameters<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonResolved>[1],
+    readRig: Parameters<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonResolved>[2],
+  ): ReturnType<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonResolved> {
+    return AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonResolved(bone, found, readRig);
+  }
+
+    /**
+   * Borrow this owner's exact factory callable for synchronous scratch inputs.
+   * The returned function is the original callable, with no replacement or
+   * extra invocation. Its closure stores only fixed source metadata and never
+   * an input or result joint. Unconstrained projection can return the input
+   * itself; copy a selected/retained result before editing that scratch again.
+   *
+   * The private `owned` mark comes only from of/resolved/prepare production.
+   * Unknown, wrapped, proxied or bound callbacks return undefined, so their
+   * original fresh-input/callback behavior remains the consumer's fallback.
+   * This lookup certifies no ROM, matching domain, projection outcome or input
+   * validity. It costs constant work, stores no joint and retains no callable
+   * strongly; release the borrowed function with its owning operation.
+   */
+export function borrowClampJoint(
+    clamp: Parameters<typeof AutoMovieEngineClampJointToSkeleton.borrowClampJoint>[0],
+  ): ReturnType<typeof AutoMovieEngineClampJointToSkeleton.borrowClampJoint> {
+    return AutoMovieEngineClampJointToSkeleton.borrowClampJoint(clamp);
+  }
+
+    /**
+   * Test whether a genuine one-joint clamp owns the exact borrowed constraint.
+   * All-bone clamps and opaque callbacks have no one-joint constraint
+   * identity.
+   *
+   * The same private constructor binds and weakly registers the constraint.
+   * Identity proves the fixed domain without constructing a joint, invoking the
+   * clamp or retaining an input or projection result.
+   */
+export function clampJointToSkeletonOwnsConstraint(
+    clamp: Parameters<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonOwnsConstraint>[0],
+    constraint: Parameters<typeof AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonOwnsConstraint>[1],
+  ): boolean {
+    return AutoMovieEngineClampJointToSkeleton.clampJointToSkeletonOwnsConstraint(clamp, constraint);
+  }
+
+    /**
+   * Return a new pose/joint array by applying effective skeleton ROM to each
+   * joint. Root and unconstrained joint records remain borrowed; pose/skeleton
+   * identity admission and unrestricted multi-turn cone correctness are separate
+   * responsibilities.
+   */
+export function clampPose(
+    pose: Parameters<typeof AutoMovieEngineClampPose.clampPose>[0],
+    skeleton: Parameters<typeof AutoMovieEngineClampPose.clampPose>[1],
+  ): ReturnType<typeof AutoMovieEngineClampPose.clampPose> {
+    return AutoMovieEngineClampPose.clampPose(pose, skeleton);
+  }
+
+    /**
+   * Prepare the metadata of repeated full-pose clamps during one operation. The
+   * skeleton and its records must stay unchanged until this function is
+   * released; every pose's numerical projection still runs, including when a
+   * caller intentionally clamps an earlier clamp's result again.
+   *
+   * The shared joint owner lazily indexes B bones and prepares D requested
+   * names once. Each call still costs O(J) projections and creates a fresh
+   * wrapper and joint array, borrowing its root and unconstrained records. The
+   * caller releases the closure on completion or failure; no pose or projected
+   * result is retained between calls.
+   *
+   * @param skeleton The unchanged rig used by every pose of this operation.
+   * @returns A full-pose clamp borrowing only operation-scoped rig metadata,
+   *   carrying its one-joint clamp (`IPrepared.joints`) and that clamp's
+   *   angle-taking form (`IPrepared.values`) as its own members.
+   */
+export function prepareClampPose(
+    skeleton: Parameters<typeof AutoMovieEngineClampPose.prepareClampPose>[0],
+  ): ReturnType<typeof AutoMovieEngineClampPose.prepareClampPose> {
+    return AutoMovieEngineClampPose.prepareClampPose(skeleton);
+  }
+
+    /**
+   * Measure one joint against its range of motion and report each fault to the
+   * caller, building no message: the single owner of what counts as a ROM fault
+   * and how far past the limit it lies, read by the pose gate
+   * ({@link validateJointRom}), which words each fault, and by the solvers'
+   * candidate ranking (`jointRomOvershoot`), which only sums them.
+   *
+   * Faults are reported in axis order (flexion, abduction, twist), then the
+   * combined swing. A `null` angle is rest and reports nothing on its own axis;
+   * `0` reports nothing on an immobile (`null`) axis, whose rest it is, but is
+   * measured against a range that excludes it. A non-finite angle is reported
+   * with an `undefined` overshoot, since it has no distance to a limit. An angle
+   * on an immobile axis overshoots by its whole magnitude, and one outside its
+   * interval by its distance to the nearer bound. The swing is the coupling of
+   * flexion and abduction, a `null` axis contributing its actual rotation, `0`,
+   * and overshoots by what it exceeds `swingDeg`.
+   *
+   * A ball joint whose constraint declares `swingTwist` is measured by its
+   * rotation instead (`swingTwistRange`), in the frame of its bone the caller's
+   * rig resolves (`rig`), or the humanoid tables' (`swingTwistRange.of`): a
+   * `swing` fault by the degrees its direction lies past the reach of its flexion
+   * and abduction ranges, then a `twist` fault by the degrees its turn about its
+   * own axis lies past `swingTwist.twist`. A non-finite angle is reported as
+   * above and nothing else is measured. A bone with no axes in that frame keeps
+   * the three-angle scan.
+   *
+   * @param joint Joint angles in the constraint's degree frame; `null` is rest.
+   * @param constraint Finite ordered axis intervals and an optional swing cone.
+   * @param report Called once per fault with the faulted part, the measured value
+   *   in degrees and its overshoot in degrees, `undefined` for a non-finite
+   *   value.
+   * @param rig The bone's frame as the caller's rig resolves it
+   *   (`swingTwistRange.of(bone, skeleton)`); the humanoid tables' when absent.
+   */
+export function scanJointRom(
+    joint: Parameters<typeof AutoMovieEngineJointRomScan.scanJointRom>[0],
+    constraint: Parameters<typeof AutoMovieEngineJointRomScan.scanJointRom>[1],
+    report: Parameters<typeof AutoMovieEngineJointRomScan.scanJointRom>[2],
+    rig?: Parameters<typeof AutoMovieEngineJointRomScan.scanJointRom>[3],
+  ): ReturnType<typeof AutoMovieEngineJointRomScan.scanJointRom> {
+    return AutoMovieEngineJointRomScan.scanJointRom(joint, constraint, report, rig);
+  }
+
+    /**
+   * Sum the same faults in their report order, without a collector closure.
+   * Missing distances are nonfinite faults and add Infinity, never zero. This
+   * entry runs the same full scan with its existing rig admission and owns only
+   * a local number; it retains no joint, constraint or result.
+   *
+   * @param joint The actual clinical angles, degrees.
+   * @param constraint Their effective admitted ROM.
+   * @param rig The caller's existing clinical frame, when supplied.
+   * @returns The ordered overshoot sum in degrees, or Infinity for an
+   *   unmeasurable fault.
+   */
+export function scanJointRomOvershoot(
+    joint: Parameters<typeof AutoMovieEngineJointRomScan.scanJointRomOvershoot>[0],
+    constraint: Parameters<typeof AutoMovieEngineJointRomScan.scanJointRomOvershoot>[1],
+    rig?: Parameters<typeof AutoMovieEngineJointRomScan.scanJointRomOvershoot>[2],
+  ): number {
+    return AutoMovieEngineJointRomScan.scanJointRomOvershoot(joint, constraint, rig);
+  }
+
+    /**
+   * Prepare numerical scans for one bone's unchanged constraint and clinical
+   * frame. Every input joint must name that bone. The canonical humanoid frame
+   * remains the fallback when no rig is supplied, as in a direct scan. Creating
+   * the scorer admits no axis or angle; the first finite gated candidate admits
+   * its basis at the original composition site. Later candidates share only
+   * that basis and their pure axis factors, while all finite checks,
+   * swing/twist readings and ordered additions still run.
+   *
+   * Preparation is constant work. One closure owns one optional prepared frame
+   * and lazy joint composer for this synchronous operation, released with the
+   * scorer. No joint, quaternion result or target history is cached.
+   *
+   * The same private fault scan evaluates every candidate, with finite checks
+   * before any composition. Only the gated frame and composition factors are
+   * prepared, without duplicating interval, cone or swing-twist fault rules.
+   * Canonical fallback, ordered additions and tolerances remain unchanged.
+   * Exact unchanged bone/constraint/axes/frame inputs justify that preparation;
+   * each candidate still owns its fresh outer product and actual reading.
+   *
+   * A caller that read the joint's angles off a rotation, on a basis and rest
+   * frame that are the range's own (`readsSwingTwistFrame`), passes that
+   * rotation: a gated joint's range then reads it instead of the rotation its
+   * angles compose back to, the same rotation up to the rounding of the round
+   * trip, and composes nothing.
+   */
+export function prepareJointRomScan(
+    bone: Parameters<typeof AutoMovieEngineJointRomScan.prepareJointRomScan>[0],
+    constraint: Parameters<typeof AutoMovieEngineJointRomScan.prepareJointRomScan>[1],
+    rig?: Parameters<typeof AutoMovieEngineJointRomScan.prepareJointRomScan>[2],
+  ): ReturnType<typeof AutoMovieEngineJointRomScan.prepareJointRomScan> {
+    return AutoMovieEngineJointRomScan.prepareJointRomScan(bone, constraint, rig);
+  }
+
+    /**
+   * The same overshoot sum for one bone gated by swing and twist, read from the
+   * joint's rotation alone: what `prepare`'s scorer returns for a joint whose
+   * angles were read off that rotation on the range's own basis and rest frame
+   * (`readsSwingTwistFrame`), the gate's swing then twist faults in their
+   * order, with no angles to read. Such angles, read off a finite rotation, are
+   * finite, so the scorer's finite checks on them have nothing to report; a
+   * rotation with a non-finite component is the caller's to refuse. Null for an
+   * unconstrained or ungated bone, whose scan reads the angles themselves.
+   *
+   * @param bone The bone.
+   * @param constraint Its effective ROM.
+   * @param rig Its frame as the caller's rig resolves it; the humanoid tables'
+   *   when absent.
+   * @returns The scorer of a rotation, degrees, or null.
+   */
+export function prepareRotatedJointRomScan(
+    bone: Parameters<typeof AutoMovieEngineJointRomScan.prepareRotatedJointRomScan>[0],
+    constraint: Parameters<typeof AutoMovieEngineJointRomScan.prepareRotatedJointRomScan>[1],
+    rig?: Parameters<typeof AutoMovieEngineJointRomScan.prepareRotatedJointRomScan>[2],
+  ): ReturnType<typeof AutoMovieEngineJointRomScan.prepareRotatedJointRomScan> {
+    return AutoMovieEngineJointRomScan.prepareRotatedJointRomScan(bone, constraint, rig);
+  }
+
+    /**
+   * Convert rig degrees to clinical = sign * rig + neutral. Null rest remains
+   * null and an absent frame preserves the angle; an invalid supplied
+   * sign/neutral throws when used. prepare reads the same expression repeatedly
+   * on unchanged frame objects: construction admits nothing, first nonnull use
+   * captures the actual final sign/neutral operands after original validation and
+   * replacement admits anew.
+   */
+export function toClinicalAngle(
+    rig: Parameters<typeof AutoMovieEngineClinicalAngle.toClinicalAngle>[0],
+    frame: Parameters<typeof AutoMovieEngineClinicalAngle.toClinicalAngle>[1],
+  ): ReturnType<typeof AutoMovieEngineClinicalAngle.toClinicalAngle> {
+    return AutoMovieEngineClinicalAngle.toClinicalAngle(rig, frame);
+  }
+
+    /**
+   * Prepare one lazy reader without reading a frame or angle. Null bypasses
+   * unused frames; each used frame object stays unchanged until replacement or
+   * release, and failed admission leaves any valid prior reading intact.
+   */
+export function prepareToClinicalAngle(): ReturnType<typeof AutoMovieEngineClinicalAngle.prepareToClinicalAngle> {
+    return AutoMovieEngineClinicalAngle.prepareToClinicalAngle();
+  }
+
+    /**
+   * Convert clinical degrees to rig = (clinical - neutral) / sign. Null rest
+   * remains null and an absent frame preserves the angle; an invalid supplied
+   * sign/neutral throws when used. prepare supplies a lazy operation reader for
+   * unchanged frame objects. Null reads admit no frame; the first nonnull read
+   * validates and captures the exact neutral/sign used by the original
+   * expression. Replacing the frame admits it again, while unchanged identity
+   * reuses only those affine scalars.
+   */
+export function toRigAngle(
+    clinical: Parameters<typeof AutoMovieEngineRigAngle.toRigAngle>[0],
+    frame: Parameters<typeof AutoMovieEngineRigAngle.toRigAngle>[1],
+  ): ReturnType<typeof AutoMovieEngineRigAngle.toRigAngle> {
+    return AutoMovieEngineRigAngle.toRigAngle(clinical, frame);
+  }
+
+    /**
+   * Prepare one lazy converter; construction reads no frame or angle. Null
+   * remains null without admission. Each same-identity frame must stay
+   * unchanged until replacement or reader release. A replacement runs the
+   * original checks, and failed admission never replaces valid metadata.
+   */
+export function prepareToRigAngle(): ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle> {
+    return AutoMovieEngineRigAngle.prepareToRigAngle();
+  }
+/**
    * Borrow a nonnull supplied override, otherwise the default humanoid
    * constraint, otherwise null. Null override means fallback rather than explicit
    * disablement; this lookup validates no numerical bounds.
@@ -1338,8 +1995,7 @@ export namespace AutoMovieEngineKinematics {
   ): readonly (number | string | null | undefined)[] {
     return readPreparedBendClinicalImplementation(input);
   }
-
-  /**
+/**
    * Resolve an action's explicit body region, else its gesture-kind default, verb
    * default, or fullBody. Head-only and whole-body gesture defaults match the
    * actual reference gesture channels; explicit overrides remain authoritative.
@@ -1347,4 +2003,165 @@ export namespace AutoMovieEngineKinematics {
   export function actionRegion(action: IAutoMovieActionCall): AutoMovieBodyRegion {
     return actionRegionImplementation(action);
   }
+
+  /** Measure a humanoid body from its canonical rest rig and physical profile. */
+  export function measureAutoMovieHumanoidBody(
+    skeleton: IAutoMovieSkeleton,
+    profile: IAutoMoviePhysicalProfile,
+    neutral?: IPreparedHumanoidNeutralBounds,
+  ): IAutoMovieBodyMeasure {
+    return measureAutoMovieHumanoidBodyImplementation.run(skeleton, profile, neutral);
+  }
+
+  /** Measure a body and derive its surfaces in one unchanged-profile scope. */
+  export const measureAutoMovieHumanoidBodyWithSurfaces: typeof measureAutoMovieHumanoidBodyImplementation.withSurfaces =
+    measureAutoMovieHumanoidBodyImplementation.withSurfaces;
+
+  /** Resolve anatomical regions and contact sockets onto a humanoid rig. */
+  export function resolveAutoMovieHumanoidSurfaces(
+    skeleton: IAutoMovieSkeleton,
+    profile: IAutoMoviePhysicalProfile,
+    neutral?: IPreparedHumanoidNeutralBounds,
+  ): IHumanoidSurfaces {
+    return resolveAutoMovieHumanoidSurfacesImplementation.run(skeleton, profile, neutral);
+  }
+
+  /** Place a bone-local surface point in world coordinates. */
+  export const resolveAutoMovieHumanoidSurfacePoint: typeof resolveAutoMovieHumanoidSurfacesImplementation.point =
+    resolveAutoMovieHumanoidSurfacesImplementation.point;
+  /** Place a bone-local surface normal in world coordinates. */
+  export const resolveAutoMovieHumanoidSurfaceNormal: typeof resolveAutoMovieHumanoidSurfacesImplementation.normal =
+    resolveAutoMovieHumanoidSurfacesImplementation.normal;
+  /** Place a bone-local point and normal in world coordinates. */
+  export const resolveAutoMovieHumanoidSurfacePointNormal: typeof resolveAutoMovieHumanoidSurfacesImplementation.pointNormal =
+    resolveAutoMovieHumanoidSurfacesImplementation.pointNormal;
+  /** Place a complete bone-local surface frame in world coordinates. */
+  export const resolveAutoMovieHumanoidSurfacePlace: typeof resolveAutoMovieHumanoidSurfacesImplementation.place =
+    resolveAutoMovieHumanoidSurfacesImplementation.place;
+  /** Whether the named region is defined by a ray exit. */
+  export const resolveAutoMovieHumanoidSurfaceRayed: typeof resolveAutoMovieHumanoidSurfacesImplementation.rayed =
+    resolveAutoMovieHumanoidSurfacesImplementation.rayed;
+  /** Offset a surface frame by a distance along its normal. */
+  export const resolveAutoMovieHumanoidSurfaceOffset: typeof resolveAutoMovieHumanoidSurfacesImplementation.offset =
+    resolveAutoMovieHumanoidSurfacesImplementation.offset;
+  /** Read the mirrored partner of a surface region, when it has one. */
+  export const resolveAutoMovieHumanoidSurfaceTwin: typeof resolveAutoMovieHumanoidSurfacesImplementation.twin =
+    resolveAutoMovieHumanoidSurfacesImplementation.twin;
+  /** Whether a surface region lies on the body's median plane. */
+  export const resolveAutoMovieHumanoidSurfaceMedian: typeof resolveAutoMovieHumanoidSurfacesImplementation.median =
+    resolveAutoMovieHumanoidSurfacesImplementation.median;
+  /** Center a surface frame on the median plane. */
+  export const resolveAutoMovieHumanoidSurfaceCentred: typeof resolveAutoMovieHumanoidSurfacesImplementation.centred =
+    resolveAutoMovieHumanoidSurfacesImplementation.centred;
+  /** Mirror a surface frame across the body's median plane. */
+  export const resolveAutoMovieHumanoidSurfaceMirrored: typeof resolveAutoMovieHumanoidSurfacesImplementation.mirrored =
+    resolveAutoMovieHumanoidSurfacesImplementation.mirrored;
+
+  /** Prepare a mass-model snapshot for a synchronous physical operation. */
+  export function prepareAutoMovieMassModel(
+    source: IMassModel,
+  ): IPreparedMassModel {
+    return prepareAutoMovieMassModelImplementation.run(source);
+  }
+  /** Opaque prepared mass-model handle, invalid after release. */
+  export type IPreparedMassModel = prepareAutoMovieMassModelImplementation.IPrepared;
+  /** Internal neutral-bound scope shared by a measure-and-surfaces read. */
+  export type IPreparedHumanoidNeutralBounds = AutoMovieHumanoidNeutralBounds.IPrepared;
+  /** Resolved surface frames and contact sockets of a humanoid. */
+  export type IHumanoidSurfaces = IAutoMovieHumanoidSurfaces.ISurfaces;
+  /** Segmental mass model for a humanoid rig and physical profile. */
+  export type IMassModel = IAutoMovieResolveCenterOfMass.IModel;
+  /** Read the bones represented by a prepared mass model. */
+  export const prepareAutoMovieMassModelBones: typeof prepareAutoMovieMassModelImplementation.bones =
+    prepareAutoMovieMassModelImplementation.bones;
+  /** Pose the segments of a prepared mass model. */
+  export const prepareAutoMovieMassModelPose: typeof prepareAutoMovieMassModelImplementation.pose =
+    prepareAutoMovieMassModelImplementation.pose;
+  /** Place a prepared body's centre of mass under a posed skeleton. */
+  export const prepareAutoMovieMassModelPlace: typeof prepareAutoMovieMassModelImplementation.place =
+    prepareAutoMovieMassModelImplementation.place;
+  /** Read a prepared body's inertia tensor. */
+  export const prepareAutoMovieMassModelInertia: typeof prepareAutoMovieMassModelImplementation.inertia =
+    prepareAutoMovieMassModelImplementation.inertia;
+  /** Read momentum between two poses of a prepared mass model. */
+  export const prepareAutoMovieMassModelBetween: typeof prepareAutoMovieMassModelImplementation.between =
+    prepareAutoMovieMassModelImplementation.between;
+  /** Read momentum from supplied segment bone rates. */
+  export const prepareAutoMovieMassModelRates: typeof prepareAutoMovieMassModelImplementation.rates =
+    prepareAutoMovieMassModelImplementation.rates;
+  /** Release the operation-owned prepared mass-model handle. */
+  export const releaseAutoMovieMassModel: typeof prepareAutoMovieMassModelImplementation.release =
+    prepareAutoMovieMassModelImplementation.release;
+
+  /** Resolve a body's segmental mass model from its rig and physical profile. */
+  export function resolveAutoMovieCenterOfMass(
+    skeleton: IAutoMovieSkeleton,
+    profile: IAutoMoviePhysicalProfile,
+  ): IMassModel {
+    return resolveAutoMovieCenterOfMassImplementation.run(skeleton, profile);
+  }
+  /** Pendulum length as a share of hip height. */
+  export const AUTO_MOVIE_CENTER_OF_MASS_PENDULUM =
+    resolveAutoMovieCenterOfMassImplementation.PENDULUM;
+  /** Resolve a mass model from a prepared immutable rig. */
+  export const resolveAutoMovieCenterOfMassFromRig: typeof resolveAutoMovieCenterOfMassImplementation.fromRig =
+    resolveAutoMovieCenterOfMassImplementation.fromRig;
+  /** Pendulum length as a share of hip height. */
+  export const resolveAutoMovieCenterOfMassPendulum: typeof resolveAutoMovieCenterOfMassImplementation.pendulum =
+    resolveAutoMovieCenterOfMassImplementation.pendulum;
+  /** Inverted-pendulum frequency at a hip height. */
+  export const resolveAutoMovieCenterOfMassFrequency: typeof resolveAutoMovieCenterOfMassImplementation.frequency =
+    resolveAutoMovieCenterOfMassImplementation.frequency;
+  /** Place a model's centre of mass under a resolved pose. */
+  export const resolveAutoMovieCenterOfMassPlace: typeof resolveAutoMovieCenterOfMassImplementation.place =
+    resolveAutoMovieCenterOfMassImplementation.place;
+  /** Place a segment's centre of mass under a resolved bone. */
+  export const resolveAutoMovieCenterOfMassPoint: typeof resolveAutoMovieCenterOfMassImplementation.point =
+    resolveAutoMovieCenterOfMassImplementation.point;
+  /** Find the mass-weighted mean of segment points. */
+  export const resolveAutoMovieCenterOfMassMean: typeof resolveAutoMovieCenterOfMassImplementation.mean =
+    resolveAutoMovieCenterOfMassImplementation.mean;
+  /** Extrapolate the centre of mass from its velocity. */
+  export const resolveAutoMovieCenterOfMassExtrapolate: typeof resolveAutoMovieCenterOfMassImplementation.extrapolate =
+    resolveAutoMovieCenterOfMassImplementation.extrapolate;
+  /** Read the margin of stability against a support hull. */
+  export const resolveAutoMovieCenterOfMassMargin: typeof resolveAutoMovieCenterOfMassImplementation.margin =
+    resolveAutoMovieCenterOfMassImplementation.margin;
+
+  /** Resolve linear and angular momentum over a positive pose interval. */
+  export function resolveAutoMovieMomentum(
+    model: IMassModel,
+    before: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    after: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    seconds: number,
+  ): IAutoMovieBodyMomentum {
+    return resolveAutoMovieMomentumImplementation.run(model, before, after, seconds);
+  }
+  /** A body pose represented by its segment centres and frames. */
+  export type IPosedBody = resolveAutoMovieMomentumImplementation.IPosed;
+  /** Momentum measured at a posed body's instant. */
+  export type IMomentumMeasure = resolveAutoMovieMomentumImplementation.IMomentum;
+  /** The principal frame of a body's inertia tensor. */
+  export type IPrincipalMassFrame = resolveAutoMovieMomentumImplementation.IPrincipal;
+  /** Read segment poses from the resolved bones of a mass model. */
+  export const resolveAutoMovieMomentumPose: typeof resolveAutoMovieMomentumImplementation.pose =
+    resolveAutoMovieMomentumImplementation.pose;
+  /** Read momentum between two posed states. */
+  export const resolveAutoMovieMomentumBetween: typeof resolveAutoMovieMomentumImplementation.between =
+    resolveAutoMovieMomentumImplementation.between;
+  /** Prepare interval scratch for repeated momentum reads. */
+  export const prepareAutoMovieMomentumIntervals: typeof resolveAutoMovieMomentumImplementation.prepareIntervals =
+    resolveAutoMovieMomentumImplementation.prepareIntervals;
+  /** Read a body's inertia tensor at a posed state. */
+  export const resolveAutoMovieMomentumInertia: typeof resolveAutoMovieMomentumImplementation.inertia =
+    resolveAutoMovieMomentumImplementation.inertia;
+  /** Read the principal frame and moments of an inertia tensor. */
+  export const resolveAutoMovieMomentumPrincipal: typeof resolveAutoMovieMomentumImplementation.principal =
+    resolveAutoMovieMomentumImplementation.principal;
+  /** Apply an inertia tensor to an angular velocity. */
+  export const applyAutoMovieMomentumTensor: typeof resolveAutoMovieMomentumImplementation.apply =
+    resolveAutoMovieMomentumImplementation.apply;
+  /** Read each segment's contribution to whole-body momentum. */
+  export const resolveAutoMovieMomentumParts: typeof resolveAutoMovieMomentumImplementation.parts =
+    resolveAutoMovieMomentumImplementation.parts;
 }

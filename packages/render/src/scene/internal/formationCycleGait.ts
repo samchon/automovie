@@ -1,4 +1,4 @@
-import { autoMovieModelGaits } from "@automovie/engine";
+import { AutoMovieEngineModel } from "@automovie/engine";
 import type { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
 
 /**
@@ -16,4 +16,4 @@ import type { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
 export const formationCycleGait: (
   model: IAutoMovieModel,
 ) => IAutoMovieGait | null = (model: IAutoMovieModel): IAutoMovieGait | null =>
-  autoMovieModelGaits(model)[0] ?? null;
+  AutoMovieEngineModel.gaits(model)[0] ?? null;

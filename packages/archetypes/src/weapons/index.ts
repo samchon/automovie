@@ -1,4 +1,4 @@
-export { AutoMovieArchetypeArmour } from "./AutoMovieArchetypeArmour";
+export * from "./AutoMovieArchetypeArmour";
 export { AutoMovieArchetypeBow } from "./AutoMovieArchetypeBow";
 export { AutoMovieArchetypeCannon } from "./AutoMovieArchetypeCannon";
 export { AutoMovieArchetypeClub } from "./AutoMovieArchetypeClub";
@@ -15,7 +15,6 @@ export { AutoMovieArchetypeSword } from "./AutoMovieArchetypeSword";
 export { AutoMovieArchetypeWeaponLoop } from "./AutoMovieArchetypeWeaponLoop";
 export { AutoMovieArchetypeWeaponRack } from "./AutoMovieArchetypeWeaponRack";
 export { AutoMovieArchetypePracticeBaton } from "./AutoMovieArchetypePracticeBaton";
-export * from "./assembleCostumeArmour";
 export { AutoMovieArchetypeCostumeCuirass } from "./AutoMovieArchetypeCostumeCuirass";
 export { AutoMovieArchetypeCostumeGauntlet } from "./AutoMovieArchetypeCostumeGauntlet";
 export { AutoMovieArchetypeCostumeGreave } from "./AutoMovieArchetypeCostumeGreave";

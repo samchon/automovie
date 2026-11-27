@@ -1,4 +1,4 @@
-import { aimRotation } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../internal/qclose";
@@ -23,7 +23,10 @@ export function test_engine_kinematics_aim_rotation(): void {
   TestValidator.predicate(
     "a quarter turn",
     qclose(
-      aimRotation({ x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }),
+      AutoMovieEngineKinematics.aimRotation(
+        { x: 1, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 },
+      ),
       { x: 0, y: 0, z: HALF_ROOT_TWO, w: HALF_ROOT_TWO },
       ROUNDING,
     ),
@@ -31,7 +34,10 @@ export function test_engine_kinematics_aim_rotation(): void {
   TestValidator.predicate(
     "the identity",
     qclose(
-      aimRotation({ x: 0, y: 3, z: 0 }, { x: 0, y: 0.5, z: 0 }),
+      AutoMovieEngineKinematics.aimRotation(
+        { x: 0, y: 3, z: 0 },
+        { x: 0, y: 0.5, z: 0 },
+      ),
       { x: 0, y: 0, z: 0, w: 1 },
       ROUNDING,
     ),
@@ -39,7 +45,10 @@ export function test_engine_kinematics_aim_rotation(): void {
   TestValidator.predicate(
     "a half turn",
     qclose(
-      aimRotation({ x: 1, y: 0, z: 0 }, { x: -1, y: 0, z: 0 }),
+      AutoMovieEngineKinematics.aimRotation(
+        { x: 1, y: 0, z: 0 },
+        { x: -1, y: 0, z: 0 },
+      ),
       { x: 0, y: 0, z: 1, w: 0 },
       ROUNDING,
     ),
@@ -47,7 +56,9 @@ export function test_engine_kinematics_aim_rotation(): void {
   TestValidator.predicate(
     "the prepared form",
     qclose(
-      aimRotation.prepare({ x: 1, y: 0, z: 0 })({ x: 0, y: 1, z: 0 }),
+      AutoMovieEngineKinematics.prepareAimRotation({ x: 1, y: 0, z: 0 })(
+        { x: 0, y: 1, z: 0 },
+      ),
       { x: 0, y: 0, z: HALF_ROOT_TWO, w: HALF_ROOT_TWO },
       ROUNDING,
     ),

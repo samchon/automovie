@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, decomposeJointRotationOnBasis, rotationBetween, AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieArticulatedRigReader,
@@ -145,7 +145,7 @@ export function QuadrupedPoseAngles(
             `Quadruped ${bone} needs a finite nonzero world direction`,
           );
         desired = Quaternion.multiply(
-          rotationBetween(
+          AutoMovieEngineMath.rotationBetween(
             Quaternion.rotateVector(carried, { x: 0, y: 1, z: 0 }),
             unit,
           ),
@@ -159,7 +159,7 @@ export function QuadrupedPoseAngles(
         Quaternion.inverse(node.rest.rotation),
         Quaternion.multiply(Quaternion.inverse(parent), desired),
       );
-      joints.set(bone, decomposeJointRotationOnBasis(local, node.axes));
+      joints.set(bone, AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(local, node.axes));
       current.set(bone, desired);
     }
     return { joints, frames: reader.read(joints, root) };

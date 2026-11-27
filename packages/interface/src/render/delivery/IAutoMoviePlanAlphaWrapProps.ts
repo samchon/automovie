@@ -1,0 +1,14 @@
+/** Parameters for planning a lossless transparent PNG sequence wrapper. */
+export interface IAutoMoviePlanAlphaWrapProps {
+  /** Folder of the `frame_%05d.png` files, from frame 0. */
+  frameDir: string;
+
+  /** The `.mov` file written. */
+  outputPath: string;
+
+  /** Exact frames per second as `[numerator, denominator]`. */
+  frameRate: readonly [number, number];
+
+  /** Frames in the sequence. */
+  frameCount: number;
+}

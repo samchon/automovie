@@ -2,7 +2,7 @@ import {
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -392,7 +392,7 @@ export function pushSledPlan(
           body,
           leaned(
             base.posture(t),
-            minimumJerk.share(Math.min(1, t / pushSled.SETTLE)),
+            AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / pushSled.SETTLE)),
           ),
         ).pose;
       const out: number[] = [];
@@ -438,7 +438,7 @@ export function pushSledPlan(
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
     ): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
-      const share: number = minimumJerk.share(Math.min(1, t / pushSled.SETTLE));
+      const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, t / pushSled.SETTLE));
       const posture: IAutoMovieMotionHumanPosture = leaned(
         base.posture(t, undefined, resolution, projection),
         share,

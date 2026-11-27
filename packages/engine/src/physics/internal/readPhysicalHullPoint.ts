@@ -3,8 +3,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalHullFaces } from "../physicalHullFaces";
-import { readPhysicalHullFacesPoint } from "../readPhysicalHullFacesPoint";
+import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
+import { readPhysicalHullFacesPoint } from "./readPhysicalHullFacesPoint";
 
 /** The scalar signature: the signed distance alone. */
 export function readPhysicalHullPoint(
@@ -29,5 +29,5 @@ export function readPhysicalHullPoint(
   p: IAutoMovieVector3,
   details: boolean,
 ): IAutoMoviePhysicalHullNearest.IResult | number {
-  return readPhysicalHullFacesPoint(physicalHullFaces(points), p, details);
+  return readPhysicalHullFacesPoint(AutoMoviePhysicalHullFaces.build(points), p, details);
 }

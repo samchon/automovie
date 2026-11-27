@@ -1,4 +1,4 @@
-import { Quaternion, minimumJerk } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -74,13 +74,13 @@ export function slipRingLean(
   const hinge: (seconds: number) => number = (seconds: number): number =>
     forward *
     (seconds <= grasping.relax
-      ? minimumJerk.share(
+      ? AutoMovieEngineMotionSampling.minimumJerkShare(
           grasping.ready > 0
             ? Math.min(1, Math.max(0, seconds / grasping.ready))
             : 1,
         )
       : 1 -
-        minimumJerk.share(
+        AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.min(
             1,
             Math.max(

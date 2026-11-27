@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 /**
  * The hands' grip on a ride's implement over an overlay (`HumanHoldHandles`,
@@ -18,7 +18,7 @@ export function humanRideGripTiming(
     on: transition / seconds,
     off: 1 - transition / seconds,
     closure: (time: number): number =>
-      minimumJerk.share(
+      AutoMovieEngineMotionSampling.minimumJerkShare(
         Math.min(1, time / transition, (seconds - time) / transition),
       ),
   };

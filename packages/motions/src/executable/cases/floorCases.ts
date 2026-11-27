@@ -1,11 +1,6 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanCrawl,
-  IAutoMovieMotionHumanLieDown,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanCrawl, IAutoMovieMotionHumanLieDown, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -110,7 +105,7 @@ export function floorCases(
       const palm = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
         const frame =
           who.body.surfaces.sockets[side === "left" ? "palmLeft" : "palmRight"];
-        return resolveAutoMovieHumanoidSurfaces.place(
+        return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           performance.bones("a", t).get(frame.bone)!,
         ).point;

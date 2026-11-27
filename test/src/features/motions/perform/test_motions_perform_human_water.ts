@@ -19,7 +19,7 @@ const R: number = 0.1;
 /** Its volume, cubic metres. */
 const V: number = (4 / 3) * Math.PI * R ** 3;
 
-/** The sphere's drag coefficient (`resolveHydrodynamicForce.DRAG`). */
+/** The sphere's drag coefficient (`AutoMovieEngineMotionHydrodynamics.DRAG`). */
 const DRAG: number = 0.47;
 
 /** No turn. */

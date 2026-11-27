@@ -1,20 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieAffordance,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanGraspUse,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieAffordance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGraspUse, IAutoMovieMotionHumanPropReader, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
@@ -116,7 +101,7 @@ export function HumanGraspUsePreparation(
     region === undefined ? undefined : bones.get(region.bone);
   const placed: IOfPlaced | undefined =
     region !== undefined && bearer !== undefined
-      ? resolveAutoMovieHumanoidSurfaces.place(region, bearer)
+      ? AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(region, bearer)
       : undefined;
   const site: IAutoMovieVector3 | undefined = placed?.point;
   if (

@@ -1,15 +1,6 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanJump,
-  IAutoMovieMotionHumanStandUpright,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanJump, IAutoMovieMotionHumanStandUpright, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
@@ -63,11 +54,11 @@ export function jumpCapture(scope: jumpCapture.IScope): jumpCapture.ICapture {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     return {
-      takeoff: resolveAutoMovieCenterOfMass.place(
+      takeoff: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
         model,
         readMassBones(startState.pose, read()),
       ),
-      landing: resolveAutoMovieCenterOfMass.place(
+      landing: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
         model,
         readMassBones(endState.pose, read()),
       ),
@@ -83,15 +74,15 @@ export function jumpCapture(scope: jumpCapture.IScope): jumpCapture.ICapture {
   // The landing's capture (Hof 2008, Hum Mov Sci 27:112; Pratt et al. 2006,
   // the capture point): the root touches down behind the footprints by the
   // flight's horizontal speed over the body's pendulum frequency, the one
-  // the balance audit reads (`resolveAutoMovieCenterOfMass.pendulum`), so
+  // the balance audit reads (`AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum`), so
   // the extrapolated centre of mass, the centre plus its speed over that
   // frequency, lies over the feet as they land: the place a body can stop
   // over. The speed is the flight's own, the distance its centre covers
   // over its time; the offset shortens that distance, so with `D` the
   // distance to a landing over the feet and `T` the flight's time (set by
   // the heights alone) the speed is `D / (T + 1 / omega)` in closed form.
-  const omega: number = resolveAutoMovieCenterOfMass.frequency(
-    resolveAutoMovieCenterOfMass.pendulum(l),
+  const omega: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
+    AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(l),
   );
   const ahead: number = Math.max(
     0,
@@ -115,7 +106,7 @@ export function jumpCapture(scope: jumpCapture.IScope): jumpCapture.ICapture {
     landingHeading,
     landingKnee,
   );
-  const caughtCentre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+  const caughtCentre: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
     model,
     readMassBones(caughtEnds.end.pose, prepareHumanPoseResolution()()),
   );

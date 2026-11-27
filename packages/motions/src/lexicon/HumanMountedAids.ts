@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -150,8 +150,8 @@ export namespace HumanMountedAids {
   export function weight(aid: IGiven, at: number): number {
     if (at <= aid.onset || at >= aid.at + RELEASE) return 0;
     if (at < aid.at)
-      return minimumJerk.share(Math.min(1, (at - aid.onset) / RISE));
-    return minimumJerk.share(1 - (at - aid.at) / RELEASE);
+      return AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (at - aid.onset) / RISE));
+    return AutoMovieEngineMotionSampling.minimumJerkShare(1 - (at - aid.at) / RELEASE);
   }
 
   /**

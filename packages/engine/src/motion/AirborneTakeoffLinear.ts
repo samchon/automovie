@@ -1,18 +1,14 @@
-import type {
-  AutoMovieVector3Tuple,
-  IAutoMovieQuaternion,
-  IAutoMovieSolveAirborneTakeoff,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
+import type { AutoMovieVector3Tuple, IAutoMovieQuaternion, IAutoMovieSolveAirborneTakeoff, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieSolidVector } from "../geometry/construction/AutoMovieSolidVector";
-import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
+
 import { Quaternion } from "../math/Quaternion";
 import type { physicalInertiaFactor } from "../physics/internal/physicalInertiaFactor";
-import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
+import { AutoMoviePhysicalInertiaTensor } from "../physics/AutoMoviePhysicalInertiaTensor";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffQuadrature } from "./AirborneTakeoffQuadrature";
-import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
+import { AutoMovieEngineMotionTrajectory } from "./AutoMovieEngineMotionTrajectory";
 
 /**
  * The linearized shooting relation `angle = turning L - lagging` in the
@@ -101,7 +97,7 @@ export function AirborneTakeoffLinear(
     }
     const { inertia, relative }: typeof instant = instant;
     const { x, y, z }: IAutoMovieVector3 = inertia.moments;
-    const inverse: number[][] = physicalInertiaTensor(
+    const inverse: number[][] = AutoMoviePhysicalInertiaTensor.compute(
       [
         {
           mass: 0,
@@ -114,7 +110,7 @@ export function AirborneTakeoffLinear(
     );
     return {
       inverse,
-      lag: resolveAutoMovieMomentum.apply(
+      lag: AutoMovieEngineKinematics.applyAutoMovieMomentumTensor(
         inverse,
         Quaternion.rotateVector(into, relative),
       ),
@@ -181,7 +177,7 @@ export function AirborneTakeoffLinear(
     return unpack(value);
   }
 
-  const step: number = props.h ?? integrateMotionTrajectory.STEP;
+  const step: number = props.h ?? AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
   const steps: number = Math.ceil((props.t1 - props.t0) / step);
 
   // The integration's own grid rule: a step that is not positive and finite,

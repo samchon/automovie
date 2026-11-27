@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -157,14 +157,14 @@ export function placeOverHeadLean(
   const hinge: (seconds: number) => number = (seconds: number): number =>
     seconds <= span.ready
       ? hinged(0) *
-        minimumJerk.share(
+        AutoMovieEngineMotionSampling.minimumJerkShare(
           span.ready > 0 ? Math.max(0, seconds / span.ready) : 1,
         )
       : seconds <= span.relax
         ? hinged(clock.progress("strokeStart", "strokeEnd", seconds))
         : hinged(1) *
           (1 -
-            minimumJerk.share(
+            AutoMovieEngineMotionSampling.minimumJerkShare(
               Math.min(1, (seconds - span.relax) / (span.end - span.relax)),
             ));
   const deepest: number = Math.max(...keyed);

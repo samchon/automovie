@@ -19,11 +19,33 @@ export namespace QuadrupedChange {
    * measured biological transition. Froude, mass and overlap keep their
    * existing strict upward policy.
    */
-  export type Rule =
-    | { kind: "froude"; froude: number }
-    | { kind: "mass"; speed: number; mass: number; exponent: number }
-    | { kind: "speed"; speed: number }
-    | { kind: "overlap" };
+  /** A change point scaled by the dimensionless Froude number. */
+  export interface IFroudeRule {
+    kind: "froude";
+    froude: number;
+  }
+
+  /** A change point scaled from a reference animal's mass and speed. */
+  export interface IMassRule {
+    kind: "mass";
+    speed: number;
+    mass: number;
+    exponent: number;
+  }
+
+  /** A change point scaled by the species' reference speed. */
+  export interface ISpeedRule {
+    kind: "speed";
+    speed: number;
+  }
+
+  /** A change point at the midpoint of overlapping gait speed ranges. */
+  export interface IOverlapRule {
+    kind: "overlap";
+  }
+
+  /** Closed gait-transition rules, distinguished by their authored kind. */
+  export type Rule = IFroudeRule | IMassRule | ISpeedRule | IOverlapRule;
 
   /**
    * The speed at which an animal changes between two neighbouring gaits.

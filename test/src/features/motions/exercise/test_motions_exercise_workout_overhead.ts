@@ -1,4 +1,4 @@
-import { Vector3, physicalShapePairDistance } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -106,7 +106,7 @@ function verify(
             for (const b of head.shapes)
               clearance = Math.min(
                 clearance,
-                physicalShapePairDistance(hand.pose, a, head.pose, b),
+                AutoMovieEnginePhysics.physicalShapePairDistance(hand.pose, a, head.pose, b),
               );
   }
   TestValidator.predicate(

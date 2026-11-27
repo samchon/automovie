@@ -1,4 +1,4 @@
-import { indexSkeletonTopology, AutoMovieEngineText, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineText, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -76,7 +76,7 @@ export function test_engine_kinematics_reachable_bone_names(): void {
     id: "grown",
     bones: [bone("hips", null)],
   };
-  const snapshot = indexSkeletonTopology(grown);
+  const snapshot = AutoMovieEngineKinematics.indexSkeletonTopology(grown);
   grown.bones.push(bone("spine", "hips"));
   TestValidator.equals(
     "a snapshot and a fresh read",
@@ -87,7 +87,7 @@ export function test_engine_kinematics_reachable_bone_names(): void {
     "a repeated bone",
     throwsError(
       () =>
-        indexSkeletonTopology({
+        AutoMovieEngineKinematics.indexSkeletonTopology({
           id: "twice",
           bones: [bone("hips", null), bone("hips", "hips")],
         }),

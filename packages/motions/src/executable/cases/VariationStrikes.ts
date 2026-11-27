@@ -1,20 +1,5 @@
-import {
-  Vector3,
-  physicalShapeSegmentDistance,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSkill,
-  IAutoMovieMotionHumanStrikingRecord,
-  IAutoMovieMotionTarget,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
 import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
@@ -240,11 +225,11 @@ function strikes(
       for (const shape of shapes)
         gap = Math.min(
           gap,
-          physicalShapeSegmentDistance(pose, shape, point, point),
+          AutoMovieEnginePhysics.physicalShapeSegmentDistance(pose, shape, point, point),
         );
     // At rest, where the region's radius is defined.
     const frame: IAutoMovieHumanoidSurfaces.IFrame =
-      resolveAutoMovieHumanoidSurfaces.offset(
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaceOffset(
         struck.skeleton,
         struck.profile,
         "abdomen",

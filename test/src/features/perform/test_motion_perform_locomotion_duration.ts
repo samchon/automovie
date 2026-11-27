@@ -1,4 +1,4 @@
-import { makeActorSynthesizer, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
   type IAutoMovieActorContext,
@@ -45,7 +45,7 @@ const NODES: Map<string, IAutoMovieVector3> = new Map<
   ["exit", EXIT],
 ]);
 
-const synth: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
+const synth: ReturnType<typeof AutoMovieEngineFilm.makeActorSynthesizer> = AutoMovieEngineFilm.makeActorSynthesizer(
   new Map<string, IAutoMovieActorContext>([["hero", HERO]]),
   NODES,
 );

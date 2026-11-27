@@ -1,11 +1,6 @@
-import { Vector3, minimumJerk, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanSit,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanSit, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
@@ -107,14 +102,14 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
       fix: "give hips for balance.by",
     });
   const freeTravel: (seconds: number) => number = (seconds: number): number =>
-    minimumJerk.share(seconds / across);
+    AutoMovieEngineMotionSampling.minimumJerkShare(seconds / across);
   if (window === null || window.from >= prefix + contact || window.to <= prefix)
     return { clock, window, travel: freeTravel };
   const fall: number = Math.min(
     contact,
     1 /
-      resolveAutoMovieCenterOfMass.frequency(
-        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassFrequency(
+        AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
       ),
   );
   const held: number = contact - fall;
@@ -144,7 +139,7 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
     // only this synchronous table construction borrows the shared readers.
     const way: number = Math.hypot(goal.x - start.x, goal.z - start.z);
     const balanced: (t: number) => number = (t: number): number => {
-      const free: number = minimumJerk.share(t / across);
+      const free: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / across);
       const behind: (back: number) => number = (back: number): number =>
         ahead(t, back) - stood;
       const far: number = behind(free);
@@ -176,13 +171,13 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
   const kept: (at: number) => number = (at: number): number =>
     course(Math.max(0, Math.min(held, at)))[0]!;
   function travel(t: number): number {
-    const free: number = minimumJerk.share(t / across);
+    const free: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / across);
     const weight: number = HumanPhysics.weightAt(window, prefix + t);
     if (weight === 0 || t >= contact) return free;
     if (t <= held) return free + weight * (Math.min(free, kept(t)) - free);
-    const from: number = Math.min(minimumJerk.share(held / across), kept(held));
+    const from: number = Math.min(AutoMovieEngineMotionSampling.minimumJerkShare(held / across), kept(held));
     return (
-      free + weight * (from - free) * (1 - minimumJerk.share((t - held) / fall))
+      free + weight * (from - free) * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - held) / fall))
     );
   }
   return { clock, window, travel };

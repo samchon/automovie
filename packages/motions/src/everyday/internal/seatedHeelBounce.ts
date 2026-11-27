@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -341,7 +341,7 @@ export namespace seatedHeelBounce {
         const angle: number =
           t === duration
             ? 0
-            : amplitude * minimumJerk.share(1 - Math.abs(2 * phase - 1));
+            : amplitude * AutoMovieEngineMotionSampling.minimumJerkShare(1 - Math.abs(2 * phase - 1));
         return at(angle);
       },
     };

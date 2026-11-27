@@ -10,7 +10,7 @@ import { AutoMovieArchetypeDeer } from "../animals/AutoMovieArchetypeDeer";
 import { AutoMovieArchetypeOx } from "../animals/AutoMovieArchetypeOx";
 import { buildDeerBody } from "../animals/deer/internal/buildDeerBody";
 import { buildOxBody } from "../animals/ox/internal/buildOxBody";
-import { rideQuadruped } from "../animals/rideQuadruped";
+import { AutoMovieArchetypeQuadruped } from "../animals/AutoMovieArchetypeQuadruped";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -98,7 +98,7 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
   ] as const)
     entries[`ride-${name}-walk`] = archetypeCaptureSubject.moving(
       name,
-      rideQuadruped(
+      AutoMovieArchetypeQuadruped.ride(
         animal,
         {
           start: { x: 0, z: 0, heading: 0 },
@@ -118,7 +118,7 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
   ] as const)
     entries[`ride-equipped-${name}-walk`] = archetypeCaptureSubject.moving(
       name,
-      rideQuadruped(
+      AutoMovieArchetypeQuadruped.ride(
         animal,
         {
           start: { x: 0, z: 0, heading: 0 },
@@ -135,7 +135,7 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
   // These round authoring choices demonstrate capability, not unreported biological timing measurements.
   entries["ride-camel-pace"] = archetypeCaptureSubject.moving(
     "camel",
-    rideQuadruped(
+    AutoMovieArchetypeQuadruped.ride(
       camel,
       {
         start: { x: 0, z: 0, heading: 0 },
@@ -163,7 +163,7 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
   ] as const)
     entries[`ride-deer-${gait}`] = archetypeCaptureSubject.moving(
       "deer",
-      rideQuadruped(
+      AutoMovieArchetypeQuadruped.ride(
         deer,
         {
           start: { x: 0, z: 0, heading: 0 },

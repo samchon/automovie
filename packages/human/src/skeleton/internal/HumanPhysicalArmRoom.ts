@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapePairDistance, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFitHumanPhysicalStandingPose,
   IAutoMoviePhysicalJoint,
@@ -89,7 +89,7 @@ function openArm(
           limb.shapes.every((a): boolean =>
             other.shapes.every(
               (b): boolean =>
-                physicalShapePairDistance(
+                AutoMovieEnginePhysics.physicalShapePairDistance(
                   turned[limb.bone]!,
                   a,
                   poses[other.bone]!,

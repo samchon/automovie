@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -283,7 +283,7 @@ export namespace SwimStroke {
         }
         within -= span;
       }
-      const u: number = minimumJerk.share(within);
+      const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(within);
       return ExerciseKey.pinned(
         props.body,
         blends[index]!(u),

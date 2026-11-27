@@ -1,4 +1,4 @@
-import { AutoMoviePhysicsCache, AutoMovieXpbdWorld, type IAutoMoviePhysicalBinding, capturePhysicalSimulationCheckpoint, AutoMoviePhysicalSimulation } from "@automovie/engine";
+import { AutoMoviePhysicsCache, AutoMovieXpbdWorld, type IAutoMoviePhysicalBinding, type IAutoMoviePhysicalSimulationCheckpointCapture, AutoMoviePhysicalSimulation } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalControllerCheckpoint,
@@ -11,7 +11,7 @@ import { PhysicalFixtures } from "../../internal/PhysicalFixtures";
 
 /**
  * A captured checkpoint restores the run as it stood when it was captured,
- * whatever the run did after (`capturePhysicalSimulationCheckpoint`, then
+ * whatever the run did after (`AutoMoviePhysicalSimulation.captureCheckpoint`, then
  * `restorePhysicalSimulationCheckpoint`).
  *
  * A hand-written run of one body at 120 Hz: one contact episode ends before
@@ -59,9 +59,7 @@ export function test_engine_physics_capture_physical_simulation_checkpoint(): vo
   ]);
   const released: Set<string> = new Set();
   // The binding's parts a checkpoint keeps; the run's other parts are not read.
-  const bound: Parameters<
-    typeof capturePhysicalSimulationCheckpoint
-  >[0]["bound"] = {
+  const bound: IAutoMoviePhysicalSimulationCheckpointCapture["bound"] = {
     released,
     contactReleased: new Set<string>(),
     planned,
@@ -72,7 +70,7 @@ export function test_engine_physics_capture_physical_simulation_checkpoint(): vo
   const active: Map<string, IAutoMovieContactReceipt> = new Map();
   const softened: Map<string, number> = new Map();
   const capture = (step: number): void =>
-    capturePhysicalSimulationCheckpoint({
+    AutoMoviePhysicalSimulation.captureCheckpoint({
       cache,
       world,
       bound,

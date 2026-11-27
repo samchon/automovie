@@ -1,4 +1,4 @@
-import { AutoMovieGravity, minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionEvent,
@@ -208,7 +208,7 @@ export function jumpPhases(
   ): IAutoMovieMotionHumanPosture => {
     const arms: number =
       jumpJoints.LANDING *
-      (1 - minimumJerk.share((t - touchdown) / (absorb + rising)));
+      (1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - touchdown) / (absorb + rising)));
     const joints: IAutoMovieMotionHumanPosture["joints"] = writers.joints(
       arms,
       arms,

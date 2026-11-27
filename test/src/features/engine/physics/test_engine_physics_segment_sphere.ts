@@ -1,4 +1,4 @@
-import { segmentSphere } from "@automovie/engine";
+import { AutoMoviePhysicalProjectile } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -13,7 +13,7 @@ function v(x: number, y: number, z: number): IAutoMovieVector3 {
 }
 
 /**
- * `segmentSphere` gives the parameter in [0, 1] where a segment first meets a
+ * `AutoMoviePhysicalProjectile.segmentSphere` gives the parameter in [0, 1] where a segment first meets a
  * sphere, 0 when it starts inside, and null when it never does within the
  * segment.
  *
@@ -28,7 +28,7 @@ function v(x: number, y: number, z: number): IAutoMovieVector3 {
  */
 export function test_engine_physics_segment_sphere(): void {
   const center: IAutoMovieVector3 = v(5, 0, 0);
-  const entry: number | null = segmentSphere(
+  const entry: number | null = AutoMoviePhysicalProjectile.segmentSphere(
     v(0, 0, 0),
     v(10, 0, 0),
     center,
@@ -41,17 +41,17 @@ export function test_engine_physics_segment_sphere(): void {
   TestValidator.equals(
     "misses and starts",
     [
-      segmentSphere(v(0, 0, 0), v(10, 0, 0), v(5, 5, 0), 1),
-      segmentSphere(v(0, 0, 0), v(1, 0, 0), center, 1),
-      segmentSphere(v(5, 0, 0), v(10, 0, 0), center, 1),
-      segmentSphere(v(0, 0, 0), v(0, 0, 0), v(0, 0, 0), 1),
-      segmentSphere(v(5, 0, 0), v(5, 0, 0), v(0, 0, 0), 1),
+      AutoMoviePhysicalProjectile.segmentSphere(v(0, 0, 0), v(10, 0, 0), v(5, 5, 0), 1),
+      AutoMoviePhysicalProjectile.segmentSphere(v(0, 0, 0), v(1, 0, 0), center, 1),
+      AutoMoviePhysicalProjectile.segmentSphere(v(5, 0, 0), v(10, 0, 0), center, 1),
+      AutoMoviePhysicalProjectile.segmentSphere(v(0, 0, 0), v(0, 0, 0), v(0, 0, 0), 1),
+      AutoMoviePhysicalProjectile.segmentSphere(v(5, 0, 0), v(5, 0, 0), v(0, 0, 0), 1),
     ],
     [null, null, 0, 0, null],
   );
   for (const radius of [0, -1])
     TestValidator.predicate(
       `radius ${radius}`,
-      throwsError(() => segmentSphere(v(0, 0, 0), v(10, 0, 0), center, radius)),
+      throwsError(() => AutoMoviePhysicalProjectile.segmentSphere(v(0, 0, 0), v(10, 0, 0), center, radius)),
     );
 }

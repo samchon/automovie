@@ -1,12 +1,6 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditBalance } from "../../audit/AutoMovieMotionHumanAuditBalance";
 import { HumanFoot } from "../../posture/HumanFoot";
@@ -47,7 +41,7 @@ export namespace StanceVerdicts {
     const centre: (t: number) => IAutoMovieVector3 = (
       t: number,
     ): IAutoMovieVector3 =>
-      resolveAutoMovieCenterOfMass.place(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
         body.massModel,
         performance.bones(subject, t),
       );
@@ -70,11 +64,11 @@ export namespace StanceVerdicts {
             z: (b.z - a.z) / span,
           }
         : { x: 0, y: 0, z: 0 };
-    return -resolveAutoMovieCenterOfMass.margin(
-      resolveAutoMovieCenterOfMass.extrapolate(
+    return -AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(
+      AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassExtrapolate(
         centre(seconds),
         velocity,
-        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+        AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight),
       ),
       HumanFoot.base(body, performance.bones(subject, seconds), [side]),
     );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionEvent,
@@ -93,7 +93,7 @@ export function planVehicleDive(
     );
     for (const { pose, shapes } of HumanColliders.placed(body, bones))
       for (const shape of shapes) {
-        const box: IAutoMoviePhysicalShapeBounds.IResult = physicalShapeBounds(
+        const box: IAutoMoviePhysicalShapeBounds.IResult = AutoMovieEnginePhysics.physicalShapeBounds(
           pose,
           shape,
         );

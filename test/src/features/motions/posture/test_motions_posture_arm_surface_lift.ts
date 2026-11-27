@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeSegmentDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import {
@@ -40,7 +40,7 @@ export function test_motions_posture_arm_surface_lift(): void {
     normal,
     shape,
     gap: (p: IAutoMovieVector3): number =>
-      physicalShapeSegmentDistance(shape.pose, shape.shape, p, p),
+      AutoMovieEnginePhysics.physicalShapeSegmentDistance(shape.pose, shape.shape, p, p),
     normalAt: Vector3.normalize,
   };
   TestValidator.equals(

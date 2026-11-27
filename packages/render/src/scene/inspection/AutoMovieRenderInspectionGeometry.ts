@@ -105,9 +105,8 @@ export namespace AutoMovieRenderInspectionGeometry {
     return measurePathsImplementation(props);
   }
   /** Named input contract for measuring a mesh's defects. */
-  export namespace MeasureDefects {
     /** Mesh, defect selection and geometry cache for one measurement. */
-    export interface IProps {
+    export interface IMeasureDefectsProps {
       /** Drawn mesh with a position buffer. */
       mesh: THREE.Mesh;
       /** Inspection path used when reporting a refusal. */
@@ -119,11 +118,9 @@ export namespace AutoMovieRenderInspectionGeometry {
       /** Cached engine defects by geometry. */
       measured: Map<THREE.BufferGeometry, IAutoMovieMeshDefect[]>;
     }
-  }
   /** Named input and result contracts for inspection mesh measurement. */
-  export namespace MeasureMeshes {
     /** Drawn paths and request predicates used to select meshes and defects. */
-    export interface IProps {
+    export interface IMeasureMeshesProps {
       /** Drawn objects and their inspection paths. */
       drawn: readonly IAutoMovieInspectionPath[];
       /** Engine defect kinds enabled by the request. */
@@ -136,23 +133,22 @@ export namespace AutoMovieRenderInspectionGeometry {
       hidden: (path: string) => boolean;
     }
     /** Meshes found in the drawing and measurements retained by the request. */
-    export interface IResult {
+    export interface IMeasureMeshesResult {
       /** Drawn, visible-position meshes before path hiding. */
       meshes: { path: string; mesh: THREE.Mesh }[];
       /** Measurements retained after request filtering. */
       measured: IAutoMovieInspectionMeasured[];
     }
-  }
   /** Measure engine defects on one mesh and return posed inspection marks. */
   export function measureDefects(
-    props: MeasureDefects.IProps,
+    props: IMeasureDefectsProps,
   ): IAutoMovieInspectionMeasured {
     return measureAutoMovieInspectionDefectsImplementation(props);
   }
   /** Find and measure the meshes an inspection draws and requests. */
   export function measureMeshes(
-    props: MeasureMeshes.IProps,
-  ): MeasureMeshes.IResult {
+    props: IMeasureMeshesProps,
+  ): IMeasureMeshesResult {
     return measureAutoMovieInspectionMeshesImplementation(props);
   }
 }

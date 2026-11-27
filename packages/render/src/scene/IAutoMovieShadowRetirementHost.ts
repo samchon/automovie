@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+import type { IAutoMovieShadowRetirement } from "./IAutoMovieShadowRetirement.js";
 
 /**
  * A renderer as its shadow retirement guard sees it: the record of a pending or
@@ -11,22 +12,5 @@ export interface IAutoMovieShadowRetirementHost {
   shadowMap: Pick<THREE.WebGLRenderer["shadowMap"], "enabled">;
 
   /** The pending or failed retirement; absent when none is outstanding. */
-  autoMovieShadowRetirement?: IAutoMovieShadowRetirementHost.IRetirement;
-}
-
-export namespace IAutoMovieShadowRetirementHost {
-  /** One acquired retirement population and its original outcome. */
-  export interface IRetirement {
-    /** The scene whose lights were being retired, absent for a preflight. */
-    scene: THREE.Scene | undefined;
-
-    /** The targets and textures the retirement acquired. */
-    resources: readonly (THREE.RenderTarget | THREE.Texture)[];
-
-    /** The native cube depth handles it acquired. */
-    nativeDepth: readonly WebGLTexture[];
-
-    /** The refusal a later pass receives. */
-    error: unknown;
-  }
+  autoMovieShadowRetirement?: IAutoMovieShadowRetirement;
 }

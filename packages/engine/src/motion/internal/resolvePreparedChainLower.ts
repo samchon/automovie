@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
-import { jointToQuaternionOnBasis } from "../../kinematics/jointToQuaternionOnBasis";
+import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import type { prepareChainFit } from "./prepareChainFit";
@@ -58,7 +58,7 @@ function rotation(
         props.jointAxes?.[bone],
         props.restFrames?.[bone],
       )
-    : jointToQuaternionOnBasis(
+    : jointToQuaternionOnBasis.run(
         joint,
         props.rig.jointBasis(bone, "jointToQuaternion axes"),
         props.restFrames?.[bone],

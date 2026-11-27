@@ -10,7 +10,7 @@ import {
 
 import { swingTwistRange } from "../../kinematics/swingTwistRange";
 import { abductionRange } from "./abductionRange";
-import { scanJointRom } from "../scanJointRom";
+import { AutoMovieEngineJointRomScan } from "./AutoMovieEngineJointRomScan";
 
 /**
  * Append axis range/ROM violations and a combined swing violation to the
@@ -32,9 +32,9 @@ export function validateJointRom(
     path: string;
     collector: IAutoMovieViolationAppendSink;
   } = props;
-  // The faults and their distances come from `scanJointRom`, the measure the
+  // The faults and their distances come from `AutoMovieEngineJointRomScan.scanJointRom`, the measure the
   // solvers rank candidates by; only their wording is decided here.
-  scanJointRom(
+  AutoMovieEngineJointRomScan.scanJointRom(
     joint,
     constraint,
     (

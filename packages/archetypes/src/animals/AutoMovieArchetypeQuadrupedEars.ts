@@ -1,4 +1,4 @@
-import { Vector3, rotationBetween } from "@automovie/engine";
+import { AutoMovieEngineMath, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -99,7 +99,11 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     const norm: number = Math.hypot(direction.x, direction.y, direction.z);
     const left: IAutoMovieVector3 =
       norm > 0 && norm <= Number.MAX_VALUE
-        ? { x: direction.x / norm, y: direction.y / norm, z: direction.z / norm }
+        ? {
+            x: direction.x / norm,
+            y: direction.y / norm,
+            z: direction.z / norm,
+          }
         : Vector3.normalize(direction);
     if (!(Vector3.length(left) > 0))
       throw new RangeError("Ear plates require a nonzero authored direction");
@@ -129,15 +133,16 @@ export namespace AutoMovieArchetypeQuadrupedEars {
         y: left.y,
         z: left.z,
       };
-      const root: IAutoMovieVector3 = AutoMovieArchetypeQuadrupedHeadAttachment(
-        head,
-        {
-          x: head.poll.x + sign * head.headRadius,
-          y: head.poll.y + head.headRadius,
-          z: head.poll.z,
-        },
-        rootRadius,
-      );
+      const root: IAutoMovieVector3 =
+        AutoMovieArchetypeQuadrupedHeadAttachment.attach(
+          head,
+          {
+            x: head.poll.x + sign * head.headRadius,
+            y: head.poll.y + head.headRadius,
+            z: head.poll.z,
+          },
+          rootRadius,
+        );
       const centre: IAutoMovieVector3 = Vector3.add(
         root,
         Vector3.scale(direction, length / 2),
@@ -145,7 +150,10 @@ export namespace AutoMovieArchetypeQuadrupedEars {
       plans.push({
         id,
         centre,
-        rotation: rotationBetween({ x: 0, y: 1, z: 0 }, direction),
+        rotation: AutoMovieEngineMath.rotationBetween(
+          { x: 0, y: 1, z: 0 },
+          direction,
+        ),
       });
     }
     return {

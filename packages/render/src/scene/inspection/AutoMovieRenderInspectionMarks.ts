@@ -12,9 +12,8 @@ import { reduceAutoMovieInspectionEpisodes as reduceAutoMovieInspectionEpisodesI
 /** Public operations for Auto Movie Render Inspection Marks. */
 export namespace AutoMovieRenderInspectionMarks {
   /** Named input and result contracts for choosing drawn inspection marks. */
-  export namespace Choose {
     /** Inputs that select supplied marks and resolve their anchors. */
-    export interface IProps {
+    export interface IChooseProps {
       /** The supplied marks. */
       marks: readonly IAutoMovieMark[];
       /** Whether a kind is asked. */
@@ -28,13 +27,12 @@ export namespace AutoMovieRenderInspectionMarks {
     }
 
     /** Marks selected for drawing, grouped by their anchor object. */
-    export interface IResult {
+    export interface IChooseResult {
       /** The selected marks in their original order. */
       marks: IAutoMovieMark[];
       /** The selected marks grouped by anchor, with null for world space. */
       sets: Map<THREE.Object3D | null, IAutoMovieMark[]>;
     }
-  }
 
   /**
    * Choose the supplied marks one picture draws, and group them by the scene
@@ -49,7 +47,7 @@ export namespace AutoMovieRenderInspectionMarks {
    * It throws naming the mark and the anchor when a mark follows a path no scene
    * object has.
    */
-  export function choose(props: Choose.IProps): Choose.IResult {
+  export function choose(props: IChooseProps): IChooseResult {
     return chooseAutoMovieInspectionMarksImplementation(props);
   }
   /**

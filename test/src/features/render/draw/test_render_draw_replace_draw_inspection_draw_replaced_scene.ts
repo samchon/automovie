@@ -7,7 +7,7 @@ import type {
 import {
   type IAutoMovieDrawScene,
   type IAutoMovieInspectionHandle,
-  replaceAutoMovieDrawInspection,
+  AutoMovieDrawPlacement,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -43,7 +43,7 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
   let rightX: number = 1;
   let active: IAutoMovieInspectionHandle | null = null;
   try {
-    active = await replaceAutoMovieDrawInspection({
+    active = await AutoMovieDrawPlacement.replaceInspection({
       previous: null,
       scene,
       request: InspectionScene.ask({ parts: ["actors/left"], marks: [] }),
@@ -54,7 +54,7 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
     const removed: THREE.Mesh = right!;
     leftX = -4;
     rightX = 4;
-    active = await replaceAutoMovieDrawInspection({
+    active = await AutoMovieDrawPlacement.replaceInspection({
       previous: active,
       scene,
       request: InspectionScene.ask({ parts: ["actors/left"], marks: [] }),
@@ -83,7 +83,7 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
         "the reported selection differs from current isolated geometry",
       );
     rightX = 5;
-    active = await replaceAutoMovieDrawInspection({
+    active = await AutoMovieDrawPlacement.replaceInspection({
       previous: active,
       scene,
       request: InspectionScene.ask({ parts: ["actors/right"], marks: [] }),
@@ -105,7 +105,7 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
     active = null;
     let refused: boolean = false;
     try {
-      await replaceAutoMovieDrawInspection({
+      await AutoMovieDrawPlacement.replaceInspection({
         previous,
         scene,
         request: InspectionScene.ask({ parts: ["actors/left"], marks: [] }),
@@ -169,7 +169,7 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
       [1.25, 0],
       [1, 2],
     ] as const) {
-      active = await replaceAutoMovieDrawInspection({
+      active = await AutoMovieDrawPlacement.replaceInspection({
         ...subject,
         previous: active,
         request: InspectionScene.ask({ marks: ["contact"] }),

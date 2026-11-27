@@ -1,4 +1,4 @@
-import { physicalPlanarPolygon as Polygon } from "@automovie/engine";
+import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";

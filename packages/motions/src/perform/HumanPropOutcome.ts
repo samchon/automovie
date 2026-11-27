@@ -1,4 +1,4 @@
-import { Vector3, projectileContinue } from "@automovie/engine";
+import { AutoMoviePhysicalProjectile, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieBody,
   IAutoMovieBodyContact,
@@ -28,7 +28,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * - `bounce` where it declares a restitution and a friction pair (its
  *   `kineticFriction`, else its static `friction`): Newton's restitution and
  *   Coulomb's impulse limit on its velocity relative to the struck surface,
- *   whose velocity the meeting carries (`projectileContinue`), rolling on at
+ *   whose velocity the meeting carries (`AutoMoviePhysicalProjectile.continueFlight`), rolling on at
  *   its rolling resistance (`contact.rolling`) once a rebound would rise less
  *   than its radius off that surface, and coming to rest where it struck when
  *   it declares no rolling resistance. A spherical launch bounces as a ball of
@@ -223,7 +223,7 @@ export namespace HumanPropOutcome {
                   }),
             };
       const next: IAutoMovieProjectileContinue.Segment = shift(
-        projectileContinue(projectile, meeting.hit, outcome),
+        AutoMoviePhysicalProjectile.continueFlight(projectile, meeting.hit, outcome),
         base,
       );
       if (next.kind === "rest") return out;
@@ -267,7 +267,7 @@ export namespace HumanPropOutcome {
         // The contact goes on as a flight under the prop's own gravity from
         // the roll's state there, a ball turning as it rolled: its contact
         // point at rest on the ground, `w = n x v / r`.
-        const state: IAutoMovieProjectileState = projectileContinue.at(
+        const state: IAutoMovieProjectileState = AutoMoviePhysicalProjectile.continuedAt(
           next,
           end,
         );
@@ -361,7 +361,7 @@ export namespace HumanPropOutcome {
     leg: IAutoMovieMotionHumanPropOutcome.ILeg,
     seconds: number,
   ): IAutoMovieProjectileState {
-    return projectileContinue.at(leg.segment, seconds);
+    return AutoMoviePhysicalProjectile.continuedAt(leg.segment, seconds);
   }
 
   /**

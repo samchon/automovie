@@ -1,21 +1,5 @@
-import {
-  Quaternion,
-  integrateAirborneRotation,
-  integrateMotionTrajectory,
-  prepareAutoMovieMassModel,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFlight,
-  IAutoMovieMotionHumanFlightTurns,
-  IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionHumanSegment,
-  IAutoMoviePose,
-  IAutoMovieResolveCenterOfMass,
-} from "@automovie/interface";
+import { Quaternion, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineMotionTrajectory, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFlight, IAutoMovieMotionHumanFlightTurns, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieResolveCenterOfMass } from "@automovie/interface";
 
 import { jumpAirborne } from "../actions/internal/jumpAirborne";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -45,9 +29,9 @@ type IACCURACYItem = { relative: number; absolute: number };
  * placement is not applied and then undone for every bone. The result does not
  * depend on where or facing which way the flight happens. Its history gives the
  * composite inertia and the segments' relative momentum
- * (`integrateAirborneRotation.tabulated`), read inside the flight alone, from
+ * (`AutoMovieEngineMotionAirborneRotation.tabulated`), read inside the flight alone, from
  * take-off to touchdown, so the push-off and the landing are not read; the
- * momentum is the plan's, or the one `solveAirborneTakeoff` finds for its turns
+ * momentum is the plan's, or the one `AutoMovieEngineMotionAirborneTakeoff` finds for its turns
  * within the take-off's ceiling (the moment of the take-off's momentum about
  * the foot, at most the centre's distance from it, unless the plan states its
  * own), and a request it cannot meet within it is refused on the action, naming
@@ -64,7 +48,7 @@ type IACCURACYItem = { relative: number; absolute: number };
  * changes need, and read between its knots by the integrator's own continuous
  * extension, so a shape that changes fast turns at its momentum's rate there
  * too. The shape's history is tabulated once at those knots
- * (`integrateAirborneRotation.tabulated`): the inertia and the relative
+ * (`AutoMovieEngineMotionAirborneRotation.tabulated`): the inertia and the relative
  * momentum of the exact unturned pose at each knot, read between them by a
  * cubic, in place of a shape read at every stage and a millisecond either side
  * of it. One unturned pose a knot serves the shape, the take-off attitude and
@@ -97,10 +81,10 @@ export namespace HumanPerformanceFlight {
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
     people: Iterable<IAutoMovieMotionHumanSegment.IPerson>,
-    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
+    observation?: ReturnType<typeof AutoMovieEngineMotionAirborneRotation.observe>,
   ): void {
     for (const person of people) {
-      let prepared: prepareAutoMovieMassModel.IPrepared | undefined;
+      let prepared: AutoMovieEngineKinematics.IPreparedMassModel | undefined;
       let requested: ReadonlySet<AutoMovieHumanoidBone> | undefined;
       let readBones: ReturnType<typeof poseBones.prepare> | undefined;
       try {
@@ -118,10 +102,10 @@ export namespace HumanPerformanceFlight {
             )
               staged(self, person, segment, plan.flight.momentum);
             else {
-              prepared ??= prepareAutoMovieMassModel(
+              prepared ??= AutoMovieEngineKinematics.prepareAutoMovieMassModel(
                 person.performer.body.massModel,
               );
-              requested ??= prepareAutoMovieMassModel.bones(prepared);
+              requested ??= AutoMovieEngineKinematics.prepareAutoMovieMassModelBones(prepared);
               readBones ??= poseBones.prepare(person.performer.body, requested);
               flyPerformanceFlight(
                 self,
@@ -147,7 +131,7 @@ export namespace HumanPerformanceFlight {
           }
         }
       } finally {
-        if (prepared !== undefined) prepareAutoMovieMassModel.release(prepared);
+        if (prepared !== undefined) AutoMovieEngineKinematics.releaseAutoMovieMassModel(prepared);
       }
     }
   }
@@ -187,7 +171,7 @@ export namespace HumanPerformanceFlight {
           evaluation,
         );
         return {
-          about: resolveAutoMovieCenterOfMass.place(
+          about: AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
             model,
             readBones(pose, evaluation.resolution()),
           ),
@@ -229,7 +213,7 @@ function samples(
     !(to > from)
   )
     throw new Error("Flight playback needs a positive finite interval");
-  const step: number = integrateMotionTrajectory.STEP;
+  const step: number = AutoMovieEngineMotionTrajectory.integrateMotionTrajectoryStep();
   const knots: number = Math.ceil((to - from) / step) + 1;
   const times: number[] = Array.from(
     { length: knots },

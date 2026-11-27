@@ -8,7 +8,7 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieGeometryPhysicalVertices } from "../AutoMovieGeometryPhysicalVertices.js";
-import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 
 /**
  * Build a `three.js` geometry from a automovie geometry node: tessellating a

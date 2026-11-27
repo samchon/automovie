@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannelClaim,
@@ -198,7 +198,7 @@ export function supportPlan(
     const b: supportPlan.IKey = keys[Math.min(index + 1, keys.length - 1)]!;
     const span: number = b.seconds - a.seconds;
     const w: number =
-      span > 0 ? minimumJerk.share((seconds - a.seconds) / span) : 1;
+      span > 0 ? AutoMovieEngineMotionSampling.minimumJerkShare((seconds - a.seconds) / span) : 1;
     // A moving material still advances when the eased share rounds to an end.
     const material: boolean = course?.material !== undefined;
     if (w === 0 && (!material || seconds === a.seconds))

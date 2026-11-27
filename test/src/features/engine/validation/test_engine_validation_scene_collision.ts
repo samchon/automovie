@@ -1,4 +1,4 @@
-import { Quaternion, preparePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
+import { Quaternion, AutoMoviePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMoviePhysicalShape,
@@ -31,7 +31,7 @@ import { nclose } from "../../internal/nclose";
  */
 export async function test_engine_validation_scene_collision(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
-    await preparePhysicalGeometry();
+    await AutoMoviePhysicalGeometry.prepare();
   const radius: number = 0.375;
   const formationA: Collision.IGroup = {
     id: "line-a",

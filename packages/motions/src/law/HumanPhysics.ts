@@ -1,4 +1,4 @@
-import { minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieMotionClock,
@@ -302,8 +302,8 @@ export namespace HumanPhysics {
     const out: number = window.to - seconds;
     const rise: number = window.ramp.in;
     const fall: number = window.ramp.out;
-    if (into < rise) return window.weight * minimumJerk.share(into / rise);
-    if (out < fall) return window.weight * minimumJerk.share(out / fall);
+    if (into < rise) return window.weight * AutoMovieEngineMotionSampling.minimumJerkShare(into / rise);
+    if (out < fall) return window.weight * AutoMovieEngineMotionSampling.minimumJerkShare(out / fall);
     return window.weight;
   }
 

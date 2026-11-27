@@ -39,7 +39,7 @@ import { humanForceRespond } from "./internal/humanForceRespond";
  *   law from the momentum the pull left, leaves it at `release` where its
  *   centre comes level with the fulcrum, and flies, its centre on the parabola
  *   from the release and its orientation from the conserved angular momentum
- *   (`integrateAirborneRotation`), until its lowest joint reaches the floor
+ *   (`AutoMovieEngineMotionAirborneRotation`), until its lowest joint reaches the floor
  *   (`land`). A throw with no fulcrum, or whose swing stops before the
  *   vertical, is refused. The composition cuts into the fall or the breakfall
  *   at `land`.

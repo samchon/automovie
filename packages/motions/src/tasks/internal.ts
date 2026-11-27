@@ -1,6 +1,5 @@
 // The tasks internals the test programme reads directly, re-exported by `../internal`.
 
-export { rotationBetween } from "@automovie/engine";
 export * from "./LongToolStroke";
 export * from "./internal/holdInfantBasis";
 export * from "./internal/holdInfantEvents";

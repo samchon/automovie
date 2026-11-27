@@ -1,5 +1,9 @@
 import { AutoMovieEngineFilmResponse } from "@automovie/engine";
-import type { IAutoMovieFilmOptics } from "@automovie/interface";
+import type {
+  IAutoMovieFilmOptics,
+  IAutoMovieFilmBeautyComposition,
+  IAutoMovieFilmBeautyLayer,
+} from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieFilmMediumPass } from "../medium/AutoMovieFilmMediumPass.js";
@@ -11,6 +15,9 @@ import type { IAutoMovieFilmResponseRenderer } from "./IAutoMovieFilmResponseRen
 import { allocateAutoMovieFilmTargets } from "./internal/allocateAutoMovieFilmTargets.js";
 import { collectAutoMovieFilmOverlays } from "./internal/collectAutoMovieFilmOverlays.js";
 import { freeAutoMovieFilmOverlayLayer } from "./internal/freeAutoMovieFilmOverlayLayer.js";
+import { planAutoMovieFilmGlareImplementation } from "./internal/planAutoMovieFilmGlareImplementation.js";
+import type { IAutoMovieFilmGlareKernel } from "./IAutoMovieFilmGlareKernel.js";
+import { resolveAutoMovieFilmBeautyCompositionImplementation } from "./internal/resolveAutoMovieFilmBeautyCompositionImplementation.js";
 
 /**
  * The beauty stage of a directly rendered film: draw a scene's linear light
@@ -25,7 +32,7 @@ import { freeAutoMovieFilmOverlayLayer } from "./internal/freeAutoMovieFilmOverl
  *    the canvas;
  * 2. With a glare strength above zero, box-filters a pyramid of the frame as deep
  *    as the widest kernel needs and blurs each kernel at the level
- *    `planAutoMovieFilmGlare` gives it, rows then columns;
+ *    `AutoMovieFilmResponseStage.planGlare` gives it, rows then columns;
  * 3. Draws one full-frame quad into the target the host had set (the canvas for
  *    the draw host and the inspector) that applies the glare,
  *    `autoMovieFilmResponseMatrix`, the tone curve, the sRGB encoding and the
@@ -65,6 +72,32 @@ import { freeAutoMovieFilmOverlayLayer } from "./internal/freeAutoMovieFilmOverl
  * frame edges repeat their border texels into the blur.
  */
 export class AutoMovieFilmResponseStage {
+  /**
+   * Plan the pyramid level and separable Gaussian taps used to blur glare for a
+   * linear frame of the given height. The taps are sampled at whole level-pixel
+   * offsets and normalized so the centre plus twice the remaining weights sums
+   * to one. The pyramid blur and bilinear readback variance are subtracted from
+   * the requested deviation, preserving its second moment.
+   *
+   * Throws when `height` is not a positive safe integer.
+   */
+  public static planGlare(height: number): IAutoMovieFilmGlareKernel[] {
+    return planAutoMovieFilmGlareImplementation(height);
+  }
+
+  /**
+   * Resolve a builder-sampled beauty layer list into one explicit compositor.
+   *
+   * One fractional layer means color over black, while two complementary layers
+   * retain the existing cross-dissolve. Invalid weights and cardinalities are
+   * refused by name instead of being clamped or rendered as an opaque shot.
+   */
+  public static resolveBeautyComposition<Layer extends IAutoMovieFilmBeautyLayer>(
+    layers: readonly Layer[],
+  ): IAutoMovieFilmBeautyComposition<Layer> {
+    return resolveAutoMovieFilmBeautyCompositionImplementation(layers);
+  }
+
   /**
    * The targets of the current raster, or null before the first draw with
    * optics.

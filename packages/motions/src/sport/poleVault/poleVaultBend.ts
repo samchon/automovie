@@ -1,4 +1,4 @@
-import { pinnedElastica } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
 import { poleVaultSwing } from "./poleVaultSwing";
@@ -51,7 +51,7 @@ export function poleVaultBend(
   );
   const parameters: readonly number[] = swing.samples.map(
     (sample: poleVaultSwing.ISample): number =>
-      pinnedElastica.parameter(
+      AutoMovieEngineMath.pinnedElasticaParameter(
         Math.min(
           1,
           Math.hypot(sample.position.forward, sample.position.up) / length,
@@ -74,7 +74,7 @@ export function poleVaultBend(
   const direction: (m: number, j: number) => number = (
     m: number,
     j: number,
-  ): number => pinnedElastica.slope(m, Math.min(1, middles[j]! / length));
+  ): number => AutoMovieEngineMath.pinnedElasticaSlope(m, Math.min(1, middles[j]! / length));
   return {
     hinges: hinges.map((h: IAutoMovieAffordance): string => h.id),
     turn: (k: number, seconds: number): number => {

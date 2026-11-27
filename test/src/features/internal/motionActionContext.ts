@@ -1,34 +1,6 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBase,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPlacedAction,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanSkill,
-  IAutoMovieMotionTarget,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanSkill,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions/internal";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanEntryState, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPlacedAction, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanProp, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanSkill, IAutoMovieMotionTarget, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
+import { HumanSkill, poseBones, resolveHumanPosture, stand } from "@automovie/motions/internal";
 
 /**
  * A typed synthetic action context for a unit test of one law's plan: a trained
@@ -191,7 +163,7 @@ export function motionActionContext<P extends object>(
         );
         const frame: IAutoMovieHumanoidSurfaces.IFrame =
           other.body.surfaces.regions[target.region];
-        return resolveAutoMovieHumanoidSurfaces.pointNormal(
+        return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(
           frame,
           other.bones(seconds).get(frame.bone)!,
         );

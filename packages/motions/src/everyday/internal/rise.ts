@@ -2,7 +2,7 @@ import {
   ANKLE_DORSIFLEXION,
   ROM_TOLERANCE,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -317,7 +317,7 @@ export namespace rise {
     const pitchAt: (t: number, peak: number) => number = (
       t: number,
       peak: number,
-    ): number => pitch0 + (peak - pitch0) * minimumJerk.share(t / flex);
+    ): number => pitch0 + (peak - pitch0) * AutoMovieEngineMotionSampling.minimumJerkShare(t / flex);
     const drawn: ReturnType<typeof drawAt> = drawAt(SHANK[0]!);
     const peak: number = seatedCourse.flexion(r);
     const off: number = riseSeatOff(rising);

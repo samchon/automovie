@@ -3,7 +3,7 @@ import {
   Quaternion,
   Vector3,
   hingedArmSwivel,
-  toRigAngle,
+  AutoMovieEngineKinematics,
 } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
@@ -89,8 +89,8 @@ export function HumanArmTrajectoryEffector(
   const frame: IAutoMovieAxisFrame | undefined =
     HUMANOID_REST_FRAME[setup.bones.lower]?.flexion;
   const rad: number = Math.PI / 180;
-  const fromAngle: number | null = toRigAngle(anatomical?.min ?? null, frame);
-  const toAngle: number | null = toRigAngle(anatomical?.max ?? null, frame);
+  const fromAngle: number | null = AutoMovieEngineKinematics.toRigAngle(anatomical?.min ?? null, frame);
+  const toAngle: number | null = AutoMovieEngineKinematics.toRigAngle(anatomical?.max ?? null, frame);
   const flexion: IAutoMovieHingedChainGeometry["range"] =
     fromAngle === null || toAngle === null
       ? undefined

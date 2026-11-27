@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -270,7 +270,7 @@ function plan(
     Vector3.distance(start.position, end.position),
   );
   const progress: (t: number) => number = (t: number): number =>
-    minimumJerk(Math.min(1, Math.max(0, t / carried))).s;
+    AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, Math.max(0, t / carried))).s;
   const transport: IAutoMovieMotionHumanPrehension.ITransport =
     pivot === null
       ? HumanPrehension.transport(
@@ -397,7 +397,7 @@ function plan(
         to: 1,
         travel: (seconds: number): number =>
           Vector3.length(line) *
-          minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s,
+          AutoMovieEngineMotionSampling.minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s,
       },
     ],
     holds: [
@@ -416,7 +416,7 @@ function plan(
           ? held
           : StrikingBlade.turned(
               held,
-              pulled.turn * minimumJerk(t / duration).s,
+              pulled.turn * AutoMovieEngineMotionSampling.minimumJerk(t / duration).s,
             );
       return {
         ...body,
@@ -441,7 +441,7 @@ function plan(
             // instead of costing the hand its attitude at the top.
             reference: {
               ...reference,
-              weight: 1 - minimumJerk(t / duration).s,
+              weight: 1 - AutoMovieEngineMotionSampling.minimumJerk(t / duration).s,
             },
             planted: true,
           },

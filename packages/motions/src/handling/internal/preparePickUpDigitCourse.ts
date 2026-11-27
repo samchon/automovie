@@ -1,4 +1,10 @@
-import { Quaternion, Vector3, clampJointToSkeleton, physicalShapeSegmentDistance, AutoMovieEngineMath } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEnginePhysics,
+  AutoMovieEngineMath,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -117,7 +123,7 @@ export function preparePickUpDigitCourse(
     for (const bone of bones) {
       const tuple = joints[bone];
       if (tuple === undefined) continue;
-      const j = clampJointToSkeleton({
+      const j = AutoMovieEngineKinematics.clampJointToSkeleton({
         bone,
         flexion: tuple[0],
         abduction: tuple[1],
@@ -153,7 +159,7 @@ export function preparePickUpDigitCourse(
     Vector3.add(f.worldPosition, Quaternion.rotateVector(f.worldRotation, x));
   const read = (wrist: Wrist, reference: IShape): ((x: readonly number[]) => number[]) => {
     const rotation = Quaternion.multiply(rest.worldRotation, Quaternion.inverse(wrist.rotation));
-    const distance = physicalShapeSegmentDistance.prepare({
+    const distance = AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance({
       position: Vector3.add(rest.worldPosition, Quaternion.rotateVector(rotation, Vector3.subtract(collider.frame.position, wrist.point))),
       rotation: Quaternion.multiply(rotation, collider.frame.rotation),
     }, collider.shape);
@@ -178,7 +184,7 @@ export function preparePickUpDigitCourse(
     const thumbCapsules = capsules(frames, thumb);
     const indexCapsules = capsules(frames, index);
     const rest = others.map((digits) => capsules(frames, digits));
-    const distance = physicalShapeSegmentDistance.prepare(collider.frame, collider.shape);
+    const distance = AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance(collider.frame, collider.shape);
     const gap = (chain: readonly ICapsuleCore[]): number =>
       Math.min(...chain.map(([a, b, r]) => distance(a, b) - r));
     const t = gap(thumbCapsules);
@@ -297,11 +303,14 @@ export function preparePickUpDigitCourse(
 
 /** Inputs and readers for the prepared digit course and its displayed check. */
 export namespace preparePickUpDigitCourse {
+  /** Prepared thumb and index readers for one admitted pickup. */
   export interface IModel {
     close(wrist: Wrist, closed: IShape, apex: number): IShape | undefined;
     course(input: ICourse): FingerReader | undefined;
     verifies(display: (share: number) => Layer): boolean;
   }
+
+  /** A course sample's wrist, display, reference shape and authored timings. */
   export interface ICourse {
     wrist(share: number): Wrist;
     display(share: number, digits: FingerReader): Layer;

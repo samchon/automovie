@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -196,7 +196,7 @@ export function manipulatePlan(
         const press: IAutoMovieMotionHumanManipulate.IPress = current.press;
         Object.assign(joints, current.joints);
         Object.assign(digits, current.avoid);
-        const approach: number = minimumJerk.share(
+        const approach: number = AutoMovieEngineMotionSampling.minimumJerkShare(
           Math.min(
             1,
             Math.max(0, (time - (press.time - reach * span)) / (reach * span)),
@@ -213,7 +213,7 @@ export function manipulatePlan(
           time < press.time
             ? approach * approach
             : 1 -
-              minimumJerk.share(
+              AutoMovieEngineMotionSampling.minimumJerkShare(
                 Math.min(1, (time - press.time) / ((1 - reach) * span)),
               );
         const lift: number =

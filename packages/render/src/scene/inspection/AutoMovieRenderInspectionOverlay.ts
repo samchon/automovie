@@ -8,16 +8,15 @@ import { createAutoMovieInspectionStrokes as createAutoMovieInspectionStrokesImp
 /** Public operations for Auto Movie Render Inspection Overlay. */
 export namespace AutoMovieRenderInspectionOverlay {
   /** Named input contract for creating inspection point marks. */
-  export namespace CreateDots {
     /** Point stroke width and depth behavior. */
-    export interface IOptions {
+    export interface ICreateDotsOptions {
       /** Inspection stroke width in screen pixels. */
       stroke: number;
       /** Whether the points ignore depth. */
       xray: boolean;
     }
     /** Point buffers and their draw options. */
-    export interface IProps {
+    export interface ICreateDotsProps {
       /** XYZ position buffer, one point per triple. */
       positions: Float32Array;
       /** Matching linear RGB colour buffer. */
@@ -25,7 +24,6 @@ export namespace AutoMovieRenderInspectionOverlay {
       /** Point stroke width and depth behavior. */
       options: IOptions;
     }
-  }
   /**
    * Create one screen-sized, unlit point per xyz vertex with its matching colour.
    * Position and colour buffers remain shared with the returned object so the
@@ -34,7 +32,7 @@ export namespace AutoMovieRenderInspectionOverlay {
    *
    * @throws {Error} When buffer lengths differ or are not xyz triples.
    */
-  export function createDots(props: CreateDots.IProps): THREE.Points {
+  export function createDots(props: ICreateDotsProps): THREE.Points {
     return createAutoMovieInspectionDotsImplementation(
       props.positions,
       props.colors,

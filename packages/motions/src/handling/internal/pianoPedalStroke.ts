@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanPianoPedal } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
@@ -68,7 +68,7 @@ export namespace pianoPedalStroke {
       seconds < press.at
         ? (seconds - press.from) / (press.at - press.from)
         : (press.to - seconds) / (press.to - press.release);
-    return Math.min(1, minimumJerk.share(share));
+    return Math.min(1, AutoMovieEngineMotionSampling.minimumJerkShare(share));
   }
 }
 

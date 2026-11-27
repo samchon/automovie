@@ -2,7 +2,7 @@ import {
   Quaternion,
   Transform,
   Vector3,
-  physicalShapeFaceContact,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
@@ -293,8 +293,8 @@ function testFootAcquisition(): void {
   ];
   for (const [index, second] of seconds.entries()) {
     const goal: IAutoMovieHumanLimbGoal = acquired[index]!;
-    const contact: ReturnType<typeof physicalShapeFaceContact> =
-      physicalShapeFaceContact(
+    const contact: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContact> =
+      AutoMovieEnginePhysics.physicalShapeFaceContact(
         { position: goal.point, rotation: goal.rotation! },
         sole,
         { position: foot.at(second).point, rotation },

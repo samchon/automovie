@@ -19,12 +19,12 @@ import type { IAutoMovieInstanceSetViewerStats } from "../IAutoMovieInstanceSetV
 import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import type { IBuildInstancedInstanceSetProps } from "../IBuildInstancedInstanceSetProps.js";
-import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
+import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop.js";
 import { flattenInstancedModel } from "./flattenInstancedModel.js";
 import { flattenInstancedObject } from "./flattenInstancedObject.js";
 import { regenerateInstanceSlot } from "./regenerateInstanceSlot.js";
-import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
 /**
  * One chunk's prototype tier meshes and the hysteretic tier selected by its

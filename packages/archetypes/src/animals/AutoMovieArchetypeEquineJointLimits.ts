@@ -13,7 +13,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
  * @param bone The bone whose proximal joint is being inspected.
  * @returns Read-only source observations and explicitly unknown runtime limits.
  */
-export function AutoMovieArchetypeEquineJointLimits(
+function readEquineJointLimits(
   bone: AutoMovieArchetypeQuadrupedBody.Bone,
 ): AutoMovieArchetypeEquineJointLimits.IReference {
   let joint: AutoMovieArchetypeEquineJointLimits.Joint | null = null;
@@ -81,6 +81,18 @@ export function AutoMovieArchetypeEquineJointLimits(
 
 /** Clinical reference types and comparison of measured included angles. */
 export namespace AutoMovieArchetypeEquineJointLimits {
+  /**
+   * Look up source observations for the bone's proximal joint.
+   *
+   * @param bone The bone whose proximal joint is being inspected.
+   * @returns Read-only source observations and explicitly unknown runtime limits.
+   */
+  export function lookup(
+    bone: AutoMovieArchetypeQuadrupedBody.Bone,
+  ): IReference {
+    return readEquineJointLimits(bone);
+  }
+
   /** Proximal joints for which the retained primary tables provide observations. */
   export type Joint =
     | "foreElbow"
@@ -216,7 +228,7 @@ export namespace AutoMovieArchetypeEquineJointLimits {
         "An equine included angle must be within [0, 360] degrees",
       );
 
-    const reference: IReference = AutoMovieArchetypeEquineJointLimits(bone);
+    const reference: IReference = readEquineJointLimits(bone);
     if (reference.observations === null) return null;
     const observation: IObservation | undefined = reference.observations.find(
       (row: IObservation): boolean => row.study.doi === studyDoi,

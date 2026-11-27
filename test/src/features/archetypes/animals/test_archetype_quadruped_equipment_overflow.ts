@@ -64,7 +64,7 @@ export function test_archetype_quadruped_equipment_overflow(): void {
   };
   assert.throws(
     () =>
-      AutoMovieArchetypeQuadrupedLead(
+      AutoMovieArchetypeQuadrupedLead.lay(
         builder,
         rig,
         "lead",

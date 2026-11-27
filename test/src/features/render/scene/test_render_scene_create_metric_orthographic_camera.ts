@@ -1,4 +1,4 @@
-import { createAutoMovieMetricOrthographicCamera } from "@automovie/render";
+import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -19,7 +19,9 @@ import { nclose } from "../../internal/nclose";
  *    unordered depth limits refuse.
  */
 export function test_render_scene_create_metric_orthographic_camera(): void {
-  const base: Parameters<typeof createAutoMovieMetricOrthographicCamera>[0] = {
+  const base: Parameters<
+    typeof AutoMovieRenderSceneLayout.createMetricOrthographicCamera
+  >[0] = {
     width: 320,
     height: 240,
     pixelPitchMeters: 0.0004,
@@ -40,7 +42,7 @@ export function test_render_scene_create_metric_orthographic_camera(): void {
   )) {
     const angle: number = sample.angle;
     const camera: THREE.OrthographicCamera =
-      createAutoMovieMetricOrthographicCamera({
+      AutoMovieRenderSceneLayout.createMetricOrthographicCamera({
         ...base,
         distanceMeters: sample.distance,
         azimuthRadians: angle,
@@ -96,7 +98,7 @@ export function test_render_scene_create_metric_orthographic_camera(): void {
     }
   }
   const inputs: Parameters<
-    typeof createAutoMovieMetricOrthographicCamera
+    typeof AutoMovieRenderSceneLayout.createMetricOrthographicCamera
   >[0][] = [
     { ...base, pixelPitchMeters: 0 },
     { ...base, farMeters: base.nearMeters },
@@ -114,7 +116,7 @@ export function test_render_scene_create_metric_orthographic_camera(): void {
   for (const input of inputs) {
     let refused: boolean = false;
     try {
-      createAutoMovieMetricOrthographicCamera(input);
+      AutoMovieRenderSceneLayout.createMetricOrthographicCamera(input);
     } catch {
       refused = true;
     }

@@ -1,4 +1,4 @@
-import { AutoMovieXpbdCollider, AutoMovieXpbdWorld, AutoMoviePhysicalSimulation as Simulation, Vector3, type solveXpbdContacts, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieXpbdCollider, AutoMovieXpbdWorld, AutoMoviePhysicalSimulation as Simulation, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalJoint,
@@ -166,7 +166,7 @@ function verifyHookScope(
     input,
     false,
   );
-  const filter: solveXpbdContacts.Filter = AutoMovieEnginePhysics.preparePhysicalContactHooks(
+  const filter: AutoMovieXpbdWorld.Filter = AutoMovieEnginePhysics.preparePhysicalContactHooks(
     input,
     bound,
   );

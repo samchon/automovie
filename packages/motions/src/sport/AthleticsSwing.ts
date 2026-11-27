@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
@@ -45,7 +45,7 @@ export namespace AthleticsSwing {
       Vector3.scale(Vector3.add(path.from.ankle, path.to.ankle), 0.5),
     );
     return (progress: number): IAutoMovieMotionHumanFoot.IPlacement => {
-      const s: number = minimumJerk.share(Math.min(1, Math.max(0, progress)));
+      const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, progress)));
       const a: number = (1 - s) * (1 - s);
       const b: number = 2 * s * (1 - s);
       const c: number = s * s;

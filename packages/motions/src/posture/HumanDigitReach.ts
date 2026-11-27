@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeSegmentDistance, AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -66,7 +66,7 @@ export namespace HumanDigitReach {
           deepest = Math.max(
             deepest,
             chain.radius -
-              physicalShapeSegmentDistance(
+              AutoMovieEnginePhysics.physicalShapeSegmentDistance(
                 collider.frame,
                 collider.shape,
                 points[i - 1]!,

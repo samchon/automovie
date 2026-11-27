@@ -21,7 +21,7 @@ import { resolveAutoMovieFfmpeg } from "../../ffmpeg/internal/resolveAutoMovieFf
  * takes only `subject` and `passes`, read by `parseAutoMovieCapturePlanRequest`
  * as `capture` reads them, and any other key is refused. `passes` names the
  * control channels drawn beside the film, admitted by
- * `admitAutoMovieControlPasses` before anything is drawn: guide passes other
+ * `AutoMovieRenderDraw.admitControlPasses` before anything is drawn: guide passes other
  * than `beauty`, each once, so an inspection shade such as `clay` is refused
  * too. `--background transparent` renders the straight-alpha layer and refuses
  * `--passes`. A `--props` file is read as JSON before anything starts. FFmpeg
@@ -51,7 +51,7 @@ export async function renderAutoMovie(
         `Render draws a subject's whole clock through its own camera; the request key --${key} does not apply, only --subject and --passes`,
       );
   const passes: string[] = options.request.has("passes")
-    ? render.admitAutoMovieControlPasses(request.passes)
+    ? render.AutoMovieRenderDraw.admitControlPasses(request.passes)
     : [];
   if (options.background === "transparent" && passes.length !== 0)
     throw new Error(

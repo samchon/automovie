@@ -1,23 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanLimb,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  AutoMovieMotionHumanChannel,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanSupport,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanLimb, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieMotionHumanChannel, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSupport, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 type Follow = (
   posture: IAutoMovieMotionHumanPosture,
@@ -75,7 +57,7 @@ export function prepareSupportHelperGrip(
     const bone: IAutoMovieResolvedBone = partner
       .bones(context.start + seconds, requested)
       .get(other.bone)!;
-    const point: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+    const point: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
       other,
       bone,
     );

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -196,7 +196,7 @@ export namespace stopDropRoll {
       weight: number,
     ): IAutoMovieMotionHumanPosture => {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-      const w: number = minimumJerk.share(weight);
+      const w: number = AutoMovieEngineMotionSampling.minimumJerkShare(weight);
       for (const side of ["left", "right"] as const) {
         const to: IAutoMovieHumanLimbGoal = face(body, side);
         limbs[`${side}Arm`] = {

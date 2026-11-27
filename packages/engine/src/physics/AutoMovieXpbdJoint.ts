@@ -4,6 +4,9 @@ import type {
 } from "@automovie/interface";
 
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import type { AutoMovieXpbdSupportRows } from "./AutoMovieXpbdSupportRows";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import { solveXpbdJoints as Joints } from "./solveXpbdJoints";
 
 /**
  * One articulation of the engine's extended position-based dynamics world
@@ -117,5 +120,50 @@ export namespace AutoMovieXpbdJoint {
         ? (motor.reverseTorque ?? motor.maximumTorque)
         : motor.maximumTorque) * h
     );
+  }
+
+  /**
+   * One position pass over the joints: each articulation's joints projected
+   * together by the tree's direct Newton solve (`solveXpbdJointTree`), then
+   * each joint outside the forest (closing a loop, or with a kinematic child)
+   * by its own block correction.
+   *
+   * @param joints The joints, in creation order.
+   * @param h The substep, seconds.
+   */
+  export function positions(
+    joints: readonly AutoMovieXpbdJoint[],
+    h: number,
+  ): void {
+    Joints.positions(joints, h);
+  }
+
+  /**
+   * The velocity pass of the joints' motors. Every articulation's motors are
+   * solved at once over its tree (`solveXpbdArticulation`). A joint outside the
+   * forest (closing a loop, or with a kinematic child) has its motor rows
+   * solved together with its own attachment's three velocity rows: unknowns are
+   * the attachment impulse `p` and one angular impulse `mu_i` per motor axis
+   * `a_i`, the attachment rows ask the anchors' relative velocity to vanish,
+   * and each motor row is the backward-Euler damper `mu_i = h c_i (s_i - v_i')`
+   * on the axis's relative angular velocity after the impulse, `v_i' + mu_i /
+   * (h c_i) = s_i`. A motor whose impulse exceeds its cap `tau_i h` is held at
+   * the cap and the rest re-solved.
+   *
+   * @param joints The joints, in creation order.
+   * @param h The substep, seconds.
+   * @param contacts The step's contacts, which hold each tree at its supports.
+   * @param tasks The root tasks the trees' supports should meet, by root body.
+   * @param warm Each tree's warm start for its supports' cascade, by root body,
+   *   kept across steps.
+   */
+  export function motors(
+    joints: readonly AutoMovieXpbdJoint[],
+    h: number,
+    contacts: readonly AutoMovieXpbdWorld.IContact[],
+    tasks: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdWorld.IRootTask>,
+    warm: Map<AutoMovieXpbdBody, AutoMovieXpbdSupportRows.IWarm>,
+  ): void {
+    Joints.motors(joints, h, contacts, tasks, warm);
   }
 }

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
@@ -84,7 +84,7 @@ function sweepPlane(
     sine > Number.EPSILON
       ? Quaternion.fromAxisAngle(axis, Math.atan2(sine, normal.y) / RAD)
       : Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, normal.y >= 0 ? 0 : 180);
-  const fixedMaximum = physicalShapeBounds(
+  const fixedMaximum = AutoMovieEnginePhysics.physicalShapeBounds(
     {
       position: {
         x: 0,
@@ -103,7 +103,7 @@ function projectedGap(
   moving: fitSeatedAnkleCrossShape.IShape,
 ): number {
   if (plane === undefined) return -Infinity;
-  const movingMinimum = physicalShapeBounds.lowestFromParent(
+  const movingMinimum = AutoMovieEnginePhysics.physicalShapeBoundsLowestFromParent(
     Quaternion.rotateVectorY(plane.rotation, moving.pose.position),
     Quaternion.multiply(plane.rotation, moving.pose.rotation),
     moving.shape,

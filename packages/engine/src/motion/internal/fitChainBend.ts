@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { jointToQuaternionOnBasis } from "../../kinematics/jointToQuaternionOnBasis";
-import type { twoBoneChainArticulation } from "../../kinematics/twoBoneChainArticulation";
+import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
+import type { twoBoneChainArticulation } from "../../kinematics/internal/twoBoneChainArticulation";
 import { Vector3 } from "../../math/Vector3";
 import { PLANT_RESIDUAL_EPSILON } from "../constants/PLANT_RESIDUAL_EPSILON";
 import { fitHingedChainBend } from "./fitHingedChainBend";

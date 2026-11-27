@@ -70,7 +70,7 @@ export interface IAutoMoviePhysicalBinding {
     string,
     {
       input: NonNullable<IAutoMoviePhysicalRecoveryState["span"]>;
-      span: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan;
+      span: AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanResult;
       handed?: boolean;
       started?: boolean;
     }

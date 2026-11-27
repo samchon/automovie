@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanLongTool,
   IAutoMovieVector3,
@@ -125,8 +125,8 @@ function swing(
     // Down from the top to the contact, then back up.
     const down: number =
       s < DOWN
-        ? minimumJerk.share(s / DOWN)
-        : 1 - minimumJerk.share((s - DOWN) / (1 - DOWN));
+        ? AutoMovieEngineMotionSampling.minimumJerkShare(s / DOWN)
+        : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((s - DOWN) / (1 - DOWN));
     const line: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.fromAxisAngle(normal, (turn * down * 180) / Math.PI),
       raised,
@@ -264,7 +264,7 @@ function keyed(
     const b: IKey = keys[Math.min(keys.length - 1, k + 1)]!;
     const u: number =
       b.share > a.share
-        ? minimumJerk.share((s - a.share) / (b.share - a.share))
+        ? AutoMovieEngineMotionSampling.minimumJerkShare((s - a.share) / (b.share - a.share))
         : 0;
     const line: IAutoMovieVector3 = Vector3.normalize(
       Vector3.lerp(a.line, b.line, u),

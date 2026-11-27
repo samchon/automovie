@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -296,7 +300,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
       const integral: number = u - (2.5 * u ** 4 - 3 * u ** 5 + u ** 6);
       cycles += ((effort.rate - REST_RATE) * effort.seconds * integral) / 60;
       if (u < 1) {
-        const left: number = 1 - minimumJerk.share(u);
+        const left: number = 1 - AutoMovieEngineMotionSampling.minimumJerkShare(u);
         rate = REST_RATE + (effort.rate - REST_RATE) * left;
         depth = REST_DEPTH + (effort.depth - REST_DEPTH) * left;
       }

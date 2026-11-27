@@ -1,19 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Read a hand surface using its actual body-declared digit region bone.
@@ -39,8 +25,8 @@ export function readHumanHandFrame(
       forward: turn(local.forward),
     };
   const actual: IAutoMovieHumanoidSurfaces.IFrame = region(body, side, surface);
-  const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-    resolveAutoMovieHumanoidSurfaces.place(actual, bones.get(actual.bone)!);
+  const placed: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> =
+    AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(actual, bones.get(actual.bone)!);
   return {
     point: placed.point,
     normal: placed.normal,

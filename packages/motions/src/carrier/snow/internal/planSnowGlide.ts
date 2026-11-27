@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieMotionHumanChannel,
@@ -78,7 +78,7 @@ export function planSnowGlide(
           ? at / transfer.at
           : (at - transfer.at) / (base.duration - transfer.at);
         const weight: number =
-          minimumJerk.share(2 * share) * (1 - minimumJerk.share(2 * share - 1));
+          AutoMovieEngineMotionSampling.minimumJerkShare(2 * share) * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(2 * share - 1));
         const twist: number =
           transfer.counter * weight * Math.sign(edge.degrees);
         const chest: readonly [number, number, number] = posture.joints
@@ -217,8 +217,8 @@ export function planSnowGlide(
       const foot: IAutoMovieHumanLimbGoal | undefined = posture.limbs[leg];
       if (foot === undefined) return posture;
       const amount: number =
-        minimumJerk.share((at - catchAt) / (release - catchAt)) *
-        (1 - minimumJerk.share((at - release) / (duration - release)));
+        AutoMovieEngineMotionSampling.minimumJerkShare((at - catchAt) / (release - catchAt)) *
+        (1 - AutoMovieEngineMotionSampling.minimumJerkShare((at - release) / (duration - release)));
       const kick: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation!, {
         x: 0,
         y: 0,
@@ -251,9 +251,9 @@ export function planSnowGlide(
     to: duration,
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, stroke.hand),
     weight: (at: number): number =>
-      (catchAt > 0 ? minimumJerk.share(at / catchAt) : 1) *
+      (catchAt > 0 ? AutoMovieEngineMotionSampling.minimumJerkShare(at / catchAt) : 1) *
       (release < duration
-        ? 1 - minimumJerk.share((at - release) / (duration - release))
+        ? 1 - AutoMovieEngineMotionSampling.minimumJerkShare((at - release) / (duration - release))
         : 1),
     span: { start: 0, ready: catchAt, relax: release, end: duration },
     goal: (

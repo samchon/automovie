@@ -1,8 +1,8 @@
 import {
   Quaternion,
   Vector3,
-  minimumJerk,
-  rotationBetween,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEngineMath,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -194,14 +194,14 @@ export namespace KickSwing {
       opening <= 0 || most <= 0
         ? 1
         : Math.max(
-            minimumJerk.share(StrikingStroke.impactShare(props.speed)),
+            AutoMovieEngineMotionSampling.minimumJerkShare(StrikingStroke.impactShare(props.speed)),
             Math.min(1, opening / most),
           );
     const begin: number = chamber - KickForm.VIA_OVERLAP * (chamber - prep);
     const span: number = Math.max(1e-3, impact - begin) / unit(share);
     const extended = (clock: number): number =>
-      (minimumJerk.share((clock - begin) / span) / share) *
-      (1 - minimumJerk.share((clock - impact) / Math.max(1e-3, folding)));
+      (AutoMovieEngineMotionSampling.minimumJerkShare((clock - begin) / span) / share) *
+      (1 - AutoMovieEngineMotionSampling.minimumJerkShare((clock - impact) / Math.max(1e-3, folding)));
     const angle = (clock: number): number => hinge.degrees * extended(clock);
 
     // A thrust's two ends in the contact pelvis's frame: the fitted contact
@@ -230,9 +230,9 @@ export namespace KickSwing {
       contact.rotation,
     );
     const rising = (clock: number): number =>
-      minimumJerk.share((clock - prep) / Math.max(1e-3, chamber - prep));
+      AutoMovieEngineMotionSampling.minimumJerkShare((clock - prep) / Math.max(1e-3, chamber - prep));
     const lowering = (clock: number): number =>
-      minimumJerk.share(
+      AutoMovieEngineMotionSampling.minimumJerkShare(
         (clock - impact - folding) / Math.max(1e-3, recoil - folding),
       );
     // The plant's foot on the floor rises on its forefoot rocker as the
@@ -298,7 +298,7 @@ export namespace KickSwing {
               walkLeg.dorsal(
                 lowered > 0
                   ? 0
-                  : 1 - minimumJerk.share(clock / Math.max(1e-3, prep)),
+                  : 1 - AutoMovieEngineMotionSampling.minimumJerkShare(clock / Math.max(1e-3, prep)),
               ) - KickChain.DORSAL_MARGIN,
             );
       // The lowering carries the foot over its replant first and sets it
@@ -310,7 +310,7 @@ export namespace KickSwing {
         lowered > 0
           ? walkFoot.CLEARANCE *
             (1 -
-              minimumJerk.share(
+              AutoMovieEngineMotionSampling.minimumJerkShare(
                 (lowered - (1 - KickSwing.SET_DOWN)) / KickSwing.SET_DOWN,
               ))
           : 0;
@@ -337,7 +337,7 @@ export namespace KickSwing {
           ? plant.rotation
           : Quaternion.normalize(
               Quaternion.multiply(
-                rotationBetween(
+                AutoMovieEngineMath.rotationBetween(
                   Vector3.normalize(floor.shank),
                   Vector3.normalize(posed.shank),
                 ),
@@ -399,8 +399,8 @@ export namespace KickSwing {
     to: KickThrust.ILeg,
     share: number,
   ): KickThrust.ILeg {
-    const hip: number = minimumJerk.share(share);
-    const knee: number = minimumJerk.share(
+    const hip: number = AutoMovieEngineMotionSampling.minimumJerkShare(share);
+    const knee: number = AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.min(1, share / KickForm.KNEE_LEAD),
     );
     const thigh: IAutoMovieVector3 = KickSwingTurned(from.thigh, to.thigh, hip);
@@ -408,7 +408,7 @@ export namespace KickSwing {
     const folded: IAutoMovieVector3 = KickSwingTurned(
       from.shank,
       Quaternion.rotateVector(
-        Quaternion.inverse(rotationBetween(stood, Vector3.normalize(to.thigh))),
+        Quaternion.inverse(AutoMovieEngineMath.rotationBetween(stood, Vector3.normalize(to.thigh))),
         to.shank,
       ),
       knee,
@@ -416,7 +416,7 @@ export namespace KickSwing {
     return {
       thigh,
       shank: Quaternion.rotateVector(
-        rotationBetween(stood, Vector3.normalize(thigh)),
+        AutoMovieEngineMath.rotationBetween(stood, Vector3.normalize(thigh)),
         folded,
       ),
     };
@@ -461,6 +461,6 @@ export namespace KickSwing {
    * @returns The time's share.
    */
   export function unit(travel: number): number {
-    return minimumJerk.time(travel);
+    return AutoMovieEngineMotionSampling.minimumJerkTime(travel);
   }
 }

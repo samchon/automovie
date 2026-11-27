@@ -1,8 +1,8 @@
 import {
+  AutoMoviePhysicalProjectile,
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  projectileDragFlight,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionPropLaunch,
@@ -83,5 +83,5 @@ export function launchPropProjectile(
   };
   return drag === undefined
     ? projectile
-    : { ...projectile, flight: projectileDragFlight(projectile) };
+    : { ...projectile, flight: AutoMoviePhysicalProjectile.dragFlight(projectile) };
 }

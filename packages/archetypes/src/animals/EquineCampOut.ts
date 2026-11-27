@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -139,12 +143,12 @@ export namespace EquineCampOut {
           {
             label: `${limb}Off`,
             entry: true,
-            time: minimumJerk.time(LOWER + (k + LOAD) * half),
+            time: AutoMovieEngineMotionSampling.minimumJerkTime(LOWER + (k + LOAD) * half),
           },
           {
             label: `${limb}On`,
             entry: true,
-            time: minimumJerk.time(LOWER + (k + 1) * half),
+            time: AutoMovieEngineMotionSampling.minimumJerkTime(LOWER + (k + 1) * half),
           },
         ],
       ),
@@ -186,7 +190,7 @@ export namespace EquineCampOut {
               anchor: EquineStanceSupport.arc(
                 before.anchors[limb],
                 states[k + 1]!.anchors[limb],
-                minimumJerk.share((local - LOAD) / (1 - LOAD)),
+                AutoMovieEngineMotionSampling.minimumJerkShare((local - LOAD) / (1 - LOAD)),
                 LIFT,
               ),
               fold: 0,

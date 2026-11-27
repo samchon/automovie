@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -448,7 +448,7 @@ function arcs(
   for (let i: number = 1; i <= samples; ++i) {
     const time: number = i / samples;
     const next: IAutoMovieVector3[] = points(
-      rate === undefined ? time : minimumJerk.share(time),
+      rate === undefined ? time : AutoMovieEngineMotionSampling.minimumJerkShare(time),
     );
     next.forEach((p: IAutoMovieVector3, j: number): void => {
       const distance: number = Vector3.length(Vector3.subtract(p, last[j]!));

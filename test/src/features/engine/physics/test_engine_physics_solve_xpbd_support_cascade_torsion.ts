@@ -3,9 +3,8 @@ import {
   AutoMovieXpbdArticulation,
   AutoMovieXpbdSupportRows,
   Quaternion,
-  physicalStanceBalance,
-  solveXpbdArticulationContacts,
-  solveXpbdSupportCascade,
+  AutoMovieEnginePhysicalStanceBalance,
+  AutoMovieXpbdArticulation,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJointAxis,
@@ -176,10 +175,10 @@ export function test_engine_physics_solve_xpbd_support_cascade_torsion(): void {
     );
     return AutoMoviePhysicalTracking.torque(
       current,
-      physicalStanceBalance.saturate(
+      AutoMovieEnginePhysicalStanceBalance.saturate(
         current,
         identity,
-        physicalStanceBalance.TORSO_ERROR,
+        AutoMovieEnginePhysicalStanceBalance.TORSO_ERROR,
       ),
       { x: 0, y: rate, z: 0 },
       axes,
@@ -207,7 +206,7 @@ export function test_engine_physics_solve_xpbd_support_cascade_torsion(): void {
     findings.push(
       `the heading servo ends at ${angle} degrees, lowest ${lowest}, rising ${rising}`,
     );
-  const limit: number = (physicalStanceBalance.TORSO_ERROR * 180) / Math.PI;
+  const limit: number = (AutoMovieEnginePhysicalStanceBalance.TORSO_ERROR * 180) / Math.PI;
   if (
     !(
       Math.abs(yawMoment(30, 0) - yawMoment(limit, 0)) <
@@ -249,14 +248,14 @@ export function test_engine_physics_solve_xpbd_support_cascade_torsion(): void {
   // - 0.5.
   const substep: number = 1 / 480;
   if (
-    solveXpbdArticulationContacts.room({
+    AutoMovieXpbdArticulation.room({
       force: 0,
       h: substep,
       given: 2849 * substep,
     }) !== 0
   )
     findings.push("a landing impact past its bound is taken back");
-  const left: number = solveXpbdArticulationContacts.room({
+  const left: number = AutoMovieXpbdArticulation.room({
     force: 700,
     h: substep,
     given: 0.5,
@@ -270,7 +269,7 @@ export function test_engine_physics_solve_xpbd_support_cascade_torsion(): void {
 /** One support program over a free rigid body and the indices to read it by. */
 interface IProgram {
   /** The cascade's input. */
-  input: solveXpbdSupportCascade.IInput;
+  input: AutoMovieXpbdSupportRows.IInput;
 
   /** Each sole's normal rows. */
   normals: number[][];
@@ -302,8 +301,8 @@ function program(
   const mass: number = 10 / centres.length;
   const inertia: IAutoMovieVector3 = { x: 1, y: 2, z: 1 };
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const rows: solveXpbdSupportCascade.IRow[] = [];
-  const patches: solveXpbdArticulationContacts.IPatch[] = [];
+  const rows: AutoMovieXpbdSupportRows.IRow[] = [];
+  const patches: AutoMovieXpbdArticulation.IPatch[] = [];
   const normals: number[][] = [];
   const torsions: number[] = [];
   centres.forEach((_: IAutoMovieVector3, state: number): void => {
@@ -359,7 +358,7 @@ function program(
     rates: [],
   });
   const responses: AutoMovieXpbdArticulation.IResponse[] = rows.map(
-    (row: solveXpbdSupportCascade.IRow): AutoMovieXpbdArticulation.IResponse =>
+    (row: AutoMovieXpbdSupportRows.IRow): AutoMovieXpbdArticulation.IResponse =>
       respond(AutoMovieXpbdSupportRows.impulse(row), row.state),
   );
   const free: AutoMovieXpbdArticulation.IResponse = {
@@ -375,16 +374,16 @@ function program(
   };
   return {
     input: {
-      k: rows.map((row: solveXpbdSupportCascade.IRow): number[] =>
+      k: rows.map((row: AutoMovieXpbdSupportRows.IRow): number[] =>
         responses.map((response: AutoMovieXpbdArticulation.IResponse): number =>
           AutoMovieXpbdSupportRows.along(row, response),
         ),
       ),
-      u: rows.map((row: solveXpbdSupportCascade.IRow): number =>
+      u: rows.map((row: AutoMovieXpbdSupportRows.IRow): number =>
         AutoMovieXpbdSupportRows.along(row, free),
       ),
       // The wrench about the body's centre: each sole's rows at its place.
-      columns: rows.map((row: solveXpbdSupportCascade.IRow): number[] => {
+      columns: rows.map((row: AutoMovieXpbdSupportRows.IRow): number[] => {
         const impulse: number[] = AutoMovieXpbdSupportRows.impulse({
           ...row,
           point: {
@@ -419,7 +418,7 @@ function program(
 
 /** The cascade's solution of a program, or null. */
 function solve(program: IProgram): number[] | null {
-  return solveXpbdSupportCascade(program.input);
+  return AutoMovieXpbdSupportRows.cascade(program.input);
 }
 
 /** The body's spin about the vertical after the substep, rad/s. */

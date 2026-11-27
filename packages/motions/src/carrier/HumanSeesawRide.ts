@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -209,8 +209,8 @@ export function HumanSeesawRide(
           held !== undefined
             ? 1
             : at < interval.from
-              ? minimumJerk.share(1 - (interval.from - at) / PLACE)
-              : 1 - minimumJerk.share((at - interval.to) / PLACE);
+              ? AutoMovieEngineMotionSampling.minimumJerkShare(1 - (interval.from - at) / PLACE)
+              : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((at - interval.to) / PLACE);
         const goal: IAutoMovieVector3 = interval.planted.ankle;
         const carried: IAutoMovieHumanLimbGoal | undefined =
           posture.limbs[`${side}Leg`];

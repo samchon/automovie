@@ -89,8 +89,8 @@ export namespace AutoMovieArchetypeEquineLiberty {
     );
     const clip: Clip<Id, D> =
       recline.lateral === undefined
-        ? AutoMovieArchetypeQuadrupedRest(animal, params)
-        : AutoMovieArchetypeQuadrupedLateralRest(
+        ? AutoMovieArchetypeQuadrupedRest.plan(animal, params)
+        : AutoMovieArchetypeQuadrupedLateralRest.plan(
             animal,
             params,
             recline.lateral,

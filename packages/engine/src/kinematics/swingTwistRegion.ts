@@ -14,8 +14,8 @@ import { Vector3 } from "../math/Vector3";
 import { nearestAngleAlias } from "../math/internal/nearestAngleAlias";
 import { positiveModulo } from "../math/internal/positiveModulo";
 import { swingConeAngle } from "../rom/internal/swingConeAngle";
-import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { toRigAngle } from "../rom/toRigAngle";
+import { AutoMovieEngineClinicalAngle } from "../rom/internal/AutoMovieEngineClinicalAngle";
+import { AutoMovieEngineRigAngle } from "../rom/internal/AutoMovieEngineRigAngle";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistReachBound } from "./internal/swingTwistReachBound";
 
@@ -307,8 +307,8 @@ function widen(
   )
     return table;
   const ends: readonly number[] = [
-    toRigAngle(twist.min, joint.frame?.twist)!,
-    toRigAngle(twist.max, joint.frame?.twist)!,
+    AutoMovieEngineRigAngle.toRigAngle(twist.min, joint.frame?.twist)!,
+    AutoMovieEngineRigAngle.toRigAngle(twist.max, joint.frame?.twist)!,
   ];
   const low: number = Math.min(...ends);
   const high: number = Math.max(...ends);
@@ -405,7 +405,7 @@ function reached(
   for (const f of [first, 180 - first]) {
     // A branch outside the flexion interval is unreachable for every abduction.
     const clinical: number = nearestAngleAlias(
-      toClinicalAngle(f, frame?.flexion)!,
+      AutoMovieEngineClinicalAngle.toClinicalAngle(f, frame?.flexion)!,
       flexion,
     );
     if (!(clinical >= flexion.min && clinical <= flexion.max)) continue;
@@ -429,7 +429,7 @@ function reached(
             free,
             abduction,
             clinical,
-            toRigAngle(a, frame?.abduction)!,
+            AutoMovieEngineRigAngle.toRigAngle(a, frame?.abduction)!,
           )
         )
           return true;
@@ -455,7 +455,7 @@ function admits(
   rigAbduction: number,
 ): boolean {
   const a: number = nearestAngleAlias(
-    toClinicalAngle(rigAbduction, frame?.abduction)!,
+    AutoMovieEngineClinicalAngle.toClinicalAngle(rigAbduction, frame?.abduction)!,
     abduction,
   );
   return (

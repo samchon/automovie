@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanRide } from "@automovie/interface";
 
 /**
@@ -46,7 +46,7 @@ export function humanEquestrianRhythm(
     turn:
       look === undefined
         ? 0
-        : minimumJerk.share(
+        : AutoMovieEngineMotionSampling.minimumJerkShare(
             1 - Math.min(1, Math.abs(at - look.peak) / look.half),
           ),
   };
@@ -146,9 +146,9 @@ export namespace humanEquestrianRhythm {
     const [approach, takeoff, landing, recovery]: Jump = jump;
     if (at <= approach || at >= recovery) return 0;
     if (at < takeoff)
-      return minimumJerk.share((at - approach) / (takeoff - approach));
+      return AutoMovieEngineMotionSampling.minimumJerkShare((at - approach) / (takeoff - approach));
     if (at > landing)
-      return minimumJerk.share((recovery - at) / (recovery - landing));
+      return AutoMovieEngineMotionSampling.minimumJerkShare((recovery - at) / (recovery - landing));
     return 1;
   }
 }

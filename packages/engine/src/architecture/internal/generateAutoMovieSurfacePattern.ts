@@ -11,7 +11,7 @@ import type {
   IAutoMovieSurfacePatternZone,
 } from "@automovie/interface";
 
-import { positive } from "../../geometry/positive";
+import { positive } from "../../geometry/internal/positive";
 import { Quaternion } from "../../math/Quaternion";
 import { seededValue } from "../../math/internal/seededValue";
 import { autoMoviePatternFindings } from "./autoMoviePatternFindings";

@@ -6,10 +6,9 @@
 // l.35-206 and l.216-280; ICPControllerQPConstraintCalculator.java l.29-176;
 // qpInput/ConstraintToConvexRegion.java formulateConstraint() l.167-172 and
 // getInequalityConstraintSize() l.179-198.
-// See vendor/ihmc/NOTICE.
 import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
-import { physicalPlanarPolygon as Polygon } from "../physicalPlanarPolygon";
-import { solveDenseActiveSet } from "../solveDenseActiveSet";
+import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "../AutoMovieEnginePhysicalPlanarPolygon";
+import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 
 /**
  * One solve of IHMC's capture-point feedback program over x = (dCoP, dCMP): the
@@ -31,10 +30,13 @@ import { solveDenseActiveSet } from "../solveDenseActiveSet";
  *   horizontal frame, metres; weights are the reference's, the rate weights
  *   already divided by the control period squared.
  * @returns The feedback pair, or null.
+ * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPControllerQPSolver.java
+ * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPControllerQPInputCalculator.java
+ * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPControllerQPConstraintCalculator.java
  */
 export function physicalIcpControllerQp(
-  input: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput,
-): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.ISolution | null {
+  input: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpInput,
+): AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpSolution | null {
   const h: number[][] = Array.from({ length: 4 }, (): number[] =>
     new Array<number>(4).fill(0),
   );
@@ -64,7 +66,7 @@ export function physicalIcpControllerQp(
 
   // Dynamics (l.748-752; InputCalculator l.107-137, l.271-280): J x = e with
   // J = [K^-1, K^-1], weighted by w I: J^T w J into H and J^T w e into h.
-  const inverse: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix = invert(input.gains);
+  const inverse: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix = invert(input.gains);
   const jacobian: number[][] = [0, 1].map((r: number): number[] => [
     inverse[r]![0],
     inverse[r]![1],
@@ -114,12 +116,12 @@ export function physicalIcpControllerQp(
     submit(h, g, dynamicsH, dynamicsG);
   }
 
-  const rows: solveDenseActiveSet.IRow[] = [
+  const rows: AutoMovieEnginePhysics.ISolveDenseActiveSetRow[] = [
     ...copRows(input),
     ...magnitudeRows(input.maximum),
     ...rateRows(input.rate, total),
   ];
-  const solution: number[] | null = solveDenseActiveSet({
+  const solution: number[] | null = AutoMovieEnginePhysics.solveDenseActiveSet({
     quadratic: h,
     linear: g,
     rows,
@@ -141,12 +143,12 @@ export function physicalIcpControllerQp(
  * (l.567-568, l.179-198).
  */
 function copRows(
-  input: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput,
-): solveDenseActiveSet.IRow[] {
+  input: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpInput,
+): AutoMovieEnginePhysics.ISolveDenseActiveSetRow[] {
   const hull: Polygon.IPoint[] = Polygon.hull(input.support);
   if (hull.length === 0) return [];
   return Polygon.rows(Polygon.shrink(hull, input.safeDistance)).map(
-    (row: { a: [number, number]; b: number }): solveDenseActiveSet.IRow => ({
+    (row: { a: [number, number]; b: number }): AutoMovieEnginePhysics.ISolveDenseActiveSetRow => ({
       a: [row.a[0], row.a[1], 0, 0],
       b:
         row.b -
@@ -163,18 +165,18 @@ function copRows(
  * and is left out, which leaves the minimizer unchanged.
  */
 function magnitudeRows(
-  maximum: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput["maximum"],
-): solveDenseActiveSet.IRow[] {
+  maximum: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpInput["maximum"],
+): AutoMovieEnginePhysics.ISolveDenseActiveSetRow[] {
   const x: number = Math.abs(maximum.x);
   const y: number = Math.abs(maximum.y);
   if (x === Infinity && y === Infinity) return [];
-  const t: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix = maximum.transform;
+  const t: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix = maximum.transform;
   return [
     { a: [t[0][0], t[0][1], t[0][0], t[0][1]], b: x },
     { a: [t[1][0], t[1][1], t[1][0], t[1][1]], b: y },
     { a: [-t[0][0], -t[0][1], -t[0][0], -t[0][1]], b: x },
     { a: [-t[1][0], -t[1][1], -t[1][0], -t[1][1]], b: y },
-  ].filter((row: solveDenseActiveSet.IRow): boolean => row.b !== Infinity);
+  ].filter((row: AutoMovieEnginePhysics.ISolveDenseActiveSetRow): boolean => row.b !== Infinity);
 }
 
 /**
@@ -183,9 +185,9 @@ function magnitudeRows(
  * previous total plus or minus dt times the rate, per axis.
  */
 function rateRows(
-  rate: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput["rate"],
+  rate: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpInput["rate"],
   total: Polygon.IPoint,
-): solveDenseActiveSet.IRow[] {
+): AutoMovieEnginePhysics.ISolveDenseActiveSetRow[] {
   if (rate.limit === Infinity) return [];
   const step: number = rate.dt * rate.limit;
   return [
@@ -198,8 +200,8 @@ function rateRows(
 
 /** A 2 x 2 matrix's inverse (`UnrolledInverseFromMinor_DDRM.inv`, l.113). */
 function invert(
-  m: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix,
-): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix {
+  m: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix,
+): AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix {
   const det: number = m[0][0] * m[1][1] - m[0][1] * m[1][0];
   return [
     [m[1][1] / det, -m[0][1] / det],
@@ -208,7 +210,7 @@ function invert(
 }
 
 /** A scalar times the 2 x 2 identity (`MatrixTools.setDiagonal`). */
-function diagonal(value: number): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix {
+function diagonal(value: number): AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix {
   return [
     [value, 0],
     [0, value],
@@ -220,7 +222,7 @@ function addBlock(
   target: number[][],
   row: number,
   column: number,
-  block: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix,
+  block: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix,
 ): void {
   for (let i: number = 0; i < 2; i++)
     for (let j: number = 0; j < 2; j++)

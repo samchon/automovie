@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -55,7 +55,7 @@ export namespace AquaticPosture {
     const joints: ReturnType<typeof prepareHumanShapeBlend> =
       prepareHumanShapeBlend(from.joints, to.joints);
     return (share: number): IAutoMovieMotionHumanPosture => {
-      const u: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
+      const u: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, share)));
       return {
         ...to,
         root: Vector3.lerp(from.root, to.root, u),

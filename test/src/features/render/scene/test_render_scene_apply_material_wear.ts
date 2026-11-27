@@ -1,4 +1,7 @@
-import { AutoMovieEngineMaterial, AutoMovieEngineGeometry } from "@automovie/engine";
+import {
+  AutoMovieEngineGeometry,
+  AutoMovieEngineMaterial,
+} from "@automovie/engine";
 import type {
   IAutoMovieMaterialWear,
   IAutoMovieMeasureFeatureEdges,
@@ -6,10 +9,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieRenderWearShading,
   AutoMovieThreeKind,
   type IMaterialShaderSource,
-  AutoMovieRenderWearShading,
-  readAutoMovieBufferAttribute,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -88,10 +90,9 @@ export function test_render_scene_apply_material_wear(): void {
   const data: THREE.TypedArray | null = worn.texture.image.data;
   if (data === null || !AutoMovieThreeKind.isFloat32Array(data))
     throw new Error("Expected a float wear texture");
-  const list: THREE.BufferAttribute = readAutoMovieBufferAttribute(
-    worn.geometry,
+  const list: THREE.BufferAttribute = worn.geometry.getAttribute(
     "wearList",
-  );
+  ) as THREE.BufferAttribute;
 
   // 1. Non-indexed with per-triangle lists.
   let lists: boolean = worn.geometry.index === null && list.count === 36;
@@ -132,8 +133,11 @@ export function test_render_scene_apply_material_wear(): void {
     const t: number = surfaceTriangleOf(box.positions, box.indices, point);
     agree &&= nclose(
       decode(data, list.getX(3 * t), list.getY(3 * t), point, 0.03),
-      AutoMovieEngineGeometry.featureEdgeDistance({ edges: measured, triangle: t, point })
-        .convex,
+      AutoMovieEngineGeometry.featureEdgeDistance({
+        edges: measured,
+        triangle: t,
+        point,
+      }).convex,
       1e-6,
     );
   }

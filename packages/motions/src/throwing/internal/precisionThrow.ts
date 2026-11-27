@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -43,7 +43,7 @@ export namespace precisionThrow {
     return Vector3.lerp(
       rest,
       offset,
-      minimumJerk.share(Math.min(progress * 5, 1)),
+      AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(progress * 5, 1)),
     );
   }
 

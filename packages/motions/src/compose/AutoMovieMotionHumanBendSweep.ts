@@ -1,4 +1,4 @@
-import { DEFAULT_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, decomposeJointRotationOnBasis, jointRomOvershoot, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { DEFAULT_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, swingTwistRange, AutoMovieEngineKinematics, AutoMovieEngineKinematicsJointRotation } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -100,9 +100,9 @@ export function AutoMovieMotionHumanBendSweep(
     "AutoMovieMotionHumanBendSearch axes",
   );
   const upperOvershoot: (joint: IAutoMovieJointPose) => number =
-    jointRomOvershoot.prepare(upperBone, upperRange);
+    AutoMovieEngineKinematics.prepareJointRomOvershoot(upperBone, upperRange);
   const lowerOvershoot: (joint: IAutoMovieJointPose) => number =
-    jointRomOvershoot.prepare(lowerBone, prepared.lowerDomain.constraint);
+    AutoMovieEngineKinematics.prepareJointRomOvershoot(lowerBone, prepared.lowerDomain.constraint);
 
   const clear: ReturnType<typeof HumanArmOvershoot.prepare> =
     HumanArmOvershoot.prepare(body, chain.shapes, side);
@@ -115,7 +115,7 @@ export function AutoMovieMotionHumanBendSweep(
     lower: IAutoMovieQuaternion,
   ): number => {
     if (mid !== undefined && mid.rotation === lower) return mid.overshoot;
-    const l: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+    const l: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
       lower,
       lowerBasis,
       HUMANOID_REST_FRAME[lowerBone],
@@ -134,7 +134,7 @@ export function AutoMovieMotionHumanBendSweep(
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): ICandidate => {
-    const u: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+    const u: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematicsJointRotation.decomposeJointRotationOnBasis(
       upper,
       upperBasis,
       HUMANOID_REST_FRAME[upperBone],

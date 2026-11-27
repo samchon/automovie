@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
@@ -43,7 +43,7 @@ export function AutoMovieMotionClockNative(
   const linear = (from: string, to: string, seconds: number): number =>
     AutoMovieMotionInterval.linear(at(from), at(to), seconds);
   const progress = (from: string, to: string, seconds: number): number =>
-    minimumJerk.share(linear(from, to, seconds));
+    AutoMovieEngineMotionSampling.minimumJerkShare(linear(from, to, seconds));
   const envelope: IClock["envelope"] = (
     rise: readonly [string, string],
     fall: readonly [string, string],

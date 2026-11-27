@@ -3,10 +3,10 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { jointToQuaternionOnBasis } from "../../kinematics/jointToQuaternionOnBasis";
+import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuaternionOnBasis";
 import { readNormalizedQuaternion } from "../../math/internal/readNormalizedQuaternion";
 import { prepareJointProjectionClamp } from "./prepareJointProjectionClamp";
-import type { prepareJointRotationProjection } from "../prepareJointRotationProjection";
+import type { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMotionJointProjection";
 
 /** Original degree-valued clinical coordinate names. */
 type ClinicalAxis = "flexion" | "abduction" | "twist";
@@ -26,7 +26,7 @@ interface IProps {
 /** Original joint-only or explicitly requested paired projection output. */
 type IEvaluation =
   | IAutoMovieJointPose
-  | prepareJointRotationProjection.IProjection;
+  | AutoMovieEngineMotionJointProjection.IProjection;
 
 /** Scores and raw components of each ordered candidate; links use -1 as absent. */
 const enum ScoreField {

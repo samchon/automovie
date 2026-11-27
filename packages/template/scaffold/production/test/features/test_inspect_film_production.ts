@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMoviePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieInspectionDiagnostics,
@@ -114,7 +114,7 @@ export async function test_inspect_film_production(): Promise<void> {
     inspectionChecks: (
       sample: IAutoMovieDrawScene.IPlacedSample,
     ): ReturnType<NonNullable<IFilmProduction["inspectionChecks"]>> => [
-      ...AutoMovieRenderInspection.PlacedScene.selectChecks({
+      ...AutoMovieRenderInspection.selectPlacedChecks({
         scene: sample.scene,
         time: sample.time,
         fps: FPS,
@@ -148,8 +148,8 @@ export async function test_inspect_film_production(): Promise<void> {
       scene.clear();
     },
   };
-  const geometry: Awaited<ReturnType<typeof preparePhysicalGeometry>> =
-    await preparePhysicalGeometry();
+  const geometry: Awaited<ReturnType<typeof AutoMoviePhysicalGeometry.prepare>> =
+    await AutoMoviePhysicalGeometry.prepare();
   const verdicts: ReturnType<typeof readFilmVerdicts> =
     readFilmVerdicts(production);
   // Mounted as src/subjects.ts mounts a registered film.

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -245,7 +245,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const { takeAway, top, finish, duration } = timetable;
 
   const share = (a: number, b: number, t: number): number =>
-    minimumJerk.share(Math.min(1, Math.max(0, (t - a) / (b - a))));
+    AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, (t - a) / (b - a))));
   // The arm's angle in the plane: still at the carry and the top, short of straight up along the upright trunk, then down through the contact, where the head meets the ball, on to the finish; the rider leans out over the downswing.
   const struckAt: HumanPoloHand.IPlanar = HumanPoloHand.planar(
     hand,

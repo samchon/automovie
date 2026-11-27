@@ -1,18 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanGestureStroke,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanTargetGrid,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanGestureStroke, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanTargetGrid, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
@@ -281,7 +268,7 @@ export function everydayGestureVerdicts(
     case "raiseHand":
     case "cheer": {
       const crown = body.surfaces.regions.crown;
-      const top: number = resolveAutoMovieHumanoidSurfaces.place(
+      const top: number = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         crown,
         performance.bones("a", mid).get(crown.bone)!,
       ).point.y;
@@ -331,7 +318,7 @@ export function everydayGestureVerdicts(
       });
     case "scratchHead": {
       const temple = body.surfaces.regions.templeRight;
-      const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+      const at: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
         temple,
         performance.bones("a", mid).get(temple.bone)!,
       ).point;

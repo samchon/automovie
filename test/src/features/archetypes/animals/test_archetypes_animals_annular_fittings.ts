@@ -1,5 +1,5 @@
 import { type AutoMovieArchetypeEquine, AutoMovieArchetypeEquineHobble, AutoMovieArchetypeFrame, AutoMovieArchetypeRide, AutoMovieArchetypeDog, AutoMovieArchetypeHobble, AutoMovieArchetypeHorse } from "@automovie/archetypes";
-import { Quaternion, physicalShapeSegmentDistance } from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
@@ -161,7 +161,7 @@ function probes(
     });
     return Math.min(
       ...cells.map((cell: IAutoMoviePhysicalShape): number =>
-        physicalShapeSegmentDistance(IDENTITY, cell, point, point),
+        AutoMovieEnginePhysics.physicalShapeSegmentDistance(IDENTITY, cell, point, point),
       ),
     );
   };

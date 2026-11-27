@@ -10,7 +10,7 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { jointToQuaternionOnBasis } from "../jointToQuaternionOnBasis";
+import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
 /**
@@ -129,7 +129,7 @@ export function prepareArticulatedRig<Bone extends string>(
           node.parent === null ? origin : world.get(node.parent)!;
         const local: IAutoMovieQuaternion = Quaternion.multiply(
           node.rest.rotation,
-          jointToQuaternionOnBasis(angles, node.axes),
+          jointToQuaternionOnBasis.run(angles, node.axes),
         );
 
         // Finite operands can overflow during composition. Admit the actual

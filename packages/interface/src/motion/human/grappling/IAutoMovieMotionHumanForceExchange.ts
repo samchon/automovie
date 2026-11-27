@@ -1,3 +1,4 @@
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanForceSite } from "../perform/AutoMovieHumanForceSite";
 
@@ -7,7 +8,7 @@ import type { AutoMovieHumanForceSite } from "../perform/AutoMovieHumanForceSite
  * rotation about the thrower's fulcrum.
  *
  * - **Off-balancing.** The partner is a linear inverted pendulum of its own mass
- *   `M` and length `l` (`resolveAutoMovieCenterOfMass.pendulum`), with
+ *   `M` and length `l` (`AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum`), with
  *   eigenfrequency `ω = sqrt(g / l)` (Hof, Gazendam and Sinke 2005). A constant
  *   horizontal pull `F` at rest gives `x'' = ω² x + F / M`, so the centre moves
  *   `x(t) = (F / M ω²)(cosh ωt - 1)` along the pull and its extrapolated centre

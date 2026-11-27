@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { decomposeJointRotation } from "../kinematics/internal/decomposeJointRotation";
-import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
-import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
+import { decomposeJointRotationOnBasis } from "../kinematics/internal/decomposeJointRotationOnBasis";
+import { twoBoneChainArticulation } from "../kinematics/internal/twoBoneChainArticulation";
 import type { prepareChainFit } from "./internal/prepareChainFit";
 
 /**
@@ -34,7 +34,7 @@ export function solvePreparedChainPlant(
 
   const articulation: IAutoMovieTwoBoneArticulation | null =
     target === undefined
-      ? twoBoneChainArticulation({
+      ? twoBoneChainArticulation.run({
           upper,
           lower,
           end: props.prepared.end,
@@ -87,7 +87,7 @@ function angles(
         props.restFrames?.[bone],
         domain,
       )
-    : decomposeJointRotationOnBasis(
+    : decomposeJointRotationOnBasis.run(
         rotation,
         rig.jointBasis(bone, "decomposeJointRotation axes"),
         props.restFrames?.[bone],

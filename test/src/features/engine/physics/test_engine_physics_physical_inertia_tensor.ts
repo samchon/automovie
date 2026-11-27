@@ -1,4 +1,4 @@
-import { physicalInertiaTensor } from "@automovie/engine";
+import { AutoMoviePhysicalInertiaTensor } from "@automovie/engine";
 import type { IAutoMovieCombinePhysicalMassProperties } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,8 +31,8 @@ export function test_engine_physics_physical_inertia_tensor(): void {
     inertiaRotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   const parts: IAutoMovieCombinePhysicalMassProperties.IPart[] = [part];
-  const read: ReturnType<typeof physicalInertiaTensor.prepare> =
-    physicalInertiaTensor.prepare();
+  const read: ReturnType<typeof AutoMoviePhysicalInertiaTensor.prepare> =
+    AutoMoviePhysicalInertiaTensor.prepare();
   const origin: { x: number; y: number; z: number } = { x: 0, y: 0, z: 0 };
   const first: number[][] = read(parts, origin);
   tensor("initial physical tensor", first, [
@@ -140,8 +140,8 @@ export function test_engine_physics_physical_inertia_tensor(): void {
       z: 4,
     },
   };
-  const captured: ReturnType<typeof physicalInertiaTensor.prepare> =
-    physicalInertiaTensor.prepare();
+  const captured: ReturnType<typeof AutoMoviePhysicalInertiaTensor.prepare> =
+    AutoMoviePhysicalInertiaTensor.prepare();
   const earlier: number[][] = captured([capturedPart], origin);
   tensor(
     "first captured positive moment drives the actual first tensor",

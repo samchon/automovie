@@ -1,17 +1,5 @@
-import {
-  Quaternion,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanSignature,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -278,7 +266,7 @@ export namespace AutoMovieMotionHumanSignature {
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
   ): IAutoMovieVector3 {
-    return resolveAutoMovieCenterOfMass.place(
+    return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
       reader.body.massModel,
       bones(reader, seconds),
     );
@@ -454,7 +442,7 @@ export namespace AutoMovieMotionHumanSignature {
       frame.bone,
     );
     if (bone === undefined) throw new Error(`No ${frame.bone}`);
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bone).point;
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(frame, bone).point;
   }
 
   /**

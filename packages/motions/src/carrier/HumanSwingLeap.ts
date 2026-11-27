@@ -2,7 +2,7 @@ import {
   AutoMovieGravity,
   Quaternion,
   Vector3,
-  minimumJerk,
+  AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -210,7 +210,7 @@ export function HumanSwingLeap(
     physicalWindow: null,
     posture: (at: number): Posture => {
       const t: number = Math.max(0, Math.min(duration, at));
-      const unfold: number = flight > 0 ? minimumJerk.share(t / flight) : 1;
+      const unfold: number = flight > 0 ? AutoMovieEngineMotionSampling.minimumJerkShare(t / flight) : 1;
       const joints: Posture["joints"] = fold(1 - unfold);
       // The arms open out for the landing, clear of the thighs the knees
       // bring forward as they give.
@@ -221,7 +221,7 @@ export function HumanSwingLeap(
         joints[`${side}UpperArm`] = [arm[0], arm[1] + OPEN * unfold, arm[2]];
       }
       // Settling, the pelvis rises to standing over the feet.
-      const settled: number = minimumJerk.share((t - flight) / SETTLE);
+      const settled: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - flight) / SETTLE);
       const hips: IAutoMovieVector3 =
         t <= flight
           ? flown(t)

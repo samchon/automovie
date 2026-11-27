@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { binary64SumProductsSign } from "../../math/internal/binary64SumProductsSign";
-import { projectileDragFlight } from "../projectileDragFlight";
+import { ProjectileDragFlightImplementation } from "./ProjectileDragFlightImplementation";
 
 /**
  * Find a clear witness only across certified outward Hermite intervals.
@@ -25,7 +25,7 @@ export function projectileDragDeparture(
   contact: IAutoMovieResolveContactEvents.IInitialContact,
 ): IAutoMovieResolveContactEvents.Departure | undefined {
   const flight: IAutoMovieProjectileFlight =
-    projectile.flight ?? projectileDragFlight(projectile);
+    projectile.flight ?? ProjectileDragFlightImplementation.projectileDragFlight(projectile);
   let current: number = contact.from;
   while (current < contact.to) {
     const interval: IAutoMovieProjectileDragInterval = flight.interval(current);

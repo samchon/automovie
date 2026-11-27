@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -215,8 +215,8 @@ export namespace stepOver {
       t: number,
     ): IAutoMovieVector3 => {
       const s: number =
-        0.5 * minimumJerk.share((t - transfers[0]) / transfers[1]) +
-        0.5 * minimumJerk.share((t - transfers[2]) / transfers[3]);
+        0.5 * AutoMovieEngineMotionSampling.minimumJerkShare((t - transfers[0]) / transfers[1]) +
+        0.5 * AutoMovieEngineMotionSampling.minimumJerkShare((t - transfers[2]) / transfers[3]);
       return {
         x: startRoot.x + (endMid.x - startRoot.x) * s,
         y: startRoot.y + (endMid.y - startRoot.y) * s + hike * hiked(t),

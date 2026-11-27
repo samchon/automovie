@@ -4,7 +4,7 @@ import {
 } from "../core";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import type { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A rider's or a cue's named-gait requests on a timed path: over each
@@ -73,7 +73,7 @@ export namespace QuadrupedTimedCues {
         cue,
       });
     }
-    const legs: rideQuadruped.ILeg[] = [];
+    const legs: AutoMovieArchetypeQuadruped.IRideLeg[] = [];
     const spans: AutoMovieArchetypeCourse.IPlan["legSpans"][number][] = [];
     let at: number = 0;
     const add = (to: number, cue?: ICue): void => {

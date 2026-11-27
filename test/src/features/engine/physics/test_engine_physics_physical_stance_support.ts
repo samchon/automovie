@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalStanceBalance, physicalStanceSupport, physicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysicalStanceBalance, AutoMovieEnginePhysicalStanceSupport, AutoMovieEnginePhysicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalProfile,
@@ -23,12 +23,12 @@ const [WIDTH, LENGTH, HEIGHT] = [0.05, 0.08, 0.02];
  *    corners, 20 mm up, are left out.
  * 2. The same sole rolled 10 degrees about its length bears on its low edge alone:
  *    the two corners there, the far edge 17 mm up left out.
- * 3. The shared support polygon (`physicalStanceSupport.polygon`) is the flat face
+ * 3. The shared support polygon (`AutoMovieEnginePhysicalStanceSupport.polygon`) is the flat face
  *    shrunk by the margin, and a ray from its centre meets it the half-width
  *    less the margin away.
- * 4. A leg's effective swing mass (`physicalStanceSwing.swingMass`) is its first
+ * 4. A leg's effective swing mass (`AutoMovieEnginePhysicalStanceSwing.swingMass`) is its first
  *    moment about the hip over the endpoint's distance, within the leg's mass.
- * 5. `physicalStanceSupport.shrink` takes a 0.2 m square in by 0.02 m on every
+ * 5. `AutoMovieEnginePhysicalStanceSupport.shrink` takes a 0.2 m square in by 0.02 m on every
  *    side; `support` keeps a narrow foot's own three vertices, bears a lifted
  *    foot at its ankle and an unseated one on its edge, shrinks the feet's
  *    union by the margin from every hull edge, and keeps area for two
@@ -87,7 +87,7 @@ export function test_engine_physics_physical_stance_support(): void {
 
   // 3. The shared support polygon is that face shrunk by the margin, and its
   // ray from the centre along +x meets it WIDTH - MARGIN away.
-  const polygon: IAutoMovieVector3[] = physicalStanceSupport.polygon(
+  const polygon: IAutoMovieVector3[] = AutoMovieEnginePhysicalStanceSupport.polygon(
     profile,
     {
       [bone]: {
@@ -102,21 +102,21 @@ export function test_engine_physics_physical_stance_support(): void {
     polygon.length !== 4 ||
     !polygon.every(
       (p) =>
-        Math.abs(Math.abs(p.x) - (WIDTH - physicalStanceBalance.MARGIN)) <
+        Math.abs(Math.abs(p.x) - (WIDTH - AutoMovieEnginePhysicalStanceBalance.MARGIN)) <
           PhysicalTolerance.ACCUMULATED &&
-        Math.abs(Math.abs(p.z) - (LENGTH - physicalStanceBalance.MARGIN)) <
+        Math.abs(Math.abs(p.z) - (LENGTH - AutoMovieEnginePhysicalStanceBalance.MARGIN)) <
           PhysicalTolerance.ACCUMULATED,
     )
   )
     failures.push(`the shared polygon is ${JSON.stringify(polygon)}`);
-  const ray: number = physicalStanceSwing.reach(
+  const ray: number = AutoMovieEnginePhysicalStanceSwing.reach(
     polygon,
     { x: 0, y: 0, z: 0 },
     { x: 1, y: 0, z: 0 },
   );
   if (
     !(
-      Math.abs(ray - (WIDTH - physicalStanceBalance.MARGIN)) <
+      Math.abs(ray - (WIDTH - AutoMovieEnginePhysicalStanceBalance.MARGIN)) <
       PhysicalTolerance.ACCUMULATED
     )
   )
@@ -151,7 +151,7 @@ export function test_engine_physics_physical_stance_support(): void {
     moment += segment.mass * Vector3.length(Vector3.subtract(center, hip));
     mass += segment.mass;
   }
-  const effective: number = physicalStanceSwing.swingMass(
+  const effective: number = AutoMovieEnginePhysicalStanceSwing.swingMass(
     base,
     // The neutral pose as the rigid poses the swing reads.
     new Map(
@@ -207,7 +207,7 @@ export function test_engine_physics_physical_stance_support(): void {
     { x: 0.1, y: 0, z: 0.1 },
     { x: -0.1, y: 0, z: 0.1 },
   ];
-  const shrunk: IAutoMovieVector3[] = physicalStanceSupport.shrink(
+  const shrunk: IAutoMovieVector3[] = AutoMovieEnginePhysicalStanceSupport.shrink(
     square,
     0.02,
   );
@@ -221,7 +221,7 @@ export function test_engine_physics_physical_stance_support(): void {
     { x: 0.13, y: 0, z: 0.15 },
     { x: 0.07, y: 0, z: 0.15 },
   ];
-  const borne = physicalStanceSupport.support([
+  const borne = AutoMovieEnginePhysicalStanceSupport.support([
     {
       limb: "left",
       outline: narrow,
@@ -263,14 +263,14 @@ export function test_engine_physics_physical_stance_support(): void {
       if (
         !(
           Math.abs(depth) >=
-          physicalStanceBalance.MARGIN - PhysicalTolerance.ACCUMULATED
+          AutoMovieEnginePhysicalStanceBalance.MARGIN - PhysicalTolerance.ACCUMULATED
         )
       )
         failures.push(
           `command vertex ${JSON.stringify(vertex)} inside the margin`,
         );
     });
-  const edged = physicalStanceSupport.support([
+  const edged = AutoMovieEnginePhysicalStanceSupport.support([
     {
       limb: "edge",
       outline: square,
@@ -284,7 +284,7 @@ export function test_engine_physics_physical_stance_support(): void {
   ]);
   near("edge-borne points", edged.feet[0]!.points.length, 2);
   near("edge-borne x", edged.feet[0]!.points[0]!.x, 0.1);
-  const two = physicalStanceSupport.support([
+  const two = AutoMovieEnginePhysicalStanceSupport.support([
     {
       limb: "toe",
       outline: square,
@@ -308,7 +308,7 @@ export function test_engine_physics_physical_stance_support(): void {
   ]);
   if (!(two.polygon.length >= 3))
     failures.push(`two edge-borne feet give ${two.polygon.length} vertices`);
-  const stepping = physicalStanceSupport.support([
+  const stepping = AutoMovieEnginePhysicalStanceSupport.support([
     {
       limb: "landed",
       outline: [
@@ -336,15 +336,15 @@ export function test_engine_physics_physical_stance_support(): void {
     !(Math.max(...zs) > 0.5 && Math.min(...zs) < 0.2)
   )
     failures.push("a seated tripod and a rear edge do not span both feet");
-  const shortened = physicalStanceSupport.shorten(
+  const shortened = AutoMovieEnginePhysicalStanceSupport.shorten(
     [
       { x: 0, y: 0, z: 0 },
       { x: 0.2, y: 0, z: 0 },
     ],
-    physicalStanceBalance.MARGIN,
+    AutoMovieEnginePhysicalStanceBalance.MARGIN,
   );
-  near("shortened start", shortened[0]!.x, physicalStanceBalance.MARGIN);
-  near("shortened end", shortened[1]!.x, 0.2 - physicalStanceBalance.MARGIN);
+  near("shortened start", shortened[0]!.x, AutoMovieEnginePhysicalStanceBalance.MARGIN);
+  near("shortened end", shortened[1]!.x, 0.2 - AutoMovieEnginePhysicalStanceBalance.MARGIN);
   near("shortened across", shortened[0]!.z, 0);
   TestValidator.equals("support footprint bearing face", failures, []);
 }

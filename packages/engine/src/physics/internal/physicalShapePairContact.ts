@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicsPairDistanceTypes } from "../AutoMovieEnginePhysicsPairDistanceTypes";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
@@ -10,7 +11,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { physicalShapeNearest } from "./physicalShapeNearest";
-import { physicalShapePairDistance } from "../physicalShapePairDistance";
+import { physicalShapePairDistanceWires } from "./physicalShapePairDistanceWires";
 import { physicalShapePenetration } from "./physicalShapePenetration";
 
 /**
@@ -20,7 +21,7 @@ import { physicalShapePenetration } from "./physicalShapePenetration";
  * Two convex solids come nearest on a vertex or an edge of one of them, or on
  * the axis of a round one (Ericson, "Real-Time Collision Detection", 2005, ch.
  * 5 and 9), so the contact is the least, over both shapes' wire frames
- * (`physicalShapePairDistance.wires`), of the wire's signed distance to the
+ * (`physicalShapePairDistanceWires`), of the wire's signed distance to the
  * other solid (`physicalShapeNearest`) less the wire's radius. The witness on
  * the other solid is its nearest surface point; the witness on the wire's own
  * shape lies one radius from the wire toward it. Overlapping, a wire whose core
@@ -55,8 +56,8 @@ export function physicalShapePairContact(
       pose.rotation,
       shape.transform.rotation,
     );
-    const frame: physicalShapePairDistance.IWires =
-      physicalShapePairDistance.wires(shape);
+    const frame: AutoMovieEnginePhysicsPairDistanceTypes.IWires =
+      physicalShapePairDistanceWires(shape);
     for (const [a, b] of frame.segments) {
       const from: IAutoMovieVector3 = Vector3.add(
         centre,

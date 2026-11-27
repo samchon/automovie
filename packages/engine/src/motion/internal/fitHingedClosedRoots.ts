@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { decomposeJointRotationOnBasis } from "../../kinematics/decomposeJointRotationOnBasis";
+import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decomposeJointRotationOnBasis";
 import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
 import { swivelArcs } from "../../kinematics/swivelArcs";
 import { swivelJointReadings } from "../../kinematics/swivelJointReadings";
@@ -157,7 +157,7 @@ export function fitHingedClosedRoots(
       at.lower,
     );
     if (scored === null || scored.overshoot !== 0) return;
-    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+    const read: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis.run(
       local(scored.above, at.lower),
       basis,
       frame,

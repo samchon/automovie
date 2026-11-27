@@ -13,8 +13,8 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { appendGraphCycles } from "../../validation/appendGraphCycles";
-import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
+import { appendGraphCycles } from "../../validation/internal/appendGraphCycles";
+import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 import { validateDesignLineageDerived } from "./validateDesignLineageDerived";

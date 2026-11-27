@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -131,8 +131,8 @@ export function prepareSitLowering(
     back: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanPosture => {
-    const turned: number = minimumJerk.share(t / across);
-    const lowered: number = minimumJerk.share((t - down) / downDuration);
+    const turned: number = AutoMovieEngineMotionSampling.minimumJerkShare(t / across);
+    const lowered: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - down) / downDuration);
     const socket: IAutoMovieVector3 = {
       x: start.x + delta.x * back,
       y: start.y + delta.y * lowered,
@@ -141,10 +141,10 @@ export function prepareSitLowering(
 
     // The trunk flexes to its peak and holds it until the seat takes the
     // weight, then settles into the seated back (Kralj, Jaeger and Munih 1990).
-    const settle: number = minimumJerk.share((t - contact) / settleDuration);
+    const settle: number = AutoMovieEngineMotionSampling.minimumJerkShare((t - contact) / settleDuration);
     const pitch: number =
       t < contact
-        ? peak * minimumJerk.share(t / flexed)
+        ? peak * AutoMovieEngineMotionSampling.minimumJerkShare(t / flexed)
         : peak + (final.pitch - peak) * settle;
     const yaw: number = props.yaw + props.turn * turned;
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...props.joints };

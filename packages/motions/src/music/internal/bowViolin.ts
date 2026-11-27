@@ -167,7 +167,7 @@ function planStroke(
       value: params.bow,
       reason:
         "the bow's hair endpoints must be distinct with a transverse frog normal",
-      fix: "hold a bow with hairFrog and hairTip as in createViolinBow",
+      fix: "hold a bow with hairFrog and hairTip as in AutoMovieArchetypeInstrument.createViolinBow",
     });
   const rotation: IAutoMovieQuaternion = HumanHand.align(
     { normal: hair, forward: frog.direction },

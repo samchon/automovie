@@ -1,4 +1,4 @@
-import { physicalHullFaces as H, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalHullFaces as H, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -55,7 +55,7 @@ export function test_engine_physics_physical_hull_mass(): void {
           vclose(source[i]!, original[i]!, 0),
       ),
   );
-  const hull: H.IHull = H(reflected);
+  const hull: H.IHull = H.build(reflected);
   TestValidator.predicate(
     "reflected cuboid has its analytic topology and radii",
     hull.faces.length === 6 &&
@@ -120,7 +120,7 @@ export function test_engine_physics_physical_hull_mass(): void {
   );
 
   for (const point of another) point.x *= 2;
-  const edited: H.IHull = H(another);
+  const edited: H.IHull = H.build(another);
   TestValidator.predicate(
     "changed issued coordinates receive their actual new hull",
     edited.faces.length === 6 &&
@@ -181,7 +181,7 @@ export function test_engine_physics_physical_hull_mass(): void {
   ]);
   TestValidator.equals(
     "reflected flat points gain no fictitious face",
-    H(flat).faces,
+    H.build(flat).faces,
     [],
   );
   TestValidator.predicate(

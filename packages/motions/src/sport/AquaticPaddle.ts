@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
@@ -115,8 +115,8 @@ export namespace AquaticPaddle {
         const u: number = total - cycle;
         const drive: number =
           u <= extraction
-            ? minimumJerk.share(u / extraction)
-            : 1 - minimumJerk.share((u - extraction) / (1 - extraction));
+            ? AutoMovieEngineMotionSampling.minimumJerkShare(u / extraction)
+            : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((u - extraction) / (1 - extraction));
         const airborne: number =
           u <= extraction
             ? 0

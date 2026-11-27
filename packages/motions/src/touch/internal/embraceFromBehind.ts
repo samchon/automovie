@@ -1,36 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-  swivelArcs,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionClock,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmTarget,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanEmbraceFromBehind,
-  IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPerformerReader,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
-  IAutoMovieMotionHumanRise,
-  IAutoMovieMotionHumanStrikingBody,
-  IAutoMovieMotionManner,
-  IAutoMovieResolvedBone,
-  IAutoMovieSwivelArcs,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics, swivelArcs } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieHumanLimbGoal, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanEmbraceFromBehind, IAutoMovieMotionHumanFrame, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanStrikingBody, IAutoMovieMotionManner, IAutoMovieResolvedBone, IAutoMovieSwivelArcs, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmPhrase } from "../../compose/AutoMovieMotionHumanArmPhrase";
@@ -236,7 +205,7 @@ function planEmbraceFromBehind(
           Quaternion.rotateVector(
             inverse,
             Vector3.subtract(
-              resolveAutoMovieHumanoidSurfaces.point(tip, flat.get(tip.bone)!),
+              AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(tip, flat.get(tip.bone)!),
               hand.worldPosition,
             ),
           ),

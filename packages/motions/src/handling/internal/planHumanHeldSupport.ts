@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapePairDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -262,14 +262,14 @@ export function planHumanHeldSupport(
       const separation: number = Math.min(
         ...support.flatMap((a: heldSupportGrip.IMaterial): number[] =>
           holding.map((b: heldSupportGrip.IMaterial): number =>
-            physicalShapePairDistance(a.pose, a.shape, b.pose, b.shape),
+            AutoMovieEnginePhysics.physicalShapePairDistance(a.pose, a.shape, b.pose, b.shape),
           ),
         ),
       );
       const toolGap: number = Math.min(
         ...support.flatMap((a: heldSupportGrip.IMaterial): number[] =>
           used.colliders.map((b): number =>
-            physicalShapePairDistance(a.pose, a.shape, b.frame, b.shape),
+            AutoMovieEnginePhysics.physicalShapePairDistance(a.pose, a.shape, b.frame, b.shape),
           ),
         ),
       );

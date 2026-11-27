@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -135,7 +135,7 @@ export namespace hostageHold {
     ): IAutoMovieVector3 =>
       Vector3.scale(
         travel,
-        minimumJerk.share(Math.min(1, Math.max(0, (t - placed) / seconds))),
+        AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, (t - placed) / seconds))),
       );
     const hip: number = context.body.measure.hipHeight;
     const knee: (ankle: IAutoMovieVector3) => IAutoMovieVector3 = (

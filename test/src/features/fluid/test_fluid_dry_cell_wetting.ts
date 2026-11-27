@@ -1,4 +1,6 @@
-import { simulateFluidDomain } from "@automovie/engine";
+import {
+  AutoMovieEngineFluid,
+} from "@automovie/engine";
 import type {
   IAutoMovieFluidDomain,
   IAutoMovieFluidState,
@@ -71,8 +73,8 @@ export function test_fluid_dry_cell_wetting(): void {
   });
   const authored: number = 0.5 * 0.25;
   const states: IAutoMovieFluidState[] = [1, 20, 120, 600].map(
-    (step: number): ReturnType<typeof simulateFluidDomain> =>
-      simulateFluidDomain(spreading, step),
+    (step: number): ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> =>
+      AutoMovieEngineFluid.simulateFluidDomain(spreading, step),
   );
   const settled: IAutoMovieFluidState = states[states.length - 1];
   TestValidator.predicate(
@@ -90,7 +92,7 @@ export function test_fluid_dry_cell_wetting(): void {
     ),
   );
 
-  const stepped: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const stepped: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     strand({ bed: [0, 0, 2, 2], depth: [0.5, 0.5, 0, 0] }),
     600,
   );
@@ -111,7 +113,7 @@ export function test_fluid_dry_cell_wetting(): void {
     nclose(stepped.volume, 0.25, 1e-12),
   );
 
-  const filmed: ReturnType<typeof simulateFluidDomain> = simulateFluidDomain(
+  const filmed: ReturnType<typeof AutoMovieEngineFluid.simulateFluidDomain> = AutoMovieEngineFluid.simulateFluidDomain(
     strand({ bed: [0, 0, 0, 0], depth: [0.5, 0.05, 0, 0], dryDepth: 0.1 }),
     1,
   );

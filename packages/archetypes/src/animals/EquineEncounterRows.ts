@@ -1,4 +1,7 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -142,7 +145,7 @@ export namespace EquineEncounterRows {
         { label: `${cue.kind}On`, entry: true, time: 1 },
       ],
       goal: (share: number): EquineBodyPose.IGoal => {
-        const s: number = minimumJerk.share(Math.max(0, Math.min(1, share)));
+        const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, Math.min(1, share)));
         const limbs: Record<
           AutoMovieArchetypeQuadrupedBody.Limb,
           EquineBodyPose.Limb

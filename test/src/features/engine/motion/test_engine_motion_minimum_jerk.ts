@@ -1,4 +1,4 @@
-import { minimumJerk, superposeMinimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type {
   IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
@@ -42,17 +42,17 @@ export function test_engine_motion_minimum_jerk(): void {
       const u: number = Math.max(0, Math.min(1, t));
       return (
         nclose(
-          minimumJerk.share(t),
+          AutoMovieEngineMotionSampling.minimumJerkShare(t),
           u ** 3 * (10 - 15 * u + 6 * u * u),
           ROUNDING,
-        ) && nclose(minimumJerk.rate(t), 30 * u * u * (1 - u) ** 2, ROUNDING)
+        ) && nclose(AutoMovieEngineMotionSampling.minimumJerkRate(t), 30 * u * u * (1 - u) ** 2, ROUNDING)
       );
     }),
   );
 
   // 2. No unit.
   const origin: IAutoMovieVector3 = { x: 3, y: 2, z: 1 };
-  const empty: IAutoMovieVector3 = superposeMinimumJerk.position(origin, [], 0);
+  const empty: IAutoMovieVector3 = AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition(origin, [], 0);
   TestValidator.predicate(
     "no unit leaves the origin",
     empty !== origin && empty.x === 3 && empty.y === 2 && empty.z === 1,
@@ -64,7 +64,7 @@ export function test_engine_motion_minimum_jerk(): void {
     { start: 1, duration: 1, displacement: { x: 0, y: -1, z: 0 } },
   ];
   const at = (t: number): IAutoMovieSuperposeMinimumJerk.IState =>
-    superposeMinimumJerk(origin, units, t);
+    AutoMovieEngineMotionTrajectory.superposeMinimumJerk(origin, units, t);
   TestValidator.predicate(
     "two units in turn",
     nclose(at(0.5).position.x, 4, ROUNDING) &&
@@ -80,7 +80,7 @@ export function test_engine_motion_minimum_jerk(): void {
     units[0]!,
     { ...units[1]!, start: 0.25 },
   ];
-  const point: IAutoMovieVector3 = superposeMinimumJerk.position(
+  const point: IAutoMovieVector3 = AutoMovieEngineMotionTrajectory.superposeMinimumJerkPosition(
     origin,
     overlapping,
     0.5,
@@ -91,9 +91,9 @@ export function test_engine_motion_minimum_jerk(): void {
       nclose(point.y, 2 - 53 / 512, ROUNDING) &&
       [0.25, 1, 1.25].every((seam: number): boolean => {
         const left: IAutoMovieSuperposeMinimumJerk.IState =
-          superposeMinimumJerk(origin, overlapping, seam - H);
+          AutoMovieEngineMotionTrajectory.superposeMinimumJerk(origin, overlapping, seam - H);
         const right: IAutoMovieSuperposeMinimumJerk.IState =
-          superposeMinimumJerk(origin, overlapping, seam + H);
+          AutoMovieEngineMotionTrajectory.superposeMinimumJerk(origin, overlapping, seam + H);
         return (["x", "y"] satisfies (keyof IAutoMovieVector3)[]).every(
           (axis: keyof IAutoMovieVector3): boolean =>
             Math.abs(left.position[axis] - right.position[axis]) <= 2 * H * 4 &&
@@ -110,7 +110,7 @@ export function test_engine_motion_minimum_jerk(): void {
     "a unit of no duration is refused",
     throwsError(
       (): IAutoMovieSuperposeMinimumJerk.IState =>
-        superposeMinimumJerk(origin, [{ ...units[1]!, duration: 0 }], 1),
+        AutoMovieEngineMotionTrajectory.superposeMinimumJerk(origin, [{ ...units[1]!, duration: 0 }], 1),
     ),
   );
 }

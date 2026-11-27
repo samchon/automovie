@@ -19,6 +19,10 @@ import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
  * first-iteration damping of the preceding Clarabel configuration. Twofold sums
  * retain cancellation in the scalar Schur equation and direction
  * reconstruction. Expanding P*(xi-ci)^2-P*ci^2 removes cancelling ci squares.
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/kktsystem.rs}
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/variables.rs}
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/cones/nonnegativecone.rs}
+ * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
  */
 export function solveAutoMovieQuadraticStep(
   data: IAutoMovieQuadraticConicProgram,

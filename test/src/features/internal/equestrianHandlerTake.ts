@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeEquine, AutoMovieArchetypeEquineCare, AutoMovieArchetypeEquineExpression, type AutoMovieArchetypeEquineExpressionCue, AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypeEquineStance, type AutoMovieArchetypeRide, rideHorse, AutoMovieArchetypeHalter, AutoMovieArchetypeGroomingBrush, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeEquine, AutoMovieArchetypeEquineCare, AutoMovieArchetypeEquineExpression, type AutoMovieArchetypeEquineExpressionCue, AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypeEquineStance, type AutoMovieArchetypeRide, AutoMovieArchetypeHorseRide, AutoMovieArchetypeHalter, AutoMovieArchetypeGroomingBrush, AutoMovieArchetypeHorse } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -154,7 +154,7 @@ export namespace equestrianHandlerTake {
       );
     // The handler leads the horse in on a straight approach; its progress is matched to the handler's walk in the lead-in.
     const approach = (course: equineLeadOut.IMatchedCourse): Ride =>
-      rideHorse(
+      AutoMovieArchetypeHorseRide.ride(
         horse,
         {
           start: { x: 0, z: 0, heading: 0 },

@@ -1,20 +1,5 @@
-import {
-  Vector3,
-  clampPose,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanStrikingRecord,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanStrikingRecord, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { StrikingLimb } from "./StrikingLimb";
@@ -388,7 +373,7 @@ export namespace StrikingVerdicts {
           c.part === "leftFoot" ? "ballLeft" : "ballRight"
         ];
       const ball = (t: number): IAutoMovieVector3 =>
-        resolveAutoMovieHumanoidSurfaces.place(
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
           frame,
           strike.performance.bones(strike.id, t).get(frame.bone)!,
         ).point;
@@ -422,7 +407,7 @@ export namespace StrikingVerdicts {
     let where: string = "";
     for (let t: number = g.entryTime; t <= g.end + 1e-9; t += 1 / 48) {
       const pose: IAutoMoviePose = strike.performance.pose(strike.id, t);
-      const clamped: IAutoMoviePose = clampPose(pose, strike.body.skeleton);
+      const clamped: IAutoMoviePose = AutoMovieEngineKinematics.clampPose(pose, strike.body.skeleton);
       for (const j of pose.joints) {
         const c: IAutoMoviePose["joints"][number] = clamped.joints.find(
           (x: IAutoMoviePose["joints"][number]): boolean => x.bone === j.bone,

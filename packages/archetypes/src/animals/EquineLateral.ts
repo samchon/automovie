@@ -1,4 +1,6 @@
-import { minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -10,7 +12,7 @@ import {
 } from "../core";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /** Degrees per radian. */
 const DEGREE: number = 180 / Math.PI;
@@ -133,7 +135,7 @@ export namespace EquineLateral {
   export function admit(
     archetype: string,
     index: number,
-    leg: rideQuadruped.ILeg,
+    leg: AutoMovieArchetypeQuadruped.IRideLeg,
     technique: Technique,
     plan: AutoMovieArchetypeCourse.IPlan,
     hooves: Readonly<
@@ -320,7 +322,7 @@ export namespace EquineLateral {
    * leg's ends, one between its ramps.
    */
   function entered(window: IWindow, seconds: number): number {
-    return minimumJerk(
+    return AutoMovieEngineMotionSampling.minimumJerk(
       Math.min(
         1,
         (seconds - window.from) / window.blend,

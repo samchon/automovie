@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -291,11 +291,11 @@ export namespace HumanTravelCarExit {
             return ducked(up.posture(elapsed), duckDegrees * held);
           }
           const u: number = time / prepare;
-          const share: number = minimumJerk.share(u);
+          const share: number = AutoMovieEngineMotionSampling.minimumJerkShare(u);
           const heading: number = entry.posture.yaw + turn * share;
           const rock: number =
-            minimumJerk.share(u / firstSill) *
-            minimumJerk.share((1 - u) / (1 - lastSill));
+            AutoMovieEngineMotionSampling.minimumJerkShare(u / firstSill) *
+            AutoMovieEngineMotionSampling.minimumJerkShare((1 - u) / (1 - lastSill));
           const pitch: number =
             entry.posture.pitch + (leaned - entry.posture.pitch) * rock;
           const root: IAutoMovieVector3 = seated.root(
@@ -334,7 +334,7 @@ export namespace HumanTravelCarExit {
               continue;
             }
 
-            const flight: number = minimumJerk.share(phase);
+            const flight: number = AutoMovieEngineMotionSampling.minimumJerkShare(phase);
             limbs[part] = {
               point: carExitAnkleAt(
                 initial.ankle,
@@ -355,7 +355,7 @@ export namespace HumanTravelCarExit {
           }
           return ducked(
             { ...entry.posture, root, yaw: heading, pitch, limbs },
-            duckDegrees * minimumJerk.share(u / lastSill),
+            duckDegrees * AutoMovieEngineMotionSampling.minimumJerkShare(u / lastSill),
           );
         };
 

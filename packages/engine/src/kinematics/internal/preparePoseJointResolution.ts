@@ -7,8 +7,8 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { toRigAngle } from "../../rom/toRigAngle";
-import { jointToQuaternionOnBasis } from "../jointToQuaternionOnBasis";
+import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
+import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import type { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 
@@ -457,7 +457,7 @@ export namespace preparePoseJointResolution {
     /** The affine prechecks, one reader per axis. */
     prechecks: Record<
       "flexion" | "abduction" | "twist",
-      ReturnType<typeof toRigAngle.prepare>
+      ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle>
     >;
   }
 
@@ -480,9 +480,9 @@ export namespace preparePoseJointResolution {
         REST_ANGLES,
       ),
       prechecks: {
-        flexion: toRigAngle.prepare(),
-        abduction: toRigAngle.prepare(),
-        twist: toRigAngle.prepare(),
+        flexion: AutoMovieEngineRigAngle.prepareToRigAngle(),
+        abduction: AutoMovieEngineRigAngle.prepareToRigAngle(),
+        twist: AutoMovieEngineRigAngle.prepareToRigAngle(),
       },
     };
   }

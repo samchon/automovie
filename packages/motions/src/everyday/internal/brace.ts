@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -233,7 +233,7 @@ export namespace brace {
       const ankle: IAutoMovieVector3 = Vector3.lerp(
         feet[side],
         placed,
-        minimumJerk.share(u),
+        AutoMovieEngineMotionSampling.minimumJerkShare(u),
       );
       return {
         ankle: { ...ankle, y: ankle.y + LIFT * Math.sin(Math.PI * u) },

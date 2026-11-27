@@ -1,15 +1,6 @@
-import { Quaternion, Vector3, minimumJerk, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanWorkout,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanWorkout, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFoot } from "../../posture/HumanFoot";
@@ -99,7 +90,7 @@ export function workoutWallSit(
     measure(held, face);
   if (bearing === undefined || Math.abs(bearing.clearance) > 1e-5)
     throw refusal(on.affordance, "the held back misses the wall");
-  const center: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+  const center: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
     context.body.massModel,
     shown,
   );
@@ -160,10 +151,10 @@ export function workoutWallSit(
     ): IAutoMovieMotionHumanPosture => {
       const time: number = args[0];
       const envelope: number =
-        minimumJerk.share(ready > 0 ? time / ready : 1) *
+        AutoMovieEngineMotionSampling.minimumJerkShare(ready > 0 ? time / ready : 1) *
         (release >= duration
           ? 1
-          : 1 - minimumJerk.share((time - release) / (duration - release)));
+          : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((time - release) / (duration - release)));
       return fit(plan.posture(...args), envelope);
     },
   };

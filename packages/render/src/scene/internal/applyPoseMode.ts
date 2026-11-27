@@ -5,9 +5,9 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { POSE_OVERLAY_NAME } from "../POSE_OVERLAY_NAME.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
+import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
-import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Hide meshes and draw actual bone-to-child-bone segments over black.

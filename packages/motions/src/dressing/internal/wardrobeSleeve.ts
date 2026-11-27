@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -123,7 +123,7 @@ export function wardrobeSleeve(
   // Invert the monotonic timing curve at the actual axial distance to the opening.
   for (let step: number = 0; step < 14; ++step) {
     const middle: number = (earlier + later) / 2;
-    if (minimumJerk.share(middle) < crossing) earlier = middle;
+    if (AutoMovieEngineMotionSampling.minimumJerkShare(middle) < crossing) earlier = middle;
     else later = middle;
   }
   return {

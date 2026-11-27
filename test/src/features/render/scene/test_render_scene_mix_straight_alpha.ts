@@ -1,8 +1,8 @@
-import { mixAutoMovieStraightAlpha } from "@automovie/render";
+import { AutoMovieTransitionDisplays } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `mixAutoMovieStraightAlpha` mixes associated (premultiplied) colour and alpha
+ * `AutoMovieTransitionDisplays.mixStraightAlpha` mixes associated (premultiplied) colour and alpha
  * at one weight and returns straight colour (Porter and Duff 1984).
  *
  * Scenarios:
@@ -18,20 +18,32 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_scene_mix_straight_alpha(): void {
   TestValidator.equals(
     "two opaque pixels",
-    mixAutoMovieStraightAlpha([255, 0, 0, 255], [0, 0, 255, 255], 0.5),
+    AutoMovieTransitionDisplays.mixStraightAlpha(
+      [255, 0, 0, 255],
+      [0, 0, 255, 255],
+      0.5,
+    ),
     [128, 0, 128, 255],
   );
   TestValidator.equals(
     "over a transparent pixel",
-    mixAutoMovieStraightAlpha([255, 255, 255, 255], [0, 0, 0, 0], 0.5),
+    AutoMovieTransitionDisplays.mixStraightAlpha(
+      [255, 255, 255, 255],
+      [0, 0, 0, 0],
+      0.5,
+    ),
     [255, 255, 255, 128],
   );
   TestValidator.equals(
     "a fade",
-    mixAutoMovieStraightAlpha([40, 80, 120, 200], null, 0.75),
+    AutoMovieTransitionDisplays.mixStraightAlpha(
+      [40, 80, 120, 200],
+      null,
+      0.75,
+    ),
     [40, 80, 120, 50],
   );
   TestValidator.error("a weight past one", (): unknown =>
-    mixAutoMovieStraightAlpha([0, 0, 0, 255], null, 1.5),
+    AutoMovieTransitionDisplays.mixStraightAlpha([0, 0, 0, 255], null, 1.5),
   );
 }

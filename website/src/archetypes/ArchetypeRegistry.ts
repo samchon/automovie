@@ -598,18 +598,18 @@ export namespace ArchetypeRegistry {
         ),
     },
     createHorse: {
-      expression: "rideQuadruped",
+      expression: "AutoMovieArchetypeHorseRide.ride",
       build: (model, course) =>
-        archetypes.rideQuadruped(
-          model as Parameters<typeof archetypes.rideQuadruped>[0],
+        archetypes.AutoMovieArchetypeHorseRide.ride(
+          model as Parameters<typeof archetypes.AutoMovieArchetypeHorseRide.ride>[0],
           course,
         ),
     },
     createPony: {
-      expression: "rideQuadruped",
+      expression: "AutoMovieArchetypeQuadruped.ride",
       build: (model, course) =>
-        archetypes.rideQuadruped(
-          model as Parameters<typeof archetypes.rideQuadruped>[0],
+        archetypes.AutoMovieArchetypeQuadruped.ride(
+          model as Parameters<typeof archetypes.AutoMovieArchetypeQuadruped.ride>[0],
           course,
         ),
     },

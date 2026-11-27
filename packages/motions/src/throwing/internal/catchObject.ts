@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -410,7 +410,7 @@ export namespace catchObject {
           });
         },
         weight: (seconds: number): number =>
-          minimumJerk.share(clock.linear("reach", "contact", seconds)),
+          AutoMovieEngineMotionSampling.minimumJerkShare(clock.linear("reach", "contact", seconds)),
       });
     };
 

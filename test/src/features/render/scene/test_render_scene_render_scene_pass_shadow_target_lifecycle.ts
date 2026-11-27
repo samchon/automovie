@@ -1,4 +1,4 @@
-import { type IAutoMovieScenePassRenderer, type IAutoMovieShadowTextureHost, renderAutoMovieScenePass, AutoMovieSceneShadow } from "@automovie/render";
+import { type IAutoMovieScenePassRenderer, type IAutoMovieShadowTextureHost, AutoMovieRenderScenePass, AutoMovieSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -139,7 +139,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
     AutoMovieSceneShadow.resetTargets(scene, renderer),
   );
   const refused: ReturnType<typeof caughtFailure> = caughtFailure((): void =>
-    renderAutoMovieScenePass(
+    AutoMovieRenderScenePass.render(
       renderer,
       scene,
       new THREE.Camera(),
@@ -176,7 +176,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
     ++draws;
     directional.shadow.map = new THREE.WebGLRenderTarget(4, 4);
   });
-  renderAutoMovieScenePass(
+  AutoMovieRenderScenePass.render(
     healthyRenderer,
     scene,
     new THREE.Camera(),
@@ -213,7 +213,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
   });
   let restoreFailure: unknown;
   try {
-    renderAutoMovieScenePass(
+    AutoMovieRenderScenePass.render(
       postRenderer,
       scene,
       new THREE.Camera(),
@@ -244,7 +244,7 @@ export function test_render_scene_render_scene_pass_shadow_target_lifecycle(): v
     [true, null],
   );
   const postRepeat: ReturnType<typeof caughtFailure> = caughtFailure((): void =>
-    renderAutoMovieScenePass(
+    AutoMovieRenderScenePass.render(
       postRenderer,
       empty,
       new THREE.Camera(),

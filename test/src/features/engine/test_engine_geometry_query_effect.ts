@@ -1,6 +1,6 @@
 import {
   AutoMovieEngineEffect,
-  measureAutoMovieGeometry,
+  AutoMovieEngineGeometryObservation,
 } from "@automovie/engine";
 import type {
   IAutoMovieCompiledEffect,
@@ -159,8 +159,8 @@ function measure(
   shot: IAutoMovieCompiledShotSource = storm(),
   production: typeof PRODUCTION | null = PRODUCTION,
 ): Record<string, number | string | boolean> {
-  const result: ReturnType<typeof measureAutoMovieGeometry> =
-    measureAutoMovieGeometry({
+  const result: ReturnType<typeof AutoMovieEngineGeometryObservation.measure> =
+    AutoMovieEngineGeometryObservation.measure({
       request: {
         query: "effect",
         zone: "haze",

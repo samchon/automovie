@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
 import { walkReach } from "../actions/internal/walkReach";
@@ -163,7 +163,7 @@ export namespace HumanLungePivot {
     if (local <= 0) return { heading: step.from };
     if (local >= 1) return { heading: step.to };
     return {
-      heading: step.from + (step.to - step.from) * minimumJerk.share(local),
+      heading: step.from + (step.to - step.from) * AutoMovieEngineMotionSampling.minimumJerkShare(local),
       swing: local,
     };
   }

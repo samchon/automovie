@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, minimumJerk } from "@automovie/engine";
+import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -165,7 +165,7 @@ export namespace balletJete {
         return Vector3.lerp(
           standing,
           crouched,
-          minimumJerk.share(t / (take - push)),
+          AutoMovieEngineMotionSampling.minimumJerkShare(t / (take - push)),
         );
       if (t <= take)
         return hermite(crouched, zero(), taken, velocity, take - push, take, t);
@@ -175,7 +175,7 @@ export namespace balletJete {
       return Vector3.lerp(
         absorbed,
         { ...absorbed, y: absorbed.y + sink },
-        minimumJerk.share((t - settled) / (end - settled)),
+        AutoMovieEngineMotionSampling.minimumJerkShare((t - settled) / (end - settled)),
       );
     };
 
@@ -200,7 +200,7 @@ export namespace balletJete {
       const u: number = (t - take) / (apex - take);
       if (t <= apex)
         return (
-          OPEN + (top - OPEN) * minimumJerk.share(Math.max(0, Math.min(1, u)))
+          OPEN + (top - OPEN) * AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, Math.min(1, u)))
         );
       // The leading leg reaches down to land; the other stays extended
       // behind at the split's half through the landing, as a grand jeté
@@ -210,7 +210,7 @@ export namespace balletJete {
       return front
         ? top +
             (LAND - top) *
-              minimumJerk.share(
+              AutoMovieEngineMotionSampling.minimumJerkShare(
                 Math.max(0, Math.min(1, (t - apex) / (land - apex))),
               )
         : top;
@@ -266,7 +266,7 @@ export namespace balletJete {
         stood(other).place,
         t <= take - push
           ? 0
-          : minimumJerk.share(Math.min(1, (t - (take - push)) / push)),
+          : AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, (t - (take - push)) / push)),
       );
     const stood: (
       side: AutoMovieHumanSide,

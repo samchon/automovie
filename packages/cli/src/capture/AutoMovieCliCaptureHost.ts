@@ -211,7 +211,7 @@ export class AutoMovieCliCaptureHost {
    *
    * A subject with a sound list is first handed its dialogue mouths: its lines
    * are read from the production root, admitted on the clock
-   * `autoMovieVideoFrameRate` gives its frame rate, and planned by
+   * `AutoMovieRenderVideo.frameRate` gives its frame rate, and planned by
    * `AutoMovieRenderAudio.planDialogueMouths`, as the delivery render plans
    * them, so a still shows the mouth the delivered frame at the same second
    * shows. A line the admission refuses fails the capture. The revision
@@ -256,7 +256,7 @@ export class AutoMovieCliCaptureHost {
       const { sound, fps, durationSeconds } = session.subject;
       if (sound !== undefined) {
         const [numerator, denominator]: readonly [number, number] =
-          render.autoMovieVideoFrameRate(fps);
+          render.AutoMovieRenderVideo.frameRate(fps);
         const frameRate: { numerator: number; denominator: number } = {
           numerator,
           denominator,

@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineMotionSampling,
+} from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -152,16 +156,16 @@ export namespace AutoMovieArchetypeEquineTie {
     ): IAutoMovieVector3 => {
       const winding: number = phase.wraps * phase.wrap;
       const carried = (share: number): IAutoMovieVector3 =>
-        Vector3.lerp(hanging(sample), top, minimumJerk.share(share));
+        Vector3.lerp(hanging(sample), top, AutoMovieEngineMotionSampling.minimumJerkShare(share));
       const local: number = seconds - phase.from;
       if (!untying)
         return local < phase.carry
           ? carried(local / phase.carry)
           : round(
-              phase.wraps * minimumJerk.share((local - phase.carry) / winding),
+              phase.wraps * AutoMovieEngineMotionSampling.minimumJerkShare((local - phase.carry) / winding),
             );
       return local < winding
-        ? round(phase.wraps * (1 - minimumJerk.share(local / winding)))
+        ? round(phase.wraps * (1 - AutoMovieEngineMotionSampling.minimumJerkShare(local / winding)))
         : carried(1 - (local - winding) / phase.carry);
     };
     const laid: AutoMovieArchetypeRide.IRide<Id, D> = EquineLine.layer(

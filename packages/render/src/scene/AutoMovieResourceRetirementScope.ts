@@ -1,4 +1,4 @@
-import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import { reportAutoMovieResourceRetirement } from "./internal/reportAutoMovieResourceRetirement.js";
 
 /**
  * Retain the actual pending and failed retirements of one resource owner.

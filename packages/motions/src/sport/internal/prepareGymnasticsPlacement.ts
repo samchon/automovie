@@ -1,13 +1,6 @@
-import { Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanDigitGoal,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanDigitGoal, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPosturePreparation } from "../../posture/HumanPosturePreparation";
 import { humanPostureHeading } from "../../posture/humanPostureHeading";
@@ -70,7 +63,7 @@ export function prepareGymnasticsPlacement(
   const requested: Set<AutoMovieHumanoidBone> = new Set();
   for (const segment of model.segments) requested.add(segment.bone);
   // The neutral canonical centre of mass, metres in the body's root frame.
-  const local: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+  const local: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
     model,
     HumanPosturePreparation.bones(prepared, requested),
   );

@@ -1,15 +1,6 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
@@ -77,8 +68,8 @@ export function prepareBendGoal(
           );
         bones = readRegion(resolved.pose, read());
       }
-      const skin: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-        resolveAutoMovieHumanoidSurfaces.place(region, bones.get(region.bone)!);
+      const skin: ReturnType<typeof AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace> =
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(region, bones.get(region.bone)!);
       point = skin.point;
       normal = Vector3.scale(skin.normal, -1);
       // The palm meets a carried surface from the shoulder's side. Its

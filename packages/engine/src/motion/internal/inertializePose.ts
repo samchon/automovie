@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { poseJointCodec } from "../../kinematics/poseJointCodec";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { Quaternion } from "../../math/Quaternion";
 import { inertializeOffset } from "./inertializeOffset";
 import { samplePoseVelocity as samplePoseVelocityImplementation } from "./samplePoseVelocity";
@@ -34,11 +34,11 @@ const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * `[flexion, abduction, twist]` is an Euler chart, and at the chart's gimbal
  * nearly equal rotations have far apart triples, whose per-angle blend swings
  * the bone through poses neither side holds. The blended rotation is lowered to
- * angles through the rig ({@link poseJointCodec}), in the chart its range of
+ * angles through the rig ({@link AutoMovieEngineKinematics.poseJointCodec}), in the chart its range of
  * motion admits best. A joint with no offset left returns the target's own
  * angles untouched.
  *
- * A hinge or a two-axis joint (`poseJointCodec.ICodec.ball` false) is blended
+ * A hinge or a two-axis joint (`IAutoMoviePoseJointCodec.ICodec.ball` false) is blended
  * per angle instead, each angle's offset decayed with its rate offset: the
  * rotations its angles span are a lower-dimensional set, and an offset rotation
  * applied to one of them leaves that set, which the lowering would answer with
@@ -77,16 +77,16 @@ export function inertializePose(
 ): (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose {
   const codec: IAutoMoviePoseJointCodec.ICodec =
     prepared === undefined
-      ? poseJointCodec(rig)
+      ? AutoMovieEngineKinematics.poseJointCodec(rig)
       : typeof prepared === "function"
         ? prepared()
         : prepared;
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
   const sa: Map<AutoMovieHumanoidBone, [number, number, number]> =
-    poseJointCodec.index(source.pose);
+    AutoMovieEngineKinematics.indexPoseJoints(source.pose);
   const ta: Map<AutoMovieHumanoidBone, [number, number, number]> =
-    poseJointCodec.index(target.pose);
+    AutoMovieEngineKinematics.indexPoseJoints(target.pose);
   const still: [number, number, number] = [0, 0, 0];
   const offsets: Map<
     AutoMovieHumanoidBone,
@@ -161,7 +161,7 @@ export function inertializePose(
   };
   return (elapsed: number, pose: IAutoMoviePose): IAutoMoviePose => {
     const now: Map<AutoMovieHumanoidBone, [number, number, number]> =
-      poseJointCodec.index(pose);
+      AutoMovieEngineKinematics.indexPoseJoints(pose);
     const joints: IAutoMovieJointPose[] = [];
     for (const bone of new Set([
       ...now.keys(),

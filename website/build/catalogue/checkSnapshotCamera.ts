@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapePairDistance,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSegment,
@@ -123,7 +123,7 @@ function checkGripAt(
         .filter((part) => part.bone.startsWith(side))
         .flatMap((part) =>
           part.shapes.map((shape) =>
-            physicalShapePairDistance(part.pose, shape, prop, target),
+            AutoMovieEnginePhysics.physicalShapePairDistance(part.pose, shape, prop, target),
           ),
         ),
     );

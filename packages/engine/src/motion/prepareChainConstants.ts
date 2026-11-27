@@ -52,7 +52,7 @@ export function prepareChainConstants(props: {
    * record's fit readers (`rig`) are built for them.
    */
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
-}): prepareChainConstants.IConstants | null {
+}): IAutoMoviePrepareChainConstants.IConstants | null {
   const { chain }: typeof props = props;
   let upper: IAutoMovieBone | undefined;
   let lower: IAutoMovieBone | undefined;
@@ -110,10 +110,4 @@ export function prepareChainConstants(props: {
       },
     ),
   };
-}
-
-/** The record of {@link prepareChainConstants}. */
-export namespace prepareChainConstants {
-  /** The interface contract (`IAutoMoviePrepareChainConstants.IConstants`). */
-  export type IConstants = IAutoMoviePrepareChainConstants.IConstants;
 }

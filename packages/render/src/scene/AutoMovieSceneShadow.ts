@@ -10,9 +10,26 @@ import { type IAutoMovieLight, type IAutoMovieRenderTextureTarget, type IAutoMov
 import { readAutoMovieShadowLightSource as readAutoMovieShadowLightSourceImplementation } from "./internal/readAutoMovieShadowLightSource.js";
 import { type IAutoMovieShadowTextureHost } from "./IAutoMovieShadowTextureHost.js";
 import { readAutoMovieShadowTextureTargets as readAutoMovieShadowTextureTargetsImplementation } from "./internal/readAutoMovieShadowTextureTargets.js";
+import { readAutoMovieCubeShadowDepth as readCubeDepthImplementation } from "./internal/readAutoMovieCubeShadowDepth.js";
+import { retireAutoMovieCubeShadowDepth as retireCubeDepthImplementation } from "./internal/retireAutoMovieCubeShadowDepth.js";
+import { guardAutoMovieSceneShadowRetirement as guardAutoMovieSceneShadowRetirementImplementation } from "./internal/guardAutoMovieSceneShadowRetirement.js";
+
 
 /** Public operations for Auto Movie Scene Shadow. */
 export namespace AutoMovieSceneShadow {
+  /** Guard retirement and later reads while shadow resources are uncertain. */
+  export function guardRetirement(
+    scene: THREE.Scene | undefined,
+    renderer: IAutoMovieShadowRetirementHost,
+    attempt?: {
+      resources: readonly (THREE.RenderTarget | THREE.Texture)[];
+      nativeDepth: readonly WebGLTexture[];
+      run: () => void;
+    },
+  ): void {
+    guardAutoMovieSceneShadowRetirementImplementation(scene, renderer, attempt);
+  }
+
   /**
    * Retire every scene light's retained shadow attachment after a filter change.
    *
@@ -126,5 +143,40 @@ export namespace AutoMovieSceneShadow {
    */
   export function invalidatePrograms(scene: THREE.Scene): void {
     invalidateAutoMovieSceneShadowProgramsImplementation(scene);
+  }
+
+  /**
+   * Read a native cube shadow target's owned depth handle through its
+   * framebuffer. The target is a retained shadow draw resource, not an
+   * unallocated authored target. The SDK exposes shadow maps as generic
+   * RenderTarget values; observe their WebGL identity before binding rather than
+   * asserting a cube subtype's unrelated texture-array type. Native queries avoid
+   * private properties. Restore the caller's target, face and mip even when
+   * binding or the query fails. A depth version of zero proves that this r186
+   * native product has never been initialized, so refuse before binding can
+   * allocate it. A positive version is not upload evidence: the retained-draw,
+   * exact-context precondition remains the caller's responsibility, including
+   * after CPU needsUpdate assignments.
+   */
+  export function readCubeDepth(
+    renderer: IAutoMovieFramebufferRenderer,
+    target: THREE.RenderTarget,
+  ): WebGLTexture | null {
+    return readCubeDepthImplementation(renderer, target);
+  }
+
+  /**
+   * Release a still-live owned cube depth handle after native target disposal.
+   * Three r186 allocates cube depth outside its source-upload cache, so public
+   * Texture.dispose can clear SDK bookkeeping while leaving this allocation.
+   * Check the native lifetime first: an SDK that already released it needs no
+   * supplemental delete. Public resetState reconciles native bindings, then the
+   * caller's separate target, face and mip are restored independently.
+   */
+  export function retireCubeDepth(
+    renderer: IAutoMovieFramebufferRenderer,
+    handle: WebGLTexture,
+  ): void {
+    retireCubeDepthImplementation(renderer, handle);
   }
 }

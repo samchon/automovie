@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, hingedArmSwivel, jointRomOvershoot, AutoMovieEngineMotionSampling, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { ROM_TOLERANCE, hingedArmSwivel, AutoMovieEngineMotionSampling, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -71,7 +71,7 @@ export function prepareHumanFreeCurve(
     );
     legality.set(
       bone.bone,
-      jointRomOvershoot.prepare(
+      AutoMovieEngineKinematics.prepareJointRomOvershoot(
         bone.bone,
         constraint,
         constraint === null ||

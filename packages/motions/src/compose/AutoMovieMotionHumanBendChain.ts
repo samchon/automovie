@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, Transform, Vector3, prepareChainPlant, AutoMovieEngineKinematics } from "@automovie/engine";
+import { HUMANOID_REST_FRAME, Transform, Vector3, AutoMovieEngineMotionPlanting, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,
@@ -73,7 +73,7 @@ export function AutoMovieMotionHumanBendChain(
     shared?.resolution ?? prepareHumanPoseResolution();
   if (shared !== undefined) shared.resolution = resolution;
   try {
-    const prepared: ReturnType<typeof prepareChainPlant> = prepareChainPlant(
+    const prepared: ReturnType<typeof AutoMovieEngineMotionPlanting.prepareChainPlant> = AutoMovieEngineMotionPlanting.prepareChainPlant(
       {
         skeleton: body.skeleton,
         pose,
@@ -146,7 +146,7 @@ export namespace AutoMovieMotionHumanBendChain {
   /** An arm chain prepared on a posture's trunk. */
   export interface IChain {
     /** The engine's preparation of the chain. */
-    prepared: NonNullable<ReturnType<typeof prepareChainPlant>>;
+    prepared: NonNullable<ReturnType<typeof AutoMovieEngineMotionPlanting.prepareChainPlant>>;
 
     /** The shoulder joint, world metres. */
     shoulder: IAutoMovieVector3;

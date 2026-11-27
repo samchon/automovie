@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -40,7 +40,7 @@ export function climbStairsWeight(
     return (
       from.right +
       (to.right - from.right) *
-        minimumJerk.share(
+        AutoMovieEngineMotionSampling.minimumJerkShare(
           (seconds - from.seconds) / (to.seconds - from.seconds),
         )
     );

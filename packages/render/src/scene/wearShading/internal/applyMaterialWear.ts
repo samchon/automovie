@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
+import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../proceduralShading/AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
-import { readAutoMovieBufferAttribute } from "../../readAutoMovieBufferAttribute.js";
 
 /** Texels per row of the feature edge texture. */
 const ROW: number = 1024;
@@ -35,8 +35,8 @@ const ROW: number = 1024;
  * of `AUTOMOVIE_PROCEDURAL_NOISE_GLSL`. Colour is mixed after the colour chunks
  * (and any overlay), edge first, and roughness after the roughness chunk and a
  * procedural surface's roughness. The patch is registered through
- * `AutoMovieRenderMaterial.addShaderPatch`, so the material must belong to this geometry alone:
- * its texture uniform is this geometry's.
+ * `AutoMovieRenderMaterial.addShaderPatch`, so the material must belong to this
+ * geometry alone: its texture uniform is this geometry's.
  *
  * @returns The non-indexed worn geometry and the edge texture; the caller owns
  *   both and disposes them with the part.

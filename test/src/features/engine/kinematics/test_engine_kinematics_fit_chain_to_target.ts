@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, fitChainToTarget } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineMotionKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -80,7 +80,7 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
     target: IAutoMovieVector3,
     rotation?: IAutoMovieQuaternion,
   ): IAutoMoviePose =>
-    fitChainToTarget({
+    AutoMovieEngineMotionKinematics.fitChainToTarget({
       skeleton: body.skeleton,
       pose,
       target,
@@ -233,7 +233,7 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
     pose: IAutoMoviePose,
     rotation?: IAutoMovieQuaternion,
   ): IAutoMoviePose =>
-    fitChainToTarget({
+    AutoMovieEngineMotionKinematics.fitChainToTarget({
       skeleton: body.skeleton,
       pose,
       target: reach,

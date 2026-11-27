@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeCourse } from "../core";
 import type { AutoMovieArchetypeEquineTeamPlan } from "./AutoMovieArchetypeEquineTeamPlan";
-import type { rideQuadruped } from "./rideQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * One team horse's own course: the team's path offset to its place in the
@@ -30,13 +30,13 @@ import type { rideQuadruped } from "./rideQuadruped";
 export function EquineTeamCourse(
   team: AutoMovieArchetypeEquineTeamPlan.IParams,
   place: AutoMovieArchetypeEquineTeamPlan.IPlace,
-): rideQuadruped.ICourse {
+): AutoMovieArchetypeQuadruped.IRideCourse {
   const heading: number = (team.start.heading * Math.PI) / 180;
-  const legs: rideQuadruped.ILeg[] = [];
+  const legs: AutoMovieArchetypeQuadruped.IRideLeg[] = [];
   const speeds: number[] = [];
   let previous: number = team.cruise;
   team.legs.forEach((leg: AutoMovieArchetypeCourse.Leg, k: number): void => {
-    const scaled: rideQuadruped.ILeg =
+    const scaled: AutoMovieArchetypeQuadruped.IRideLeg =
       leg.kind === "turn"
         ? { ...leg, radius: leg.radius - place.lateral * Math.sign(leg.angle) }
         : {

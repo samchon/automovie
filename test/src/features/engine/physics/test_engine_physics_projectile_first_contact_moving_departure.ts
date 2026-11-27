@@ -1,4 +1,4 @@
-import { Quaternion, projectileFirstContact } from "@automovie/engine";
+import { AutoMoviePhysicalProjectile, Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieHit,
   IAutoMoviePhysicalShape,
@@ -41,14 +41,14 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
   const separating: IAutoMovieProjectileFirstContact.IContinuousPose =
     Part.rising(0.5);
   const moving: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape("moving", sphere, separating);
+    AutoMoviePhysicalProjectile.shapeCollider("moving", sphere, separating);
   const contact: IAutoMovieHit | null = query(BALL, [moving], "moving");
   TestValidator.predicate(
     "the certified separation preserves the sphere's first return at 0.5s",
     matches(contact, "moving", 0.5, { x: 0, y: 0.375, z: 0 }, UP),
   );
   const closing: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape("moving", sphere, Part.rising(1));
+    AutoMoviePhysicalProjectile.shapeCollider("moving", sphere, Part.rising(1));
   TestValidator.predicate(
     "negative relative opening preserves the initial sphere contact",
     matches(
@@ -60,14 +60,14 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
     ),
   );
   const opaque: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape("moving", sphere, separating.at);
+    AutoMoviePhysicalProjectile.shapeCollider("moving", sphere, separating.at);
   TestValidator.predicate(
     "an opaque pose and the unmarked bounded pair each report initial contact",
     query(BALL, [opaque], "moving")?.time === 0 &&
       query(BALL, [moving])?.time === 0,
   );
   const other: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape("other", sphere, {
+    AutoMoviePhysicalProjectile.shapeCollider("other", sphere, {
       position: { x: 0.25, y: 0.25, z: 0 },
       rotation: Quaternion.identity(),
     });
@@ -103,7 +103,7 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
     matches(
       query(
         BALL,
-        [projectileFirstContact.shape("curved", sphere, curved)],
+        [AutoMoviePhysicalProjectile.shapeCollider("curved", sphere, curved)],
         "curved",
       ),
       "curved",
@@ -142,7 +142,7 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
   };
   const dipped: IAutoMovieHit | null = query(
     BALL,
-    [projectileFirstContact.shape("dipping", sphere, dipping)],
+    [AutoMoviePhysicalProjectile.shapeCollider("dipping", sphere, dipping)],
     "dipping",
   );
   TestValidator.predicate(
@@ -160,7 +160,7 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
     matches(
       query(
         glancing,
-        [projectileFirstContact.shape("wide", hull(2), separating)],
+        [AutoMoviePhysicalProjectile.shapeCollider("wide", hull(2), separating)],
         "wide",
       ),
       "wide",
@@ -183,7 +183,7 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
     angularBound: 0.2,
   });
   const torso: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape("actor:torso", hull(), actor);
+    AutoMoviePhysicalProjectile.shapeCollider("actor:torso", hull(), actor);
   TestValidator.predicate(
     "the measured initial overlap belongs to the hull without its certificate",
     nclose(
@@ -203,7 +203,7 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
     ),
   );
   const wrist: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape(
+    AutoMoviePhysicalProjectile.shapeCollider(
       "actor:wrist",
       baseSphere({ x: 0.25, y: overlapping.origin.y, z: 0 }),
       actor,
@@ -232,13 +232,13 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
     "the shape's parent offset contributes rotational reach",
     query(
       offsetBall,
-      [projectileFirstContact.shape("lever", baseSphere(offset), leverPose)],
+      [AutoMoviePhysicalProjectile.shapeCollider("lever", baseSphere(offset), leverPose)],
       "lever",
     )?.time === 0,
   );
 
   const unavailable: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape("unavailable", sphere, {
+    AutoMoviePhysicalProjectile.shapeCollider("unavailable", sphere, {
       ...separating,
       bound: () => undefined,
     });
@@ -247,7 +247,7 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
     query(BALL, [unavailable], "unavailable")?.time === 0,
   );
   const malformed: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape("malformed", sphere, {
+    AutoMoviePhysicalProjectile.shapeCollider("malformed", sphere, {
       ...separating,
       bound: (_from, to): IAutoMovieProjectileFirstContact.IMotionBound => ({
         to,
@@ -260,7 +260,7 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
     query(BALL, [malformed], "malformed"),
   );
   const nonRigid: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape("nonrigid", sphere, {
+    AutoMoviePhysicalProjectile.shapeCollider("nonrigid", sphere, {
       ...separating,
       at: (seconds): IAutoMovieRigidTransform => ({
         position: separating.at(seconds).position,
@@ -282,7 +282,7 @@ export function test_engine_physics_projectile_first_contact_moving_departure():
     matches(
       query(
         later,
-        [projectileFirstContact.shape("later", sphere, Part.rising(0.5, 1))],
+        [AutoMoviePhysicalProjectile.shapeCollider("later", sphere, Part.rising(0.5, 1))],
         "later",
         1,
       ),
@@ -349,7 +349,7 @@ function query(
   departing?: string,
   from: number = 0,
 ): IAutoMovieHit | null {
-  return projectileFirstContact(
+  return AutoMoviePhysicalProjectile.firstContact(
     projectile,
     colliders,
     { from, to: from + 0.625 },

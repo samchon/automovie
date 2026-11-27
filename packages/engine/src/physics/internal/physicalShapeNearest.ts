@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalShapeQuery } from "./physicalShapeQuery";
+import { physicalShapeQueryImplementation } from "./physicalShapeQuery";
 
 /**
  * Where a world segment comes nearest an admitted sphere, Y capsule, oriented
@@ -57,5 +57,5 @@ export function physicalShapeNearest(
   b: IAutoMovieVector3,
   taper?: readonly [number, number],
 ): IAutoMoviePhysicalShapeNearest.IResult {
-  return physicalShapeQuery(pose, shape, a, b, taper, true);
+  return physicalShapeQueryImplementation.physicalShapeQueryDirect(pose, shape, a, b, taper, true);
 }

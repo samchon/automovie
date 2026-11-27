@@ -1,8 +1,8 @@
 import {
-  preparePhysicalGeometry as Geometry,
+  AutoMoviePhysicalGeometry as Geometry,
   Quaternion,
   Vector3,
-  linearizePhysicalSeparation,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
@@ -49,7 +49,7 @@ const FIRST_ORDER: number = 2e-5;
  *    re-linearizing at the new pose follows native distance.
  */
 export async function test_engine_physics_physical_separation_derivative(): Promise<void> {
-  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
+  const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry.prepare();
   const shapes: IAutoMoviePhysicalShape[] = [
     {
       id: "surface",
@@ -147,7 +147,7 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
       const inactive: (
         poseA: IAutoMovieRigidTransform,
         poseB: IAutoMovieRigidTransform,
-      ) => number = linearizePhysicalSeparation(
+      ) => number = AutoMovieEnginePhysics.linearizePhysicalSeparation(
         geometry,
         collider("a", a, first),
         collider("b", b, apart),
@@ -169,7 +169,7 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
       const boundary: (
         poseA: IAutoMovieRigidTransform,
         poseB: IAutoMovieRigidTransform,
-      ) => number = linearizePhysicalSeparation(
+      ) => number = AutoMovieEnginePhysics.linearizePhysicalSeparation(
         geometry,
         collider("a", a, first),
         collider("b", b, touching),
@@ -194,7 +194,7 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
       const model: (
         poseA: IAutoMovieRigidTransform,
         poseB: IAutoMovieRigidTransform,
-      ) => number = linearizePhysicalSeparation(
+      ) => number = AutoMovieEnginePhysics.linearizePhysicalSeparation(
         geometry,
         collider("a", a, first),
         collider("b", b, deep),
@@ -250,7 +250,7 @@ export async function test_engine_physics_physical_separation_derivative(): Prom
       const refreshed: (
         poseA: IAutoMovieRigidTransform,
         poseB: IAutoMovieRigidTransform,
-      ) => number = linearizePhysicalSeparation(
+      ) => number = AutoMovieEnginePhysics.linearizePhysicalSeparation(
         geometry,
         collider("a", a, first),
         collider("b", b, slid),

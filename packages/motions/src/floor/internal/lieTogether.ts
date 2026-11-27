@@ -1,7 +1,7 @@
 import {
   Vector3,
-  minimumJerk,
-  physicalShapePairDistance,
+  AutoMovieEngineMotionSampling,
+  AutoMovieEnginePhysics,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -288,7 +288,7 @@ function planLieTogether(
           for (const t of y.shapes)
             gap = Math.min(
               gap,
-              physicalShapePairDistance(m.pose, s, y.pose, t),
+              AutoMovieEnginePhysics.physicalShapePairDistance(m.pose, s, y.pose, t),
             );
     if (gap < REST)
       slide = Vector3.add(
@@ -416,7 +416,7 @@ function planLieTogether(
   const origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame =
     lieTogetherFrame(partner, context.start);
   const share = (seconds: number, from: number, to: number): number =>
-    minimumJerk.share(Math.min(1, Math.max(0, (seconds - from) / (to - from))));
+    AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, (seconds - from) / (to - from))));
   // Spooning, the free arm drapes over the partner (`lieTogetherDrape`).
   const drape: lieTogetherDrape.IDrape | undefined =
     p.way === "spoon"

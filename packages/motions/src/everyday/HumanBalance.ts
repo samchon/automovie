@@ -1,11 +1,6 @@
-import { prepareAutoMovieMassModel, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
-import type {
-  AutoMovieHumanSide,
-  IAutoMovieMotionHumanBalance,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
+import type { AutoMovieHumanSide, IAutoMovieMotionHumanBalance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -87,10 +82,10 @@ export namespace HumanBalance {
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
       prepareHumanPostureProjection(body);
     let frames: ReturnType<typeof poseBones.prepare> | undefined;
-    const model: prepareAutoMovieMassModel.IPrepared =
-      prepareAutoMovieMassModel(body.massModel);
-    const mass: () => prepareAutoMovieMassModel.IPrepared =
-      (): prepareAutoMovieMassModel.IPrepared => model;
+    const model: AutoMovieEngineKinematics.IPreparedMassModel =
+      AutoMovieEngineKinematics.prepareAutoMovieMassModel(body.massModel);
+    const mass: () => AutoMovieEngineKinematics.IPreparedMassModel =
+      (): AutoMovieEngineKinematics.IPreparedMassModel => model;
     const at: (back: number) => HumanBalanceReading.IReading = (
       back: number,
     ): HumanBalanceReading.IReading => {
@@ -211,7 +206,7 @@ export namespace HumanBalance {
         ).back,
       );
     } finally {
-      if (model !== undefined) prepareAutoMovieMassModel.release(model);
+      if (model !== undefined) AutoMovieEngineKinematics.releaseAutoMovieMassModel(model);
     }
   }
 
@@ -233,7 +228,7 @@ export namespace HumanBalance {
       body,
       posture,
     );
-    return resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base);
+    return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(placed.centre, placed.base);
   }
 
   /**
@@ -260,7 +255,7 @@ export namespace HumanBalance {
   ): IAutoMovieVector3 {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
-    return resolveAutoMovieCenterOfMass.place(
+    return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
       body.massModel,
       body.colliderBones.map(
         resolved ??

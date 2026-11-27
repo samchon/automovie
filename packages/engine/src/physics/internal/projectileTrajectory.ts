@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { aimRotation } from "../../kinematics/aimRotation";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { projectileAt } from "./projectileAt";
 
 /** A projectile model faces +Z; its trajectory rotates that onto the flight. */
@@ -56,7 +56,7 @@ export const projectileTrajectory: (
 
     // A stated attitude turns the body; without one the nose follows the arc.
     const q: IAutoMovieQuaternion =
-      rotation ?? aimRotation(PROJECTILE_FORWARD, velocity);
+      rotation ?? AutoMovieEngineKinematics.aimRotation(PROJECTILE_FORWARD, velocity);
     rot.push(q.x, q.y, q.z, q.w);
   }
   return {

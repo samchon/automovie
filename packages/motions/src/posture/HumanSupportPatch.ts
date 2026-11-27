@@ -1,17 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanoidSurfaces,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanContactWindow,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanContactWindow } from "../law/HumanContactWindow";
 import { HumanFoot } from "./HumanFoot";
@@ -67,7 +55,7 @@ export namespace HumanSupportPatch {
     contact: IAutoMovieMotionHumanContactWindow,
   ): IAutoMovieVector3 {
     const surface: IAutoMovieHumanoidSurfaces.IFrame = frame(body, contact);
-    return resolveAutoMovieHumanoidSurfaces.place(
+    return AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace(
       surface,
       bones.get(surface.bone)!,
     ).point;

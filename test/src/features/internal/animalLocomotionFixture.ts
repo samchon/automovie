@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeFrame, type AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeQuadrupedGait, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide, type rideQuadruped, AutoMovieArchetypeCamel } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, type AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeQuadrupedGait, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide, type AutoMovieArchetypeQuadruped, AutoMovieArchetypeCamel } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -39,7 +39,7 @@ export namespace animalLocomotionFixture {
   export function course(
     speed: number,
     lead: AutoMovieArchetypeQuadrupedGait.Lead = "left",
-  ): rideQuadruped.ICourse {
+  ): AutoMovieArchetypeQuadruped.IRideCourse {
     return {
       start: { x: 2, z: -3, heading: 29 },
       legs: [{ kind: "straight", length: speed * 6, lead }],

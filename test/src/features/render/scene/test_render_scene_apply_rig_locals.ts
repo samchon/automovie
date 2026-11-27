@@ -1,5 +1,5 @@
 import type { IAutoMovieRigLocalTransform } from "@automovie/interface";
-import { createImportedModelObject, AutoMovieRenderSceneMotion } from "@automovie/render";
+import { AutoMovieRenderImportedModel, AutoMovieRenderSceneMotion } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -18,7 +18,10 @@ export function test_render_scene_apply_rig_locals(): void {
   const hips: THREE.Object3D = new THREE.Object3D();
   const rig: THREE.Group = new THREE.Group();
   rig.add(hips);
-  const model = createImportedModelObject({ object: rig, bones: { hips } });
+  const model = AutoMovieRenderImportedModel.create({
+    object: rig,
+    bones: { hips },
+  });
   const half: number = Math.SQRT1_2;
   const local = (
     translation: [number, number, number],

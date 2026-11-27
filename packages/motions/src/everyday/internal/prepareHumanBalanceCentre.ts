@@ -1,10 +1,6 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import type {
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+
+import { AutoMovieEngineKinematics } from "@automovie/engine";
+import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../../posture/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
@@ -48,6 +44,6 @@ export function prepareHumanBalanceCentre(
       undefined,
       projection,
     ).pose;
-    return resolveAutoMovieCenterOfMass.place(model, bones(pose, read()));
+    return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, bones(pose, read()));
   };
 }

@@ -1,4 +1,8 @@
-import { Quaternion, Vector3, clampPose } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  AutoMovieEngineKinematics,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -55,7 +59,7 @@ export function prepareZipperPinch(
     if (!bone.startsWith(thumb) && !bone.startsWith(index))
       joints[bone] = closed[bone]!;
 
-  let pose: IAutoMoviePose = clampPose(
+  let pose: IAutoMoviePose = AutoMovieEngineKinematics.clampPose(
     {
       skeleton: body.skeleton.id,
       root: null,

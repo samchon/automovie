@@ -1,29 +1,5 @@
-import {
-  AutoMovieGravity,
-  MotionTrajectoryFailure,
-  Quaternion,
-  Vector3,
-  integrateAirborneRotation,
-  prepareAutoMovieMassModel,
-  resolveAutoMovieCenterOfMass,
-  solveAirborneTakeoff,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieIntegrateAirborneRotation,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFlight,
-  IAutoMovieMotionHumanFlightTurns,
-  IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionHumanSegment,
-  IAutoMoviePose,
-  IAutoMovieQuaternion,
-  IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
-  IAutoMovieSolveAirborneTakeoff,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieGravity, MotionTrajectoryFailure, Quaternion, Vector3, AutoMovieEngineMotionAirborneRotation, AutoMovieEngineKinematics, AutoMovieEngineMotionAirborneTakeoff } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieIntegrateAirborneRotation, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFlight, IAutoMovieMotionHumanFlightTurns, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanSegment, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieSolveAirborneTakeoff, IAutoMovieVector3 } from "@automovie/interface";
 
 import { jump } from "../../actions/internal/jump";
 import { jumpAirborne } from "../../actions/internal/jumpAirborne";
@@ -51,10 +27,10 @@ export function flyPerformanceFlight(
   self: IAutoMovieMotionHumanPerformanceState,
   person: IAutoMovieMotionHumanSegment.IPerson,
   segment: IAutoMovieMotionHumanSegment,
-  prepared: prepareAutoMovieMassModel.IPrepared,
+  prepared: AutoMovieEngineKinematics.IPreparedMassModel,
   requested: ReadonlySet<AutoMovieHumanoidBone>,
   readBones: ReturnType<typeof poseBones.prepare>,
-  observation?: ReturnType<typeof integrateAirborneRotation.observe>,
+  observation?: ReturnType<typeof AutoMovieEngineMotionAirborneRotation.observe>,
 ): void {
   const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
   const declared: IAutoMovieMotionHumanFlight = plan.flight!;
@@ -115,7 +91,7 @@ export function flyPerformanceFlight(
 
   // The shape's inertia and relative momentum are tabulated once at the
   // knots for every stage and shooting trial
-  // (`integrateAirborneRotation.tabulated`), so the flight reads no pose
+  // (`AutoMovieEngineMotionAirborneRotation.tabulated`), so the flight reads no pose
   // between them. A free-foot curve's own instantaneous bone rates are not
   // asked for: on test_human_motion_core_flight_sample they were accepted
   // at 27 of 2,293 instants, and the other 2,266 fell back to the
@@ -153,19 +129,19 @@ export function flyPerformanceFlight(
         new Set(jumpAirborne.TRACKS),
       );
     if (grouped !== undefined) {
-      const mass: prepareAutoMovieMassModel.IPrepared =
-        prepareAutoMovieMassModel(grouped.model);
+      const mass: AutoMovieEngineKinematics.IPreparedMassModel =
+        AutoMovieEngineKinematics.prepareAutoMovieMassModel(grouped.model);
       try {
         run(
           mass,
-          poseBones.prepare(body, prepareAutoMovieMassModel.bones(mass)),
+          poseBones.prepare(body, AutoMovieEngineKinematics.prepareAutoMovieMassModelBones(mass)),
           grouped,
         );
         return;
       } catch (error) {
         if (error !== changed) throw error;
       } finally {
-        prepareAutoMovieMassModel.release(mass);
+        AutoMovieEngineKinematics.releaseAutoMovieMassModel(mass);
       }
     }
   }
@@ -176,7 +152,7 @@ export function flyPerformanceFlight(
    * or all its original mass parts.
    */
   function run(
-    mass: prepareAutoMovieMassModel.IPrepared,
+    mass: AutoMovieEngineKinematics.IPreparedMassModel,
     readShape: ReturnType<typeof poseBones.prepare>,
     grouped?: prepareRigidFlightMass.IPrepared,
   ): void {
@@ -190,8 +166,8 @@ export function flyPerformanceFlight(
       return readShape({ ...pose, root: null }, readResolution());
     };
     const centres: IAutoMovieVector3[] = [];
-    const history: ReturnType<typeof integrateAirborneRotation.history> =
-      integrateAirborneRotation.tabulated(
+    const history: ReturnType<typeof AutoMovieEngineMotionAirborneRotation.history> =
+      AutoMovieEngineMotionAirborneRotation.tabulated(
         mass,
         shape,
         {
@@ -219,11 +195,11 @@ export function flyPerformanceFlight(
       // weight is left out of `|J|`, so the bound is the impulse of the
       // take-off velocity alone.
       const ceiling: (at: number) => number = (at: number): number => {
-        const delta: number = integrateAirborneRotation.DELTA;
+        const delta: number = AutoMovieEngineMotionAirborneRotation.DELTA;
         const centre: (t: number) => IAutoMovieVector3 = (
           t: number,
         ): IAutoMovieVector3 =>
-          prepareAutoMovieMassModel.place(
+          AutoMovieEngineKinematics.prepareAutoMovieMassModelPlace(
             prepared,
             readBones(unturned(t), readResolution()),
           );
@@ -237,7 +213,7 @@ export function flyPerformanceFlight(
         return (
           model.mass *
           Vector3.length(v0) *
-          resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight)
+          AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPendulum(body.measure.hipHeight)
         );
       };
 
@@ -255,7 +231,7 @@ export function flyPerformanceFlight(
         const tolerance: number | undefined =
           geometry === undefined
             ? undefined
-            : Math.min(geometry, solveAirborneTakeoff.TOLERANCE);
+            : Math.min(geometry, AutoMovieEngineMotionAirborneTakeoff.TOLERANCE);
 
         // The search and the momentum-judged flight use different error
         // controls. Give both the same small-step integration budget so
@@ -272,7 +248,7 @@ export function flyPerformanceFlight(
                 absolute: HumanPerformanceFlight.ACCURACY.absolute,
               };
         const solved: IAutoMovieSolveAirborneTakeoff.ISolution =
-          solveAirborneTakeoff({
+          AutoMovieEngineMotionAirborneTakeoff.solve({
             history,
             t0,
             t1,
@@ -302,7 +278,7 @@ export function flyPerformanceFlight(
       }
       const turned: IAutoMovieIntegrateAirborneRotation.IFlight =
         solvedFlight ??
-        integrateAirborneRotation({
+        AutoMovieEngineMotionAirborneRotation.integrate({
           history,
           t0,
           t1,

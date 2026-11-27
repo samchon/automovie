@@ -1,4 +1,4 @@
-import { type prepareSkeletonPoseResolution, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineSkeletonPose } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -56,7 +56,7 @@ export namespace poseBones {
   export function prepareTuples(
     body: IAutoMovieMotionHumanBody,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
-  ): prepareSkeletonPoseResolution.ITupleReader {
+  ): AutoMovieEngineSkeletonPose.ITupleReader {
     return body.poseResolution.prepareTuples(requested);
   }
 
@@ -77,7 +77,7 @@ export namespace poseBones {
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
     prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
-  ): prepareSkeletonPoseResolution.IReading {
+  ): AutoMovieEngineSkeletonPose.IReading {
     return body.poseResolution.read(pose, prepared);
   }
 
@@ -94,13 +94,13 @@ export namespace poseBones {
     body: IAutoMovieMotionHumanBody,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
   ): (
-    reading: prepareSkeletonPoseResolution.IReading,
+    reading: AutoMovieEngineSkeletonPose.IReading,
   ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const demand: ReturnType<
       IAutoMovieMotionHumanBody["poseResolution"]["prepareBones"]
     > = body.poseResolution.prepareBones(requested);
     return (
-      reading: prepareSkeletonPoseResolution.IReading,
+      reading: AutoMovieEngineSkeletonPose.IReading,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       demand.read(reading);
   }
