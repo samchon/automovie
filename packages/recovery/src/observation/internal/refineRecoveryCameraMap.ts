@@ -14,8 +14,8 @@ import { differentiateRecoveryMapTangent } from "../../internal/differentiateRec
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { refineRecoveryCameraMapFeasible } from "./refineRecoveryCameraMapFeasible";
 import { solveRecoveryMapJointStep } from "./solveRecoveryMapJointStep";
-import { stepRecoveryMapPose } from "../../internal/stepRecoveryMapPose";
-import { stepRecoveryMapSeedPose } from "../../internal/stepRecoveryMapSeedPose";
+import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
+import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
 
 /**
  * Jointly refine calibrated cameras and registered landmarks in one gauge. The

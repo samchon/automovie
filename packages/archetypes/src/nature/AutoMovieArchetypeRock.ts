@@ -11,7 +11,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { irregularRockForm } from "./irregularRockForm";
+import { irregularRockForm } from "./internal/irregularRockForm";
 
 /** The Udden-Wentworth size classes, read in a university textbook. */
 const WENTWORTH: string =

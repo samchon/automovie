@@ -1,5 +1,5 @@
 import type { IAutoMovieRecoveryMapPose } from "@automovie/interface";
-import { stepRecoveryMapSeedPose } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -24,7 +24,7 @@ export function test_recovery_internal_step_map_seed_pose(): void {
     [1, 0, 0],
     [0, 1, 0],
   ];
-  const stepped: IAutoMovieRecoveryMapPose = stepRecoveryMapSeedPose(
+  const stepped: IAutoMovieRecoveryMapPose = AutoMovieRecoveryCameraMap.stepMapSeedPose(
     pose,
     basis,
     [0, 0, Math.PI / 2, 3, 4],
@@ -43,7 +43,7 @@ export function test_recovery_internal_step_map_seed_pose(): void {
       nclose(stepped.rotation[3]!, 1, 1e-12),
   );
   TestValidator.error("a nonunit translation", (): unknown =>
-    stepRecoveryMapSeedPose(
+    AutoMovieRecoveryCameraMap.stepMapSeedPose(
       { ...pose, translation: [0, 0, 2] },
       basis,
       [0, 0, 1, 0, 0],

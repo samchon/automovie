@@ -4,8 +4,8 @@ import type {
   IAutoMovieRecoveryMapJointStepSolutionOperation,
 } from "@automovie/interface";
 
-import { createRecoveryMapMetric } from "../../internal/createRecoveryMapMetric";
-import { prepareRecoveryMapJointBlocks } from "../../internal/prepareRecoveryMapJointBlocks";
+import { createRecoveryMapMetric } from "./createRecoveryMapMetric";
+import { prepareRecoveryMapJointBlocks } from "./prepareRecoveryMapJointBlocks";
 import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
 
 /**

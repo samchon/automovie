@@ -14,7 +14,7 @@ import type {
   IAutoMovieSimplexBudget,
 } from "@automovie/interface";
 
-import { createRecoveryFeasibleSqpArc } from "./createRecoveryFeasibleSqpArc";
+import { createRecoveryFeasibleSqpArc } from "../observation/internal/createRecoveryFeasibleSqpArc";
 import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
 import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";
 

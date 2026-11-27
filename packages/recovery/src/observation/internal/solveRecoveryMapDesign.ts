@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryMapDesignSolutionOperation,
 } from "@automovie/interface";
 
-import { factorRecoveryMapDesign } from "../../internal/factorRecoveryMapDesign";
+import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
 
 /**
  * Solve a column-scaled original least-squares design with optional damping.

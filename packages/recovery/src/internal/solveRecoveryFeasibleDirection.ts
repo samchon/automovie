@@ -6,7 +6,7 @@ import type {
   IAutoMovieSimplexBudget,
 } from "@automovie/interface";
 
-import { measureRecoveryFeasibleArithmetic } from "./measureRecoveryFeasibleArithmetic";
+import { measureRecoveryFeasibleArithmetic } from "../observation/internal/measureRecoveryFeasibleArithmetic";
 
 /**
  * Solve a pure tilted feasible-direction model in common metric coordinates.

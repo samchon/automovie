@@ -6,9 +6,9 @@ import type {
   IAutoMovieRecoveryMapMetricFit,
 } from "@automovie/interface";
 
-import { createRecoveryMapMetric } from "../../internal/createRecoveryMapMetric";
-import { factorRecoveryMapDesign } from "../../internal/factorRecoveryMapDesign";
-import { prepareRecoveryMapJointBlocks } from "../../internal/prepareRecoveryMapJointBlocks";
+import { createRecoveryMapMetric } from "./createRecoveryMapMetric";
+import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
+import { prepareRecoveryMapJointBlocks } from "./prepareRecoveryMapJointBlocks";
 
 /**
  * Build only the original-rank-qualified raw metric a feasible model uses. This

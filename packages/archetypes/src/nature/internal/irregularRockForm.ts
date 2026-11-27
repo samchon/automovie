@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieArchetypeConvexCell } from "../core";
+import { AutoMovieArchetypeConvexCell } from "../../core";
 
 /** Directions on the sphere the stone's corners are cast along. */
 const DIRECTIONS: number = 64;

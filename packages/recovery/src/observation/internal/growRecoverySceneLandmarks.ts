@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoverySceneTrackTriangulationOperation,
 } from "@automovie/interface";
 
-import { assertRecoverySceneLinearRetention } from "../../internal/assertRecoverySceneLinearRetention";
+import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
 import { triangulateRecoverySceneTrack } from "./triangulateRecoverySceneTrack";

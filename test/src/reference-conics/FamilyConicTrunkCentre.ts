@@ -9,7 +9,6 @@ import {
   AutoMovieHumanF1CourseLaw as Law,
   AutoMovieHumanF1Placement as Placement,
   AutoMovieHumanF1Placing as Placing,
-  AutoMovieHumanF1RootControls as RootControls,
   AutoMovieHumanF1RootRails as RootRails,
   AutoMovieHumanF1TrunkCentre as TrunkCentre,
   AutoMovieHumanSegmentFrame as F,
@@ -524,11 +523,11 @@ namespace FamilyConicTrunkCentre {
     const emit = (name: string, loop: IAutoMovieConstructionPortLoop): number =>
       loopsText.push(`// ${name}`, `{ centre: ${numbers([...loop.centre])}, semi: ${numbers([...loop.semi])}, sense: ${loop.sense}, shape: ${numbers(loop.shape ?? [])} },`);
     const recorded: [string, string, IAutoMovieConstructionPortLoop][] = [
-      ["arm", "arm[0]", RootControls.arm[0]],
-      ["arm", "arm[1]", RootControls.arm[1]],
-      ["breast", "breast[0]", RootControls.breast[0]],
-      ["breast", "breast[1]", RootControls.breast[1]],
-      ["nose", "nose", RootControls.nose],
+      ["arm", "arm[0]", AutoMovieHumanF1.ROOT_CONTROLS.arm[0]],
+      ["arm", "arm[1]", AutoMovieHumanF1.ROOT_CONTROLS.arm[1]],
+      ["breast", "breast[0]", AutoMovieHumanF1.ROOT_CONTROLS.breast[0]],
+      ["breast", "breast[1]", AutoMovieHumanF1.ROOT_CONTROLS.breast[1]],
+      ["nose", "nose", AutoMovieHumanF1.ROOT_CONTROLS.nose],
     ];
     for (const [kind, name, loop] of recorded) {
       const before: V3[] = worldOf(storedFull, loop);
@@ -583,7 +582,7 @@ namespace FamilyConicTrunkCentre {
       const inNew: [number, number][] = cut.map(([s]: [number, number], k: number): [number, number] => [s, angleAt(madeBare.axis, s, ruleWorld[k]!)]);
       const rule: IAutoMovieConstructionPortLoop = around(inNew, 192, 1);
       const ruleColumns: V3[] = worldOf(madeFull, rule);
-      const today: V3[] = worldOf(storedFull, RootControls.arm[0]);
+      const today: V3[] = worldOf(storedFull, AutoMovieHumanF1.ROOT_CONTROLS.arm[0]);
       emit("arm[0] by rule", rule);
       const toward = (p: V3): string => {
         const along: V3 = unit(sub(storedBare.axis.at(knots.at(-1)!).origin, storedBare.axis.at(knots[0]!).origin));

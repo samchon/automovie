@@ -14,10 +14,10 @@ import type {
   IAutoMovieRecoveryScenePointEvaluationOperation,
 } from "@automovie/interface";
 
-import { assertRecoverySceneLinearRetention } from "../../internal/assertRecoverySceneLinearRetention";
+import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 import { growRecoverySceneLandmarks } from "./growRecoverySceneLandmarks";
-import { prepareRecoveryCheckpointReportCapacity } from "../../internal/prepareRecoveryCheckpointReportCapacity";
+import { prepareRecoveryCheckpointReportCapacity } from "./prepareRecoveryCheckpointReportCapacity";
 import { refineRecoveryCameraMap } from "./refineRecoveryCameraMap";
 import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
 

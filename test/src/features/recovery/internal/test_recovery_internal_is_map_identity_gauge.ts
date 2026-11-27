@@ -1,4 +1,4 @@
-import { isRecoveryMapIdentityGauge } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -14,17 +14,17 @@ export function test_recovery_internal_is_map_identity_gauge(): void {
   const identity: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
   TestValidator.predicate(
     "the identity gauge",
-    isRecoveryMapIdentityGauge({ rotation: identity, translation: [0, 0, 0] }),
+    AutoMovieRecoveryCameraMap.isMapIdentityGauge({ rotation: identity, translation: [0, 0, 0] }),
   );
   TestValidator.predicate(
     "a scaled rotation",
-    !isRecoveryMapIdentityGauge({
+    !AutoMovieRecoveryCameraMap.isMapIdentityGauge({
       rotation: [1, 0, 0, 0, 0.5, 0, 0, 0, 1],
       translation: [0, 0, 0],
     }),
   );
   TestValidator.predicate(
     "a translated pose",
-    !isRecoveryMapIdentityGauge({ rotation: identity, translation: [0, 0, 1] }),
+    !AutoMovieRecoveryCameraMap.isMapIdentityGauge({ rotation: identity, translation: [0, 0, 1] }),
   );
 }

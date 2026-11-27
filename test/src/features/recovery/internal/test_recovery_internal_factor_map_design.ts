@@ -1,4 +1,4 @@
-import { factorRecoveryMapDesign, AutoMovieRecoveryCameraMap } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -31,8 +31,8 @@ export function test_recovery_internal_factor_map_design(): void {
     [0, 4],
   ];
   const right: number[] = [6, 20, 6, 20];
-  const factor: ReturnType<typeof factorRecoveryMapDesign> =
-    factorRecoveryMapDesign(design, right, chart.minimumRatio, chart.budget);
+  const factor: ReturnType<typeof AutoMovieRecoveryCameraMap.factorMapDesign> =
+    AutoMovieRecoveryCameraMap.factorMapDesign(design, right, chart.minimumRatio, chart.budget);
   TestValidator.equals(
     "original and compressed row counts",
     [factor.rows.length, factor.solveRows.length],
@@ -76,7 +76,7 @@ export function test_recovery_internal_factor_map_design(): void {
       ),
   );
   TestValidator.error("exhausted linear budget", (): unknown =>
-    factorRecoveryMapDesign(design, right, chart.minimumRatio, {
+    AutoMovieRecoveryCameraMap.factorMapDesign(design, right, chart.minimumRatio, {
       ...chart.budget,
       maxLinearEntries: 11,
     }),

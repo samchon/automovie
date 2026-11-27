@@ -1,5 +1,5 @@
 import type { IAutoMovieRecoveryMapPose } from "@automovie/interface";
-import { stepRecoveryMapPose } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -21,7 +21,7 @@ export function test_recovery_internal_step_map_pose(): void {
     rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1],
     translation: [0, 0, 0],
   };
-  const stepped: IAutoMovieRecoveryMapPose = stepRecoveryMapPose(pose, [
+  const stepped: IAutoMovieRecoveryMapPose = AutoMovieRecoveryCameraMap.stepMapPose(pose, [
     0,
     0,
     Math.PI / 2,
@@ -38,6 +38,6 @@ export function test_recovery_internal_step_map_pose(): void {
   );
   TestValidator.equals("the translation", stepped.translation, [1, 2, 3]);
   TestValidator.error("a five-coordinate step", (): unknown =>
-    stepRecoveryMapPose(pose, [0, 0, 0, 0, 0]),
+    AutoMovieRecoveryCameraMap.stepMapPose(pose, [0, 0, 0, 0, 0]),
   );
 }

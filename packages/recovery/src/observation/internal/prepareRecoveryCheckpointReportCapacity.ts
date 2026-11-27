@@ -8,7 +8,7 @@ import type {
 
 import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
-import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
+import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
 
 /** Acquire a direct checkpoint's report scope after its active-index check. */
 export function prepareRecoveryCheckpointReportCapacity(

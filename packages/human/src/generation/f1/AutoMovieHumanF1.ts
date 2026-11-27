@@ -1,3 +1,4 @@
+import type { AutoMovieHumanEmptyProbes } from "../conic/AutoMovieHumanEmptyProbes";
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanChainTopology } from "../frame/AutoMovieHumanChainTopology";
@@ -108,6 +109,15 @@ export namespace AutoMovieHumanF1 {
     nose: AutoMovieHumanF1Nose,
     breast: AutoMovieHumanF1Breast,
   };
+
+  /**
+   * Direct normalized root controls on the F1 parent charts, in metres and
+   * radians. These authored priors come from the unchanged constructor;
+   * generation does not rediscover parent footprints from completed child
+   * lofts. The arm, breast and nose entries keep each side's original clock.
+   */
+  export const ROOT_CONTROLS: IAutoMovieHumanF1.IRootControls =
+    AutoMovieHumanF1RootControls;
 
   /**
    * The least shoulder of a toe's arcs (`AutoMovieHumanConicSection.ILayout.least`). The big toe's arc from its top to its medial side held
@@ -274,6 +284,35 @@ export namespace AutoMovieHumanF1 {
         ),
     },
   ];
+
+  /**
+   * What the F1 empty probes read from: its stored cutters, its leg family
+   * (whose twin is the other leg), and its four fingers. The thumb web is not
+   * a gap between parallel walls; the mouth is a height field over the trunk.
+   * This listing keeps the stored families by reference and is built once.
+   * @throws {Error} At load, when a finger is missing from `DIGITS`.
+   */
+  const EMPTY_PROBE_FINGERS: readonly string[] = [
+    "finger.index",
+    "finger.middle",
+    "finger.ring",
+    "finger.pinky",
+  ];
+  /** Empty probes for the assembled F1 cutters, leg, and fingers. */
+  export const EMPTY_PROBES: AutoMovieHumanEmptyProbes.IListing = {
+    cutters: CUTTERS,
+    leg: BODY.leg,
+    fingers: EMPTY_PROBE_FINGERS.map(
+      (name: string): IAutoMovieHumanConicLoft.IFamily => {
+        const digit: IAutoMovieHumanF1.IDigit | undefined = DIGITS.find(
+          (d: IAutoMovieHumanF1.IDigit): boolean => d.family.name === name,
+        );
+        if (digit === undefined)
+          throw new Error(`f1 empty probes: no digit ${name}`);
+        return digit.family;
+      },
+    ),
+  };
 
   /**
    * Place every family of the figure at a pose: each family's course, `up` and relief directions are read from the re-based table through

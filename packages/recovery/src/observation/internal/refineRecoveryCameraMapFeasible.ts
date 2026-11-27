@@ -23,22 +23,22 @@ import type {
   IAutoMovieRecoveryUntiltedEstimate,
 } from "@automovie/interface";
 
-import { admitRecoveryMapCurvature } from "../../internal/admitRecoveryMapCurvature";
-import { assembleRecoveryMapCurvature } from "../../internal/assembleRecoveryMapCurvature";
+import { admitRecoveryMapCurvature } from "./admitRecoveryMapCurvature";
+import { assembleRecoveryMapCurvature } from "./assembleRecoveryMapCurvature";
 import { copyRecoveryUntiltedEstimate } from "../../internal/copyRecoveryUntiltedEstimate";
-import { createRecoveryFeasibleDiagnostics } from "../../internal/createRecoveryFeasibleDiagnostics";
+import { createRecoveryFeasibleDiagnostics } from "./createRecoveryFeasibleDiagnostics";
 import { createRecoveryMapTangent } from "../../internal/createRecoveryMapTangent";
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
-import { factorRecoveryMapCurvature } from "../../internal/factorRecoveryMapCurvature";
+import { factorRecoveryMapCurvature } from "./factorRecoveryMapCurvature";
 import { factorRecoveryMapMetric } from "./factorRecoveryMapMetric";
 import { linearizeRecoveryFeasibleMap } from "./linearizeRecoveryFeasibleMap";
-import { predictRecoveryMapDecrease } from "../../internal/predictRecoveryMapDecrease";
-import { prepareRecoveryFeasibleMapReporting } from "../../internal/prepareRecoveryFeasibleMapReporting";
+import { predictRecoveryMapDecrease } from "./predictRecoveryMapDecrease";
+import { prepareRecoveryFeasibleMapReporting } from "./prepareRecoveryFeasibleMapReporting";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { refineRecoveryFeasibleState } from "../../internal/refineRecoveryFeasibleState";
-import { stepRecoveryMapPose } from "../../internal/stepRecoveryMapPose";
-import { stepRecoveryMapSeedPose } from "../../internal/stepRecoveryMapSeedPose";
-import { updateRecoveryRegularization } from "../../internal/updateRecoveryRegularization";
+import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
+import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
+import { updateRecoveryRegularization } from "./updateRecoveryRegularization";
 
 /**
  * Refine a fixed camera map while retaining every hard pixel observation. This

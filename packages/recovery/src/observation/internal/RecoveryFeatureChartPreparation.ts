@@ -6,9 +6,9 @@ import type {
   IAutoMovieRecoveryMultiBoundaryChart,
 } from "@automovie/interface";
 
-import { RecoveryDiskChart as D } from "../observation/internal/RecoveryDiskChart";
-import { RecoveryFeatureChartCuts as F } from "../observation/internal/RecoveryFeatureChartCuts";
-import { RecoveryMultiBoundaryChart as M } from "../observation/internal/RecoveryMultiBoundaryChart";
+import { RecoveryDiskChart as D } from "./RecoveryDiskChart";
+import { RecoveryFeatureChartCuts as F } from "./RecoveryFeatureChartCuts";
+import { RecoveryMultiBoundaryChart as M } from "./RecoveryMultiBoundaryChart";
 
 /**
  * Prepare privately cut feature banks for a common four-arc boundary network.

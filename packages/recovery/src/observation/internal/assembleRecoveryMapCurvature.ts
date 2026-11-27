@@ -7,9 +7,9 @@ import type {
   IAutoMovieRecoveryUntiltedEstimate,
 } from "@automovie/interface";
 
-import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
+import { createRecoveryMapTangent } from "../../internal/createRecoveryMapTangent";
 import { differentiateRecoveryMapProjection } from "./differentiateRecoveryMapProjection";
-import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
+import { validateRecoveryMapMetricScales } from "../../internal/validateRecoveryMapMetricScales";
 
 /** Assemble lagged fixed-dual local curvature in original-design scaled units. */
 export function assembleRecoveryMapCurvature(

@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryMapPose } from "@automovie/interface";
 
-import { stepRecoveryRelativePose } from "../observation/internal/stepRecoveryRelativePose";
+import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
 
 /**
  * Apply the map seed's left rotation and current-radius sphere chart. Its raw

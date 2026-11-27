@@ -25,7 +25,7 @@ export { BoatOars } from "./vehicles/BoatOars";
 export { CarBody } from "./vehicles/CarBody";
 export { CarSteering } from "./vehicles/CarSteering";
 export { wheelchairHandrimFrame } from "./vehicles/wheelchairHandrimFrame";
-export { irregularRockForm } from "./nature/irregularRockForm";
+export { irregularRockForm } from "./nature/internal/irregularRockForm";
 export { QuadrupedChange } from "./animals/QuadrupedChange";
 export { QuadrupedHoofTrack } from "./animals/QuadrupedHoofTrack";
 export { buildTennisNet } from "./sport/buildTennisNet";

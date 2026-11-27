@@ -13,7 +13,7 @@ import type {
 import { RecoveryAtlasObservationChart } from "./RecoveryAtlasObservationChart";
 import { RecoveryAtlasObservationCreases } from "./RecoveryAtlasObservationCreases";
 import { RecoveryAtlasObservationFeatures } from "./RecoveryAtlasObservationFeatures";
-import { RecoveryAtlasObservationNormals } from "../../internal/RecoveryAtlasObservationNormals";
+import { RecoveryAtlasObservationNormals } from "./RecoveryAtlasObservationNormals";
 import { RecoveryAtlasObservationPublish } from "./RecoveryAtlasObservationPublish";
 import { RecoveryAtlasObservationSource } from "./RecoveryAtlasObservationSource";
 import { RecoveryChartBoundary } from "./RecoveryChartBoundary";

@@ -7,9 +7,9 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryFeatureChartCutsFans } from "../../internal/RecoveryFeatureChartCutsFans";
-import { RecoveryFeatureChartCutsSeams } from "../../internal/RecoveryFeatureChartCutsSeams";
-import { RecoveryFeatureChartCutsSubdivide } from "../../internal/RecoveryFeatureChartCutsSubdivide";
-import { RecoveryFeatureChartCutsTopology } from "../../internal/RecoveryFeatureChartCutsTopology";
+import { RecoveryFeatureChartCutsSeams } from "./RecoveryFeatureChartCutsSeams";
+import { RecoveryFeatureChartCutsSubdivide } from "./RecoveryFeatureChartCutsSubdivide";
+import { RecoveryFeatureChartCutsTopology } from "./RecoveryFeatureChartCutsTopology";
 
 /**
  * Materialize declared feature cuts as private manifold observation charts.

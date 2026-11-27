@@ -7,7 +7,7 @@ import type {
 
 import { projectRecoveryMapPoint } from "../../observation/internal/projectRecoveryMapPoint";
 import { solveRecoveryMapDesign } from "../../observation/internal/solveRecoveryMapDesign";
-import { stepRecoveryMapPose } from "../../internal/stepRecoveryMapPose";
+import { stepRecoveryMapPose } from "../../observation/internal/stepRecoveryMapPose";
 
 /**
  * Refine one camera against a fixed existing 3D landmark population. Supplied

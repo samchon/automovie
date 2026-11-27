@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 
 import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangularMetric";
-import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
-import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
+import { validateRecoveryMapMetricRow } from "../../internal/validateRecoveryMapMetricRow";
+import { validateRecoveryMapMetricScales } from "../../internal/validateRecoveryMapMetricScales";
 
 /** Factor one owned scaled arrowhead and preflight all fixed physical rows. */
 export function factorRecoveryMapCurvature(

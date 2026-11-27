@@ -1,4 +1,4 @@
-import { updateRecoveryRegularization } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -19,32 +19,32 @@ import { nclose } from "../../internal/nclose";
  * 5. A damping that is not positive is refused.
  */
 export function test_recovery_internal_update_regularization(): void {
-  const full: ReturnType<typeof updateRecoveryRegularization> =
-    updateRecoveryRegularization(3, 4, 4);
+  const full: ReturnType<typeof AutoMovieRecoveryCameraMap.updateRegularization> =
+    AutoMovieRecoveryCameraMap.updateRegularization(3, 4, 4);
   TestValidator.equals("agreement accepted", full.reason, "accepted-agreement");
   TestValidator.predicate(
     "full agreement",
     nclose(full.factor!, 1 / 3, 1e-15) && nclose(full.damping, 1, 1e-15),
   );
-  const half: ReturnType<typeof updateRecoveryRegularization> =
-    updateRecoveryRegularization(3, 1, 2);
+  const half: ReturnType<typeof AutoMovieRecoveryCameraMap.updateRegularization> =
+    AutoMovieRecoveryCameraMap.updateRegularization(3, 1, 2);
   TestValidator.predicate(
     "half agreement",
     nclose(half.ratio!, 0.5, 1e-15) &&
       nclose(half.factor!, 1, 1e-15) &&
       nclose(half.damping, 3, 1e-15),
   );
-  const poor: ReturnType<typeof updateRecoveryRegularization> =
-    updateRecoveryRegularization(3, 0.25, 1);
+  const poor: ReturnType<typeof AutoMovieRecoveryCameraMap.updateRegularization> =
+    AutoMovieRecoveryCameraMap.updateRegularization(3, 0.25, 1);
   TestValidator.predicate(
     "poor agreement",
     nclose(poor.factor!, 9 / 8, 1e-15) && nclose(poor.damping, 27 / 8, 1e-15),
   );
-  const missing: ReturnType<typeof updateRecoveryRegularization> =
-    updateRecoveryRegularization(3, 1, null);
+  const missing: ReturnType<typeof AutoMovieRecoveryCameraMap.updateRegularization> =
+    AutoMovieRecoveryCameraMap.updateRegularization(3, 1, null);
   TestValidator.equals("no prediction", missing.supported, false);
   TestValidator.equals("damping kept", missing.damping, 3);
   TestValidator.error("zero damping", (): unknown =>
-    updateRecoveryRegularization(0, 1, 1),
+    AutoMovieRecoveryCameraMap.updateRegularization(0, 1, 1),
   );
 }

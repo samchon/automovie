@@ -14,16 +14,16 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryFeasibleCapacityError } from "../../internal/RecoveryFeasibleCapacityError";
-import { assertRecoverySceneLinearRetention } from "../../internal/assertRecoverySceneLinearRetention";
+import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
 import { collectRecoverySceneSupport } from "./collectRecoverySceneSupport";
 import { completeRecoverySceneCheckpoint } from "./completeRecoverySceneCheckpoint";
 import { createRecoverySceneSeedReportObserver } from "./createRecoverySceneSeedReportObserver";
-import { describeRecoverySceneRegistration } from "../../internal/describeRecoverySceneRegistration";
+import { describeRecoverySceneRegistration } from "./describeRecoverySceneRegistration";
 import { fitRecoveryResectionConsensus } from "../../geometry/internal/fitRecoveryResectionConsensus";
 import { initializeRecoverySceneSeed } from "./initializeRecoverySceneSeed";
 import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
-import { prepareRecoverySceneFeasibleRouting } from "../../internal/prepareRecoverySceneFeasibleRouting";
-import { prepareRecoverySceneReportCapacity } from "../../internal/prepareRecoverySceneReportCapacity";
+import { prepareRecoverySceneFeasibleRouting } from "./prepareRecoverySceneFeasibleRouting";
+import { prepareRecoverySceneReportCapacity } from "./prepareRecoverySceneReportCapacity";
 import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
 
 /**

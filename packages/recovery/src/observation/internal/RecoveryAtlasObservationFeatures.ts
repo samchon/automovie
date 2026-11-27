@@ -9,7 +9,7 @@ import type {
   IAutoMovieRecoverySourceCrease,
 } from "@automovie/interface";
 
-import { RecoveryFeatureChartPreparation } from "../../internal/RecoveryFeatureChartPreparation";
+import { RecoveryFeatureChartPreparation } from "./RecoveryFeatureChartPreparation";
 
 /** Register feature-prepared charts and their original shared outcome records. */
 export function RecoveryAtlasObservationFeatures(

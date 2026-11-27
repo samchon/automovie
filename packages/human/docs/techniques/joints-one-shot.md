@@ -540,7 +540,7 @@ Pieces considered and dropped, each with the measurement:
 | Deleted | Replaced by |
 | --- | --- |
 | `armscye.*` port, its band, `cut.axilla`, `AutoMovieHumanF1Axilla`, `AXILLA_SEED`, `AXILLA_LAYER_MM` | The armscye's shared-loop join |
-| `AutoMovieHumanF1RootControls` loops (arm, breast, nose), `AutoMovieHumanF1RootRails`, `ARM_RAILS_MM`, `NOSE_RAILS_MM`, `RAIL_MM` | Derived loops; fold widths |
+| `AutoMovieHumanF1.ROOT_CONTROLS` loops (arm, breast, nose), `AutoMovieHumanF1RootRails`, `ARM_RAILS_MM`, `NOSE_RAILS_MM`, `RAIL_MM` | Derived loops; fold widths |
 | `AutoMovieHumanF1NativeRootLevel`, the arm's, the breast's and the nose's entries of the native root law, their level and clock calibration | The loop generated for the person |
 | `NOSE_PROFILES` | The alae as families |
 | `FANS` webs, corners, reach, square, fair; `FAN_ORIGINAL_CHORDS_MM`; `fanSeams`' authored phases; `CROTCH` knots | `compose` |
