@@ -2,7 +2,7 @@ import { critical as criticalImplementation } from "./internal/critical";
 import { planeFrame as planeFrameImplementation } from "./internal/planeFrame";
 import { sourceOrientation as sourceOrientationImplementation } from "./internal/sourceOrientation";
 
-import { type AutoMovieVector2Tuple, type AutoMovieVector3Tuple, type IAutoMoviePlaneFrame, type IAutoMovieMeshCriticalPoints, type IAutoMoviePlaneFrameConstruction, type IAutoMovieMeshSectionOrientation } from "@automovie/interface";
+import { type AutoMovieVector2Tuple, type AutoMovieVector3Tuple, type IAutoMoviePlaneFrame, type IAutoMovieMeshPlaneCut, type IAutoMovieMeshCriticalPoints, type IAutoMoviePlaneFrameConstruction, type IAutoMovieMeshSectionOrientation } from "@automovie/interface";
 
 import { cross as crossOperation } from "../internal/mesh-observations/cross";
 import { dist as distOperation } from "../internal/mesh-observations/dist";
@@ -13,6 +13,8 @@ import { norm as normOperation } from "../internal/mesh-observations/norm";
 import { signedArea as signedAreaOperation } from "../internal/mesh-observations/signedArea";
 import { sub as subOperation } from "../internal/mesh-observations/sub";
 import { to2 as to2Operation } from "../internal/mesh-observations/to2";
+import { cutExact as cutExactImplementation } from "../internal/mesh-observations/cutExact";
+import { prepareCutExact as prepareCutExactImplementation } from "../internal/mesh-observations/prepareCutExact";
 
 /** Pure vector and planar-coordinate operations for Recovery geometry. */
 export namespace AutoMovieRecoveryGeometry {
@@ -79,6 +81,56 @@ export namespace AutoMovieRecoveryGeometry {
     return to2Operation(plane, point);
   }
 
+  /**
+   * Intersect a triangle surface with a plane without epsilon displacement or
+   * branch loss. Equal signed zero vertices retain exact source positions.
+   * Coplanar triangles contribute only qualified patch-boundary edges; binary64
+   * signs are not exact predicates. Every graph edge is visited once in maximal
+   * degree-two chains, so junctions terminate separate open chains. Isolated
+   * tangent contacts return one-point open polylines instead of disappearing. A
+   * supplied scalar chart shares the exact height samples used for PL topology;
+   * its signs and edge fractions use height minus level without reprojecting an
+   * origin.
+   */
+  export function cutExact(
+    skin: Parameters<IAutoMovieMeshPlaneCut.Operation>[0],
+    plane: Parameters<IAutoMovieMeshPlaneCut.Operation>[1],
+    select?: Parameters<IAutoMovieMeshPlaneCut.Operation>[2],
+    chart?: Parameters<IAutoMovieMeshPlaneCut.Operation>[3],
+  ): ReturnType<IAutoMovieMeshPlaneCut.Operation> {
+    return cutExactImplementation(skin, plane, select, chart);
+  }
+
+  /**
+   * Reusable admission for deterministic source-plane observations. Prepared
+   * queries consume one immutable source and scalar chart, with optional complete
+   * face candidates.
+   *
+   * Admit immutable source positions, incidence and scalar heights once. The
+   * caller keeps every supplied array unchanged until all queries finish. Each
+   * query accepts original face IDs in strictly increasing order; candidates
+   * must include every face whose scalar interval contains level, including
+   * ties. Omitting candidates scans every face. The optional filter sees
+   * original IDs. The supplied plane retains the physical chart, while heights
+   * minus level own predicates. retainSourceFaces copies actual emitting faces,
+   * excluding endpoint-star neighbors. retainOrderedSource additionally
+   * preserves directed segments and original edge alias witnesses. Both default
+   * false; omitted mode retains original properties and numeric paths. Binary64
+   * predicates are not certified exact arithmetic.
+   */
+  export function prepareCutExact(
+    skin: Parameters<IAutoMovieMeshPlaneCut.Prepare>[0],
+    heights: Parameters<IAutoMovieMeshPlaneCut.Prepare>[1],
+    retainSourceFaces: Parameters<IAutoMovieMeshPlaneCut.Prepare>[2] = false,
+    retainOrderedSource: Parameters<IAutoMovieMeshPlaneCut.Prepare>[3] = false,
+  ): ReturnType<IAutoMovieMeshPlaneCut.Prepare> {
+    return prepareCutExactImplementation(
+      skin,
+      heights,
+      retainSourceFaces,
+      retainOrderedSource,
+    );
+  }
   /**
    * Classifies generic PL height vertices by connected lower and upper links.
    * Equal heights use a private symbolic address order without perturbing

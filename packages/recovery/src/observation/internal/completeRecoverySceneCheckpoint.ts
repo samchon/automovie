@@ -19,7 +19,7 @@ import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 import { growRecoverySceneLandmarks } from "./growRecoverySceneLandmarks";
 import { prepareRecoveryCheckpointReportCapacity } from "./prepareRecoveryCheckpointReportCapacity";
 import { refineRecoveryCameraMap } from "./refineRecoveryCameraMap";
-import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
+import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
 /**
  * Complete a detached scene transaction through growth and full joint geometry.

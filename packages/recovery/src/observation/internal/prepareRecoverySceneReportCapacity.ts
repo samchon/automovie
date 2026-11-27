@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
-import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
+import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
 /** Acquire scene diagnostic retention inside the existing seed transaction try. */
 export function prepareRecoverySceneReportCapacity(

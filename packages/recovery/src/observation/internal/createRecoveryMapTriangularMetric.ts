@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
-import { validateRecoveryMapMetricScales } from "../../internal/validateRecoveryMapMetricScales";
+import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
 
 /** Bind one point-first upper factor and original column scales to its actions. */
 export function createRecoveryMapTriangularMetric(

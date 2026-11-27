@@ -5,7 +5,7 @@ import type {
   IAutoMovieRecoverySceneWork,
 } from "@automovie/interface";
 
-import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
+import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
 /** Own one explicit scene method request before any user checkpoint. */
 export function prepareRecoverySceneFeasibleRouting(

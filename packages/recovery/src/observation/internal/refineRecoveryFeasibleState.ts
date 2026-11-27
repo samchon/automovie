@@ -14,9 +14,9 @@ import type {
   IAutoMovieSimplexBudget,
 } from "@automovie/interface";
 
-import { createRecoveryFeasibleSqpArc } from "../observation/internal/createRecoveryFeasibleSqpArc";
+import { createRecoveryFeasibleSqpArc } from "./createRecoveryFeasibleSqpArc";
 import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
-import { solveRecoveryFeasibleDirection } from "../observation/internal/solveRecoveryFeasibleDirection";
+import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";
 
 /**
  * Refine a feasible fixed-population recovery state with strictly inward

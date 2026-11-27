@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoverySceneSeedReportObserverCreationOperation,
 } from "@automovie/interface";
 
-import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
+import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
 /**
  * Preserve the last completed initial joint report until seed qualification.

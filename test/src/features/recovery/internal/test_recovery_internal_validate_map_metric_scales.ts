@@ -1,8 +1,8 @@
-import { validateRecoveryMapMetricScales } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `validateRecoveryMapMetricScales` admits positive camera column scales, at
+ * `AutoMovieRecoveryCameraMap.validateMapMetricScales` admits positive camera column scales, at
  * least one, and three positive scales per point.
  *
  * Scenarios:
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  *    point refuse.
  */
 export function test_recovery_internal_validate_map_metric_scales(): void {
-  validateRecoveryMapMetricScales([1, 2], [[1, 1, 1]]);
+  AutoMovieRecoveryCameraMap.validateMapMetricScales({ cameraScales: [1, 2], pointScales: [[1, 1, 1]] });
   const refused: [string, number[], number[][]][] = [
     ["no camera scale", [], [[1, 1, 1]]],
     ["a zero camera scale", [0], [[1, 1, 1]]],
@@ -21,6 +21,6 @@ export function test_recovery_internal_validate_map_metric_scales(): void {
   ];
   for (const [name, camera, points] of refused)
     TestValidator.error(name, (): void =>
-      validateRecoveryMapMetricScales(camera, points),
+      AutoMovieRecoveryCameraMap.validateMapMetricScales({ cameraScales: camera, pointScales: points }),
     );
 }

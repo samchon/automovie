@@ -14,7 +14,7 @@ import type {
 
 import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "../../geometry/internal/bindRecoverySavedSectionCuts";
-import { cutExact } from "../../internal/mesh-observations/cutExact";
+import { prepareCutExact } from "../../internal/mesh-observations/prepareCutExact";
 import { planeFrame } from "../../geometry/internal/planeFrame";
 import { observeRecoverySourceSlabs } from "../../geometry/internal/observeRecoverySourceSlabs";
 import { prepareRecoveryMeshIncidence } from "../../geometry/internal/prepareRecoveryMeshIncidence";
@@ -112,7 +112,7 @@ export function observeAutoMovieRecoverySlabs(
     );
     const index: ReturnType<IAutoMovieRecoveryScalarIndex.Create> =
       RecoveryScalarIndex.create(input.triangles, heights);
-    const cut: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
+    const cut: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = prepareCutExact(
       prepared.mesh,
       heights,
       true,

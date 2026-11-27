@@ -24,7 +24,7 @@ import { initializeRecoverySceneSeed } from "./initializeRecoverySceneSeed";
 import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
 import { prepareRecoverySceneFeasibleRouting } from "./prepareRecoverySceneFeasibleRouting";
 import { prepareRecoverySceneReportCapacity } from "./prepareRecoverySceneReportCapacity";
-import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
+import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
 /**
  * Register a bounded calibrated image set into one qualified sparse component.

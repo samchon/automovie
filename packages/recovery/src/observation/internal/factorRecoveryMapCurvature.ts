@@ -7,7 +7,7 @@ import type {
 
 import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangularMetric";
 import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
-import { validateRecoveryMapMetricScales } from "../../internal/validateRecoveryMapMetricScales";
+import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
 
 /** Factor one owned scaled arrowhead and preflight all fixed physical rows. */
 export function factorRecoveryMapCurvature(

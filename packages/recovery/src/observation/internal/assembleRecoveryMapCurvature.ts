@@ -9,7 +9,7 @@ import type {
 
 import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { differentiateRecoveryMapProjection } from "./differentiateRecoveryMapProjection";
-import { validateRecoveryMapMetricScales } from "../../internal/validateRecoveryMapMetricScales";
+import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
 
 /** Assemble lagged fixed-dual local curvature in original-design scaled units. */
 export function assembleRecoveryMapCurvature(

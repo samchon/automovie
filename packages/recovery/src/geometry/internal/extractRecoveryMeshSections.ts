@@ -19,7 +19,7 @@ import { RecoveryScalarIndex as S } from "../../internal/RecoveryScalarIndex";
 import { RecoverySlabGraph as G } from "../../internal/RecoverySlabGraph";
 import { createRecoveryObservationPolicy } from "../../observation/internal/createRecoveryObservationPolicy";
 import { critical } from "./critical";
-import { cutExact } from "../../internal/mesh-observations/cutExact";
+import { prepareCutExact } from "../../internal/mesh-observations/prepareCutExact";
 import { planeFrame } from "./planeFrame";
 import { sourceOrientation } from "./sourceOrientation";
 import { observeRecoverySection } from "./observeRecoverySection";
@@ -84,7 +84,7 @@ export function extractRecoveryMeshSections(
   const scalarHeights: number[] = vertices.map(project);
   const scalarIndex: ReturnType<IAutoMovieRecoveryScalarIndex.Create> =
     S.create(mesh.triangles, scalarHeights);
-  const slice: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
+  const slice: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = prepareCutExact(
     mesh,
     scalarHeights,
   );

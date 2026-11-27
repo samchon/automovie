@@ -21,7 +21,7 @@ import type {
 
 import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
 import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
-import { cutExact } from "../../internal/mesh-observations/cutExact";
+import { prepareCutExact } from "../../internal/mesh-observations/prepareCutExact";
 import { planeFrame } from "../../geometry/internal/planeFrame";
 import { sourceOrientation } from "../../geometry/internal/sourceOrientation";
 import { observeRecoverySection } from "../../geometry/internal/observeRecoverySection";
@@ -127,7 +127,7 @@ export function observeAutoMovieRecoverySections<
     );
     const index: ReturnType<IAutoMovieRecoveryScalarIndex.Create> =
       RecoveryScalarIndex.create(input.triangles, heights);
-    const slice: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
+    const slice: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = prepareCutExact(
       prepared.mesh,
       heights,
       input.includeExactSourceLineage === true ||

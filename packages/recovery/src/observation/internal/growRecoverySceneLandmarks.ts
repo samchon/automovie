@@ -9,7 +9,7 @@ import type {
 
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
-import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";
+import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 import { triangulateRecoverySceneTrack } from "./triangulateRecoverySceneTrack";
 
 /**

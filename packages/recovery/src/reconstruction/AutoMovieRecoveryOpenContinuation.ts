@@ -16,7 +16,7 @@ import type {
 import { RecoveryOpenSlabGraph as O } from "../internal/RecoveryOpenSlabGraph";
 import { RecoveryScalarIndex as S } from "../internal/RecoveryScalarIndex";
 import { critical } from "../geometry/internal/critical";
-import { cutExact } from "../internal/mesh-observations/cutExact";
+import { prepareCutExact } from "../internal/mesh-observations/prepareCutExact";
 import { planeFrame } from "../geometry/internal/planeFrame";
 import { prepareRecoveryOpenSlabGraph as prepareSlabGraphImplementation } from "./internal/prepareRecoveryOpenSlabGraph";
 
@@ -71,7 +71,7 @@ export namespace AutoMovieRecoveryOpenContinuation {
       mesh.triangles,
       heights,
     );
-    const slice: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = cutExact.prepare(
+    const slice: ReturnType<IAutoMovieMeshPlaneCut.Prepare> = prepareCutExact(
       mesh,
       heights,
     );

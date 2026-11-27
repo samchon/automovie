@@ -40,7 +40,7 @@ import { evaluateRecoveryScenePoint as evaluateRecoveryScenePointImplementation 
 import { growRecoverySceneLandmarks as growRecoverySceneLandmarksImplementation } from "./internal/growRecoverySceneLandmarks";
 import { factorRecoveryMapMetric as factorRecoveryMapMetricImplementation } from "./internal/factorRecoveryMapMetric";
 
-import { type IAutoMovieRecoveryCameraMapAdmissionOperation, type IAutoMovieRecoveryCameraPairAdmissionOperation, type IAutoMovieRecoveryCameraSceneAdmissionOperation, type IAutoMovieRecoveryCameraChartCreationOperation, type IAutoMovieRecoveryCameraEstimateCreationOperation, type IAutoMovieRecoveryCameraMapCreationOperation, type IAutoMovieRecoveryCameraSceneCreationOperation, type IAutoMovieRecoveryImageDirectionSolverCreationOperation, type IAutoMovieRecoveryPoseModelCreationOperation, type IAutoMovieRecoveryFeasibleMapLinearization, type IAutoMovieRecoveryMapState, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryPoseResidualsLinearizeOperation, type IAutoMovieRecoveryMapPointProjectionOperation, type IAutoMovieRecoveryCameraMapRefinementOperation, type IAutoMovieRecoveryMapJointResult, type IAutoMovieRecoveryMapPose, type IAutoMovieRecoveryMapLandmark, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryFeasibleJointOptions, type IAutoMovieRecoveryFeasibleReportCapacity, type IAutoMovieRecoveryMapDesignSolutionOperation, type IAutoMovieRecoveryMapJointStepSolutionOperation, type IAutoMovieRecoveryRelativePoseStepOperation, type IAutoMovieRecoverySceneSupportCollectionOperation, type IAutoMovieRecoverySceneCheckpointCompletionOperation, type IAutoMovieRecoverySceneSeedReportObserverCreationOperation, type IAutoMovieRecoveryScenePointEvaluationOperation, type IAutoMovieRecoverySceneLandmarksGrowthOperation, type IAutoMovieRecoveryMapMetricFit, type IAutoMovieRecoveryMapJointBlock, type IAutoMovieRecoveryFeasibleSqpStepMixingOperation, type IAutoMovieRecoveryCurvatureAdmission, type IAutoMovieRecoveryMapCurvatureBlocks, type IAutoMovieRecoveryUntiltedEstimate, type IAutoMovieRecoveryMapMetricScales, type IAutoMovieRecoveryCameraSceneBudget, type IAutoMovieRecoveryFeasibleDiagnostics, type IAutoMovieRecoveryFeasibleFit, type IAutoMovieRecoverySqpArc, type IAutoMovieRecoveryFeasibleModel, type IAutoMovieRecoverySqpOptions, type IAutoMovieRecoveryMapMetric, type IAutoMovieRecoveryMapTriangularMetric, type IAutoMovieRecoverySceneRegistration, type IAutoMovieRecoveryCameraSceneEstimate, type IAutoMovieRecoverySceneCandidate, type IAutoMovieRecoveryMapLocalCurvature, type IAutoMovieRecoveryMapCurvatureFit, type IAutoMovieSimplexAtom, type IAutoMovieRecoveryMapDesignFactor, type IAutoMovieRecoveryFeasibleArithmetic, type IAutoMovieSimplexMinimum, type IAutoMovieRecoveryCheckpointReporting, type IAutoMovieRecoverySceneWork, type IAutoMovieRecoveryFeasibleMapReporting, type IAutoMovieRecoveryFeasibleMapWork, type IAutoMovieRecoveryMapJointPreparation, type IAutoMovieRecoverySceneFeasibleRouting, type IAutoMovieRecoveryRegularizationUpdate, type IAutoMovieRecoverySqpTightening, type IAutoMovieRecoveryFeasibleDirection, type IAutoMovieSimplexBudget } from "@automovie/interface";
+import { type IAutoMovieRecoveryCameraMapAdmissionOperation, type IAutoMovieRecoveryCameraPairAdmissionOperation, type IAutoMovieRecoveryCameraSceneAdmissionOperation, type IAutoMovieRecoveryCameraChartCreationOperation, type IAutoMovieRecoveryCameraEstimateCreationOperation, type IAutoMovieRecoveryCameraMapCreationOperation, type IAutoMovieRecoveryCameraSceneCreationOperation, type IAutoMovieRecoveryImageDirectionSolverCreationOperation, type IAutoMovieRecoveryPoseModelCreationOperation, type IAutoMovieRecoveryFeasibleMapLinearization, type IAutoMovieRecoveryMapState, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryPoseResidualsLinearizeOperation, type IAutoMovieRecoveryMapPointProjectionOperation, type IAutoMovieRecoveryCameraMapRefinementOperation, type IAutoMovieRecoveryMapJointResult, type IAutoMovieRecoveryMapPose, type IAutoMovieRecoveryMapLandmark, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryFeasibleJointOptions, type IAutoMovieRecoveryFeasibleReportCapacity, type IAutoMovieRecoveryMapDesignSolutionOperation, type IAutoMovieRecoveryMapJointStepSolutionOperation, type IAutoMovieRecoveryRelativePoseStepOperation, type IAutoMovieRecoverySceneSupportCollectionOperation, type IAutoMovieRecoverySceneCheckpointCompletionOperation, type IAutoMovieRecoverySceneSeedReportObserverCreationOperation, type IAutoMovieRecoveryScenePointEvaluationOperation, type IAutoMovieRecoverySceneLandmarksGrowthOperation, type IAutoMovieRecoveryMapMetricFit, type IAutoMovieRecoveryMapJointBlock, type IAutoMovieRecoveryFeasibleSqpStepMixingOperation, type IAutoMovieRecoveryCurvatureAdmission, type IAutoMovieRecoveryMapCurvatureBlocks, type IAutoMovieRecoveryUntiltedEstimate, type IAutoMovieRecoveryMapMetricScales, type IAutoMovieRecoveryCameraSceneBudget, type IAutoMovieRecoveryFeasibleDiagnostics, type IAutoMovieRecoveryFeasibleFit, type IAutoMovieRecoverySqpArc, type IAutoMovieRecoveryFeasibleModel, type IAutoMovieRecoverySqpOptions, type IAutoMovieRecoveryMapMetric, type IAutoMovieRecoveryMapTriangularMetric, type IAutoMovieRecoverySceneRegistration, type IAutoMovieRecoveryCameraSceneEstimate, type IAutoMovieRecoverySceneCandidate, type IAutoMovieRecoveryMapLocalCurvature, type IAutoMovieRecoveryMapCurvatureFit, type IAutoMovieSimplexAtom, type IAutoMovieRecoveryMapDesignFactor, type IAutoMovieRecoveryFeasibleArithmetic, type IAutoMovieSimplexMinimum, type IAutoMovieRecoveryCheckpointReporting, type IAutoMovieRecoverySceneWork, type IAutoMovieRecoveryFeasibleMapReporting, type IAutoMovieRecoveryFeasibleMapWork, type IAutoMovieRecoveryMapJointPreparation, type IAutoMovieRecoverySceneFeasibleRouting, type IAutoMovieRecoveryRegularizationUpdate, type IAutoMovieRecoverySqpTightening, type IAutoMovieRecoveryFeasibleDirection, type IAutoMovieRecoveryFeasibleStateRefinementOperation, type IAutoMovieRecoveryFeasibleProblem, type IAutoMovieRecoveryFeasibleTrialSelection, type IAutoMovieRecoveryFeasibleTrials, type IAutoMovieSimplexBudget } from "@automovie/interface";
 import { admitRecoveryCameraMap as admitRecoveryCameraMapImplementation } from "./internal/admitRecoveryCameraMap";
 import { admitRecoveryCameraPair as admitRecoveryCameraPairImplementation } from "./internal/admitRecoveryCameraPair";
 import { admitRecoveryCameraScene as admitRecoveryCameraSceneImplementation } from "./internal/admitRecoveryCameraScene";
@@ -58,6 +58,10 @@ import { refineRecoveryCameraMapFeasible as refineRecoveryCameraMapFeasibleImple
 import { solveRecoveryMapDesign as solveRecoveryMapDesignImplementation } from "./internal/solveRecoveryMapDesign";
 import { solveRecoveryMapJointStep as solveRecoveryMapJointStepImplementation } from "./internal/solveRecoveryMapJointStep";
 import { stepRecoveryRelativePose as stepRecoveryRelativePoseImplementation } from "./internal/stepRecoveryRelativePose";
+import { refineRecoveryFeasibleState as refineFeasibleStateImplementation } from "./internal/refineRecoveryFeasibleState";
+import { selectRecoveryFeasibleTrial as selectFeasibleTrialImplementation } from "./internal/selectRecoveryFeasibleTrial";
+import { spendRecoverySceneWork as spendSceneWorkImplementation } from "./internal/spendRecoverySceneWork";
+import { validateRecoveryMapMetricScales as validateMapMetricScalesImplementation } from "./internal/validateRecoveryMapMetricScales";
 
 /** Public operations for Auto Movie Recovery Camera Map. */
 export namespace AutoMovieRecoveryCameraMap {
@@ -523,8 +527,71 @@ export namespace AutoMovieRecoveryCameraMap {
     return solveRecoveryFeasibleDirectionImplementation(width, rows, tolerance, budget, charge);
   }
 
+  /** Charge aggregate scene work before an action, without geometry rollback. */
+  export function spendSceneWork(
+    work: IAutoMovieRecoverySceneWork,
+    budget: IAutoMovieRecoveryCameraSceneBudget,
+    kind: Parameters<typeof spendSceneWorkImplementation>[2],
+    amount: number,
+  ): void {
+    spendSceneWorkImplementation(work, budget, kind, amount);
+  }
+
+  /** Validate every original column scale, including sparse-array holes. */
+  export function validateMapMetricScales(scales: IAutoMovieRecoveryMapMetricScales): void {
+    validateMapMetricScalesImplementation(scales.cameraScales, scales.pointScales);
+  }
   /** Validate owned sparse physical-row metadata before optional arithmetic. */
   export function validateMapMetricRow(row: IAutoMovieSimplexAtom, width: number): void {
     validateRecoveryMapMetricRowImplementation(row, width);
+  }
+  /** Refine one caller-defined feasible camera state under explicit trial and work limits. */
+  export function refineFeasibleState<State>(
+    problem: Parameters<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>>[0],
+    maxTrials: Parameters<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>>[1],
+    tolerance: Parameters<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>>[2],
+    directionBudget: Parameters<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>>[3],
+    checkpoint: Parameters<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>>[4],
+    charge: Parameters<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>>[5],
+    acceleration?: Parameters<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>>[6],
+  ): ReturnType<IAutoMovieRecoveryFeasibleStateRefinementOperation.Operation<State>> {
+    return refineFeasibleStateImplementation(
+      problem,
+      maxTrials,
+      tolerance,
+      directionBudget,
+      checkpoint,
+      charge,
+      acceleration,
+    );
+  }
+
+  /** Select the best qualified same-base feasible-state trial without asserting convergence. */
+  export function selectFeasibleTrial<State>(
+    problem: IAutoMovieRecoveryFeasibleProblem<State>,
+    state: State,
+    cost: number,
+    baseline: readonly number[],
+    baselineSlope: number,
+    arc: IAutoMovieRecoverySqpArc | null,
+    mixedSlope: number,
+    remaining: number,
+    trials: IAutoMovieRecoveryFeasibleTrials,
+    checkpoint: () => void,
+    charge: (work: number) => void,
+  ): IAutoMovieRecoveryFeasibleTrialSelection<State> {
+    return selectFeasibleTrialImplementation(
+      problem,
+      state,
+      cost,
+      baseline,
+      baselineSlope,
+      arc,
+      mixedSlope,
+      remaining,
+      trials,
+      checkpoint,
+      charge,
+    );
   }
 }

@@ -35,7 +35,7 @@ import { linearizeRecoveryFeasibleMap } from "./linearizeRecoveryFeasibleMap";
 import { predictRecoveryMapDecrease } from "./predictRecoveryMapDecrease";
 import { prepareRecoveryFeasibleMapReporting } from "./prepareRecoveryFeasibleMapReporting";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
-import { refineRecoveryFeasibleState } from "../../internal/refineRecoveryFeasibleState";
+import { refineRecoveryFeasibleState } from "./refineRecoveryFeasibleState";
 import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
 import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
 import { updateRecoveryRegularization } from "./updateRecoveryRegularization";

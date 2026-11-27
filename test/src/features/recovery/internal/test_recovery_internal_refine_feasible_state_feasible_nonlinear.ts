@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryFeasibleProblem,
   IAutoMovieSimplexAtom,
 } from "@automovie/interface";
-import { refineRecoveryFeasibleState } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IRecoveryFeasibleObservation } from "../../internal/IRecoveryFeasibleObservation";
@@ -209,7 +209,7 @@ export function test_recovery_internal_refine_feasible_state_feasible_nonlinear(
         checkpoints: 0,
       };
       observed.push(row);
-      return refineRecoveryFeasibleState(
+      return AutoMovieRecoveryCameraMap.refineFeasibleState(
         { ...problem, accepted: notify(at) },
         100,
         1e-8,
@@ -230,7 +230,7 @@ export function test_recovery_internal_refine_feasible_state_feasible_nonlinear(
     ): IAutoMovieRecoveryFeasibleFit<number[]> => {
       const row: IRecoveryFeasibleObservation = { work: 0, checkpoints: 0 };
       observed.push(row);
-      return refineRecoveryFeasibleState(
+      return AutoMovieRecoveryCameraMap.refineFeasibleState(
         { ...problem, accepted: notify(3 + at) },
         100,
         1e-8,
@@ -302,7 +302,7 @@ export function test_recovery_internal_refine_feasible_state_feasible_nonlinear(
     { indices: [], values: [], offset: 0 },
   ];
   const abnormal: IAutoMovieRecoveryFeasibleFit<number[]> =
-    refineRecoveryFeasibleState(
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       {
         initial: [0],
         evaluate: (s: number[]): number | null => (s[0] === 0 ? -s[0]! : null),
@@ -323,7 +323,7 @@ export function test_recovery_internal_refine_feasible_state_feasible_nonlinear(
       (): void => {},
     );
   const exhausted: IAutoMovieRecoveryFeasibleFit<number[]> =
-    refineRecoveryFeasibleState(
+    AutoMovieRecoveryCameraMap.refineFeasibleState(
       problems[2]!,
       1,
       1e-8,

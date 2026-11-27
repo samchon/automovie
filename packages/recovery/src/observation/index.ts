@@ -4,6 +4,6 @@ export * from "./AutoMovieRecoveryOrderedLineage";
 
 export * from "./AutoMovieRecoveryObservation";
 
-export { AutoMovieRecoveryTrackLineage } from "./AutoMovieRecoveryTrackLineage";
+export * from "./AutoMovieRecoveryTrackLineage";
 
-export { AutoMovieRecoveryCameraMap } from "./AutoMovieRecoveryCameraMap";
+export * from "./AutoMovieRecoveryCameraMap";
