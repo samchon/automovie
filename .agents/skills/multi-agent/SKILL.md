@@ -30,6 +30,11 @@ Audit every 10 minutes unless the user sets another interval.
 
 ## Continuing
 
-When an active Claude Code worker stops for context, direct it explicitly to continue in the same session. Claude Code compacts earlier turns as needed.
+A Claude Code subagent may stop mid-task with a message like this:
 
-If the session cannot resume, use its latest verified files, checks and decisions to brief an authorized replacement. Record the interruption and keep any unverified result open.
+> My context is nearly full. I'll stop here; a fresh agent can pick this up from my notes.
+
+Claude Code can compact the context on its own.
+
+The main session resumes the same subagent with a firm order to continue the
+task and never stop for context. A mild request to resume does not hold.

@@ -6,7 +6,7 @@ Direct the commission within the user's [delegated choices](../story/planning/di
 
 ## Assignments
 
-Confirm [scope and authority](project-context.md#intake). [Register required production checks](checks.md) before drafting. Give the writer the instructions, inputs and deliverable. Follow the user's authority over roles and worker count. Assign [separate contexts](../story/workflow/routes.md#separate-contexts) to the writer and, when required, the Evidence answerer and independent reviewer. The independent reviewer owns the verdict. [Resume interrupted workers](../multi-agent/continuing.md) when needed.
+Confirm [scope and authority](project-context.md#intake). [Register required production checks](checks.md) before drafting. Give the writer the instructions, inputs and deliverable. Follow the user's authority over roles and worker count. Assign [separate contexts](../story/workflow/routes.md#separate-contexts) to the writer and, when required, the Evidence answerer and independent reviewer. The independent reviewer owns the verdict. [Resume interrupted workers](../multi-agent/SKILL.md#continuing) when needed.
 
 ## Judgment and revision
 
