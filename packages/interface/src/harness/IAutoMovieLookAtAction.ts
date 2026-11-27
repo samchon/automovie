@@ -6,10 +6,9 @@ import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  *
  * `performShot` refuses a target that does not resolve to one point, which
  * includes the relative kinds and a group naming a formation. The reference
- * synthesizer (AutoMovieEngineFilm.makeActorSynthesizer) aims from the actor''s
- * eye height and,
- * for any id with an actor context, at that actor's eye height rather than its
- * feet, then solves yaw and pitch and spreads them over `neck` and `head`
+ * synthesizer (`AutoMovieEngineFilm.makeActorSynthesizer`) aims from the actor's
+ * eye height. When the target ID has an actor context, it aims at that actor's
+ * eyes. It then solves yaw and pitch and spreads them over `neck` and `head`
  * within the rig's declared range when the context carries one. The solve runs
  * once at `start` and is held, unless the target is a bone or the host supplies
  * the actor's moving frame, in which case it is resampled through the span. An

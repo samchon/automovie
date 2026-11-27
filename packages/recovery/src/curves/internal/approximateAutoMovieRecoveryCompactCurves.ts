@@ -44,6 +44,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
   });
   if (
     ![3, 4, 5, "mixed"].includes(options.degree) ||
+    !Number.isSafeInteger(options.maximumQueries) ||
     options.maximumQueries < 1
   )
     diagnostics.push(
@@ -51,7 +52,8 @@ export function approximateAutoMovieRecoveryCompactCurves(
     );
   if (
     curve.knots.some(
-      (t: number): boolean => t <= curve.domain.start || t >= curve.domain.end,
+      (t: number): boolean =>
+        !Number.isFinite(t) || t <= curve.domain.start || t >= curve.domain.end,
     )
   )
     diagnostics.push(

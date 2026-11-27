@@ -2,11 +2,14 @@ import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBicubicAtlasGeometry,
   IAutoMovieEllipticLoft,
+  IAutoMoviePhysicalYInterval,
   IAutoMovieRecoveryImageLoft,
   IAutoMovieRecoveryImageLoftBudget,
   IAutoMovieRecoveryImageRealization,
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
+
+import { scaleRecoveryLoftIntervals } from "./scaleRecoveryLoftIntervals";
 
 /*
  * Generate an ordinary AutoMovie bicubic model and its actual construction from
@@ -47,20 +50,17 @@ export function compileAutoMovieRecoveryImageLoft(
       throw new Error(
         "invalid-image-recipe: aligned-section coefficients, explicit coverage and admissible independent dimensions required",
       );
-    const anchor: number = recipe.loft.spans[0]?.interval?.lowerY;
+    const intervals: IAutoMoviePhysicalYInterval[] = scaleRecoveryLoftIntervals(
+      recipe.loft.spans,
+      recipe.dimensions.heightScale,
+    );
     const scaled: IAutoMovieEllipticLoft = {
       spans: recipe.loft.spans.map(
         (
           span: IAutoMovieEllipticLoft["spans"][number],
+          index: number,
         ): IAutoMovieEllipticLoft["spans"][number] => ({
-          interval: {
-            lowerY:
-              anchor +
-              (span.interval.lowerY - anchor) * recipe.dimensions.heightScale,
-            upperY:
-              anchor +
-              (span.interval.upperY - anchor) * recipe.dimensions.heightScale,
-          },
+          interval: intervals[index]!,
           radiusX: scale4(span.radiusX, recipe.dimensions.widthScale),
           radiusZ: scale4(span.radiusZ, recipe.dimensions.depthScale),
           centreX: scale4(span.centreX, recipe.dimensions.widthScale),

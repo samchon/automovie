@@ -83,16 +83,19 @@ export namespace AutoMovieRecoveryConicApproximation {
       errors.push("Source domain must be finite and strictly increasing.");
     if (
       curve.breaks.some(
-        (t: number): boolean => t <= curve.domain.start || t >= curve.domain.end,
+        (t: number): boolean =>
+          !Number.isFinite(t) || t <= curve.domain.start || t >= curve.domain.end,
       )
     )
       errors.push(
         "Every supplied break must be finite and strictly inside the source domain.",
       );
-    if (options.toleranceMm <= 0)
+    if (!Number.isFinite(options.toleranceMm) || options.toleranceMm <= 0)
       errors.push("toleranceMm must be finite and positive.");
     if (
+      !Number.isSafeInteger(options.maximumArcs) ||
       options.maximumArcs < 1 ||
+      !Number.isSafeInteger(options.maximumDepth) ||
       options.maximumDepth < 1 ||
       options.maximumDepth > 52
     )

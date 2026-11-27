@@ -17,6 +17,7 @@ const ROUNDING: number = 64 * Number.EPSILON * 6;
  *    braking. The hand opens in the coast alone.
  * 2. Sampling extra time stays at the nearest endpoint. A zero coast or zero ramp
  *    leaves no valid transfer.
+ * 3. Finite phase inputs whose total overflows leave no valid transfer.
  */
 export function test_motions_spacecraft_glide_clock(): void {
   const clock: spacecraftGlideClock.IClock = spacecraftGlideClock({
@@ -59,5 +60,12 @@ export function test_motions_spacecraft_glide_clock(): void {
         (): unknown => spacecraftGlideClock({ ramp: 1, coast: 0 }),
         "clock",
       ),
+  );
+  TestValidator.predicate(
+    "the transfer duration must be finite",
+    throwsError(
+      (): unknown => spacecraftGlideClock({ ramp: 8e307, coast: 8e307 }),
+      "clock",
+    ),
   );
 }

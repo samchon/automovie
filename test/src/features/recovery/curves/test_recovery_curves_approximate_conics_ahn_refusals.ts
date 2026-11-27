@@ -56,7 +56,12 @@ export function test_recovery_curves_approximate_conics_ahn_refusals(): void {
   // Invalid contracts and inadequate budgets must not return default geometry.
   for (const invalid of [
     { ...options, maximumArcs: 0 },
+    { ...options, maximumArcs: NaN },
+    { ...options, maximumArcs: 1.5 },
     { ...options, maximumDepth: 53 },
+    { ...options, maximumDepth: 1.5 },
+    { ...options, toleranceMm: NaN },
+    { ...options, toleranceMm: Infinity },
   ]) {
     const refusal: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
       convex,
@@ -65,6 +70,14 @@ export function test_recovery_curves_approximate_conics_ahn_refusals(): void {
     TestValidator.equals("invalid admission", refusal.status, "refused");
     TestValidator.equals("admission invokes no callbacks", refusal.queries, 0);
   }
+  const nonfiniteBreak: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
+    { ...convex, breaks: [NaN] },
+    options,
+  );
+  TestValidator.predicate(
+    "a nonfinite source break refuses before sampling",
+    nonfiniteBreak.status === "refused" && nonfiniteBreak.queries === 0,
+  );
   const throwing: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     {
       ...convex,

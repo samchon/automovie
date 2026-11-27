@@ -3,9 +3,12 @@ import type { IAutoMovieCaptureSelection } from "./IAutoMovieCaptureSelection.js
 import type { IAutoMovieCaptureTime } from "./IAutoMovieCaptureTime.js";
 
 /**
- * One planned cell: what fixed it, where it sits on the sheets, and whether it was drawn.
+ * Records what a planned capture cell draws, its sheet position and its outcome.
  *
- * The capture run creates one record per planned cell. Consumers borrow its nested selection, time and resolution data; the shape does not promise deep immutability. Subject-time, sheet-position and pixel-hash identities retain their separate meanings.
+ * The capture run creates one record per planned cell. Consumers borrow its
+ * nested selection, time and resolution data, which may remain mutable.
+ * Subject time, sheet position and pixel hash identify different aspects of the
+ * cell.
  */
 export type IAutoMovieCaptureCellRecord = {
   /** Position in the plan, from zero. */
@@ -54,13 +57,19 @@ export type IAutoMovieCaptureCellRecord = {
       /** Identity of the renderer that drew it, or null when the host did not state it. */
       backend: string | null;
 
-      /** The camera the view resolved to, as the host wrote it (a draw page writes the JSON of its `IAutoMovieInspectionCamera`), or null when the host did not state it. */
+      /**
+       * Resolved camera as written by the host, or null if omitted. A draw page
+       * writes its `IAutoMovieInspectionCamera` as JSON.
+       */
       camera: string | null;
 
-      /** The view text that draws that camera again, a fixed view with its scale and up when needed, which a later round copies as is; null when the host did not state it. */
+      /**
+       * A fixed view with its scale and up direction when needed. A later round
+       * copies the text to draw the same camera. Null if the host omitted it.
+       */
       repeat: string | null;
 
-      /** What each pattern of the cell's request and view resolved to, topmost paths and counts, or null when the host did not state it. */
+      /** Topmost resolved paths and counts for each request and view pattern, or null if omitted. */
       resolved: IAutoMovieCaptureResolution[] | null;
     }
   | {

@@ -1,7 +1,13 @@
 /**
- * The files a capture reads and writes, injected by its host so the capture core reaches no file system itself.
+ * Host-provided file operations for a capture.
  *
- * The capture host supplies these five file operations. Node fs/promises and Map-backed test storage satisfy this structural port without importing their types. Paths are slash-joined host strings; request parsing owns round-name admission and the folder validates plain claimed file names. The storage port itself accepts arbitrary paths and provides no sandbox. mkdir's return value is deliberately ignored, so it remains unknown.
+ * Node `fs/promises` and Map-backed test storage satisfy this port. The
+ * capture core uses the port for all file access and ignores the value returned
+ * by `mkdir`.
+ *
+ * Paths are slash-joined host strings. The request parser validates round names,
+ * and the folder validates claimed file names. The host supplies the sandbox
+ * when one is needed because this port accepts arbitrary paths.
  */
 export interface IAutoMovieCaptureStorage {
   /**

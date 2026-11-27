@@ -17,6 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  *    1e-9 at 138 nodes.
  * 2. The quintic (t, t^5) fits one complete quintic piece at degree five, and a
  *    cubic held to one piece cannot meet the tolerance, so it is refused.
+ * 3. An invalid query budget or nonfinite knot is refused before sampling.
  */
 export function test_recovery_curves_approximate_compact_curves(): void {
   const options: IAutoMovieCompactCurveApproximation.IOptions = {
@@ -60,6 +61,24 @@ export function test_recovery_curves_approximate_compact_curves(): void {
   const fitted: IAutoMovieCompactCurveApproximation.IResult = C.approximate(
     cubic,
     options,
+  );
+  for (const maximumQueries of [NaN, Infinity, 1.5]) {
+    const refusal: IAutoMovieCompactCurveApproximation.IResult = C.approximate(
+      cubic,
+      { ...options, maximumQueries },
+    );
+    TestValidator.predicate(
+      `invalid query budget ${maximumQueries} refuses before sampling`,
+      refusal.status === "refused" && refusal.queries === 0,
+    );
+  }
+  const invalidKnot: IAutoMovieCompactCurveApproximation.IResult = C.approximate(
+    { ...cubic, knots: [NaN] },
+    options,
+  );
+  TestValidator.predicate(
+    "a nonfinite source knot refuses before sampling",
+    invalidKnot.status === "refused" && invalidKnot.queries === 0,
   );
   TestValidator.equals("cubic complete", fitted.status, "complete");
   TestValidator.equals("sixteen pieces become one", fitted.pieces.length, 1);

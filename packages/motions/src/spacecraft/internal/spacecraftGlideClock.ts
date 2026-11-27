@@ -9,13 +9,16 @@ export function spacecraftGlideClock(
   const { ramp, coast } = props;
   const catchAt: number = ramp + coast;
   const duration: number = catchAt + ramp;
-  if (!(ramp > 0 && catchAt > ramp && duration > catchAt))
+  if (
+    !(ramp > 0 && catchAt > ramp && duration > catchAt) ||
+    !Number.isFinite(duration)
+  )
     throw new HumanRefusal({
       kind: "parameter",
       axis: "clock",
       value: { ramp, coast },
       reason: "the push, coast and brake require positive finite durations",
-      fix: "give ramp and coast in positive seconds",
+      fix: "give ramp and coast in positive seconds with a finite transfer duration",
     });
 
   return {

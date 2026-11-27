@@ -148,25 +148,19 @@ export function create(
   }
 
   /** Parameters for the pony kind. */
-  export interface IPonyParams
-    extends AutoMovieArchetypePony.IParams,
-      AutoMovieArchetypeMule.IParams {
+  export interface IPonyParams extends AutoMovieArchetypePony.IParams {
     /** The animal kind: `pony`. */
     kind: "pony";
   }
 
   /** Parameters for the donkey kind. */
-  export interface IDonkeyParams
-    extends AutoMovieArchetypePony.IParams,
-      AutoMovieArchetypeMule.IParams {
+  export interface IDonkeyParams extends AutoMovieArchetypeEquine.IParams {
     /** The animal kind: `donkey`. */
     kind: "donkey";
   }
 
   /** Parameters for the mule kind. */
-  export interface IMuleParams
-    extends AutoMovieArchetypePony.IParams,
-      AutoMovieArchetypeMule.IParams {
+  export interface IMuleParams extends AutoMovieArchetypeMule.IParams {
     /** The animal kind: `mule`. */
     kind: "mule";
   }

@@ -1,12 +1,15 @@
 import { AutoMovieEngineConvexSupportLoft } from "@automovie/engine";
 import type {
   IAutoMovieConvexSupportLoft,
+  IAutoMoviePhysicalYInterval,
   IAutoMovieRealizeConvexSupportLoft,
   IAutoMovieRecoveryResult,
   IAutoMovieRecoverySupportLoft,
   IAutoMovieRecoverySupportLoftBudget,
   IAutoMovieRecoverySupportRealization,
 } from "@automovie/interface";
+
+import { scaleRecoveryLoftIntervals } from "./scaleRecoveryLoftIntervals";
 
 /*
  * Generate new geometry, normal fans and construction from saved support
@@ -59,7 +62,10 @@ export function compileAutoMovieRecoverySupportLoft(
         throw new Error(
           "invalid-support-recipe: original plane normals must already be unit vectors",
         );
-    const anchor: number = recipe.loft.spans[0]?.interval?.lowerY;
+    const intervals: IAutoMoviePhysicalYInterval[] = scaleRecoveryLoftIntervals(
+      recipe.loft.spans,
+      recipe.dimensions.heightScale,
+    );
     const lengths: number[] = recipe.loft.planes.map(
       (plane: IAutoMovieConvexSupportLoft["planes"][number]): number =>
         Math.hypot(
@@ -83,15 +89,9 @@ export function compileAutoMovieRecoverySupportLoft(
       spans: recipe.loft.spans.map(
         (
           span: IAutoMovieConvexSupportLoft["spans"][number],
+          index: number,
         ): IAutoMovieConvexSupportLoft["spans"][number] => ({
-          interval: {
-            lowerY:
-              anchor +
-              (span.interval.lowerY - anchor) * recipe.dimensions.heightScale,
-            upperY:
-              anchor +
-              (span.interval.upperY - anchor) * recipe.dimensions.heightScale,
-          },
+          interval: intervals[index]!,
           offsets: span.offsets.map(
             (q: number[], i: number): [number, number, number, number] => [
               q[0]! / lengths[i]!,
