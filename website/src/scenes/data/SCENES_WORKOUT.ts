@@ -109,7 +109,14 @@ export const SCENES_WORKOUT: readonly IScene[] = [
           count: 3,
           on: { prop: "box", affordance: "surface" },
         }),
-        act("highKnees", { count: 4, tempo: [0.35, 0, 0.35] }),
+        act("highKnees", {
+          count: 4,
+          tempo: {
+            eccentricSeconds: 0.35,
+            bottomPauseSeconds: 0,
+            concentricSeconds: 0.35,
+          },
+        }),
         act("stand", { hold: 0.3 }),
         act("boxJump", {
           to: { x: BOX.x, y: BOX.height, z: BOX.z },
@@ -121,7 +128,14 @@ export const SCENES_WORKOUT: readonly IScene[] = [
           count: 2,
           on: { prop: "bench", affordance: "edge" },
         }),
-        act("lunges", { count: 2, tempo: [1.5, 0, 1] }),
+        act("lunges", {
+          count: 2,
+          tempo: {
+            eccentricSeconds: 1.5,
+            bottomPauseSeconds: 0,
+            concentricSeconds: 1,
+          },
+        }),
       ]),
     ],
     [
@@ -168,10 +182,24 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         act("selfAction", { kind: "neckRoll", count: 3 }),
       ]),
       person("oz", "m2", 2.4, 0, 0, [
-        act("highKnees", { count: 4, tempo: [0.35, 0, 0.35] }),
+        act("highKnees", {
+          count: 4,
+          tempo: {
+            eccentricSeconds: 0.35,
+            bottomPauseSeconds: 0,
+            concentricSeconds: 0.35,
+          },
+        }),
         act("burpee", { count: 4 }),
         act("handsOnHips", { hold: 1.2 }),
-        act("highKnees", { count: 4, tempo: [0.35, 0, 0.35] }),
+        act("highKnees", {
+          count: 4,
+          tempo: {
+            eccentricSeconds: 0.35,
+            bottomPauseSeconds: 0,
+            concentricSeconds: 0.35,
+          },
+        }),
       ]),
     ],
     [object("bench", "createBench", "flat", -0.8, 1.1, 90)],
@@ -258,7 +286,14 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       ]),
       person("val", "f2", -0.8, 0, 0, [
         act("jumpRope", { count: 16 }),
-        act("highKnees", { count: 4, tempo: [0.35, 0, 0.35] }),
+        act("highKnees", {
+          count: 4,
+          tempo: {
+            eccentricSeconds: 0.35,
+            bottomPauseSeconds: 0,
+            concentricSeconds: 0.35,
+          },
+        }),
         act("jumpRope", { count: 16 }),
       ]),
       person("wil", "f1", 0.8, 0, 0, [
@@ -270,7 +305,14 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         act("strides", { to: to(2.4, 4) }),
         act("buttKicks", { count: 4 }),
         act("strides", { to: to(2.4, -3) }),
-        act("aSkip", { count: 6, tempo: [0.35, 0, 0.35] }),
+        act("aSkip", {
+          count: 6,
+          tempo: {
+            eccentricSeconds: 0.35,
+            bottomPauseSeconds: 0,
+            concentricSeconds: 0.35,
+          },
+        }),
       ]),
     ],
     [object("bike", "createBicycle", undefined, -2.4, 0.9)],

@@ -40,13 +40,19 @@ import type { IAutoMovieMotionHumanHandToFaceRows } from "./IAutoMovieMotionHuma
  * the first carries it, as a camera is held in both hands.
  */
 export namespace IAutoMovieMotionHumanHandToFace {
-  /** A face hold duration range, in seconds. */
-  export interface IHoldRange {
+  /** Numeric bounds for a face hold duration range, in seconds. */
+  export interface ISecondsRange {
     /** Inclusive minimum duration. */
     readonly minimumSeconds: number;
 
     /** Inclusive maximum duration. */
     readonly maximumSeconds: number;
+  }
+
+  /** An evenly drawn hold duration bounded by its lower and upper seconds. */
+  export interface IHoldRange {
+    /** Lower and upper duration bounds. */
+    between: ISecondsRange;
   }
 
   /** Parameters. */

@@ -29,10 +29,10 @@ export namespace AutoMovieArchetypeQuadrupedRestPlan {
 
   /** World directions of the two distal limb bars in a resting pose. */
   export interface IFoldedDirections {
-    /** Third bar direction from straight down toward +Z, in degrees. */
+    /** Third bar direction from straight down toward +Z, in [-180, 180] degrees. */
     readonly thirdDegrees: number;
 
-    /** Fourth (distal) bar direction from straight down toward +Z, in degrees. */
+    /** Fourth distal bar direction from down toward +Z, in (-90, 90) degrees. */
     readonly fourthDegrees: number;
   }
 
@@ -72,9 +72,9 @@ export namespace AutoMovieArchetypeQuadrupedRestPlan {
     tailDirection: number;
 
     /**
-     * Authored world directions of the third and fourth bars when resting,
-     * degrees from straight down toward +Z. A distal fourth bar must point
-     * downward; left/right share carriage, while their lengths differ.
+     * Authored world directions from straight down toward +Z, in degrees: the
+     * third bar is within [-180, 180] and the distal fourth within (-90, 90),
+     * so it points down. Left/right share carriage; their lengths differ.
      */
     folded: Readonly<Record<"fore" | "hind", IFoldedDirections>>;
 

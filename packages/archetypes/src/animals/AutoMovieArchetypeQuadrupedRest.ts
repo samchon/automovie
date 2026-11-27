@@ -170,13 +170,18 @@ export namespace AutoMovieArchetypeQuadrupedRest {
     const roundoff: number = 256 * Number.EPSILON * scale;
     const standing: number =
       riseStart +
-      rising * Math.max(windows.body[1], windows.fore[1], windows.hind[1]);
+      rising *
+        Math.max(
+          windows.body.endShare,
+          windows.fore.endShare,
+          windows.hind.endShare,
+        );
     return {
       duration,
       events: Object.freeze({
-        bellyOn: lowering * (1 - windows.body[0]),
+        bellyOn: lowering * (1 - windows.body.startShare),
         riseStart,
-        bellyOff: riseStart + rising * windows.body[0],
+        bellyOff: riseStart + rising * windows.body.startShare,
         standing,
       }),
       sample,

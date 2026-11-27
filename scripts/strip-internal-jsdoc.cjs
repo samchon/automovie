@@ -8,6 +8,25 @@ const { run } = require("./export-refactor-worktree.cjs");
 const root = path.resolve(__dirname, "..");
 const provenance = /(?:copyright|SPDX-License-Identifier|@license|modified\s+(?:by|on)|https?:\/\/|www\.)/iu;
 const narrativeTags = new Set(["remarks", "example", "deprecated", "throws", "see", "todo"]);
+const semanticTags = new Set([
+  "alpha",
+  "beta",
+  "deprecated",
+  "experimental",
+  "internal",
+  "module",
+  "override",
+  "packageDocumentation",
+  "jsx",
+  "jsxFrag",
+  "jsxImportSource",
+  "private",
+  "protected",
+  "public",
+  "readonly",
+  "sealed",
+  "virtual",
+]);
 const linkKinds = new Set([
   ts.SyntaxKind.JSDocLink,
   ts.SyntaxKind.JSDocLinkCode,
@@ -20,21 +39,94 @@ function declarationName(node) {
     : undefined;
 }
 
+function bindingNames(binding, names) {
+  if (ts.isIdentifier(binding)) names.push(binding.text);
+  else if (ts.isObjectBindingPattern(binding) || ts.isArrayBindingPattern(binding))
+    for (const element of binding.elements)
+      if (ts.isBindingElement(element)) bindingNames(element.name, names);
+}
+
 function declarationNames(node) {
-  if (!ts.isVariableStatement(node)) {
+  if (ts.isVariableStatement(node) || ts.isVariableDeclaration(node)) {
+    const declarations = ts.isVariableStatement(node)
+      ? node.declarationList.declarations
+      : [node];
+    const names = [];
+    for (const declaration of declarations) bindingNames(declaration.name, names);
+    return names;
+  }
+  const name = declarationName(node);
+  return name ? [name] : [];
+}
+
+function publicLocalDeclarationPaths(sourceFile, symbols) {
+  const declarations = new Map();
+  function add(namespace, node, name, isNamespace = false) {
+    const path = [...namespace, name].join(".");
+    let candidates = declarations.get(path);
+    if (!candidates) declarations.set(path, candidates = []);
+    candidates.push({ path, namespace: isNamespace });
+  }
+  function visitNamespace(node, parent) {
     const name = declarationName(node);
-    return name ? [name] : [];
+    if (!name) return;
+    const namespace = [...parent, name];
+    add(parent, node, name, true);
+    if (node.body && ts.isModuleBlock(node.body)) visitScope(node.body, namespace);
+    else if (node.body && ts.isModuleDeclaration(node.body)) visitNamespace(node.body, namespace);
   }
-  const names = [];
-  function visitBinding(binding) {
-    if (ts.isIdentifier(binding)) names.push(binding.text);
-    else if (ts.isObjectBindingPattern(binding) || ts.isArrayBindingPattern(binding))
-      for (const element of binding.elements)
-        if (ts.isBindingElement(element)) visitBinding(element.name);
+  function visitScope(scope, namespace) {
+    for (const statement of scope.statements) {
+      if (ts.isModuleDeclaration(statement)) {
+        visitNamespace(statement, namespace);
+        continue;
+      }
+      for (const name of declarationNames(statement)) add(namespace, statement, name);
+    }
   }
-  for (const declaration of node.declarationList.declarations)
-    visitBinding(declaration.name);
-  return names;
+  visitScope(sourceFile, []);
+
+  const alias = new Map();
+  const routes = [...(symbols ?? new Map())].sort(([left], [right]) => left.split(".").length - right.split(".").length);
+  function resolvePrefix(prefix) {
+    if (!prefix) return "";
+    const resolved = [];
+    const accumulated = [];
+    for (const segment of prefix.split(".")) {
+      accumulated.push(segment);
+      const route = accumulated.join(".");
+      const mapped = alias.get(route);
+      if (mapped) {
+        resolved.splice(0, resolved.length, ...mapped.split("."));
+      } else resolved.push(segment);
+    }
+    return resolved.join(".");
+  }
+  for (const [route, localNames] of routes) {
+    const separator = route.lastIndexOf(".");
+    const parent = separator < 0 ? "" : route.slice(0, separator);
+    const actualParent = resolvePrefix(parent);
+    const localPath = actualParent ? actualParent.split(".") : [];
+    for (const localName of localNames) {
+      const candidates = declarations.get([...localPath, localName].join(".")) ?? [];
+      for (const candidate of candidates) {
+        if (candidate.namespace) alias.set(route, candidate.path);
+      }
+    }
+  }
+
+  const result = new Set();
+  for (const [route, localNames] of routes) {
+    const separator = route.lastIndexOf(".");
+    const parent = separator < 0 ? "" : route.slice(0, separator);
+    const actualParent = resolvePrefix(parent);
+    const prefix = actualParent ? actualParent.split(".") : [];
+    for (const localName of localNames) {
+      for (const candidate of declarations.get([...prefix, localName].join(".")) ?? [])
+        result.add(candidate.path);
+    }
+  }
+  return result;
 }
 
 function declarationNodes(sourceFile) {
@@ -84,11 +176,22 @@ function provenanceLines(doc, sourceFile) {
     .filter(Boolean);
 }
 
-function ordinaryBlock(lines) {
+function commentLayout(doc, sourceFile) {
+  const start = doc.getStart(sourceFile);
+  const lineStart = sourceFile.text.lastIndexOf("\n", start - 1) + 1;
+  const prefix = sourceFile.text.slice(lineStart, start);
+  const indent = /^[\t ]*$/u.test(prefix) ? prefix : "";
+  const lineEnding = sourceFile.text.includes("\r\n") ? "\r\n" : "\n";
+  return { indent, lineEnding };
+}
+
+function ordinaryBlock(lines, indent, lineEnding) {
   const content = lines.flatMap((line) => line.split(/\r?\n/u)).map((line) => line.trimEnd());
   while (content.length && !content[0].trim()) content.shift();
   while (content.length && !content.at(-1).trim()) content.pop();
-  return content.length ? "/*\n" + content.map((line) => " * " + line).join("\n") + "\n */" : "";
+  return content.length
+    ? "/*" + lineEnding + content.map((line) => line.trim() ? indent + " * " + line : indent + " *").join(lineEnding) + lineEnding + indent + " */"
+    : "";
 }
 
 function preservedComment(doc, sourceFile) {
@@ -105,14 +208,16 @@ function preservedComment(doc, sourceFile) {
       narrative.push(name ? `Parameter ${name}: ${body}` : `Parameter: ${body}`);
     } else if (tagName === "return" || tagName === "returns")
       narrative.push(`Returns: ${body}`);
+    else if (semanticTags.has(tagName)) narrative.push(`@${tagName}: ${body}`);
   }
   const keep = provenanceLines(doc, sourceFile);
-  const tags = doc.tags?.filter((tag) => tag.tagName.text === "internal").map((tag) => "@internal") ?? [];
+  const tags = doc.tags?.filter((tag) => semanticTags.has(tag.tagName.text)).map((tag) => "@" + tag.tagName.text) ?? [];
   const comments = [];
   if (tags.length) comments.push("/** " + [...new Set(tags)].join(" ") + " */");
-  const ordinary = ordinaryBlock([...narrative, ...keep]);
+  const { indent, lineEnding } = commentLayout(doc, sourceFile);
+  const ordinary = ordinaryBlock([...narrative, ...keep], indent, lineEnding);
   if (ordinary) comments.push(ordinary);
-  return comments.join("\n");
+  return comments.map((comment, index) => index === 0 ? comment : indent + comment).join(lineEnding);
 }
 
 function hasPreservedNarrativeTag(doc) {
@@ -131,10 +236,101 @@ function contractDeclarationNames(index) {
   return index.publicContractDeclarations();
 }
 
-function isPublicNode(node, sourceFile, publicNames) {
+function hasTag(node, name) {
+  return node.jsDoc?.some((doc) => doc.tags?.some((tag) => tag.tagName.text === name)) ?? false;
+}
+
+function hasPrivateBoundary(node) {
+  return (
+    (ts.canHaveModifiers(node) && ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword)) ||
+    hasTag(node, "internal") ||
+    hasTag(node, "private")
+  );
+}
+
+function publicRoutePaths(node, sourceFile) {
+  let declaration = node;
+  if (ts.isVariableDeclaration(node)) {
+    const statement = node.parent.parent;
+    if (!ts.isVariableStatement(statement)) return [];
+    declaration = statement;
+  }
+  const parent = declaration.parent;
+  if (!(ts.isSourceFile(parent) || ts.isModuleBlock(parent))) return [];
+
+  const namespaces = [];
+  let current = parent;
+  while (current && current !== sourceFile) {
+    if (ts.isModuleDeclaration(current) && current.name) {
+      const name = declarationName(current);
+      if (name) namespaces.unshift(name);
+    }
+    current = current.parent;
+  }
+  if (ts.isModuleDeclaration(declaration)) {
+    const name = declarationName(declaration);
+    return name ? [[...namespaces, name].join(".")] : [];
+  }
+  const isDefault = ts.canHaveModifiers(declaration) &&
+    ts.getModifiers(declaration)?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword);
+  let names = isDefault ? ["default"] : declarationNames(node);
+  return names.map((name) => [...namespaces, name].join("."));
+}
+
+function isTypeDeclaration(node) {
+  return ts.isClassLike(node) || ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node) || ts.isEnumDeclaration(node);
+}
+
+function isPublicSignatureContainer(node) {
+  return (
+    ts.isFunctionDeclaration(node) ||
+    ts.isMethodDeclaration(node) ||
+    ts.isMethodSignature(node) ||
+    ts.isCallSignatureDeclaration(node) ||
+    ts.isConstructSignatureDeclaration(node) ||
+    ts.isConstructorDeclaration(node) ||
+    ts.isGetAccessorDeclaration(node) ||
+    ts.isSetAccessorDeclaration(node) ||
+    ts.isVariableDeclaration(node) ||
+    ts.isVariableStatement(node)
+  );
+}
+
+function localDeclarationPaths(node, sourceFile) {
+  let declaration = node;
+  if (ts.isVariableDeclaration(node)) declaration = node.parent.parent;
+  const parent = declaration.parent;
+  if (!(ts.isSourceFile(parent) || ts.isModuleBlock(parent))) return [];
+  const namespaces = [];
+  let current = parent;
+  while (current && current !== sourceFile) {
+    if (ts.isModuleDeclaration(current)) {
+      const name = declarationName(current);
+      if (name) namespaces.unshift(name);
+    }
+    current = current.parent;
+  }
+  if (ts.isModuleDeclaration(declaration)) {
+    const name = declarationName(declaration);
+    return name ? [[...namespaces, name].join(".")] : [];
+  }
+  return declarationNames(node).map((name) => [...namespaces, name].join("."));
+}
+
+function isPublicNode(node, sourceFile, publicNames, publicRoutes, publicLocals) {
   let current = node;
   while (current && current !== sourceFile) {
-    if (declarationNames(current).some((name) => publicNames.has(name))) return true;
+    if (hasPrivateBoundary(current) || ts.isBlock(current)) return false;
+    const route = publicLocals
+      ? localDeclarationPaths(current, sourceFile).some((name) => publicLocals.has(name))
+      : publicRoutePaths(current, sourceFile).some((name) => publicRoutes.has(name));
+    if (current === node && route) return true;
+    if (
+      isTypeDeclaration(current) &&
+      (publicLocals ? localDeclarationPaths(current, sourceFile).some((name) => publicLocals.has(name)) : declarationNames(current).some((name) => publicNames.has(name)))
+    ) return true;
+    if (isPublicSignatureContainer(current) && route) return true;
+    if (ts.isModuleDeclaration(current)) return false;
     current = current.parent;
   }
   return false;
@@ -147,16 +343,34 @@ function planFile(sourceFile, index) {
   const names = index.contractNamesByFile?.get(file) ?? new Set(
     [...(index.symbolsByFile.get(file)?.values() ?? [])].flatMap((items) => [...items]),
   );
+  const publicRoutes = index.publicRoutesByFile?.get(file) ?? new Set(
+    index.exportsByFile?.get(file) ?? index.symbolsByFile?.get(file)?.keys() ?? [],
+  );
+  const publicLocals = index.publicLocalPathsByFile?.get(file) ?? (
+    index.symbolsByFile?.has(file)
+      ? publicLocalDeclarationPaths(sourceFile, index.symbolsByFile.get(file))
+      : undefined
+  );
   const edits = [];
   let count = 0;
   let preservedNarrative = 0;
   let preservedProvenance = 0;
   let retainedInternal = 0;
   for (const node of declarationNodes(sourceFile)) {
-    if (isPublicNode(node, sourceFile, names)) continue;
+    if (isPublicNode(node, sourceFile, names, publicRoutes, publicLocals)) continue;
     for (const doc of node.jsDoc ?? []) {
       const replacement = preservedComment(doc, sourceFile);
-      edits.push({ start: doc.getStart(sourceFile), end: doc.end, text: replacement });
+      let start = doc.getStart(sourceFile);
+      let end = doc.end;
+      if (!replacement) {
+        const lineStart = sourceFile.text.lastIndexOf("\n", start - 1) + 1;
+        if (/^[\t ]*$/u.test(sourceFile.text.slice(lineStart, start))) {
+          start = lineStart;
+          if (sourceFile.text.slice(end, end + 2) === "\r\n") end += 2;
+          else if (sourceFile.text[end] === "\n") end++;
+        }
+      }
+      edits.push({ start, end, text: replacement });
       const description = cleanNarrative(doc.comment);
       if (description || hasPreservedNarrativeTag(doc)) preservedNarrative++;
       if (provenanceLines(doc, sourceFile).length) preservedProvenance++;
@@ -178,7 +392,13 @@ function plan(sourceFile) {
     ? fs.realpathSync(sourceFile.fileName)
     : path.resolve(sourceFile.fileName);
   const contractNames = plan.contractNames.get(file) ?? new Set();
-  const index = { contractNamesByFile: new Map([[file, contractNames]]) };
+  const publicRoutes = plan.index.exportsByFile.get(file) ?? new Set();
+  const publicSymbols = plan.index.symbolsByFile.get(file) ?? new Map();
+  const index = {
+    contractNamesByFile: new Map([[file, contractNames]]),
+    publicRoutesByFile: new Map([[file, publicRoutes]]),
+    symbolsByFile: new Map([[file, publicSymbols]]),
+  };
   return planFile(sourceFile, index);
 }
 
@@ -230,6 +450,138 @@ function selfTest() {
   if (!output.includes("/** @internal */")) throw new Error("@internal marker was not retained.");
   if (!output.includes("Copyright 2026 Example.") || output.includes("@evidence source") || output.includes("@evidence internal") || output.includes("@evidence hidden")) throw new Error("Provenance preservation failed.");
   if (ts.createSourceFile("fixture.ts", output, ts.ScriptTarget.Latest, true).parseDiagnostics.length) throw new Error("Fixture output does not parse.");
+
+  const nestedText = [
+    "/** Public owner contract. */",
+    "export namespace PublicOwner {",
+    "  /** Public function contract. */",
+    "  export function publicCall(input: number): number {",
+    "    /** A local value keeps the input's unit. */",
+    "    const localValue = input;",
+    "    return localValue;",
+    "  }",
+    "  /** A private namespace helper keeps its own cache. */",
+    "  function privateHelper(): void {}",
+    "  namespace PrivateOwner {",
+    "    /** A private nested owner keeps its own lock. */",
+    "    export function acquire(): void {}",
+    "  }",
+    "  /** Internal operation summary. @internal */",
+    "  export function internalCall(): void {}",
+    "  /** A retired private helper. @deprecated Use publicCall. */",
+    "  function retiredHelper(): void {}",
+    "  /** @beta A preview-only internal helper. */",
+    "  function betaHelper(): void {}",
+    "  /** Public options contract. */",
+    "  export interface IOptions {",
+    "    /** The public value remains in metres. */",
+    "    value: number;",
+    "  }",
+    "  /** Public class contract. */",
+    "  export class PublicClass {",
+    "    /** Public method contract. */",
+    "    public read(): void {}",
+    "    /** A private member invariant. */",
+    "    private secret(): void {}",
+    "  }",
+    "  namespace LocalAliasOwner {",
+    "    /** Public descendant reached through an exported namespace alias. */",
+    "    export function aliasedPublic(): void {}",
+    "  }",
+    "  export { LocalAliasOwner as PublicAliasOwner };",
+    "  namespace PrivateAliasOwner {",
+    "    /** Same-named private sibling. */",
+    "    export function aliasedPublic(): void {}",
+    "  }",
+    "}",
+    "/** Public alias of a local declaration. */",
+    "function localPublicOperation(): void {}",
+    "export { localPublicOperation as PublicOperation };",
+  ].join("\n");
+  const nestedTree = ts.createSourceFile("nested.ts", nestedText, ts.ScriptTarget.Latest, true);
+  const nestedPath = path.resolve("nested.ts");
+  const nestedIndex = {
+    contractNamesByFile: new Map([[nestedPath, new Set([
+      "PublicOwner",
+      "publicCall",
+      "internalCall",
+      "IOptions",
+      "PublicClass",
+      "LocalAliasOwner",
+      "aliasedPublic",
+      "localPublicOperation",
+    ])]]),
+    publicRoutesByFile: new Map([[nestedPath, new Set([
+      "PublicOwner",
+      "PublicOwner.publicCall",
+      "PublicOwner.internalCall",
+      "PublicOwner.IOptions",
+      "PublicOwner.PublicClass",
+      "PublicOwner.PublicAliasOwner",
+      "PublicOwner.PublicAliasOwner.aliasedPublic",
+      "PublicOperation",
+    ])]]),
+    symbolsByFile: new Map([[nestedPath, new Map([
+      ["PublicOwner", new Set(["PublicOwner"])],
+      ["PublicOwner.publicCall", new Set(["publicCall"])],
+      ["PublicOwner.internalCall", new Set(["internalCall"])],
+      ["PublicOwner.IOptions", new Set(["IOptions"])],
+      ["PublicOwner.PublicClass", new Set(["PublicClass"])],
+      ["PublicOwner.PublicAliasOwner", new Set(["LocalAliasOwner"])],
+      ["PublicOwner.PublicAliasOwner.aliasedPublic", new Set(["aliasedPublic"])],
+      ["PublicOperation", new Set(["localPublicOperation"])],
+    ])]]),
+  };
+  const nestedPlan = planFile(nestedTree, nestedIndex);
+  const nestedOutput = require("./export-refactor-worktree.cjs").applyEdits(nestedText, nestedPlan.edits);
+  if (!nestedOutput.includes("/** Public owner contract. */") || !nestedOutput.includes("/** Public function contract. */")) throw new Error("Public namespace or exported member docs were stripped.");
+  if (!nestedOutput.includes("/** The public value remains in metres. */") || !nestedOutput.includes("/** Public method contract. */")) throw new Error("Public type-member docs were stripped.");
+  if (!nestedOutput.includes("  /*\n   * A private namespace helper keeps its own cache.\n   */") || !nestedOutput.includes("    /*\n     * A private nested owner keeps its own lock.\n     */") || !nestedOutput.includes("     * A local value keeps the input's unit.")) throw new Error("Private namespace or function-local docs were not narrowed and indented.");
+  if (!nestedOutput.includes("/** @internal */") || !nestedOutput.includes("Internal operation summary.")) throw new Error("@internal metadata or its rationale was lost.");
+  if (!nestedOutput.includes("/** @deprecated */") || !nestedOutput.includes("A retired private helper.") || !nestedOutput.includes("Use publicCall.")) throw new Error("Deprecated compiler metadata or rationale was lost.");
+  if (!nestedOutput.includes("/** @beta */") || !nestedOutput.includes("@beta: A preview-only internal helper.")) throw new Error("Publishing metadata was lost.");
+  if (nestedOutput.includes("/** A private member invariant.") || !nestedOutput.includes("    /*\n     * A private member invariant.\n     */")) throw new Error("Private class-member JSDoc was not demoted to an ordinary comment.");
+  if (!nestedOutput.includes("/** Public descendant reached through an exported namespace alias. */") || !nestedOutput.includes("/** Public alias of a local declaration. */")) throw new Error("Public local declarations were not retained through export aliases.");
+  if (nestedOutput.includes("/** Same-named private sibling.") || !nestedOutput.includes("    /*\n     * Same-named private sibling.\n     */")) throw new Error("An unrelated same-named private sibling was treated as public.");
+  if (ts.createSourceFile("nested.ts", nestedOutput, ts.ScriptTarget.Latest, true).parseDiagnostics.length) throw new Error("Nested fixture output does not parse.");
+
+  const nestedOutputTree = ts.createSourceFile("nested.ts", nestedOutput, ts.ScriptTarget.Latest, true);
+  function declaration(name) {
+    let found;
+    function visit(node) {
+      if (ts.isFunctionDeclaration(node) && node.name?.text === name) found = node;
+      ts.forEachChild(node, visit);
+    }
+    visit(nestedOutputTree);
+    return found;
+  }
+  const internalTags = ts.getJSDocTags(declaration("internalCall") ?? nestedOutputTree).map((tag) => tag.tagName.text);
+  const deprecatedTags = ts.getJSDocTags(declaration("retiredHelper") ?? nestedOutputTree).map((tag) => tag.tagName.text);
+  if (!internalTags.includes("internal") || !deprecatedTags.includes("deprecated")) throw new Error("Compiler-recognized @internal/@deprecated markers were lost.");
+
+const emptyLfText = "namespace PrivateOwner {\n  /** @evidence internal */\n  function helper(): void {}\n}\n";
+  const emptyLfTree = ts.createSourceFile("empty-lf.ts", emptyLfText, ts.ScriptTarget.Latest, true);
+  const emptyLfOut = require("./export-refactor-worktree.cjs").applyEdits(
+    emptyLfText,
+    planFile(emptyLfTree, { symbolsByFile: new Map([[path.resolve("empty-lf.ts"), new Map()]]) }).edits,
+  );
+  const emptyCrLfText = emptyLfText.replace(/\n/gu, "\r\n");
+  const emptyCrLfTree = ts.createSourceFile("empty-crlf.ts", emptyCrLfText, ts.ScriptTarget.Latest, true);
+  const emptyCrLfOut = require("./export-refactor-worktree.cjs").applyEdits(
+    emptyCrLfText,
+    planFile(emptyCrLfTree, { symbolsByFile: new Map([[path.resolve("empty-crlf.ts"), new Map()]]) }).edits,
+  );
+  if (emptyLfOut !== "namespace PrivateOwner {\n  function helper(): void {}\n}\n") throw new Error("Empty LF evidence-only docs left a whitespace-only line.");
+  if (emptyCrLfOut !== emptyLfOut.replace(/\n/gu, "\r\n")) throw new Error("Empty CRLF docs do not produce the LF-equivalent result.");
+  const crlfText = "namespace PrivateOwner {\r\n  /** A short CRLF invariant. */\r\n  function helper(): void {}\r\n}\r\n";
+  const crlfPath = path.resolve("crlf.ts");
+  const crlfTree = ts.createSourceFile(crlfPath, crlfText, ts.ScriptTarget.Latest, true);
+  const crlfOutput = require("./export-refactor-worktree.cjs").applyEdits(
+    crlfText,
+    planFile(crlfTree, { symbolsByFile: new Map([[crlfPath, new Map()]]) }).edits,
+  );
+  if (!crlfOutput.includes("  /*\r\n   * A short CRLF invariant.\r\n   */") || /(^|[^\r])\n/u.test(crlfOutput)) throw new Error("Ordinary comments lost source indentation or CRLF style.");
+  if (ts.createSourceFile(crlfPath, crlfOutput, ts.ScriptTarget.Latest, true).parseDiagnostics.length) throw new Error("CRLF fixture output does not parse.");
   console.log(JSON.stringify({ ok: true, edits: result.count }, null, 2));
 }
 

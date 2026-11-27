@@ -5,6 +5,7 @@ import type { IAutoMovieMotionManner } from "./IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanHandToFaceRows } from "./IAutoMovieMotionHumanHandToFaceRows";
 import type { IAutoMovieMotionHumanHeldUse } from "./IAutoMovieMotionHumanHeldUse";
 import type { IAutoMovieMotionHumanHand } from "./IAutoMovieMotionHumanHand";
+import type { IAutoMovieMotionHumanHandToFace } from "./IAutoMovieMotionHumanHandToFace";
 
 /**
  * Inputs, choices and presets for hand-to-body actions.
@@ -14,16 +15,10 @@ export namespace IAutoMovieMotionHumanHandToBody {
    * Seconds at the face after the repetitions: one duration, or two bounds the
    * seed draws one between, evenly.
    */
-  export type Hold = number | IAutoMovieMotionHumanHandToBody.IHoldBetween;
+  export type Hold = number | IAutoMovieMotionHumanHandToFace.IHoldRange;
 
-  /** Two bounds, in seconds, between which the seed draws a hold evenly. */
-  export interface IHoldBetween {
-    /**
-     * Lower and upper bounds for an evenly drawn hold duration at the face
-     * AFTER repetitions, seconds.
-     */
-    between: readonly [number, number];
-  }
+  /** @deprecated Use `IAutoMovieMotionHumanHandToFace.IHoldRange`. */
+  export type IHoldBetween = IAutoMovieMotionHumanHandToFace.IHoldRange;
 
   /**
    * The parameters of `coverFace`: what the row leaves open of

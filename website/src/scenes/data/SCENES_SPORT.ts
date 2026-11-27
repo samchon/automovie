@@ -19,7 +19,15 @@ const WARM_UP: SceneBuild.Composition = scene("warm-up", [
     { name: "buttKicks", params: { count: 4 } },
     {
       name: "exercise",
-      params: { kind: "highKnees", count: 4, tempo: [0.6, 0, 0.6] },
+      params: {
+        kind: "highKnees",
+        count: 4,
+        tempo: {
+          eccentricSeconds: 0.6,
+          bottomPauseSeconds: 0,
+          concentricSeconds: 0.6,
+        },
+      },
     },
   ]),
   person("kim", "f1", -0.8, 1.5, 180, [
@@ -29,32 +37,78 @@ const WARM_UP: SceneBuild.Composition = scene("warm-up", [
         kind: "squat",
         count: 3,
         depth: "parallel",
-        tempo: [1, 0, 0.8],
+        tempo: {
+          eccentricSeconds: 1,
+          bottomPauseSeconds: 0,
+          concentricSeconds: 0.8,
+        },
       },
     },
     {
       name: "exercise",
-      params: { kind: "lunge", side: "left", count: 2, tempo: [1, 0, 0.8] },
+      params: {
+        kind: "lunge",
+        side: "left",
+        count: 2,
+        tempo: {
+          eccentricSeconds: 1,
+          bottomPauseSeconds: 0,
+          concentricSeconds: 0.8,
+        },
+      },
     },
     {
       name: "exercise",
-      params: { kind: "lunge", side: "right", count: 2, tempo: [1, 0, 0.8] },
+      params: {
+        kind: "lunge",
+        side: "right",
+        count: 2,
+        tempo: {
+          eccentricSeconds: 1,
+          bottomPauseSeconds: 0,
+          concentricSeconds: 0.8,
+        },
+      },
     },
   ]),
   person("lou", "m2", 0.8, 1.5, 180, [
     {
       name: "exercise",
-      params: { kind: "jumpingJack", count: 4, tempo: [0.5, 0, 0.5] },
+      params: {
+        kind: "jumpingJack",
+        count: 4,
+        tempo: {
+          eccentricSeconds: 0.5,
+          bottomPauseSeconds: 0,
+          concentricSeconds: 0.5,
+        },
+      },
     },
     { name: "stand", params: { hold: 0.4 } },
     { name: "jump", params: { to: to(0.8, 1.1) } },
     {
       name: "exercise",
-      params: { kind: "highKnees", count: 3, tempo: [0.6, 0, 0.6] },
+      params: {
+        kind: "highKnees",
+        count: 3,
+        tempo: {
+          eccentricSeconds: 0.6,
+          bottomPauseSeconds: 0,
+          concentricSeconds: 0.6,
+        },
+      },
     },
     {
       name: "exercise",
-      params: { kind: "jumpingJack", count: 3, tempo: [0.5, 0, 0.5] },
+      params: {
+        kind: "jumpingJack",
+        count: 3,
+        tempo: {
+          eccentricSeconds: 0.5,
+          bottomPauseSeconds: 0,
+          concentricSeconds: 0.5,
+        },
+      },
     },
   ]),
   person("mo", "f2", 2.4, 1.5, 180, [
@@ -68,7 +122,15 @@ const WARM_UP: SceneBuild.Composition = scene("warm-up", [
     },
     {
       name: "exercise",
-      params: { kind: "highKnees", count: 4, tempo: [0.6, 0, 0.6] },
+      params: {
+        kind: "highKnees",
+        count: 4,
+        tempo: {
+          eccentricSeconds: 0.6,
+          bottomPauseSeconds: 0,
+          concentricSeconds: 0.6,
+        },
+      },
     },
   ]),
 ]);

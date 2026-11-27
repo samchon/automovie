@@ -208,9 +208,21 @@ export const SCENES_GYM: readonly IScene[] = [
         act("exercise", {
           kind: "jumpingJack",
           count: 4,
-          tempo: [0.5, 0, 0.5],
+          tempo: {
+            eccentricSeconds: 0.5,
+            bottomPauseSeconds: 0,
+            concentricSeconds: 0.5,
+          },
         }),
-        act("exercise", { kind: "highKnees", count: 4, tempo: [0.6, 0, 0.6] }),
+        act("exercise", {
+          kind: "highKnees",
+          count: 4,
+          tempo: {
+            eccentricSeconds: 0.6,
+            bottomPauseSeconds: 0,
+            concentricSeconds: 0.6,
+          },
+        }),
       ]),
       ...[-40, 0, 40].map(
         (angle: number, i: number): SceneBuild.Performer =>
@@ -229,12 +241,20 @@ export const SCENES_GYM: readonly IScene[] = [
               act("exercise", {
                 kind: "jumpingJack",
                 count: 4,
-                tempo: [0.5, 0, 0.5],
+                tempo: {
+                  eccentricSeconds: 0.5,
+                  bottomPauseSeconds: 0,
+                  concentricSeconds: 0.5,
+                },
               }),
               act("exercise", {
                 kind: "highKnees",
                 count: 4,
-                tempo: [0.6, 0, 0.6],
+                tempo: {
+                  eccentricSeconds: 0.6,
+                  bottomPauseSeconds: 0,
+                  concentricSeconds: 0.6,
+                },
               }),
             ],
           ),
