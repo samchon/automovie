@@ -5,7 +5,7 @@ import { ArchetypeDraw } from "./ArchetypeDraw";
 import type { AutoMovieArchetypeBandUnit } from "./AutoMovieArchetypeBandUnit";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { IAutoMovieArchetypeBand } from "./IAutoMovieArchetypeBand";
-import { ownArchetypeRecordKeys } from "./ownArchetypeRecordKeys";
+import { ownArchetypeRecordKeys } from "./internal/ownArchetypeRecordKeys";
 
 /**
  * One producer's draws for one archetype: the dimensions it draws from its

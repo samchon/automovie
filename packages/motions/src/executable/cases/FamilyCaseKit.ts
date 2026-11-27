@@ -17,7 +17,7 @@ import { HumanColliders } from "../../posture/HumanColliders";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /** The part of a segment its events are read from. */
 interface IEventSegment {

@@ -1,4 +1,4 @@
-import { SETTINGS_DOMAINS } from "./internal/SETTINGS_DOMAINS";
+import { SETTINGS_DOMAINS } from "./SETTINGS_DOMAINS";
 
 /**
  * Selects a short's brief canon: the scaffold's domain folders under

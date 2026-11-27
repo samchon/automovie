@@ -2,5 +2,5 @@
 
 export { AutoMovieArchetypeQuadrupedJoints } from "../animals/AutoMovieArchetypeQuadrupedJoints";
 export { buildOxBody } from "../animals/ox/internal/buildOxBody";
-export { archetypeCaptureRest } from "./archetypeCaptureRest";
-export { archetypeQuadrupedMarks } from "./archetypeQuadrupedMarks";
+export { archetypeCaptureRest } from "./internal/archetypeCaptureRest";
+export { archetypeQuadrupedMarks } from "./internal/archetypeQuadrupedMarks";

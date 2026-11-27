@@ -18,7 +18,7 @@ import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { FootSlip } from "./FootSlip";
-import { locomotionCaseInstants } from "./locomotionCaseInstants";
+import { locomotionCaseInstants } from "./internal/locomotionCaseInstants";
 
 /** The record of `ILocomotionCasePartsResult`'s site. */
 type ILocomotionCasePartsResult = { h: number; p: number; r: number };

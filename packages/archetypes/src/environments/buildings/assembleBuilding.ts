@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { buildingDoor } from "./buildingDoor";
 import { buildingModel } from "./buildingModel";
 import type { buildingPlans } from "./buildingPlans";

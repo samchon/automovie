@@ -10,7 +10,7 @@ import type {
 import type { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createLift } from "./createLift";
-import type { liftStopHeights } from "./liftStopHeights";
+import type { liftStopHeights } from "./internal/liftStopHeights";
 
 /**
  * Bake the staged cab and sliding door panels into one ordinary object clip.

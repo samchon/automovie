@@ -12,8 +12,8 @@ import { HumanFrame } from "../../posture/HumanFrame";
 import { climbStairs } from "../../terrain/climbStairs";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { stairsCaseBoxes } from "./stairsCaseBoxes";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { stairsCaseBoxes } from "./internal/stairsCaseBoxes";
 
 /** The record of `IStairsCasesStance`'s site. */
 type IStairsCasesStance = { value: number; where: string };

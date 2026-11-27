@@ -10,9 +10,9 @@ import { HumanChain } from "../../HumanChain";
 import { gestureStrokeTables } from "../../everyday/gestureStrokeTables";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { everydayCaseKit } from "./everydayCaseKit";
+import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayGestureVerdicts } from "./everydayGestureVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /**
  * The gesture cases of `everydayCases` (`everyday-gesture-<kind>`): each

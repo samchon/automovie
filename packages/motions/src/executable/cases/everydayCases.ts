@@ -17,11 +17,11 @@ import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
-import { everydayCaseKit } from "./everydayCaseKit";
+import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayGestureCases } from "./everydayGestureCases";
 import { everydayPostureCases } from "./everydayPostureCases";
 import { everydayTypeCases } from "./everydayTypeCases";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 const { perform, figure, event, angle, frame } = everydayCaseKit;
 /** The record of `IEverydayCasesMarginsResult`'s site. */

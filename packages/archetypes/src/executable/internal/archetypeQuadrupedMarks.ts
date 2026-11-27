@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
-import { AutoMovieArchetypeQuadrupedSkeleton } from "../animals/AutoMovieArchetypeQuadrupedSkeleton";
-import { QuadrupedRestFloor } from "../animals/QuadrupedRestFloor";
-import type { AutoMovieArchetype } from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "../../animals/AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedSkeleton } from "../../animals/AutoMovieArchetypeQuadrupedSkeleton";
+import { QuadrupedRestFloor } from "../../animals/QuadrupedRestFloor";
+import type { AutoMovieArchetype } from "../../core/index";
 
 /** A primitive's two axis endpoints and joint frame, in model metres. */
 interface Bar {

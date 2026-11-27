@@ -21,8 +21,8 @@ import { HumanHand } from "../../posture/HumanHand";
 import { StrikingRoll } from "../../striking/StrikingRoll";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { dressCaseWearable } from "./dressCaseWearable";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { dressCaseWearable } from "./internal/dressCaseWearable";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /**
  * Capture cases of the dressing family, from quiet standing, the item first

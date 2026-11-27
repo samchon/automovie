@@ -8,8 +8,8 @@ import type {
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
-import { galleryCaseFist } from "./galleryCaseFist";
-import { galleryCaseZero } from "./galleryCaseZero";
+import { galleryCaseFist } from "./internal/galleryCaseFist";
+import { galleryCaseZero } from "./internal/galleryCaseZero";
 
 /** The record of `IGalleryCasesGalleryP`'s site. */
 type IGalleryCasesGalleryP = { label: string };

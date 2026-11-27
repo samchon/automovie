@@ -15,18 +15,18 @@ import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
 import { assertAutoMovieInspectorRaster } from "./assertAutoMovieInspectorRaster.js";
 import { changesAutoMovieObservedScene } from "./changesAutoMovieObservedScene.js";
-import { firstAutoMovieInspectorSecond } from "../firstAutoMovieInspectorSecond.js";
+import { firstAutoMovieInspectorSecond } from "./firstAutoMovieInspectorSecond.js";
 import { followAutoMovieInspectorSize } from "./followAutoMovieInspectorSize.js";
 import { inspectAutoMovieInspectorRequest } from "./inspectAutoMovieInspectorRequest.js";
 import { installAutoMovieInspectorRequest } from "./installAutoMovieInspectorRequest.js";
-import { messageOfAutoMovieInspectorError } from "../messageOfAutoMovieInspectorError.js";
+import { messageOfAutoMovieInspectorError } from "./messageOfAutoMovieInspectorError.js";
 import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
 import { readAutoMovieInspectorFacts } from "./readAutoMovieInspectorFacts.js";
-import { readsAutoMovieInspectorPlacedScene } from "../readsAutoMovieInspectorPlacedScene.js";
+import { readsAutoMovieInspectorPlacedScene } from "./readsAutoMovieInspectorPlacedScene.js";
 import { releaseAutoMovieInspectorSteps } from "./releaseAutoMovieInspectorSteps.js";
 import { reportAutoMovieInspectorLabels } from "./reportAutoMovieInspectorLabels.js";
 import { resolveAutoMovieInspectorCamera } from "./resolveAutoMovieInspectorCamera.js";
-import { writeAutoMovieInspectorInspection } from "../writeAutoMovieInspectorInspection.js";
+import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInspection.js";
 
 /**
  * Mount a subject on the inspector's canvas: build an instance, apply the

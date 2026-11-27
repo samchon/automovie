@@ -12,7 +12,7 @@ import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
 import { wipe } from "../../tasks/wipe";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /** The record of `IHouseholdCasesHeight`'s site. */
 type IHouseholdCasesHeight = { low: number; high: number };

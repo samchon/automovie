@@ -18,7 +18,7 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /**
  * Capture cases of the standing stretches and yoga poses, each held 3 s on the

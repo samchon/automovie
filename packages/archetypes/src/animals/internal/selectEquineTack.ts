@@ -1,5 +1,5 @@
-import type { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
-import type { EquineTack } from "./EquineTack";
+import type { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
+import type { EquineTack } from "../EquineTack";
 
 /**
  * Attach the drawn croup clearance only when the selected tack uses it. A pack

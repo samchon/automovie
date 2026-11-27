@@ -10,7 +10,7 @@ import type {
   IAutoMovieScript,
 } from "@automovie/interface";
 
-import { beatCaptions as internalBeatCaptions } from "./beatCaptions.js";
+import { beatCaptions as internalBeatCaptions } from "./internal/beatCaptions.js";
 import { autoMovieCaptionLanguageComparisonKey } from "./internal/autoMovieCaptionLanguageComparisonKey.js";
 import { canonicalProductionWebVtt as internalCanonicalProductionWebVtt } from "./internal/canonicalProductionWebVtt.js";
 import { canonicalizeAutoMovieCaptionText } from "./internal/canonicalizeAutoMovieCaptionText.js";

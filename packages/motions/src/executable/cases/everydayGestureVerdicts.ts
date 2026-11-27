@@ -18,7 +18,7 @@ import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
-import { everydayGestureSwings } from "./everydayGestureSwings";
+import { everydayGestureSwings } from "./internal/everydayGestureSwings";
 
 /**
  * The checks that a gesture performs its own goal, measured on the displayed

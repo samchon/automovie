@@ -7,6 +7,8 @@ import type {
   IAutoMovieSurfaceGraphicTrack,
 } from "@automovie/interface";
 
+import type { AutoMovieEngineRenderMeasureTypes } from "../AutoMovieEngineRenderMeasureTypes";
+
 import { autoMovieSurfaceFeedWidth } from "./autoMovieSurfaceFeedWidth";
 import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
 
@@ -46,7 +48,7 @@ const FEED_BYTES_PER_PIXEL: number = 8;
  */
 export function measureAutoMovieRenderFeeds(
   subject: IAutoMovieRenderSubject,
-): measureAutoMovieRenderFeeds.IResult {
+): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.IResult {
   const nodes: Map<string, IAutoMovieSceneNode> = new Map(
     subject.scene.nodes.map(
       (node: IAutoMovieSceneNode): [string, IAutoMovieSceneNode] => [
@@ -61,7 +63,7 @@ export function measureAutoMovieRenderFeeds(
       model,
     ]),
   );
-  const tracks: measureAutoMovieRenderFeeds.ITrack[] = [];
+  const tracks: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.ITrack[] = [];
   for (const track of subject.surfaceGraphics ?? []) {
     const feeds: IAutoMovieSurfaceGraphicLayer.IFeed[][] = track.keys.map(
       (
@@ -132,55 +134,19 @@ export function measureAutoMovieRenderFeeds(
   return {
     tracks,
     targets: tracks.reduce(
-      (sum: number, track: measureAutoMovieRenderFeeds.ITrack): number =>
+      (sum: number, track: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.ITrack): number =>
         sum + track.targets,
       0,
     ),
     bytes: tracks.reduce(
-      (sum: number, track: measureAutoMovieRenderFeeds.ITrack): number =>
+      (sum: number, track: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.ITrack): number =>
         sum + track.bytes,
       0,
     ),
     passes: tracks.reduce(
-      (sum: number, track: measureAutoMovieRenderFeeds.ITrack): number =>
+      (sum: number, track: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.ITrack): number =>
         sum + track.passes,
       0,
     ),
   };
-}
-
-/** What the feed layers commit. */
-export namespace measureAutoMovieRenderFeeds {
-  /** One track's feed render targets and its most feeds shown at once. */
-  export interface ITrack {
-    /** The track's mask owner, `surface-graphic:<node>/<surface>`. */
-    owner: string;
-
-    /**
-     * Texture allocations its keys' feed layers hold: each layer's target and,
-     * under a film's optics, its response stage's targets.
-     */
-    targets: number;
-
-    /** Bytes those targets hold. */
-    bytes: number;
-
-    /** Most feed layers one key shows, each one scene pass per frame. */
-    passes: number;
-  }
-
-  /** The tracks with feeds and their sums. */
-  export interface IResult {
-    /** One row per track with at least one feed layer, in track order. */
-    tracks: ITrack[];
-
-    /** Every texture allocation the shot's feeds hold. */
-    targets: number;
-
-    /** Bytes of those allocations. */
-    bytes: number;
-
-    /** Most scene passes the feeds add to one frame. */
-    passes: number;
-  }
 }

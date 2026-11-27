@@ -2,25 +2,25 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import type { EvidenceMetadataRewriteOwnership } from "./EvidenceMetadataRewriteOwnership";
-import type { IEvidenceMetadataRenderedSample } from "./IEvidenceMetadataRenderedSample";
-import type { IEvidenceMetadataRewriteFile } from "./IEvidenceMetadataRewriteFile";
-import type { IEvidenceMetadataRewriteProps } from "./IEvidenceMetadataRewriteProps";
-import type { IEvidenceMetadataRewriteReport } from "./IEvidenceMetadataRewriteReport";
-import type { IProtectedProjection } from "./internal/metadataRewrite/IProtectedProjection";
-import { decode } from "./internal/metadataRewrite/decode";
-import { directory } from "./internal/metadataRewrite/directory";
-import { errorMessage } from "./internal/metadataRewrite/errorMessage";
-import { firstDifference } from "./internal/metadataRewrite/firstDifference";
-import { locate } from "./internal/metadataRewrite/locate";
-import { metadataOwnership } from "./internal/metadataRewrite/metadataOwnership";
-import { originalOffset } from "./internal/metadataRewrite/originalOffset";
-import { project } from "./internal/metadataRewrite/project";
-import { protectedFileKind } from "./internal/metadataRewrite/protectedFileKind";
-import { replacementSafety } from "./internal/metadataRewrite/replacementSafety";
-import { sameMetadata } from "./internal/metadataRewrite/sameMetadata";
-import { selectFiles } from "./internal/metadataRewrite/selectFiles";
-import { validateRenderedSample } from "./internal/metadataRewrite/validateRenderedSample";
+import type { EvidenceMetadataRewriteOwnership } from "../EvidenceMetadataRewriteOwnership";
+import type { IEvidenceMetadataRenderedSample } from "../IEvidenceMetadataRenderedSample";
+import type { IEvidenceMetadataRewriteFile } from "../IEvidenceMetadataRewriteFile";
+import type { IEvidenceMetadataRewriteProps } from "../IEvidenceMetadataRewriteProps";
+import type { IEvidenceMetadataRewriteReport } from "../IEvidenceMetadataRewriteReport";
+import type { IProtectedProjection } from "./metadataRewrite/IProtectedProjection";
+import { decode } from "./metadataRewrite/decode";
+import { directory } from "./metadataRewrite/directory";
+import { errorMessage } from "./metadataRewrite/errorMessage";
+import { firstDifference } from "./metadataRewrite/firstDifference";
+import { locate } from "./metadataRewrite/locate";
+import { metadataOwnership } from "./metadataRewrite/metadataOwnership";
+import { originalOffset } from "./metadataRewrite/originalOffset";
+import { project } from "./metadataRewrite/project";
+import { protectedFileKind } from "./metadataRewrite/protectedFileKind";
+import { replacementSafety } from "./metadataRewrite/replacementSafety";
+import { sameMetadata } from "./metadataRewrite/sameMetadata";
+import { selectFiles } from "./metadataRewrite/selectFiles";
+import { validateRenderedSample } from "./metadataRewrite/validateRenderedSample";
 
 /**
  * Proves that a metadata-only rewrite changed only structural evidence rows.

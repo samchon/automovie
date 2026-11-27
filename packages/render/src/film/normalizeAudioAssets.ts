@@ -4,7 +4,7 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-import { validDigest } from "./validDigest.js";
+import { validDigest } from "./internal/validDigest.js";
 import { validWaveAudioIdentity } from "./validWaveAudioIdentity.js";
 
 /** Sample rate of a placeholder stem: the sound plan's fixed mix rate. */

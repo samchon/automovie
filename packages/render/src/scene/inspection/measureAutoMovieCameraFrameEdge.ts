@@ -2,7 +2,7 @@ import type { IAutoMovieSubjectBox } from "@automovie/interface";
 import { Box3, Camera, Frustum, Matrix4, Mesh, Plane, Vector3 } from "three";
 
 import { boundAutoMovieCameraSubject } from "./internal/boundAutoMovieCameraSubject.js";
-import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
+import { crossesAutoMovieFrustumPlane } from "./internal/crossesAutoMovieFrustumPlane.js";
 import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { AutoMovieRenderInspectionCamera } from "./AutoMovieRenderInspectionCamera.js";
 

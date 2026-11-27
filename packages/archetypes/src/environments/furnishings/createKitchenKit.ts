@@ -9,7 +9,7 @@ import type {
 
 import { AutoMovieArchetypeRange } from "../../architecture/AutoMovieArchetypeRange";
 import { AutoMovieArchetypeRefrigerator } from "../../architecture/AutoMovieArchetypeRefrigerator";
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";

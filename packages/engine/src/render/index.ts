@@ -60,6 +60,7 @@ export { AutoMovieEnginePicture } from "./AutoMovieEnginePicture";
 export { AutoMovieEngineRenderSubject } from "./AutoMovieEngineRenderSubject";
 
 export { AutoMovieEngineRenderMeasure } from "./AutoMovieEngineRenderMeasure";
+export type { AutoMovieEngineRenderMeasureTypes } from "./AutoMovieEngineRenderMeasureTypes";
 
 export { AutoMovieEngineRenderTexture } from "./AutoMovieEngineRenderTexture";
 

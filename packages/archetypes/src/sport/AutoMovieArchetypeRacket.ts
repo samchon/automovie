@@ -11,7 +11,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { buildTennisRacketHead } from "./buildTennisRacketHead";
+import { buildTennisRacketHead } from "./internal/buildTennisRacketHead";
 
 /** Canonical producer and authoring contract for Racket. */
 export namespace AutoMovieArchetypeRacket {

@@ -3,16 +3,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieArchetypeEquine } from "../animals/AutoMovieArchetypeEquine";
-import { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
-import { AutoMovieArchetypeQuadrupedRest } from "../animals/AutoMovieArchetypeQuadrupedRest";
-import type { AutoMovieArchetypeQuadrupedRestPlan } from "../animals/AutoMovieArchetypeQuadrupedRestPlan";
-import { QuadrupedCarriage } from "../animals/QuadrupedCarriage";
-import { AutoMovieArchetypeDog } from "../animals/AutoMovieArchetypeDog";
-import { AutoMovieArchetypeHorse } from "../animals/AutoMovieArchetypeHorse";
-import { createQuadruped } from "../animals/createQuadruped";
-import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
-import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
+import { AutoMovieArchetypeEquine } from "../../animals/AutoMovieArchetypeEquine";
+import { AutoMovieArchetypeQuadrupedBody } from "../../animals/AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedRest } from "../../animals/AutoMovieArchetypeQuadrupedRest";
+import type { AutoMovieArchetypeQuadrupedRestPlan } from "../../animals/AutoMovieArchetypeQuadrupedRestPlan";
+import { QuadrupedCarriage } from "../../animals/QuadrupedCarriage";
+import { AutoMovieArchetypeDog } from "../../animals/AutoMovieArchetypeDog";
+import { AutoMovieArchetypeHorse } from "../../animals/AutoMovieArchetypeHorse";
+import { createQuadruped } from "../../animals/createQuadruped";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
+import type { archetypeCaptureCatalog } from "../archetypeCaptureCatalog";
 
 /**
  * Draw canonical dog and saddle-horse authored rest cycles.

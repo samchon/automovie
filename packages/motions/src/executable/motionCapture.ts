@@ -17,7 +17,7 @@ import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 import { buildMotionCaptureCases } from "./buildMotionCaptureCases";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
-import { planMotionCaptureProps } from "./planMotionCaptureProps";
+import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";
 
 /** The motions package, whose `media/capture/<case>/` holds each case's capture. */
 const ROOT: string = path.join(__dirname, "..", "..");

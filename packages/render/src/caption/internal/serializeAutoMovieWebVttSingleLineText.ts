@@ -1,4 +1,4 @@
-import { escapeWebVttText } from "../escapeWebVttText.js";
+import { escapeWebVttText } from "./escapeWebVttText.js";
 
 const SINGLE_LINE_CONTROLS: RegExp = /[\u0000-\u001f\u007f]/gu;
 

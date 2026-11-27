@@ -10,7 +10,7 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import { beatCaptions } from "./caption/beatCaptions.js";
+import { beatCaptions } from "./caption/internal/beatCaptions.js";
 import { frameTimes } from "./internal/frameTimes.js";
 import { shotBeat } from "./shotBeat.js";
 

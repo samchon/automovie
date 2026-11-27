@@ -15,8 +15,8 @@ import { readThrowObjectLaunch } from "../../throwing/readThrowObjectLaunch";
 import { throwObject } from "../../throwing/throwObject";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { motionCaseSocket } from "./motionCaseSocket";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { motionCaseSocket } from "./internal/motionCaseSocket";
 
 /**
  * Capture cases of the throw and catch family: performer `a` throws to

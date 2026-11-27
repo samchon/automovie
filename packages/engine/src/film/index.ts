@@ -1,3 +1,4 @@
+export type { AutoMovieEngineFilmTypes } from "./AutoMovieEngineFilmTypes";
 export { AutoMovieEngineFrameClock } from "./AutoMovieEngineFrameClock";
 
 

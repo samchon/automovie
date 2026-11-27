@@ -3,10 +3,10 @@ import type {
   IEvidenceClaim,
 } from "@wrtnlabs/evidence";
 
-import { PRODUCTION_CONTRACTS } from "../internal/PRODUCTION_CONTRACTS";
-import type { IPackageChecklistClaimProps } from "./IPackageChecklistClaimProps";
-import { BODY_ROOT } from "./internal/utilities/BODY_ROOT";
-import { createEvidenceFiles } from "./internal/utilities/createEvidenceFiles";
+import { PRODUCTION_CONTRACTS } from "../../internal/PRODUCTION_CONTRACTS";
+import type { IPackageChecklistClaimProps } from "../IPackageChecklistClaimProps";
+import { BODY_ROOT } from "./utilities/BODY_ROOT";
+import { createEvidenceFiles } from "./utilities/createEvidenceFiles";
 
 /**
  * Creates one work-local contract claim.

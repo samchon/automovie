@@ -20,7 +20,7 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /**
  * Capture case of the sprint start: `athletics-set`, the crouch from quiet

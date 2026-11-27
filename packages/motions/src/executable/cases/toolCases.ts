@@ -17,9 +17,9 @@ import type {
 import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { toolCaseHeld } from "./toolCaseHeld";
-import { toolCasePot } from "./toolCasePot";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { toolCaseHeld } from "./internal/toolCaseHeld";
+import { toolCasePot } from "./internal/toolCasePot";
 
 /** The record of `IToolCasesWorst`'s site. */
 type IToolCasesWorst = { value: number; where: string };

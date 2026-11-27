@@ -1,4 +1,4 @@
-import { SETTINGS_DOMAINS } from "./internal/SETTINGS_DOMAINS";
+import { SETTINGS_DOMAINS } from "./SETTINGS_DOMAINS";
 
 /**
  * Selects the settings canon in every supported layout, excluding the outline:

@@ -1,8 +1,8 @@
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { AutoMovieEvidenceNarrativeScope } from "../../AutoMovieEvidenceNarrativeScope";
-import { createBriefFiles } from "../../createBriefFiles";
-import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
-import { createSettingsFiles } from "../../createSettingsFiles";
+import { createBriefFiles } from "../createBriefFiles";
+import { createNarrativeUnitFiles } from "../createNarrativeUnitFiles";
+import { createSettingsFiles } from "../createSettingsFiles";
 
 /**
  * Selects authored unit files relative to the body root.

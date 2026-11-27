@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { typeText } from "../../everyday/typeText";
+import { typeText } from "../../../everyday/typeText";
 
 /**
  * A keyboard as a prop: a home row contact at its origin and a key field as

@@ -6,7 +6,7 @@ import type {
   IAutoMoviePropBox,
 } from "@automovie/interface";
 
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { createSeat } from "../../furniture/createSeat";
 import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { furnishRoom } from "./furnishRoom";

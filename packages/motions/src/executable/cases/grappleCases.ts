@@ -10,7 +10,7 @@ import { HumanChain } from "../../HumanChain";
 import { clinch } from "../../grappling/clinch";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /** The record of `IGrappleCasesWorst`'s site. */
 type IGrappleCasesWorst = { value: number; where: string };

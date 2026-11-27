@@ -12,9 +12,9 @@ import { seated } from "../../everyday/seated";
 import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { everydayCaseKit } from "./everydayCaseKit";
-import { everydayPostureCaseObstacle } from "./everydayPostureCaseObstacle";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayCaseKit } from "./internal/everydayCaseKit";
+import { everydayPostureCaseObstacle } from "./internal/everydayPostureCaseObstacle";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /**
  * The seat, bend and step cases of `everydayCases` (`everyday-seat`,

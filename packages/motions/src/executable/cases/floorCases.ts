@@ -10,8 +10,8 @@ import type {
 import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { floorCaseSpan } from "./floorCaseSpan";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { floorCaseSpan } from "./internal/floorCaseSpan";
 
 /** The alternatives of `FloorCasesRisesLimb`'s site. */
 type FloorCasesRisesLimb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";

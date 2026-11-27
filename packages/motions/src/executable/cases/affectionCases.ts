@@ -19,8 +19,8 @@ import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
-import { affectionCasePerformers } from "./affectionCasePerformers";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { affectionCasePerformers } from "./internal/affectionCasePerformers";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /**
  * Capture cases of affectionate and social touch between two polygon men of the

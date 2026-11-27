@@ -1,11 +1,11 @@
 import type {
   AutoMovieRenderMetric,
   IAutoMovieFilmShading,
-  IAutoMovieMeasureRenderSimulation,
-  IAutoMovieRenderAnalysisGap,
   IAutoMovieRenderSubject,
   IAutoMovieRenderTargetSettings,
 } from "@automovie/interface";
+
+import type { AutoMovieEngineRenderMeasureTypes } from "../AutoMovieEngineRenderMeasureTypes";
 
 import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
 
@@ -33,8 +33,8 @@ const PROBE_RENDERS: number = 12;
 /**
  * Measure what a directly rendered film's stage adds to one frame: the GPU
  * targets render's film response, sample sum, indirect and medium stages
- * allocate at the beauty pass's drawing buffer, `width × pixelRatio` by `height
- * × pixelRatio` pixels (the draw host's is twice the delivered raster on each
+ * allocate at the beauty pass's drawing buffer, `width 횞 pixelRatio` by `height
+ * 횞 pixelRatio` pixels (the draw host's is twice the delivered raster on each
  * side), and the further passes they draw.
  *
  * With `subject.film`, and nothing without it, one row pair per stage under a
@@ -46,12 +46,12 @@ const PROBE_RENDERS: number = 12;
  *   passes are the final full-frame quad and, with a glare strength above zero,
  *   one quad into each glare target.
  * - `samples` S: two 32-bit float sum targets. The beauty pass is drawn S times
- *   instead of once, each with its shadow maps, so S − 1 more scene passes, and
+ *   instead of once, each with its shadow maps, so S ??1 more scene passes, and
  *   one accumulation quad per sample plus the average.
  * - `shading.occlusion`: the normal prepass's half-float target and its depth
  *   texture, and the raw and blurred visibility targets; per beauty sample one
  *   scene pass of the prepass, with its shadow maps, and two quads.
- * - `shading.probes`: the bake's 192 × 32 float target with its depth
+ * - `shading.probes`: the bake's 192 횞 32 float target with its depth
  *   renderbuffer and the grid's float texture of nine texels per probe; a frame
  *   that bakes draws twelve scene passes per probe. The layer's share of the
  *   scene is not known here, so each is bounded by the whole scene.
@@ -70,8 +70,8 @@ const PROBE_RENDERS: number = 12;
  * @returns What the stage adds to each total, null where it is unknown.
  */
 export function measureAutoMovieRenderFilmStage(
-  props: measureAutoMovieRenderFilmStage.IProps,
-): measureAutoMovieRenderFilmStage.IResult {
+  props: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IProps,
+): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IResult {
   const film: IAutoMovieRenderSubject["film"] = props.subject.film;
   if (film === undefined)
     return { targets: 0, bytes: 0, drawCalls: 0, triangles: 0 };
@@ -85,11 +85,11 @@ export function measureAutoMovieRenderFilmStage(
       ? NaN
       : Math.round(settings.height * settings.pixelRatio);
   const area: number = width * height;
-  const scene: measureAutoMovieRenderFilmStage.IPass = props.casters.reduce(
+  const scene: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass = props.casters.reduce(
     (
-      sum: measureAutoMovieRenderFilmStage.IPass,
-      caster: measureAutoMovieRenderFilmStage.ICaster,
-    ): measureAutoMovieRenderFilmStage.IPass => ({
+      sum: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass,
+      caster: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.ICaster,
+    ): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass => ({
       draws:
         sum.draws + props.drawCalls * caster.depthFaces + caster.filterDraws,
       triangles:
@@ -102,15 +102,15 @@ export function measureAutoMovieRenderFilmStage(
   const passes: (
     scenes: number,
     quads: number,
-  ) => measureAutoMovieRenderFilmStage.IPass = (
+  ) => AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass = (
     scenes: number,
     quads: number,
-  ): measureAutoMovieRenderFilmStage.IPass => ({
+  ): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IPass => ({
     draws: scenes * scene.draws + quads,
     triangles: scenes * scene.triangles + 2 * quads,
   });
   const samples: number = film.optics.samples ?? 1;
-  const rows: measureAutoMovieRenderFilmStage.IRow[] = [];
+  const rows: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow[] = [];
 
   // The response stage. Glare draws one quad into each target beyond the
   // linear frame and its depth: a pyramid level or a kernel's blur pass.
@@ -173,12 +173,12 @@ export function measureAutoMovieRenderFilmStage(
   const sized: boolean = settings !== undefined;
   const counted: boolean = sized || !glare;
   const write: (
-    entry: measureAutoMovieRenderFilmStage.IRow,
+    entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow,
     metric: AutoMovieRenderMetric,
     cost: number,
     kind: "runtime" | "pass",
   ) => void = (
-    entry: measureAutoMovieRenderFilmStage.IRow,
+    entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow,
     metric: AutoMovieRenderMetric,
     cost: number,
     kind: "runtime" | "pass",
@@ -209,116 +209,38 @@ export function measureAutoMovieRenderFilmStage(
         "pass the render target settings whose width, height and pixel ratio the beauty pass draws at",
     });
   const sum: (
-    read: (entry: measureAutoMovieRenderFilmStage.IRow) => number,
+    read: (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow) => number,
   ) => number = (
-    read: (entry: measureAutoMovieRenderFilmStage.IRow) => number,
+    read: (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow) => number,
   ): number =>
     rows.reduce(
-      (total: number, entry: measureAutoMovieRenderFilmStage.IRow): number =>
+      (total: number, entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number =>
         total + read(entry),
       0,
     );
   return {
     targets: sized
       ? sum(
-          (entry: measureAutoMovieRenderFilmStage.IRow): number =>
+          (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number =>
             entry.targets,
         )
       : null,
     bytes: sized
       ? sum(
-          (entry: measureAutoMovieRenderFilmStage.IRow): number => entry.bytes,
+          (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number => entry.bytes,
         )
       : null,
     drawCalls: counted
       ? sum(
-          (entry: measureAutoMovieRenderFilmStage.IRow): number =>
+          (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number =>
             entry.passes.draws,
         )
       : null,
     triangles: counted
       ? sum(
-          (entry: measureAutoMovieRenderFilmStage.IRow): number =>
+          (entry: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IRow): number =>
             entry.passes.triangles,
         )
       : null,
   };
-}
-
-/** What the film stage phase reads and returns. */
-export namespace measureAutoMovieRenderFilmStage {
-  /** The subject, the raster, the frame so far and the sinks. */
-  export interface IProps {
-    /** The measured subject; only `film` and `scene.medium` are read. */
-    subject: IAutoMovieRenderSubject;
-
-    /** The target settings whose drawing buffer the beauty pass draws into. */
-    settings?: IAutoMovieRenderTargetSettings;
-
-    /** Draw calls of the opaque frame, before any pass. */
-    drawCalls: number;
-
-    /** Triangles of the opaque frame, before any pass. */
-    triangles: number;
-
-    /** The lights that render a shadow map with every scene pass. */
-    casters: readonly ICaster[];
-
-    /** Appends one owner row. */
-    add: IAutoMovieMeasureRenderSimulation.IProps["add"];
-
-    /** Receives a gap for each total the missing raster leaves unknown. */
-    gaps: IAutoMovieRenderAnalysisGap[];
-  }
-
-  /** One shadow caster's per-pass cost, as the texture phase lists it. */
-  export interface ICaster {
-    /** Depth views the caster renders the opaque frame into. */
-    depthFaces: number;
-
-    /** Fullscreen filtering draws of a VSM caster. */
-    filterDraws: number;
-  }
-
-  /** Draw calls and triangles of some passes. */
-  export interface IPass {
-    /** Draw calls. */
-    draws: number;
-
-    /** Triangles. */
-    triangles: number;
-  }
-
-  /** One stage's allocations and passes. */
-  export interface IRow {
-    /** The `render-pass:film-*` owner. */
-    owner: string;
-
-    /** The setting that makes the stage allocate and draw. */
-    source: string;
-
-    /** Texture allocations. */
-    targets: number;
-
-    /** Their bytes at the raster; NaN without one. */
-    bytes: number;
-
-    /** The further draw calls and triangles of one frame. */
-    passes: IPass;
-  }
-
-  /** What the film stage adds to the frame's totals. */
-  export interface IResult {
-    /** Texture allocations, or null when no settings give the raster. */
-    targets: number | null;
-
-    /** Their bytes, or null when no settings give the raster. */
-    bytes: number | null;
-
-    /** Further draw calls, or null when glare's raster is unknown. */
-    drawCalls: number | null;
-
-    /** Further triangles, or null when glare's raster is unknown. */
-    triangles: number | null;
-  }
 }

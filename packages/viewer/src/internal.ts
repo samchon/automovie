@@ -2,7 +2,7 @@
 
 export * from "./inspector/internal/assertAutoMovieInspectorRaster.js";
 export * from "./inspector/internal/changesAutoMovieObservedScene.js";
-export * from "./inspector/firstAutoMovieInspectorSecond.js";
-export * from "./inspector/messageOfAutoMovieInspectorError.js";
-export * from "./inspector/readsAutoMovieInspectorPlacedScene.js";
-export * from "./inspector/writeAutoMovieInspectorInspection.js";
+export * from "./inspector/internal/firstAutoMovieInspectorSecond.js";
+export * from "./inspector/internal/messageOfAutoMovieInspectorError.js";
+export * from "./inspector/internal/readsAutoMovieInspectorPlacedScene.js";
+export * from "./inspector/internal/writeAutoMovieInspectorInspection.js";

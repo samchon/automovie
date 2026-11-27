@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { measureAutoMovieRenderFeeds } from "./measureAutoMovieRenderFeeds";
+import type { AutoMovieEngineRenderMeasureTypes } from "../AutoMovieEngineRenderMeasureTypes";
 import type { measureRenderTextures } from "./measureRenderTextures";
 
 /**
@@ -87,7 +88,7 @@ export function measureRenderPasses(
 
   // A feed target is one more texture, and a shown feed redraws the scene,
   // its shadow maps included, into it once per frame.
-  const feeds: measureAutoMovieRenderFeeds.IResult =
+  const feeds: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.IResult =
     measureAutoMovieRenderFeeds(subject);
   const sceneDraws: number = casters.reduce(
     (sum: number, caster: measureRenderTextures.ICaster): number =>
@@ -157,6 +158,6 @@ export namespace measureRenderPasses {
     shadowMaps: number;
 
     /** The surface feeds' targets, bytes and passes. */
-    feeds: measureAutoMovieRenderFeeds.IResult;
+    feeds: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.IResult;
   }
 }

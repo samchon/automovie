@@ -20,7 +20,7 @@ import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createLift } from "./createLift";
 import { liftLandingSpace } from "./liftLandingSpace";
 import { liftShaftParts } from "./liftShaftParts";
-import type { liftStopHeights } from "./liftStopHeights";
+import type { liftStopHeights } from "./internal/liftStopHeights";
 
 /** The two leaf affordances and their corresponding existing panel parts. */
 const LEAVES: readonly ["leftDoor", "rightDoor"] = ["leftDoor", "rightDoor"];

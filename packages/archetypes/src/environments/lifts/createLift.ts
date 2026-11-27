@@ -9,7 +9,7 @@ import type {
 import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
 import { buildLiftEnvironment } from "./buildLiftEnvironment";
 import { liftObjectMotion } from "./liftObjectMotion";
-import { liftStopHeights } from "./liftStopHeights";
+import { liftStopHeights } from "./internal/liftStopHeights";
 
 /**
  * Define a lift whose cab, door panels and stopped landings can be staged

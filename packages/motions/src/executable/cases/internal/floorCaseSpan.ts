@@ -1,4 +1,4 @@
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../../IMotionCaptureCase";
 
 /** The record of `IFloorCaseSpanRange`'s site. */
 interface IFloorCaseSpanRange {

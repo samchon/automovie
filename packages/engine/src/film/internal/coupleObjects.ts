@@ -1,3 +1,5 @@
+import type { AutoMovieEngineFilmTypes } from "../AutoMovieEngineFilmTypes";
+
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
@@ -97,7 +99,7 @@ function childrenOf(action: IAutoMovieActionCall): string[] {
  * handoff events; and the violations.
  */
 export function coupleObjects(
-  props: coupleObjects.IProps,
+  props: AutoMovieEngineFilmTypes.ICoupleObjectsProps,
 ): IAutoMovieCoupleObjects.IResult {
   const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
   const claimed: Set<string> = new Set(
@@ -336,16 +338,4 @@ function compilePreparedAttach(
       input.restFrames,
     );
   return compileAttach(input);
-}
-
-/** Companion types of {@link coupleObjects}. */
-export namespace coupleObjects {
-  /** The coupling props with an optional parent-rig preparer. */
-  export interface IProps extends IAutoMovieCoupleObjects.IProps {
-    /**
-     * Prepare unchanged parent rig inputs for demanded attachment FK; omitted,
-     * preserve the raw baker's full live admission.
-     */
-    prepareRig?: typeof prepareSkeletonPoseResolution;
-  }
 }

@@ -8,7 +8,7 @@ import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeUnits } from "./AutoMovieArchetypeUnits";
-import { limitMonotoneTangents } from "./limitMonotoneTangents";
+import { limitMonotoneTangents } from "./internal/limitMonotoneTangents";
 
 /**
  * A timed course interpolates the samples with continuous position and

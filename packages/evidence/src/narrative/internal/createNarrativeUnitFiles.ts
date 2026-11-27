@@ -1,5 +1,5 @@
-import type { NarrativeLayer } from "./NarrativeLayer";
-import type { AutoMovieEvidenceNarrativeScope } from "./AutoMovieEvidenceNarrativeScope";
+import type { NarrativeLayer } from "../NarrativeLayer";
+import type { AutoMovieEvidenceNarrativeScope } from "../AutoMovieEvidenceNarrativeScope";
 
 /**
  * Selects the authored unit files of one narrative layer.

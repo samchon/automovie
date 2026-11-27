@@ -3,13 +3,13 @@ import type {
   IEvidenceMarkdownReference,
 } from "@wrtnlabs/evidence";
 
-import { PRODUCTION_CONTRACTS } from "../internal/PRODUCTION_CONTRACTS";
-import type { AuthoredLayer } from "./AuthoredLayer";
-import type { IPackagePopulationContractProps } from "./IPackagePopulationContractProps";
-import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
-import { BODY_ROOT } from "./internal/utilities/BODY_ROOT";
-import { createEvidenceFiles } from "./internal/utilities/createEvidenceFiles";
-import { createUnitFiles } from "./internal/utilities/createUnitFiles";
+import { PRODUCTION_CONTRACTS } from "../../internal/PRODUCTION_CONTRACTS";
+import type { AuthoredLayer } from "../AuthoredLayer";
+import type { IPackagePopulationContractProps } from "../IPackagePopulationContractProps";
+import type { AutoMovieEvidenceProductionStage } from "../AutoMovieEvidenceProductionStage";
+import { BODY_ROOT } from "./utilities/BODY_ROOT";
+import { createEvidenceFiles } from "./utilities/createEvidenceFiles";
+import { createUnitFiles } from "./utilities/createUnitFiles";
 
 /**
  * Creates one population obligation claim per selected layer.

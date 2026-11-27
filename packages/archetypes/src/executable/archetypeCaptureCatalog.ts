@@ -25,7 +25,7 @@ import { archetypeCaptureExtendedArmoury } from "./archetypeCaptureExtendedArmou
 import { archetypeCaptureFixtures } from "./archetypeCaptureFixtures";
 import { archetypeCaptureQuadrupeds } from "./archetypeCaptureQuadrupeds";
 import { archetypeCaptureReferenceAnimals } from "./archetypeCaptureReferenceAnimals";
-import { archetypeCaptureRest } from "./archetypeCaptureRest";
+import { archetypeCaptureRest } from "./internal/archetypeCaptureRest";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 import { archetypeCaptureSupportProps } from "./archetypeCaptureSupportProps";
 

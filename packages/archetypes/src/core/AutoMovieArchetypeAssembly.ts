@@ -16,7 +16,7 @@ import { AutoMovieArchetypeMass } from "./AutoMovieArchetypeMass";
 import type { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
-import { ownArchetypeRecordKeys } from "./ownArchetypeRecordKeys";
+import { ownArchetypeRecordKeys } from "./internal/ownArchetypeRecordKeys";
 
 /**
  * Several archetypes as one placed and ridden object: a chariot of a platform,

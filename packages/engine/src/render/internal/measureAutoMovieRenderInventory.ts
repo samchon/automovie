@@ -37,6 +37,7 @@ import type {
 import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { measureAutoMovieRenderFilmStage } from "./measureAutoMovieRenderFilmStage";
+import type { AutoMovieEngineRenderMeasureTypes } from "../AutoMovieEngineRenderMeasureTypes";
 import { measureRenderGeometryBytes } from "./measureRenderGeometryBytes";
 import { measureRenderPasses } from "./measureRenderPasses";
 import { measureRenderPopulation } from "./measureRenderPopulation";
@@ -67,8 +68,7 @@ import { resolveAutoMovieMaterial } from "../resolveAutoMovieMaterial";
  * toward the crowd, which is exactly the frame anyone would have wanted the
  * budget to catch.
  *
- * Simulated drawables — cloth panels, planting clusters and water surfaces —
- * are measured beside the staged ones. They are held by no scene node, so
+ * Simulated drawables ??cloth panels, planting clusters and water surfaces ?? * are measured beside the staged ones. They are held by no scene node, so
  * leaving them out was never "not yet supported": it was a triangle count for a
  * room the curtain, the fern bed and the pond are missing from, checked against
  * a budget and reported as cleared. Their cost comes from the domain record
@@ -312,7 +312,7 @@ export function measureAutoMovieRenderInventory(
   });
 
   // --- film stage targets and passes, over the opaque frame -----------------
-  const film: measureAutoMovieRenderFilmStage.IResult =
+  const film: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IResult =
     measureAutoMovieRenderFilmStage({
       subject,
       ...(props.settings === undefined ? {} : { settings: props.settings }),

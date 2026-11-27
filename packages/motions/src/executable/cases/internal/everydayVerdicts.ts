@@ -13,9 +13,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { FootSlip } from "./FootSlip";
+import { HumanFoot } from "../../../posture/HumanFoot";
+import type { IMotionCaptureCase } from "../../IMotionCaptureCase";
+import { FootSlip } from "../FootSlip";
 
 /** The alternatives of `WithinUnit`'s site. */
 type WithinUnit = "mm" | "deg";

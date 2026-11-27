@@ -5,8 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import type { createLift } from "./createLift";
+import { AutoMovieArchetypeFrame } from "../../../core/AutoMovieArchetypeFrame";
+import type { createLift } from "../createLift";
 
 /**
  * Metre or unit-axis proximity used only to recognize equivalent authoring

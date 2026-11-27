@@ -11,7 +11,7 @@ import { assertProductionContractLayout } from "./internal/assertProductionContr
 import { createReferenceRoot } from "./internal/createReferenceRoot";
 import { hasMatchingFile } from "./internal/hasMatchingFile";
 import { resolveSkillsDirectory } from "./internal/resolveSkillsDirectory";
-import { createProductionConfig } from "./narrative/createProductionConfig";
+import { createProductionConfig } from "./narrative/internal/createProductionConfig";
 
 /** Owns configuration assembly for an AutoMovie production. */
 export namespace AutoMovieEvidenceConfig {

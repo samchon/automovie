@@ -14,11 +14,11 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieRenderCaption } from "../../caption/AutoMovieRenderCaption.js";
-import { assertSingleGuidePass } from "../assertSingleGuidePass.js";
+import { assertSingleGuidePass } from "./assertSingleGuidePass.js";
 import { normalizeAudioAssets } from "../normalizeAudioAssets.js";
-import { normalizeRenderTier } from "../normalizeRenderTier.js";
+import { normalizeRenderTier } from "./normalizeRenderTier.js";
 import { resolveProductionRenderTierFrameFormat } from "./resolveProductionRenderTierFrameFormat.js";
-import { validDigest } from "../validDigest.js";
+import { validDigest } from "./validDigest.js";
 
 /** A deliverable that renders moving images, the only kind with chunks. */
 type IMovingDeliverable = IAutoMovieProductionDeliverable & {

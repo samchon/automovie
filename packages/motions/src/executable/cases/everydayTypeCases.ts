@@ -13,9 +13,9 @@ import { seated } from "../../everyday/seated";
 import { typeText } from "../../everyday/typeText";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { everydayCaseKit } from "./everydayCaseKit";
-import { everydayTypeCaseBoard } from "./everydayTypeCaseBoard";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayCaseKit } from "./internal/everydayCaseKit";
+import { everydayTypeCaseBoard } from "./internal/everydayTypeCaseBoard";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /** The record of `IEverydayTypeCasesBoxesItem`'s site. */
 type IEverydayTypeCasesBoxesItem = {

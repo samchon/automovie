@@ -21,8 +21,8 @@ import * as THREE from "three";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
-import { colliderCaseInside } from "./colliderCaseInside";
-import { colliderCaseNearest } from "./colliderCaseNearest";
+import { colliderCaseInside } from "./internal/colliderCaseInside";
+import { colliderCaseNearest } from "./internal/colliderCaseNearest";
 
 /** The alternatives of `ColliderCasesWorstEntry`'s site. */
 type ColliderCasesWorstEntry = "vertex" | "band" | "face" | "digit";

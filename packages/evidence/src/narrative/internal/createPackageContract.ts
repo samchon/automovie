@@ -1,10 +1,10 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
-import type { AuthoredLayer } from "./AuthoredLayer";
-import type { IPackageContractProps } from "./IPackageContractProps";
-import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
+import type { AuthoredLayer } from "../AuthoredLayer";
+import type { IPackageContractProps } from "../IPackageContractProps";
+import type { AutoMovieEvidenceProductionStage } from "../AutoMovieEvidenceProductionStage";
 import { createPackageChecklistClaim } from "./createPackageChecklistClaim";
-import { createUnitFiles } from "./internal/utilities/createUnitFiles";
+import { createUnitFiles } from "./utilities/createUnitFiles";
 
 /**
  * Creates one adopted contract's claims, one per layer that answers it.

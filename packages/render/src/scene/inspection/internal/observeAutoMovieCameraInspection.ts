@@ -16,7 +16,7 @@ import {
 } from "three";
 
 import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
-import { crossesAutoMovieFrustumPlane } from "../crossesAutoMovieFrustumPlane.js";
+import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
 import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
 import { sampleAutoMovieCameraOcclusion } from "../sampleAutoMovieCameraOcclusion.js";
 

@@ -1,3 +1,4 @@
+import type { AutoMovieEngineFilmTypes } from "./AutoMovieEngineFilmTypes";
 import { compileAttach as compileAttachImplementation } from "./internal/compileAttach";
 import { coupleObjects as coupleObjectsImplementation } from "./internal/coupleObjects";
 
@@ -3335,14 +3336,8 @@ export namespace AutoMovieEngineFilm {
    * indexed loop. This representability gate is not a workload cap; callers still
    * own feasible memory use and representable distinct key times.
    */
-  export function compileAttach(props: compileAttach.IProps): IAutoMovieClip {
+  export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProps): IAutoMovieClip {
     return compileAttachImplementation(props);
-  }
-
-  /** Companion types of {@link compileAttach}. */
-  export namespace compileAttach {
-    /** The attachment props with an optional prepared parent rig. */
-    export type IProps = compileAttachImplementation.IProps;
   }
 
   /**
@@ -3374,13 +3369,7 @@ export namespace AutoMovieEngineFilm {
    * attach clips in start order and repeats suffixed `attach:<child>:2`, ...; the
    * handoff events; and the violations.
    */
-  export function coupleObjects(props: coupleObjects.IProps): IAutoMovieCoupleObjects.IResult {
+  export function coupleObjects(props: AutoMovieEngineFilmTypes.ICoupleObjectsProps): IAutoMovieCoupleObjects.IResult {
     return coupleObjectsImplementation(props);
-  }
-
-  /** Companion types of {@link coupleObjects}. */
-  export namespace coupleObjects {
-    /** The coupling props with an optional parent-rig preparer. */
-    export type IProps = coupleObjectsImplementation.IProps;
   }
 }

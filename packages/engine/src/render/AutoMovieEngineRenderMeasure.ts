@@ -1,5 +1,6 @@
 import { measureAutoMovieRenderFeeds as measureAutoMovieRenderFeedsImplementation } from "./internal/measureAutoMovieRenderFeeds";
 import { measureAutoMovieRenderFilmStage as measureAutoMovieRenderFilmStageImplementation } from "./internal/measureAutoMovieRenderFilmStage";
+import type { AutoMovieEngineRenderMeasureTypes } from "./AutoMovieEngineRenderMeasureTypes";
 
 import { type IAutoMovieRenderModelCost, type IAutoMovieModel, type IAutoMovieRenderInventory, type IAutoMovieMeasureRenderInventory, type IAutoMovieMeasureRenderPopulation, type IAutoMovieMeasureRenderSimulation, type IAutoMovieRenderSubject } from "@automovie/interface";
 import { measure as measureImplementation } from "./internal/measure";
@@ -47,8 +48,7 @@ export namespace AutoMovieEngineRenderMeasure {
    * toward the crowd, which is exactly the frame anyone would have wanted the
    * budget to catch.
    *
-   * Simulated drawables — cloth panels, planting clusters and water surfaces —
-   * are measured beside the staged ones. They are held by no scene node, so
+   * Simulated drawables ??cloth panels, planting clusters and water surfaces ??   * are measured beside the staged ones. They are held by no scene node, so
    * leaving them out was never "not yet supported": it was a triangle count for a
    * room the curtain, the fern bed and the pond are missing from, checked against
    * a budget and reported as cleared. Their cost comes from the domain record
@@ -111,24 +111,15 @@ export namespace AutoMovieEngineRenderMeasure {
    * @param subject The subject whose surface graphics are measured.
    * @returns One row per track with feeds, in track order, and the totals.
    */
-  export function measureAutoMovieRenderFeeds(subject: IAutoMovieRenderSubject): measureAutoMovieRenderFeeds.IResult {
+  export function measureAutoMovieRenderFeeds(subject: IAutoMovieRenderSubject): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFeeds.IResult {
     return measureAutoMovieRenderFeedsImplementation(subject);
-  }
-
-  /** What the feed layers commit. */
-  export namespace measureAutoMovieRenderFeeds {
-    /** One track's feed render targets and its most feeds shown at once. */
-    export type ITrack = measureAutoMovieRenderFeedsImplementation.ITrack;
-
-    /** The tracks with feeds and their sums. */
-    export type IResult = measureAutoMovieRenderFeedsImplementation.IResult;
   }
 
   /**
    * Measure what a directly rendered film's stage adds to one frame: the GPU
    * targets render's film response, sample sum, indirect and medium stages
-   * allocate at the beauty pass's drawing buffer, `width × pixelRatio` by `height
-   * × pixelRatio` pixels (the draw host's is twice the delivered raster on each
+   * allocate at the beauty pass's drawing buffer, `width 횞 pixelRatio` by `height
+   * 횞 pixelRatio` pixels (the draw host's is twice the delivered raster on each
    * side), and the further passes they draw.
    *
    * With `subject.film`, and nothing without it, one row pair per stage under a
@@ -140,12 +131,12 @@ export namespace AutoMovieEngineRenderMeasure {
    *   passes are the final full-frame quad and, with a glare strength above zero,
    *   one quad into each glare target.
    * - `samples` S: two 32-bit float sum targets. The beauty pass is drawn S times
-   *   instead of once, each with its shadow maps, so S − 1 more scene passes, and
+   *   instead of once, each with its shadow maps, so S ??1 more scene passes, and
    *   one accumulation quad per sample plus the average.
    * - `shading.occlusion`: the normal prepass's half-float target and its depth
    *   texture, and the raw and blurred visibility targets; per beauty sample one
    *   scene pass of the prepass, with its shadow maps, and two quads.
-   * - `shading.probes`: the bake's 192 × 32 float target with its depth
+   * - `shading.probes`: the bake's 192 횞 32 float target with its depth
    *   renderbuffer and the grid's float texture of nine texels per probe; a frame
    *   that bakes draws twelve scene passes per probe. The layer's share of the
    *   scene is not known here, so each is bounded by the whole scene.
@@ -163,25 +154,8 @@ export namespace AutoMovieEngineRenderMeasure {
    *   casters, and the row and gap sinks.
    * @returns What the stage adds to each total, null where it is unknown.
    */
-  export function measureAutoMovieRenderFilmStage(props: measureAutoMovieRenderFilmStage.IProps): measureAutoMovieRenderFilmStage.IResult {
+  export function measureAutoMovieRenderFilmStage(props: AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IProps): AutoMovieEngineRenderMeasureTypes.measureAutoMovieRenderFilmStage.IResult {
     return measureAutoMovieRenderFilmStageImplementation(props);
   }
 
-  /** What the film stage phase reads and returns. */
-  export namespace measureAutoMovieRenderFilmStage {
-    /** The subject, the raster, the frame so far and the sinks. */
-    export type IProps = measureAutoMovieRenderFilmStageImplementation.IProps;
-
-    /** One shadow caster's per-pass cost, as the texture phase lists it. */
-    export type ICaster = measureAutoMovieRenderFilmStageImplementation.ICaster;
-
-    /** Draw calls and triangles of some passes. */
-    export type IPass = measureAutoMovieRenderFilmStageImplementation.IPass;
-
-    /** One stage's allocations and passes. */
-    export type IRow = measureAutoMovieRenderFilmStageImplementation.IRow;
-
-    /** What the film stage adds to the frame's totals. */
-    export type IResult = measureAutoMovieRenderFilmStageImplementation.IResult;
-  }
 }

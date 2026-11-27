@@ -12,8 +12,8 @@ import { operate } from "../../affordance/operate";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
-import { motionCaseSocket } from "./motionCaseSocket";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
+import { motionCaseSocket } from "./internal/motionCaseSocket";
 
 /** The record of `IAffordanceCasesWorst`'s site. */
 type IAffordanceCasesWorst = { value: number; at: number };

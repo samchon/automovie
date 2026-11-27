@@ -11,7 +11,7 @@ import * as THREE from "three";
 
 import { AutoMovieArchetypeMarks } from "../core";
 import { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
-import { archetypeQuadrupedMarks } from "./archetypeQuadrupedMarks";
+import { archetypeQuadrupedMarks } from "./internal/archetypeQuadrupedMarks";
 
 /**
  * Width and height of every picture drawn, pixels: square, because an archetype

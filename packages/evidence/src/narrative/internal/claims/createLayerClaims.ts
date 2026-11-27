@@ -3,7 +3,7 @@ import type { IEvidenceClaim, IEvidenceReference } from "@wrtnlabs/evidence";
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { AutoMovieEvidenceProductionStage } from "../../AutoMovieEvidenceProductionStage";
-import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
+import { createNarrativeUnitFiles } from "../createNarrativeUnitFiles";
 import { constructionStage } from "../constructionStage";
 import { isCanonLayer } from "../isCanonLayer";
 import { createCoverageReference } from "../references/createCoverageReference";

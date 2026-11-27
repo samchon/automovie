@@ -1,7 +1,8 @@
+import type { AutoMovieEngineFilmTypes } from "../AutoMovieEngineFilmTypes";
+
 import type {
   IAutoMovieAttachment,
   IAutoMovieClip,
-  IAutoMovieCompileAttach,
   IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -10,6 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { preparePoseResolution } from "../../kinematics/preparePoseResolution";
+
 import type { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
 import { resolveAttachment } from "../../kinematics/resolveAttachment";
 import { Quaternion } from "../../math/Quaternion";
@@ -54,7 +56,7 @@ const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
  * indexed loop. This representability gate is not a workload cap; callers still
  * own feasible memory use and representable distinct key times.
  */
-export function compileAttach(props: compileAttach.IProps): IAutoMovieClip {
+export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProps): IAutoMovieClip {
   const fps: number = props.fps ?? 30;
   // `performShot` rejects a zero-span coupling before it reaches here; this
   // precondition, the one `projectileTrajectory` enforces, keeps any other
@@ -144,17 +146,4 @@ export function compileAttach(props: compileAttach.IProps): IAutoMovieClip {
       },
     ],
   };
-}
-
-/** Companion types of {@link compileAttach}. */
-export namespace compileAttach {
-  /** The attachment props with an optional prepared parent rig. */
-  export interface IProps extends IAutoMovieCompileAttach.IProps {
-    /**
-     * Explicit immutable snapshot of this exact parent rig and clinical
-     * mappings, kept unchanged throughout the bake. Omission preserves raw full
-     * FK.
-     */
-    poseResolution?: prepareSkeletonPoseResolution.IRig;
-  }
 }

@@ -4,7 +4,7 @@ import path from "node:path";
 
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import { buildMotionCaptureCases } from "./buildMotionCaptureCases";
-import { planMotionCaptureProps } from "./planMotionCaptureProps";
+import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";
 
 /** The motions package, whose `media/props/` holds the written files by default. */
 const ROOT: string = path.join(__dirname, "..", "..");

@@ -13,8 +13,8 @@ import { HumanFoot } from "../../posture/HumanFoot";
 import { HumanFrame } from "../../posture/HumanFrame";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { climbCaseLadder } from "./climbCaseLadder";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { climbCaseLadder } from "./internal/climbCaseLadder";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /** The record of `IClimbCasesFewest`'s site. */
 type IClimbCasesFewest = { value: number; at: number };

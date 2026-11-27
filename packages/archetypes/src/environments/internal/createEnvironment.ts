@@ -20,7 +20,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { requireEnvironmentFrame } from "../requireEnvironmentFrame";
 
 /**

@@ -9,11 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import { HumanPerformance } from "../../perform/HumanPerformance";
-import { poseBones } from "../../posture/poseBones";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import type { humanPolygonMan } from "../humanPolygonMan";
+import { AutoMovieMotionHumanBody } from "../../../body/AutoMovieMotionHumanBody";
+import { HumanPerformance } from "../../../perform/HumanPerformance";
+import { poseBones } from "../../../posture/poseBones";
+import type { IMotionCaptureCase } from "../../IMotionCaptureCase";
+import type { humanPolygonMan } from "../../humanPolygonMan";
 
 /** The part of a segment its events are read from. */
 interface IEventSegment {

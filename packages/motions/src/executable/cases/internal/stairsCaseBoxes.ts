@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanClimbStairsFlight } from "@automovie/interface";
 
-import { HumanFrame } from "../../posture/HumanFrame";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { HumanFrame } from "../../../posture/HumanFrame";
+import type { IMotionCaptureCase } from "../../IMotionCaptureCase";
 
 /**
  * The drawn boxes of a stair flight: each tread a 0.9 m wide block from the

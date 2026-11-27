@@ -12,7 +12,7 @@ import { carry } from "../../carrying/carry";
 import { carryPlace } from "../../carrying/carryPlace";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /**
  * Capture cases of the load-carriage family: a 2.5 m walk ahead carrying a load

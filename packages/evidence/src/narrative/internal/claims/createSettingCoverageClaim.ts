@@ -2,7 +2,7 @@ import type { IEvidenceClaim, IEvidenceReference } from "@wrtnlabs/evidence";
 
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { AutoMovieEvidenceProductionStage } from "../../AutoMovieEvidenceProductionStage";
-import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
+import { createNarrativeUnitFiles } from "../createNarrativeUnitFiles";
 import { constructionStage } from "../constructionStage";
 import { createSettingReferences } from "../references/createSettingReferences";
 import { BODY_ROOT } from "../utilities/BODY_ROOT";

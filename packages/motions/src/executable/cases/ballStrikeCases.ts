@@ -9,8 +9,8 @@ import { HumanChain } from "../../HumanChain";
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
-import { ballStrikeCaseBall } from "./ballStrikeCaseBall";
-import { everydayVerdicts } from "./everydayVerdicts";
+import { ballStrikeCaseBall } from "./internal/ballStrikeCaseBall";
+import { everydayVerdicts } from "./internal/everydayVerdicts";
 
 /**
  * Capture cases of the ball-strike family: `ball-kick`, a standing instep kick
