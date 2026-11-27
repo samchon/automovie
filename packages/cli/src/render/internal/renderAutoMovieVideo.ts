@@ -4,6 +4,7 @@ import type {
   IAutoMovieDialogueLipSync,
   IAutoMovieDrawnVideoResult,
 } from "@automovie/interface";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type * as Render from "@automovie/render";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
@@ -198,13 +199,16 @@ export async function renderAutoMovieVideo(
         ...(loudness === undefined ? {} : { loudness }),
       };
       const thresholds = intent?.thresholds ?? THRESHOLDS;
+      const createAutoMovieLoudnessMeter =
+        props.host.render.createAutoMovieLoudnessMeter ??
+        AutoMovieEngineSound.createLoudnessMeter;
       const streams = await AutoMovieCliDelivery.decode(
         props.ffmpeg,
         candidate,
         expected,
         thresholds,
         run,
-        props.host.render.createAutoMovieLoudnessMeter,
+        createAutoMovieLoudnessMeter,
       );
       // The drawn frames and the soundtrack as the encoder read them, measured
       // the same way, before the frame scratch is released.

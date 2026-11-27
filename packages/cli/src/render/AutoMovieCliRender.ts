@@ -19,7 +19,8 @@ export namespace AutoMovieCliRender {
         | "AUTOMOVIE_MP4_SRGB_COLOUR"
         | "AutoMovieRenderDelivery"
       > & {
-        createAutoMovieLoudnessMeter: typeof AutoMovieEngineSound.createLoudnessMeter;
+        /** Creates the delivery loudness meter. Defaults to `AutoMovieEngineSound.createLoudnessMeter`. */
+        createAutoMovieLoudnessMeter?: typeof AutoMovieEngineSound.createLoudnessMeter;
       };
       session(props: {
         /** Name of the subject, or null for the page's only subject. */

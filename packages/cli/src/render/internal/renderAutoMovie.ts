@@ -1,5 +1,4 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import { AutoMovieEngineSound } from "@automovie/engine";
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -80,16 +79,7 @@ export async function renderAutoMovie(
   try {
     const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> =
       await renderAutoMovieVideo({
-        host: {
-          render: {
-            ...host.render,
-            createAutoMovieLoudnessMeter:
-              AutoMovieEngineSound.createLoudnessMeter.bind(
-                AutoMovieEngineSound,
-              ),
-          },
-          session: host.session.bind(host),
-        },
+        host,
         root,
         subject: request.subject,
         props: data,
