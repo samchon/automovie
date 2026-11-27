@@ -308,7 +308,7 @@ export namespace AutoMovieRecoveryOpenContinuation {
   /** Prepare source-backed open-slab transport queries for continuation observation. */
   export function prepareSlabGraph(
     source: IAutoMovieRecoveryOpenSlabGraph.Source,
-  ): IAutoMovieRecoveryOpenSlabGraph.Prepare {
+  ): ReturnType<IAutoMovieRecoveryOpenSlabGraph.Prepare> {
     return prepareSlabGraphImplementation(source);
   }
 }

@@ -1,4 +1,4 @@
-import { mergePoses } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import {
   IAutoMovieJointPose,
   IAutoMoviePose,
@@ -44,7 +44,7 @@ const flexionOf: (
  */
 export function test_perform_merge_poses(): void {
   // 1. disjoint join, root from the rooted (covers root non-null and null)
-  const merged: IAutoMoviePose = mergePoses([
+  const merged: IAutoMoviePose = AutoMovieEngineMotionSampling.mergePoses([
     makePose([joint("leftUpperLeg", { flexion: 20 })], rootAt(5)),
     makePose([joint("leftUpperArm", { flexion: 30 })]),
   ]);
@@ -76,7 +76,7 @@ export function test_perform_merge_poses(): void {
   );
 
   // 2. same bone → later wins
-  const overridden: IAutoMoviePose = mergePoses([
+  const overridden: IAutoMoviePose = AutoMovieEngineMotionSampling.mergePoses([
     makePose([joint("spine", { flexion: 10 })]),
     makePose([joint("spine", { flexion: 50 })]),
   ]);
@@ -91,7 +91,7 @@ export function test_perform_merge_poses(): void {
   );
 
   // 3. two roots → last wins
-  const twoRoots: IAutoMoviePose = mergePoses([
+  const twoRoots: IAutoMoviePose = AutoMovieEngineMotionSampling.mergePoses([
     makePose([joint("hips")], rootAt(2)),
     makePose([joint("chest")], rootAt(9)),
   ]);
@@ -111,7 +111,7 @@ export function test_perform_merge_poses(): void {
   TestValidator.predicate(
     "empty pose merge rejects missing base pose",
     throwsError(
-      (): IAutoMoviePose => mergePoses([]),
+      (): IAutoMoviePose => AutoMovieEngineMotionSampling.mergePoses([]),
       "merge poses must not be empty",
     ),
   );

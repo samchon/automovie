@@ -17,12 +17,12 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { arrangeMotion } from "../../motion/internal/arrangeMotion";
 import { sampleMotion } from "../../motion/sampleMotion";
 import { sequenceMotion } from "../../motion/internal/sequenceMotion";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { actionRegion } from "../actionRegion";
-import { blendPoses } from "../blendPoses";
 import { bodyRegionBones } from "./bodyRegionBones";
 
 const ROOT_REGIONS: Set<AutoMovieBodyRegion> = new Set<AutoMovieBodyRegion>([
@@ -213,7 +213,7 @@ function layerClips(id: string, clips: IAutoMovieMotion[]): IAutoMovieMotion {
         pose:
           samples.length === 0
             ? { skeleton: clips[0]!.skeleton, root: null, joints: [] }
-            : blendPoses(samples),
+            : AutoMovieEngineMotionSampling.blendPoses(samples),
         expression,
         easing: "linear",
         bezier: null,

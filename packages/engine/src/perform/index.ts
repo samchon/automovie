@@ -1,5 +1,4 @@
 export * from "./actionRegion";
-export * from "./blendPoses";
 
 
 export * from "./constants";
@@ -9,7 +8,6 @@ export * from "./constants";
 
 
 export * from "./makeActorSynthesizer";
-export * from "./mergePoses";
 
 
 
