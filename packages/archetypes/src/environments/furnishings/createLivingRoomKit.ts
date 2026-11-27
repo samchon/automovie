@@ -1,14 +1,3 @@
-import type {
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieModel,
-  IAutoMoviePropBox,
-} from "@automovie/interface";
-
-import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
-import { AutoMovieArchetypeBookcase } from "../../furniture/AutoMovieArchetypeBookcase";
-import { AutoMovieArchetypeSeat } from "../../furniture/AutoMovieArchetypeSeat";
-import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { furnishRoom } from "./furnishRoom";
 
@@ -33,7 +22,7 @@ import { furnishRoom } from "./furnishRoom";
  *   `keepClear` area, naming the role.
  */
 export function createLivingRoomKit(
-  params: AutoMovieEnvironmentFurnishing.LivingRoomKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingLivingRoomKitParams,
   defaultGap: number,
 ): IAutoMovieEnvironmentModule {
   return (

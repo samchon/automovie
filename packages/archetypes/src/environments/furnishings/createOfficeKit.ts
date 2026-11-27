@@ -1,16 +1,4 @@
-import type {
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieModel,
-  IAutoMoviePropBox,
-} from "@automovie/interface";
-
 import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
-import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
-import { AutoMovieArchetypeBookcase } from "../../furniture/AutoMovieArchetypeBookcase";
-import { AutoMovieArchetypeDrawerUnit } from "../../furniture/AutoMovieArchetypeDrawerUnit";
-import { AutoMovieArchetypeSeat } from "../../furniture/AutoMovieArchetypeSeat";
-import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 
@@ -36,7 +24,7 @@ import { furnishRoom } from "./furnishRoom";
  *   do not fit, naming the role or the `desks` count.
  */
 export function createOfficeKit(
-  params: AutoMovieEnvironmentFurnishing.OfficeKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingOfficeKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -46,7 +34,10 @@ export function createOfficeKit(
       role: string,
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
-    const desk: IAutoMovieModel = AutoMovieArchetypeTable.create({ kind: "desk" }, draw("desk"));
+    const desk: IAutoMovieModel = AutoMovieArchetypeTable.create(
+      { kind: "desk" },
+      draw("desk"),
+    );
     const chair: IAutoMovieModel = AutoMovieArchetypeSeat.create(
       { kind: "office" },
       draw("chair"),
@@ -55,7 +46,10 @@ export function createOfficeKit(
       { kind: "filingCabinet" },
       draw("filing"),
     );
-    const bookcase: IAutoMovieModel = AutoMovieArchetypeBookcase.create({}, draw("bookcase"));
+    const bookcase: IAutoMovieModel = AutoMovieArchetypeBookcase.create(
+      {},
+      draw("bookcase"),
+    );
     const deskBox: IAutoMoviePropBox = furnishRoom.measure(desk);
     const chairBox: IAutoMoviePropBox = furnishRoom.measure(chair);
     const filingBox: IAutoMoviePropBox = furnishRoom.measure(filing);

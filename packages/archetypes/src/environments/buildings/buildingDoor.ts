@@ -1,18 +1,5 @@
-import { Quaternion, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieClip,
-  IAutoMovieComputeModelRestExtent,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMovieQuaternion,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineFilm, Quaternion, Vector3 } from "@automovie/engine";
 
-import { AutoMovieArchetypeDoor } from "../../architecture/AutoMovieArchetypeDoor";
-import type { AutoMovieArchetype } from "../../core/AutoMovieArchetype";
-import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 
 /**
@@ -24,11 +11,19 @@ import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
  */
 export function buildingDoor(
   id: string,
-  opening: Extract<AutoMovieEnvironment.Building.Opening, { kind: "door" }>,
+  opening: Extract<
+    AutoMovieEnvironment.IAutoMovieEnvironmentBuildingOpening,
+    { kind: "door" }
+  >,
   seed: number | undefined,
 ): buildingDoor.IDoor {
-  const door: AutoMovieArchetype<AutoMovieArchetypeDoor.Affordance, AutoMovieArchetypeDoor.Dimension> =
-    AutoMovieArchetypeDoor.create({ ...opening.door, kind: "hinged", id }, seed);
+  const door: AutoMovieArchetype<
+    AutoMovieArchetypeDoor.Affordance,
+    AutoMovieArchetypeDoor.Dimension
+  > = AutoMovieArchetypeDoor.create(
+    { ...opening.door, kind: "hinged", id },
+    seed,
+  );
   const hinge: IAutoMovieAffordance = door.affordance("hinge");
   const pivot: IAutoMovieVector3 = hinge.frame.translation;
   const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
@@ -111,8 +106,10 @@ export function buildingDoor(
     clearHeight: aperture.height!,
     clearCenter: aperture.frame.translation.x,
     clip: (rotation: IAutoMovieQuaternion): IAutoMovieClip | null => {
-      const swing: Extract<AutoMovieEnvironment.Building.Opening, { kind: "door" }>["swing"] =
-        opening.swing;
+      const swing: Extract<
+        AutoMovieEnvironment.IAutoMovieEnvironmentBuildingOpening,
+        { kind: "door" }
+      >["swing"] = opening.swing;
       if (swing === undefined) return null;
       const { from, to, degrees } = swing;
       if (

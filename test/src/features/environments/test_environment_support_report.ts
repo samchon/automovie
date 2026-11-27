@@ -1,6 +1,20 @@
-import { AutoMovieArchetypeSeat, AutoMovieArchetypeMoldedCrate, AutoMovieArchetypeMirror, AutoMovieArchetypeRock, AutoMovieArchetypeDrinkware, AutoMovieArchetypeTable } from "@automovie/archetypes";
-import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
-import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
+import {
+  AutoMovieArchetypeDrinkware,
+  AutoMovieArchetypeMirror,
+  AutoMovieArchetypeMoldedCrate,
+  AutoMovieArchetypeRock,
+  AutoMovieArchetypeSeat,
+  AutoMovieArchetypeTable,
+} from "@automovie/archetypes";
+import {
+  AutoMovieEnvironment,
+  AutoMovieEnvironmentFurnishing,
+} from "@automovie/archetypes/environments";
+import {
+  AutoMovieEngineBuiltEnvironment,
+  AutoMovieEngineBuiltEnvironmentWorkflow,
+  AutoMovieEngineFilm,
+} from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -54,7 +68,8 @@ import { namedFacts, nclose } from "../internal/predicates";
  */
 export function test_environment_support_report(): void {
   const crate: IAutoMovieModel = AutoMovieArchetypeMoldedCrate.create({}, 1021);
-  const crateRest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(crate)!;
+  const crateRest: IAutoMoviePropBox =
+    AutoMovieEngineFilm.computeModelRestExtent(crate)!;
   const level: () => IAutoMovieEnvironmentItem =
     (): IAutoMovieEnvironmentItem => ({
       at: { x: -10, y: 0, z: -10 },
@@ -117,7 +132,10 @@ export function test_environment_support_report(): void {
       },
       cafe: {
         at: { anchor: "land/amenities/cafe" },
-        use: AutoMovieEnvironmentFurnishing.cafeKit({ room: [10, 8], tables: 2 }),
+        use: AutoMovieEnvironmentFurnishing.cafeKit({
+          room: [10, 8],
+          tables: 2,
+        }),
       },
       cupLoose: cup(false, "table-1"),
       cupDeclared: cup(true, "table-2"),
@@ -132,6 +150,7 @@ export function test_environment_support_report(): void {
       hall: {
         at: { x: 22, y: 0, z: -4 },
         use: AutoMovieEnvironment.building({
+          type: "levels",
           levels: [{ id: "ground", rooms: { hall: [0, 0, 6, 6] } }],
         }),
       },
@@ -150,7 +169,10 @@ export function test_environment_support_report(): void {
 
   // Scenario 6: a mirror on wall +x of a furnished room, and the same mirror
   // 0.1 m off that wall by coordinates.
-  const mirror: IAutoMovieModel = AutoMovieArchetypeMirror.create({ kind: "wall" }, 1019);
+  const mirror: IAutoMovieModel = AutoMovieArchetypeMirror.create(
+    { kind: "wall" },
+    1019,
+  );
   const hung: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "home",
     seed: 5,
@@ -189,9 +211,11 @@ export function test_environment_support_report(): void {
 
   // Scenario 7: the building's own sweep at its placement height.
   const building: IAutoMovieBuiltEnvironment = set.builtEnvironments[0]!;
-  const sweep: IAutoMovieBuiltSupportSweepReport = AutoMovieEngineBuiltEnvironment.environmentSupportSweep(
-    { environment: building, groundY: 0 },
-  );
+  const sweep: IAutoMovieBuiltSupportSweepReport =
+    AutoMovieEngineBuiltEnvironment.environmentSupportSweep({
+      environment: building,
+      groundY: 0,
+    });
   const floatingIds: Set<string> = new Set(
     sweep.floating.map(
       (body: IAutoMovieBuiltFloatingBody): string => body.body.id,

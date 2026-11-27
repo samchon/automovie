@@ -1,13 +1,3 @@
-import type {
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieModel,
-  IAutoMoviePropBox,
-} from "@automovie/interface";
-
-import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
-import { AutoMovieArchetypeBench } from "../../gym/AutoMovieArchetypeBench";
-import { AutoMovieArchetypeDumbbell } from "../../gym/AutoMovieArchetypeDumbbell";
 import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { furnishRoom } from "./furnishRoom";
 
@@ -25,7 +15,7 @@ import { furnishRoom } from "./furnishRoom";
  * @throws When the requested stations or their clearances do not fit.
  */
 export function createGymKit(
-  params: AutoMovieEnvironmentFurnishing.GymKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingGymKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

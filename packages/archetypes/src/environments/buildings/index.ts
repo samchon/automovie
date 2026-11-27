@@ -1,1 +1,0 @@
-export { createPassage } from "./createPassage";

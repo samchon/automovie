@@ -1,5 +1,5 @@
-import type { createLift } from "@automovie/archetypes/environments";
-import { Quaternion, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
+import type { AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import { AutoMovieEngineFilm, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieEnvironment,
@@ -21,14 +21,20 @@ import {
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A scripted transfer whose start will be read from the native schedule. */
-type Crossing = Omit<createLift.ICrossing, "id" | "start">;
+type Crossing = Omit<
+  AutoMovieEnvironment.IAutoMovieEnvironmentLiftCrossing,
+  "id" | "start"
+>;
 
-/** Stage a call, boarding, turn on the cab, ride and alighting on real lift prop frames. */
+/**
+ * Stage a call, boarding, turn on the cab, ride and alighting on real lift prop
+ * frames.
+ */
 export function environmentLiftActor(input: {
   environment: IAutoMovieEnvironment;
   id: string;
-  lift: ReturnType<typeof createLift>;
-  schedule: readonly createLift.IKey[];
+  lift: AutoMovieEnvironment.IAutoMovieEnvironmentLiftDefinition;
+  schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[];
   node?: string;
 }): { film: HumanPerformance; actor: IAutoMovieStageActor } {
   const { environment, id, lift } = input;
@@ -51,11 +57,12 @@ export function environmentLiftActor(input: {
       (candidate): boolean => candidate.node === node,
     )!;
     const frame = (time: number): IAutoMovieRigidTransform => {
-      const placed: IAutoMovieTransform | null = AutoMovieEngineFilm.bakedTransformFromClipsAt(
-        environment.runtime.objectMotions,
-        node,
-        time,
-      );
+      const placed: IAutoMovieTransform | null =
+        AutoMovieEngineFilm.bakedTransformFromClipsAt(
+          environment.runtime.objectMotions,
+          node,
+          time,
+        );
       return {
         position: placed?.translation ?? piece.position,
         rotation: placed?.rotation ?? piece.rotation ?? Quaternion.identity(),
@@ -111,10 +118,11 @@ export function environmentLiftActor(input: {
   };
   // The rider waits in the cab until the lift's schedule has it docked at the
   // upper stop with its doors open.
-  const opened: createLift.IKey | undefined = input.schedule.find(
-    (key: createLift.IKey): boolean =>
-      key.stop === "upper" && key.doors === "open",
-  );
+  const opened: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey | undefined =
+    input.schedule.find(
+      (key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey): boolean =>
+        key.stop === "upper" && key.doors === "open",
+    );
   if (opened === undefined)
     throw new Error(`The lift ${id} never opens at its upper stop.`);
   const exitFrom: number = opened.seconds;

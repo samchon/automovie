@@ -1,6 +1,13 @@
-import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import {
+  AutoMovieEnvironment,
+  AutoMovieEnvironmentFurnishing,
+} from "@automovie/archetypes/environments";
 import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes/props";
-import { Quaternion, Vector3, AutoMovieEngineSequence } from "@automovie/engine";
+import {
+  AutoMovieEngineSequence,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentModule,
@@ -30,7 +37,10 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   const seconds: number = 12;
   const enterAt: number = 7.5;
   const swing: NonNullable<
-    Extract<AutoMovieEnvironment.Building.Opening, { kind: "door" }>["swing"]
+    Extract<
+      AutoMovieEnvironment.IAutoMovieEnvironmentBuildingOpening,
+      { kind: "door" }
+    >["swing"]
   > = {
     from: 0.65,
     to: 6.65,
@@ -79,6 +89,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       station: {
         at: { x: 0, y: grade, z: 0 },
         use: AutoMovieEnvironment.building({
+          type: "levels",
           wallThickness,
           levels: [
             {
@@ -131,7 +142,9 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       },
       cup: {
         at: { anchor: "cafe/table-1/stack" },
-        use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeDrinkware.create({ kind: "cup" }) }),
+        use: AutoMovieEnvironmentFurnishing.prop({
+          model: AutoMovieArchetypeDrinkware.create({ kind: "cup" }),
+        }),
       },
     },
   });
@@ -144,7 +157,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       (piece: IAutoMovieStageSetPiece): boolean => piece.node === chairId,
     );
   if (chair === undefined || placement === undefined)
-    throw new Error("The café's named chair was not staged");
+    throw new Error("The caf챕's named chair was not staged");
   const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
     chair.model,
     {
@@ -251,7 +264,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   return {
     id: "hillside-stop",
     summary:
-      "The host pulls the door, a visitor steps inside and a patron takes a café seat.",
+      "The host pulls the door, a visitor steps inside and a patron takes a caf챕 seat.",
     seconds,
     environment,
     visible: ["visitor", doorId],

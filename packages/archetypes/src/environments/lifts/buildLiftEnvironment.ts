@@ -1,26 +1,9 @@
 import { Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieAffordance,
-  IAutoMovieBoxShape,
-  IAutoMovieBuiltElement,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieBuiltSpace,
-  IAutoMovieBuiltSurface,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-  IAutoMoviePlanarPoint,
-  IAutoMoviePropSpec,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
-import type { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
-import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import type { createLift } from "./createLift";
+import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
+import type { liftStopHeights } from "./internal/liftStopHeights";
 import { liftLandingSpace } from "./liftLandingSpace";
 import { liftShaftParts } from "./liftShaftParts";
-import type { liftStopHeights } from "./internal/liftStopHeights";
 
 /** The two leaf affordances and their corresponding existing panel parts. */
 const LEAVES: readonly ["leftDoor", "rightDoor"] = ["leftDoor", "rightDoor"];
@@ -464,7 +447,7 @@ export namespace buildLiftEnvironment {
     stops: readonly liftStopHeights.IStop[];
 
     /** Door and cab state at film second zero. */
-    first: createLift.IKey;
+    first: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey;
   }
 
   /**

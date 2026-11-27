@@ -1,5 +1,5 @@
-import type { createLift } from "@automovie/archetypes/environments";
-import { Quaternion, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
+import type { AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import { AutoMovieEngineFilm, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieTransform,
@@ -95,16 +95,18 @@ export function test_location_lift(): void {
   // The cab leaves the ground at the schedule's first closed key there,
   // arrives at its first upper key and opens at its first open one; the
   // rider steps out over the exit's 2 s crossing from that opening.
-  const schedule: readonly createLift.IKey[] = fixture.schedule;
+  const schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[] =
+    fixture.schedule;
   const leaves: number = schedule.find(
-    (key: createLift.IKey): boolean =>
+    (key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey): boolean =>
       key.stop === "ground" && key.doors === "closed" && key.seconds > 0,
   )!.seconds;
   const arrives: number = schedule.find(
-    (key: createLift.IKey): boolean => key.stop === "upper",
+    (key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey): boolean =>
+      key.stop === "upper",
   )!.seconds;
   const opens: number = schedule.find(
-    (key: createLift.IKey): boolean =>
+    (key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey): boolean =>
       key.stop === "upper" && key.doors === "open",
   )!.seconds;
   const rideTime: number = leaves + 0.7 * (arrives - leaves);

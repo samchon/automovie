@@ -1,15 +1,3 @@
-import type {
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingClearance,
-  IAutoMovieModel,
-  IAutoMoviePropBox,
-} from "@automovie/interface";
-
-import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
-import { AutoMovieArchetypeDrawerUnit } from "../../furniture/AutoMovieArchetypeDrawerUnit";
-import { AutoMovieArchetypeHingedCabinet } from "../../furniture/AutoMovieArchetypeHingedCabinet";
-import { AutoMovieArchetypePlatformBed } from "../../furniture/AutoMovieArchetypePlatformBed";
 import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
@@ -36,7 +24,7 @@ import { furnishRoom } from "./furnishRoom";
  *   clearance or `keepClear` area, naming the role and clearance.
  */
 export function createBedroomKit(
-  params: AutoMovieEnvironmentFurnishing.BedroomKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingBedroomKitParams,
   defaultGap: number,
 ): IAutoMovieEnvironmentModule {
   return (

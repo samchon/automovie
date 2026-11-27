@@ -1,4 +1,7 @@
-import { createLift, createPassage, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import {
+  AutoMovieEnvironment,
+  AutoMovieEnvironmentFurnishing,
+} from "@automovie/archetypes/environments";
 import { AutoMovieArchetypeSeat } from "@automovie/archetypes/furniture";
 import type {
   IAutoMovieEnvironment,
@@ -14,14 +17,16 @@ import { environmentLiftSchedule } from "./environmentLiftSchedule";
 export function bridgeCampus(): compileEnvironmentExample.IInput {
   const west: ReturnType<typeof tower> = tower("east");
   const east: ReturnType<typeof tower> = tower("west");
-  const schedule: readonly createLift.IKey[] = environmentLiftSchedule;
-  const lift: ReturnType<typeof createLift> = createLift({
-    car: { callHeight: 1.18 },
-    stops: { ground: 0, upper: 3.4 },
-    landingDepth: 1.2,
-    gap: 0.055,
-    schedule,
-  });
+  const schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[] =
+    environmentLiftSchedule;
+  const lift: AutoMovieEnvironment.IAutoMovieEnvironmentLiftDefinition =
+    AutoMovieEnvironment.lift({
+      car: { callHeight: 1.18 },
+      stops: { ground: 0, upper: 3.4 },
+      landingDepth: 1.2,
+      gap: 0.055,
+      schedule,
+    });
   const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "campus",
     seed: 1036,
@@ -29,7 +34,7 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
       west: { use: west },
       east: { use: east, at: { x: 11, y: 0, z: 0 } },
       span: {
-        use: createPassage({
+        use: AutoMovieEnvironment.passage({
           kind: "bridge",
           from: { opening: "west/upper/bridge" },
           to: { opening: "east/upper/bridge" },
@@ -38,7 +43,10 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
       },
       lift: { use: lift, at: { x: 15, y: 0, z: -1.255 } },
       gym: {
-        use: AutoMovieEnvironmentFurnishing.gymKit({ room: [8, 8], stations: 1 }),
+        use: AutoMovieEnvironmentFurnishing.gymKit({
+          room: [8, 8],
+          stations: 1,
+        }),
         at: { anchor: "east/ground/room" },
       },
       garden: {
@@ -62,7 +70,9 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
       },
       bench: {
         at: { anchor: "garden/amenities/seat" },
-        use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }),
+        use: AutoMovieEnvironmentFurnishing.prop({
+          model: AutoMovieArchetypeSeat.create({ kind: "bench" }),
+        }),
       },
     },
   });
@@ -144,20 +154,24 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
 }
 
 /** Share a two-level footprint and change only the bridge's side. */
-function tower(side: "east" | "west"): ReturnType<typeof AutoMovieEnvironment.building> {
+function tower(
+  side: "east" | "west",
+): ReturnType<typeof AutoMovieEnvironment.building> {
   const x: number = side === "east" ? 8 : 0;
-  const liftOpening: AutoMovieEnvironment.Building.Opening = {
-    id: "lift",
-    kind: "passage",
-    between: ["room", null],
-    edge: [
-      [0, 0],
-      [8, 0],
-    ],
-    width: 1.8,
-    height: 2.2,
-  };
+  const liftOpening: AutoMovieEnvironment.IAutoMovieEnvironmentBuildingOpening =
+    {
+      id: "lift",
+      kind: "passage",
+      between: ["room", null],
+      edge: [
+        [0, 0],
+        [8, 0],
+      ],
+      width: 1.8,
+      height: 2.2,
+    };
   return AutoMovieEnvironment.building({
+    type: "levels",
     levels: [
       {
         id: "ground",

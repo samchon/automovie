@@ -1,13 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
+import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import { assembleBuilding } from "./assembleBuilding";
 import { buildingPlans } from "./buildingPlans";
-import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 
 /**
  * Prepare a placed building from metre floor plans or an exterior footprint.
@@ -23,7 +18,7 @@ import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
  *   placements.
  */
 export function createBuilding(
-  props: AutoMovieEnvironment.Building.IProps,
+  props: AutoMovieEnvironment.IAutoMovieEnvironmentBuildingProps,
 ): IAutoMovieEnvironmentModule {
   const plan: buildingPlans.IPlan = buildingPlans(props);
   return (

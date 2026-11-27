@@ -1,15 +1,6 @@
-import { Vector3, AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
-import type {
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieClip,
-  IAutoMovieTrack,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieEngineBuiltEnvironment, Vector3 } from "@automovie/engine";
 
-import type { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
-import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import type { createLift } from "./createLift";
+import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import type { liftStopHeights } from "./internal/liftStopHeights";
 
 /**
@@ -23,14 +14,16 @@ export function liftObjectMotion(
   environment: IAutoMovieBuiltEnvironment,
   car: ReturnType<typeof AutoMovieArchetypeElevator.create>,
   stops: readonly liftStopHeights.IStop[],
-  schedule: readonly createLift.IKey[],
+  schedule: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[],
   gap: number,
 ): IAutoMovieClip {
-  const firstState: createLift.IKey = schedule[0]!;
-  const firstPlacement = AutoMovieEngineBuiltEnvironment.connectorCarriagePlacements(
-    environment,
-    "travel",
-  )[0]!;
+  const firstState: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey =
+    schedule[0]!;
+  const firstPlacement =
+    AutoMovieEngineBuiltEnvironment.connectorCarriagePlacements(
+      environment,
+      "travel",
+    )[0]!;
   const frame: IAutoMovieTransform = {
     translation: firstPlacement.position,
     rotation: firstPlacement.rotation,

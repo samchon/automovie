@@ -1,9 +1,3 @@
-import type {
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingPiece,
-} from "@automovie/interface";
-
 import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { furnishRoom } from "./furnishRoom";
 import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
@@ -29,7 +23,7 @@ import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
  *   names the role.
  */
 export function createFurnishedRoom(
-  params: AutoMovieEnvironmentFurnishing.FurnishedRoom.IParams,
+  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingFurnishedRoomParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

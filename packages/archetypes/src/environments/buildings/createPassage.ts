@@ -1,16 +1,11 @@
-import { Quaternion, Transform, Vector3, AutoMovieEngineGeometry } from "@automovie/engine";
-import type {
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieModel,
-  IAutoMovieQuaternion,
-  IAutoMovieStageSetPiece,
-  IAutoMovieSurface,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import {
+  AutoMovieEngineGeometry,
+  Quaternion,
+  Transform,
+  Vector3,
+} from "@automovie/engine";
 
-import { AutoMovieArchetypeStairs } from "../../architecture/AutoMovieArchetypeStairs";
+import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import { buildingModel } from "./buildingModel";
 
 /**
@@ -29,9 +24,10 @@ import { buildingModel } from "./buildingModel";
  *   fitted opening or invalid flight dimensions.
  */
 export function createPassage(
-  props: createPassage.IProps,
+  props: AutoMovieEnvironment.IAutoMovieEnvironmentPassageProps,
 ): IAutoMovieEnvironmentModule {
-  const recipe: createPassage.IProps = structuredClone(props);
+  const recipe: AutoMovieEnvironment.IAutoMovieEnvironmentPassageProps =
+    structuredClone(props);
   const depth: number = recipe.thickness ?? 0.18;
   const color: string = recipe.color ?? "#aaa398";
   if (recipe.width <= 0 || depth <= 0)
@@ -198,52 +194,10 @@ export function createPassage(
   };
 }
 
-/** Static span construction choices specific to the passage producer. */
-export namespace createPassage {
-  /** A plain scenic anchor or a generated opening with a clear section. */
-  export type Endpoint =
-    | string
-    | {
-        /** Scoped opening anchor carrying generated clear section frames. */
-        readonly opening: string;
-      };
-
-  /** Connection between two scoped world anchors. */
-  export type IProps = {
-    /** First world anchor, in centreline position at its landing surface. */
-    readonly from: Endpoint;
-
-    /** Second world anchor, in centreline position at its landing surface. */
-    readonly to: Endpoint;
-
-    /** Full clear deck width, in metres. */
-    readonly width: number;
-
-    /** Required headroom in metres at a fitted opening, when stated. */
-    readonly clearHeight?: number;
-
-    /** Vertical thickness of suspended spans, in metres. Defaults to 0.18 m. */
-    readonly thickness?: number;
-
-    /** SRGB finish swatch, with neutral stone by default. */
-    readonly color?: string;
-  } & (
-    | { readonly kind: "bridge" }
-    | {
-        readonly kind: "ramp";
-        /** Optional maximum absolute rise divided by horizontal run. */
-        readonly maximumSlope?: number;
-      }
-    | {
-        readonly kind: "stairs";
-        /** Number of equal rises and treads, including the top tread. */
-        readonly steps: number;
-      }
-  );
-}
-
 /** Read the declared endpoint's exact anchor path for diagnostics. */
-function landingName(endpoint: createPassage.Endpoint): string {
+function landingName(
+  endpoint: AutoMovieEnvironment.IAutoMovieEnvironmentPassageEndpoint,
+): string {
   return typeof endpoint === "string" ? endpoint : endpoint.opening;
 }
 
@@ -253,7 +207,7 @@ function landingName(endpoint: createPassage.Endpoint): string {
  */
 function landing(
   context: IAutoMovieEnvironmentModule.IContext,
-  endpoint: createPassage.Endpoint,
+  endpoint: AutoMovieEnvironment.IAutoMovieEnvironmentPassageEndpoint,
   width: number,
   height: number | undefined,
 ): IAutoMovieTransform {

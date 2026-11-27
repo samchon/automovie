@@ -1,12 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type {
-  IAutoMovieEnvironmentModule,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
 
-import { AutoMovieArchetypeFrame } from "../../../core/AutoMovieArchetypeFrame";
-import type { createLift } from "../createLift";
+import type { AutoMovieEnvironment } from "../../AutoMovieEnvironment";
 
 /**
  * Metre or unit-axis proximity used only to recognize equivalent authoring
@@ -22,7 +16,7 @@ const ALIGNMENT: number = 1e-6;
  */
 export function liftStopHeights(
   context: IAutoMovieEnvironmentModule.IContext,
-  stops: createLift.IProps["stops"],
+  stops: AutoMovieEnvironment.IAutoMovieEnvironmentLiftProps["stops"],
   doorHeight: number,
 ): liftStopHeights.IStop[] {
   const up: IAutoMovieVector3 = Vector3.create(0, 1, 0);
@@ -37,7 +31,10 @@ export function liftStopHeights(
     "z",
   );
   const result: liftStopHeights.IStop[] = Object.entries(stops).map(
-    ([id, value]: [string, createLift.Stop]): liftStopHeights.IStop => {
+    ([id, value]: [
+      string,
+      AutoMovieEnvironment.IAutoMovieEnvironmentLiftStop,
+    ]): liftStopHeights.IStop => {
       const label: string = `Lift ${context.id} stop ${id}`;
       if (id.trim() !== id || id.length === 0 || id.includes("/"))
         throw new Error(`Lift ${context.id} has an invalid stop name: ${id}.`);

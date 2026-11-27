@@ -1,14 +1,4 @@
-import type {
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieModel,
-  IAutoMoviePropBox,
-} from "@automovie/interface";
-
 import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
-import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
-import { AutoMovieArchetypeSeat } from "../../furniture/AutoMovieArchetypeSeat";
-import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { furnishRoom } from "./furnishRoom";
 
 /**
@@ -28,7 +18,7 @@ import { furnishRoom } from "./furnishRoom";
  * @throws When the room cannot accommodate the tables and clear approaches.
  */
 export function createCafeKit(
-  params: AutoMovieEnvironmentFurnishing.CafeKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.IAutoMovieEnvironmentFurnishingCafeKitParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,

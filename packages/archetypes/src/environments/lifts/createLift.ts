@@ -1,15 +1,9 @@
 import { AutoMovieEngineBuiltEnvironmentWorkflow } from "@automovie/engine";
-import type {
-  IAutoMovieEnvironmentContribution,
-  IAutoMovieEnvironmentModule,
-  IAutoMovieMotionHumanSupportTransfer,
-  IAutoMovieSubjectContribution,
-} from "@automovie/interface";
 
-import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetypeElevator";
+import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import { buildLiftEnvironment } from "./buildLiftEnvironment";
-import { liftObjectMotion } from "./liftObjectMotion";
 import { liftStopHeights } from "./internal/liftStopHeights";
+import { liftObjectMotion } from "./liftObjectMotion";
 
 /**
  * Define a lift whose cab, door panels and stopped landings can be staged
@@ -25,8 +19,11 @@ import { liftStopHeights } from "./internal/liftStopHeights";
  * @throws If the timeline is invalid, or on placement if the stops or shaft are
  *   not aligned.
  */
-export function createLift(input: createLift.IProps): createLift.IDefinition {
-  const props: createLift.IProps = structuredClone(input);
+export function createLift(
+  input: AutoMovieEnvironment.IAutoMovieEnvironmentLiftProps,
+): AutoMovieEnvironment.IAutoMovieEnvironmentLiftDefinition {
+  const props: AutoMovieEnvironment.IAutoMovieEnvironmentLiftProps =
+    structuredClone(input);
   if (props.gap <= 0)
     throw new Error("Lift gap must be a positive finite number of metres.");
   if (props.landingDepth <= 0)
@@ -37,10 +34,8 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
   const use: IAutoMovieEnvironmentModule = (
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
-    const car: ReturnType<typeof AutoMovieArchetypeElevator.create> = AutoMovieArchetypeElevator.create(
-      props.car,
-      context.seed,
-    );
+    const car: ReturnType<typeof AutoMovieArchetypeElevator.create> =
+      AutoMovieArchetypeElevator.create(props.car, context.seed);
     const stops: liftStopHeights.IStop[] = liftStopHeights(
       context,
       props.stops,
@@ -54,9 +49,10 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
       landingDepth: props.landingDepth,
       first: props.schedule[0]!,
     });
-    const lowered: IAutoMovieSubjectContribution = AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(
-      built.environment,
-    );
+    const lowered: IAutoMovieSubjectContribution =
+      AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(
+        built.environment,
+      );
     return {
       ...lowered,
       anchors: built.anchors,
@@ -72,7 +68,9 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
       ],
     };
   };
-  const transfer = (crossing: createLift.ICrossing): createLift.ITransfer => {
+  const transfer = (
+    crossing: AutoMovieEnvironment.IAutoMovieEnvironmentLiftCrossing,
+  ): AutoMovieEnvironment.IAutoMovieEnvironmentLiftTransfer => {
     const { id, stop, direction, start, seconds, lead, landing } = crossing;
     if (!Object.hasOwn(props.stops, stop))
       throw new Error(`Lift ${id} has no stop named ${stop}.`);
@@ -92,11 +90,11 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
       throw new Error(
         `Lift ${id} stop ${stop} is not fully open and docked throughout the transfer.`,
       );
-    const cab: createLift.ISurface = {
+    const cab: AutoMovieEnvironment.IAutoMovieEnvironmentLiftSurface = {
       prop: `${id}/cab`,
       surface: "sill",
     };
-    const pad: createLift.ISurface = {
+    const pad: AutoMovieEnvironment.IAutoMovieEnvironmentLiftSurface = {
       prop: `${id}/stops/${stop}/landing`,
       surface: "sill",
     };
@@ -115,16 +113,21 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
 type Interval = { from: number; to: number };
 
 /** Admit the key clock and collect consecutive full-open windows per stop. */
-function prepareSchedule(props: createLift.IProps): Map<string, Interval[]> {
-  const keys: readonly createLift.IKey[] = props.schedule;
+function prepareSchedule(
+  props: AutoMovieEnvironment.IAutoMovieEnvironmentLiftProps,
+): Map<string, Interval[]> {
+  const keys: readonly AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey[] =
+    props.schedule;
   if (keys.length < 2 || keys[0]!.seconds !== 0)
     throw new Error(
       "A lift schedule needs at least two keys and must start at shot second zero.",
     );
   const byStop: Map<string, Interval[]> = new Map();
   for (let i: number = 0; i < keys.length; ++i) {
-    const key: createLift.IKey = keys[i]!;
-    const before: createLift.IKey | undefined = keys[i - 1];
+    const key: AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey = keys[i]!;
+    const before:
+      | AutoMovieEnvironment.IAutoMovieEnvironmentLiftKey
+      | undefined = keys[i - 1];
     if (!Object.hasOwn(props.stops, key.stop))
       throw new Error(
         `Lift schedule key ${i} names an unknown stop: ${key.stop}.`,
@@ -153,118 +156,4 @@ function prepareSchedule(props: createLift.IProps): Map<string, Interval[]> {
     byStop.set(key.stop, windows);
   }
   return byStop;
-}
-
-/** The lift definition's authorable geometry, stop clock and crossing contracts. */
-export namespace createLift {
-  /**
-   * The sill height relative to the module, or a named world sill to align.
-   * Numeric heights use metres. A referenced sill must lie on the shaft axis
-   * with the same upright orientation and landing direction.
-   */
-  export type Stop = number | { anchor: string };
-
-  /**
-   * One commanded stopped position at a full door state, on the shot clock. The
-   * doors stay closed while the cab travels between stops. At one stop the cab
-   * stays still and the doors interpolate between the keyed states.
-   */
-  export interface IKey {
-    /** Finite shot-local second, strictly increasing from zero. */
-    seconds: number;
-
-    /** Key of the sill the cab reaches at this second. */
-    stop: string;
-
-    /** The two door layers' state at this second. */
-    doors: "closed" | "open";
-  }
-
-  /**
-   * Authorable shaft and schedule settings. The stock car determines the
-   * aperture for both door layers. Adjacent sills must be farther apart than
-   * the door height for their openings to fit.
-   */
-  export interface IProps {
-    /**
-     * At least two named local-height or anchor constraints on one vertical
-     * shaft.
-     */
-    stops: Readonly<Record<string, Stop>>;
-
-    /** At least two keys from time zero, in strictly increasing seconds. */
-    schedule: readonly IKey[];
-
-    /**
-     * Metres between the cab floor edge and the fixed landing edge, greater
-     * than the cab leaf depth.
-     */
-    gap: number;
-
-    /** Positive landing floor depth beyond its edge, metres along local +Z. */
-    landingDepth: number;
-
-    /** The catalogue car choices. The composer owns the instance id. */
-    car?: Omit<AutoMovieArchetypeElevator.IParams, "id">;
-  }
-
-  /**
-   * A prop surface selector of the support-transfer grammar: a prop subject id
-   * and its surface affordance id.
-   */
-  export type ISurface = IAutoMovieMotionHumanSupportTransfer.ISurface;
-
-  /**
-   * The foot, duration and destination station a crossing hands to the
-   * support-transfer grammar unchanged.
-   */
-  export type ITiming = Pick<
-    IAutoMovieMotionHumanSupportTransfer,
-    "lead" | "seconds" | "landing"
-  >;
-
-  /**
-   * The support-transfer input `transfer` returns: both surfaces plus the
-   * crossing's foot, duration and station. Docking is left at its stationary
-   * default.
-   */
-  export type ITransfer = Pick<
-    IAutoMovieMotionHumanSupportTransfer,
-    "from" | "to" | "lead" | "seconds" | "landing"
-  >;
-
-  /**
-   * One shot-local transfer between the named landing and cab surfaces. The
-   * stop and time select a docked window. The leading foot and optional
-   * destination-surface coordinates use the existing support-transfer grammar.
-   */
-  export interface ICrossing extends ITiming {
-    /** Scoped id of the placed lift module, including the environment name. */
-    id: string;
-
-    /** Name of the landing to cross. */
-    stop: string;
-
-    /** Whether the landing or cab supplies the entry support. */
-    direction: "board" | "exit";
-
-    /** Shot-local second at which this stationary transfer starts. */
-    start: number;
-  }
-
-  /**
-   * A reusable callable lift module with a boarding admission query. The same
-   * schedule drives the placed lift and checks timing for a crossing of any
-   * occurrence. The support-transfer law checks the actor's motion.
-   */
-  export interface IDefinition extends IAutoMovieEnvironmentModule {
-    /**
-     * Turn an authored crossing into an existing support-transfer input.
-     *
-     * @param crossing The occurrence, stop, direction and planned interval.
-     * @returns The two support selectors and existing transfer parameters.
-     * @throws When the known stop is not open and docked during that interval.
-     */
-    transfer(crossing: ICrossing): ITransfer;
-  }
 }
