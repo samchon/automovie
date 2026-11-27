@@ -21,11 +21,15 @@ export namespace AutoMovieRenderMaterial {
   export namespace ReadMaterialTextureSources {
     /** Scene state and previously retained observations for one scope. */
     export interface IProps {
+      /** Stable scope that groups the renderer observations. */
       scope: string;
+      /** Renderer whose extensions determine the area-light texture sources. */
       renderer: {
         extensions: Pick<THREE.WebGLRenderer["extensions"], "has">;
       };
+      /** Scene whose live material textures are observed. */
       scene: THREE.Scene;
+      /** Earlier rows retained by the caller for the same renderer. */
       retained?: readonly NonNullable<
         IAutoMovieRenderTextureResidency["runtimeTextures"]
       >[number][];

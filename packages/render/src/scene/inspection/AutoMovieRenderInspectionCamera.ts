@@ -49,7 +49,9 @@ export namespace AutoMovieRenderInspectionCamera {
 
     /** Resolved camera and its serializable inspection camera record. */
     export interface IResult {
+      /** Resolved camera used to draw the inspection view. */
       camera: PerspectiveCamera | OrthographicCamera;
+      /** Serializable camera and view record for the inspection result. */
       record: IAutoMovieInspectionCamera;
     }
   }

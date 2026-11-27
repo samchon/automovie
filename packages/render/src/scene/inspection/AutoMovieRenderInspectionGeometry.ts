@@ -106,6 +106,7 @@ export namespace AutoMovieRenderInspectionGeometry {
   }
   /** Named input contract for measuring a mesh's defects. */
   export namespace MeasureDefects {
+    /** Mesh, defect selection and geometry cache for one measurement. */
     export interface IProps {
       /** Drawn mesh with a position buffer. */
       mesh: THREE.Mesh;
@@ -121,6 +122,7 @@ export namespace AutoMovieRenderInspectionGeometry {
   }
   /** Named input and result contracts for inspection mesh measurement. */
   export namespace MeasureMeshes {
+    /** Drawn paths and request predicates used to select meshes and defects. */
     export interface IProps {
       /** Drawn objects and their inspection paths. */
       drawn: readonly IAutoMovieInspectionPath[];
@@ -133,6 +135,7 @@ export namespace AutoMovieRenderInspectionGeometry {
       /** Whether a path is hidden. */
       hidden: (path: string) => boolean;
     }
+    /** Meshes found in the drawing and measurements retained by the request. */
     export interface IResult {
       /** Drawn, visible-position meshes before path hiding. */
       meshes: { path: string; mesh: THREE.Mesh }[];
