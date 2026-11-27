@@ -1,4 +1,4 @@
-import type { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -169,7 +169,7 @@ export namespace walkLocomoteLowering {
     drop: number,
     pitches: Readonly<Record<AutoMovieHumanSide, number>>,
   ): walkReach.IGround {
-    const read: ReturnType<typeof preparePoseResolution> | undefined =
+    const read: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> | undefined =
       resolution === undefined
         ? undefined
         : prepareHumanPoseResolution.read(resolution);

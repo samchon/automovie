@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeSegmentDistance,
-  preparePoseResolution,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeSegmentDistance, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -177,13 +172,13 @@ export namespace HumanDigitReach {
     pose: IAutoMoviePose,
     bone: AutoMovieHumanoidBone,
     goal: IAutoMovieHumanDigitGoal,
-    prepared: ReturnType<typeof preparePoseResolution>,
+    prepared: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   ) => ICarried = (
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
     bone: AutoMovieHumanoidBone,
     goal: IAutoMovieHumanDigitGoal,
-    prepared: ReturnType<typeof preparePoseResolution>,
+    prepared: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   ): ICarriedResult => {
     const placed: IAutoMovieResolvedBone = poseBones(
       body,

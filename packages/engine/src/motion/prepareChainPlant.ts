@@ -11,7 +11,7 @@ import type {
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
-import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -33,7 +33,7 @@ export function prepareChainPlant(
     IAutoMovieFitChainToTargetProps,
     "skeleton" | "pose" | "chain" | "topology" | "jointAxes" | "restFrames"
   >,
-  resolution?: ReturnType<typeof preparePoseResolution>,
+  resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   poseResolution?: prepareSkeletonPoseResolution.IRig,
 ): IAutoMoviePreparedChainPlant | null {
   const { chain }: typeof props = props;

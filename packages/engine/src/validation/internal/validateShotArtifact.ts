@@ -16,12 +16,12 @@ import type {
 import { AutoMovieEngineTypography } from "../../typography/AutoMovieEngineTypography";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { appendFlamesArtifact } from "./appendFlamesArtifact";
-import { appendLightMotionsArtifact } from "../appendLightMotionsArtifact";
+import { appendLightMotionsArtifact } from "./appendLightMotionsArtifact";
 import { appendPolygonBodyCuesArtifact } from "./appendPolygonBodyCuesArtifact";
 import { appendPracticalSurfacesArtifact } from "./appendPracticalSurfacesArtifact";
-import { appendShotMetadataArtifact } from "../appendShotMetadataArtifact";
+import { appendShotMetadataArtifact } from "./appendShotMetadataArtifact";
 import { appendSurfaceGraphicsArtifact } from "./appendSurfaceGraphicsArtifact";
-import { pushViolation } from "../pushViolation";
+import { pushViolation } from "./pushViolation";
 import { toValidation } from "../toValidation";
 import { validateClipArtifact } from "./validateClipArtifact";
 import { validateRange } from "./validateRange";

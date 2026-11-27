@@ -11,7 +11,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { preparePoseResolution } from "./preparePoseResolution";
+import { AutoMovieEngineKinematics } from "./AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./internal/resolvePose";
 
@@ -57,7 +57,7 @@ export const resolveAttachment: (
     | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
     | undefined,
   prepared?: prepareSkeletonPoseResolution.IBoneDemand,
-  resolution?: ReturnType<typeof preparePoseResolution>,
+  resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
 ) => IAutoMovieTransform = (
   parentPose: IAutoMoviePose,
   parentSkeleton: IAutoMovieSkeleton,
@@ -65,7 +65,7 @@ export const resolveAttachment: (
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   prepared?: prepareSkeletonPoseResolution.IBoneDemand,
-  resolution?: ReturnType<typeof preparePoseResolution>,
+  resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
 ): IAutoMovieTransform => {
   const frames: IAutoMovieResolvedBone[] =
     prepared === undefined

@@ -1,4 +1,4 @@
-import { Transform, preparePoseResolution } from "@automovie/engine";
+import { Transform, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -29,7 +29,7 @@ export function hipJoints(
   root: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
   pelvis?: readonly [number, number, number],
-  prepared?: ReturnType<typeof preparePoseResolution>,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
 ): Record<AutoMovieHumanSide, IAutoMovieVector3> {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,

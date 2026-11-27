@@ -1,5 +1,8 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieHingedArmArticulation,
+  IAutoMovieJointAxes,
+  IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
   IAutoMovieSwivelSeed,
   IAutoMovieVector3,
@@ -8,6 +11,29 @@ import type { hingedArmSwivel } from "./hingedArmSwivel";
 
 /** Independent, type-only contracts for AutoMovieEngineKinematics operations. */
 export namespace AutoMovieEngineKinematicsTypes {
+  /** Current axes and limits already selected by the ordinary arm scorer. */
+  export interface IReadPreparedBendClinicalInput {
+    /** Bone identifier for the upper arm. */
+    upperBone: AutoMovieHumanoidBone;
+    /** Bone identifier for the lower arm. */
+    lowerBone: AutoMovieHumanoidBone;
+    /** Bone identifier for the hand. */
+    handBone: AutoMovieHumanoidBone;
+    /** Joint basis used to read the upper arm bend. */
+    upperBasis: IAutoMovieJointAxes;
+    /** Joint basis used to read the lower arm bend. */
+    lowerBasis: IAutoMovieJointAxes;
+    /** Prepared angular axes for the lower arm. */
+    lowerAxes: IAutoMovieJointAxes;
+    /** Prepared angular axes for the hand. */
+    handAxes: IAutoMovieJointAxes;
+    /** Upper arm joint constraint, or null when absent. */
+    upperRange: IAutoMovieJointConstraint | null;
+    /** Lower arm joint constraint, or null when absent. */
+    lowerRange: IAutoMovieJointConstraint | null;
+    /** Hand joint constraint, or null when absent. */
+    handRange: IAutoMovieJointConstraint | null;
+  }
   /** Inputs for the hinged two-bone articulation solver. */
   export namespace HingedArmArticulation {
     /**

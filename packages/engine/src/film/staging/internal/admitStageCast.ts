@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { describeInvalidValue } from "../../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 
 /** A script member whose model is resolved by its declared node id. */
 type CastMember = IAutoMovieScript["cast"][number];

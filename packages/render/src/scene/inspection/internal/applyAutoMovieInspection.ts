@@ -22,8 +22,6 @@ import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasur
 import type { IAutoMovieInspectionOverlay } from "../IAutoMovieInspectionOverlay.js";
 import type { IAutoMovieInspectionPath } from "../IAutoMovieInspectionPath.js";
 import { admitAutoMovieInspectionPatterns } from "./admitAutoMovieInspectionPatterns.js";
-import { applyAutoMovieInspectionSection } from "../applyAutoMovieInspectionSection.js";
-import { applyAutoMovieInspectionShade } from "../applyAutoMovieInspectionShade.js";
 import { autoMovieInspectionPathOf } from "../autoMovieInspectionPathOf.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
 import { AutoMovieRenderInspectionMarks } from "../AutoMovieRenderInspectionMarks.js";
@@ -259,7 +257,7 @@ export function applyAutoMovieInspection(
 
     // Shade: the override owns its own failure, so the undo is recorded once it stands.
     const shade: { update: () => void; restore: () => void } =
-      applyAutoMovieInspectionShade(scene, request.shade);
+      AutoMovieRenderInspection.applyShade({ scene, shade: request.shade });
     undo.push(shade.restore);
 
     // Colours: the meshes the request colours take their colour over the shade.
@@ -318,7 +316,7 @@ export function applyAutoMovieInspection(
     };
     if (request.section !== null)
       undo.push(
-        applyAutoMovieInspectionSection({
+        AutoMovieRenderInspection.applySection({
           scene,
           renderer,
           section: request.section,

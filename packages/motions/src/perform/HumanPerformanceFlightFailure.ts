@@ -1,4 +1,4 @@
-import { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionPlan,
@@ -89,7 +89,7 @@ export function HumanPerformanceFlightFailure(
   start: number,
   takeoff: number,
   unturned: (seconds: number) => IAutoMoviePose,
-  resolution?: () => ReturnType<typeof preparePoseResolution>,
+  resolution?: () => ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
 ): Error {
   const boundary: IHumanPerformanceFlightFailureBoundaryItem[] = [];
   const view: DataView = new DataView(new ArrayBuffer(8));

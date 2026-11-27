@@ -1,4 +1,4 @@
-import { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -184,8 +184,8 @@ export namespace walkLocomoteGround {
       // toe-off ankle stands below the heel the stance's rule raises, and
       // claimed from it the pelvis dropped at every toe-off.
       if (context.gait.swing > 1) {
-        const sampled: ReturnType<typeof preparePoseResolution> =
-          preparePoseResolution();
+        const sampled: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
+          AutoMovieEngineKinematics.preparePoseResolution();
         flights.set(`${swing.side}:${swing.off}`, [
           reaching(
             context,
@@ -199,8 +199,8 @@ export namespace walkLocomoteGround {
           reaching(context, swing.side, swing, 1, sampled),
         ]);
       } else if (context.support === undefined) {
-        const sampled: ReturnType<typeof preparePoseResolution> =
-          preparePoseResolution();
+        const sampled: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
+          AutoMovieEngineKinematics.preparePoseResolution();
         descents.set(
           `${swing.side}:${swing.off}`,
           walkDescent.plan((u: number): number =>
@@ -305,7 +305,7 @@ function ground(
   hips: Hips,
   resolution: Resolution,
 ): walkReach.IGround {
-  const read: ReturnType<typeof preparePoseResolution> | undefined =
+  const read: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> | undefined =
     resolution === undefined
       ? undefined
       : prepareHumanPoseResolution.read(resolution);
@@ -400,7 +400,7 @@ function reaching(
   side: AutoMovieHumanSide,
   swing: Pick<walkLocomoteSwings.ISwing, "off" | "on">,
   u: number,
-  resolution?: ReturnType<typeof preparePoseResolution>,
+  resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   current?: IReachAt,
   ankle?: IAutoMovieVector3,
 ): number {

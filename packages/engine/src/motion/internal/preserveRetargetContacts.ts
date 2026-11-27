@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { indexSkeletonTopology } from "../../kinematics/indexSkeletonTopology";
-import { preparePoseResolution } from "../../kinematics/preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { reachableBoneNames } from "../../kinematics/internal/reachableBoneNames";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { Vector3 } from "../../math/Vector3";
@@ -107,10 +107,10 @@ export function preserveRetargetContacts(
 
   // Dynamic ground callbacks can edit borrowed rig or mapping values. Keep
   // complete live FK admission and share only its exact pure arithmetic.
-  const sourceResolution: ReturnType<typeof preparePoseResolution> =
-    preparePoseResolution();
-  const targetResolution: ReturnType<typeof preparePoseResolution> =
-    preparePoseResolution();
+  const sourceResolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
+    AutoMovieEngineKinematics.preparePoseResolution();
+  const targetResolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
+    AutoMovieEngineKinematics.preparePoseResolution();
   const effectors: ReadonlySet<AutoMovieHumanoidBone> = new Set(
     windows.map(
       ({ chain }: IAutoMovieContactWindow): AutoMovieHumanoidBone =>
@@ -228,7 +228,7 @@ const correctFrame: (props: {
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
   worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }>;
   referencePose?: IAutoMoviePose;
-  resolution: ReturnType<typeof preparePoseResolution>;
+  resolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>;
 }) => IAutoMovieKeyframe = (props: {
   keyframe: IAutoMovieKeyframe;
   index: number;
@@ -242,7 +242,7 @@ const correctFrame: (props: {
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
   worst: Map<AutoMovieHumanoidBone, { residual: number; index: number }>;
   referencePose?: IAutoMoviePose;
-  resolution: ReturnType<typeof preparePoseResolution>;
+  resolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>;
 }): IAutoMovieKeyframe => {
   if (props.pins.size === 0) return props.keyframe;
 
@@ -326,7 +326,7 @@ function resolveEffectors(
   topology: ReturnType<typeof indexSkeletonTopology>,
   axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-  resolution: ReturnType<typeof preparePoseResolution>,
+  resolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   requested: ReadonlySet<AutoMovieHumanoidBone>,
 ): Map<AutoMovieHumanoidBone, IPoint> {
   const map: Map<AutoMovieHumanoidBone, IPoint> = new Map();

@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { engineDiagnostic } from "../engineDiagnostic";
+import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
  * Validate cue ids, intervals, intensities, compiled stream correspondence,

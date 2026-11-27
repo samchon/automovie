@@ -1,12 +1,15 @@
-import { type IAutoMovieMark, type IAutoMovieInspectionTrail, type IAutoMovieInspectionDiagnostics, type IAutoMovieInspectionLegendEntry, type IAutoMovieInspectionLabelPlacement, type IAutoMoviePlanInspectionTrailTimesProps, type IAutoMovieVector3, type IAutoMovieInspectionFocus } from "@automovie/interface";
+import { type IAutoMovieMark, type IAutoMovieInspectionTrail, type IAutoMovieInspectionDiagnostics, type IAutoMovieInspectionLegendEntry, type IAutoMovieInspectionLabelPlacement, type IAutoMoviePlanInspectionTrailTimesProps, type IAutoMovieVector3, type IAutoMovieInspectionFocus, type AutoMovieInspectionShade, type IAutoMovieSectionPlane } from "@automovie/interface";
 
 import type * as THREE from "three";
+import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
 import type { ISelectAutoMoviePlacedChecks } from "./ISelectAutoMoviePlacedChecks.js";
 import { selectAutoMoviePlacedChecks as selectAutoMoviePlacedChecksImplementation } from "./internal/selectAutoMoviePlacedChecks.js";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { focusAutoMovieInspection as focusAutoMovieInspectionImplementation } from "./internal/focusAutoMovieInspection.js";
+import { applyAutoMovieInspectionSectionImplementation } from "./internal/applyAutoMovieInspectionSectionImplementation.js";
+import { applyAutoMovieInspectionShadeImplementation } from "./internal/applyAutoMovieInspectionShadeImplementation.js";
 import { markAutoMovieInspectionTrails as markAutoMovieInspectionTrailsImplementation } from "./internal/markAutoMovieInspectionTrails.js";
 import { type IAutoMovieInspectionHandle } from "./IAutoMovieInspectionHandle.js";
 import { type IApplyAutoMovieInspectionProps } from "./IApplyAutoMovieInspectionProps.js";
@@ -21,6 +24,43 @@ import { placeAutoMovieInspectionLabels as placeAutoMovieInspectionLabelsImpleme
 
 /** Public operations for Auto Movie Render Inspection. */
 export namespace AutoMovieRenderInspection {
+  /** Named input contract for applying a clipping section to a scene. */
+  export namespace ApplySection {
+    /** Scene, renderer and clipping plane for the inspection section. */
+    export interface IProps {
+      /** Scene whose drawn materials receive the section plane. */
+      scene: THREE.Scene;
+      /** Renderer whose local clipping switch is borrowed. */
+      renderer: IAutoMovieSectionRenderer;
+      /** Half-space removed from the scene. */
+      section: IAutoMovieSectionPlane;
+    }
+  }
+  /** Named input and result contracts for applying an inspection shade. */
+  export namespace ApplyShade {
+    /** Scene and shade to apply to its materials. */
+    export interface IProps {
+      /** Scene whose materials are shaded. */
+      scene: THREE.Scene;
+      /** Inspection shade to apply. */
+      shade: AutoMovieInspectionShade;
+    }
+    /** Controls for updating the shade and restoring the scene. */
+    export interface IResult {
+      /** Bring the shade up to date before drawing. */
+      update: () => void;
+      /** Restore the scene's original materials. */
+      restore: () => void;
+    }
+  }
+  /** Cut drawn scene materials and return a restoration callback. */
+  export function applySection(props: ApplySection.IProps): () => void {
+    return applyAutoMovieInspectionSectionImplementation(props);
+  }
+  /** Apply a named inspection shade and return update and restore operations. */
+  export function applyShade(props: ApplyShade.IProps): ApplyShade.IResult {
+    return applyAutoMovieInspectionShadeImplementation(props.scene, props.shade);
+  }
   /** Named input contract for the focus operation. */
   export namespace Focus {
     /** A mark and the object whose frame it belongs to, when anchored. */

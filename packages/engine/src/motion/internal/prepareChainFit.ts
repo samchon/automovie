@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { jointToQuaternionOnBasis } from "../../kinematics/jointToQuaternionOnBasis";
-import { preparePoseResolution } from "../../kinematics/preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { twoBoneChainArticulation } from "../../kinematics/twoBoneChainArticulation";
@@ -53,8 +53,8 @@ export function prepareChainFit(
     IAutoMovieResolvedBone
   >,
   resolution: ReturnType<
-    typeof preparePoseResolution
-  > = preparePoseResolution(),
+    typeof AutoMovieEngineKinematics.preparePoseResolution
+  > = AutoMovieEngineKinematics.preparePoseResolution(),
   poseResolution?: prepareSkeletonPoseResolution.IRig,
   fixed?: prepareChainFit.IWorkspace,
   plant?: () => IAutoMoviePreparedChainPlant | null,

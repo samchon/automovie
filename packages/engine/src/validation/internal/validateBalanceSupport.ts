@@ -15,7 +15,7 @@ import { pointHullDistance } from "../../math/internal/pointHullDistance";
 import { sampleMotion } from "../../motion/sampleMotion";
 import { windowSampleTimes } from "../../motion/internal/windowSampleTimes";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { fkReachableBones } from "../fkReachableBones";
+import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 
 const DEFAULT_MARGIN: number = 0.02;

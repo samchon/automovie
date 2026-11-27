@@ -21,7 +21,7 @@ import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { preparePoseBoneDemand } from "./internal/preparePoseBoneDemand";
 import { preparePoseJointResolution } from "./internal/preparePoseJointResolution";
 import type { preparePoseReading } from "./internal/preparePoseReading";
-import { preparePoseResolution } from "./preparePoseResolution";
+import { AutoMovieEngineKinematics } from "./AutoMovieEngineKinematics";
 import { preparePoseResolutionState } from "./internal/preparePoseResolutionState";
 import { preparePoseTupleScan } from "./internal/preparePoseTupleScan";
 import { skeletonJointAxes } from "./internal/skeletonJointAxes";
@@ -92,7 +92,7 @@ export namespace prepareSkeletonPoseResolution {
   export function admitSource(
     rig: IRig,
     pose: IAutoMoviePose,
-    operation?: ReturnType<typeof preparePoseResolution>,
+    operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   ): boolean {
     rig.resolveMap(pose, operation, new Set<AutoMovieHumanoidBone>());
     return true;
@@ -257,7 +257,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
     jointAxes: snapshot.axes,
     joint: (
       joint: IAutoMovieJointPose,
-      operation?: ReturnType<typeof preparePoseResolution>,
+      operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
     ): IAutoMovieQuaternion =>
       lend(
         operation,
@@ -282,7 +282,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
         );
         return (
           pose: Omit<IAutoMoviePose, "joints">,
-          operation?: ReturnType<typeof preparePoseResolution>,
+          operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
         ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
           lend(
             operation,
@@ -296,7 +296,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
     preparePose: (
       pose: IAutoMoviePose,
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
-      operation?: ReturnType<typeof preparePoseResolution>,
+      operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
     ): preparePoseResolutionState.IOverlayReader =>
       lend(
         operation,
@@ -317,7 +317,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       return {
         resolve: (
           pose: IAutoMoviePose,
-          operation?: ReturnType<typeof preparePoseResolution>,
+          operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
         ): IAutoMovieResolvedBone[] =>
           lend(
             operation,
@@ -328,7 +328,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
           ),
         map: (
           pose: IAutoMoviePose,
-          operation?: ReturnType<typeof preparePoseResolution>,
+          operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
         ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
           lend(
             operation,
@@ -345,7 +345,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
     },
     read: (
       pose: IAutoMoviePose,
-      operation?: ReturnType<typeof preparePoseResolution>,
+      operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
     ): prepareSkeletonPoseResolution.IReading => {
       const read: preparePoseReading.IReading = lend(
         operation,
@@ -397,7 +397,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
     },
     resolveMap: (
       pose: IAutoMoviePose,
-      operation?: ReturnType<typeof preparePoseResolution>,
+      operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       lend(
@@ -409,7 +409,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       ),
     resolve: (
       pose: IAutoMoviePose,
-      operation?: ReturnType<typeof preparePoseResolution>,
+      operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): IAutoMovieResolvedBone[] => {
       return lend(
@@ -434,7 +434,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
    * signatures, which callers name; it selects nothing.
    */
   function lend<T>(
-    _operation: ReturnType<typeof preparePoseResolution> | undefined,
+    _operation: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> | undefined,
     run: (reader: preparePoseResolutionState.IReader) => T,
   ): T {
     if (lent)

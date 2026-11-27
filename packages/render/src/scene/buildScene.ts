@@ -10,7 +10,7 @@ import * as THREE from "three";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject.js";
 import type { IAutoMovieSceneSoftProps } from "./IAutoMovieSceneSoftProps.js";
-import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
+import { applyAutoMovieShadowParticipation } from "./internal/applyAutoMovieShadowParticipation.js";
 import { applySceneEnvironment } from "./internal/applySceneEnvironment.js";
 import { applySceneFog } from "./internal/applySceneFog.js";
 import { applyTransform } from "./internal/applyTransform.js";

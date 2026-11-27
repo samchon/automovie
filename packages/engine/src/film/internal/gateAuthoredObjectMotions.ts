@@ -20,7 +20,7 @@ import { placementNodePrefix } from "../../resolve/internal/placementNodePrefix"
 import { resolveFrame } from "../../resolve/internal/resolveFrame";
 import { sceneToNodes } from "../../resolve/internal/sceneToNodes";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { pushViolation } from "../../validation/pushViolation";
+import { pushViolation } from "../../validation/internal/pushViolation";
 import { validateClipArtifact } from "../../validation/internal/validateClipArtifact";
 import { validateHonorableChannel } from "../../validation/internal/validateHonorableChannel";
 import { authoredRotationCriticalTimes } from "./authoredRotationCriticalTimes";

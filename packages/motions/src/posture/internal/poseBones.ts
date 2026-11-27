@@ -1,7 +1,4 @@
-import {
-  preparePoseResolution,
-  type prepareSkeletonPoseResolution,
-} from "@automovie/engine";
+import { type prepareSkeletonPoseResolution, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -34,7 +31,7 @@ import type {
 export function poseBones(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  prepared?: ReturnType<typeof preparePoseResolution>,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   requested?: ReadonlySet<AutoMovieHumanoidBone>,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return body.poseResolution.resolveMap(pose, prepared, requested);
@@ -79,7 +76,7 @@ export namespace poseBones {
   export function read(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    prepared?: ReturnType<typeof preparePoseResolution>,
+    prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   ): prepareSkeletonPoseResolution.IReading {
     return body.poseResolution.read(pose, prepared);
   }
@@ -126,14 +123,14 @@ export namespace poseBones {
     requested: ReadonlySet<AutoMovieHumanoidBone>,
   ): (
     pose: IAutoMoviePose,
-    prepared?: ReturnType<typeof preparePoseResolution>,
+    prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const demand: ReturnType<
       IAutoMovieMotionHumanBody["poseResolution"]["prepareBones"]
     > = body.poseResolution.prepareBones(requested);
     return (
       pose: IAutoMoviePose,
-      prepared?: ReturnType<typeof preparePoseResolution>,
+      prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       demand.map(pose, prepared);
   }

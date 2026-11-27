@@ -26,7 +26,7 @@ export * from "./jointToQuaternionOnBasis";
 export * from "./measureAutoMovieHumanoidBody";
 
 export * from "./poseJointCodec";
-export * from "./preparePoseResolution";
+
 export * from "./prepareSkeletonPoseResolution";
 export * from "./prepareAutoMovieMassModel";
 
@@ -63,4 +63,3 @@ export * from "./distalEndSwivelReadings";
 export * from "./distalTwistSwivelRange";
 
 export * from "./swivelJointReadings";
-export { readPreparedBendClinical } from "./readPreparedBendClinical";

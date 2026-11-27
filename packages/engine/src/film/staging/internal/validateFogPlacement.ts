@@ -3,7 +3,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { describeInvalidValue } from "../../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 import { validateColor } from "../../../validation/internal/validateColor";
 
 /**

@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { describeInvalidValue } from "../../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 
 /**
  * Admit the stage's physical haze and return it for the scene, verbatim.

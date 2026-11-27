@@ -12,8 +12,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { PRIMITIVE_RADIAL_SEGMENTS } from "../geometry/constants/PRIMITIVE_RADIAL_SEGMENTS";
-import { PRIMITIVE_SPHERE_RINGS } from "../geometry/constants/PRIMITIVE_SPHERE_RINGS";
+import { PRIMITIVE_RADIAL_SEGMENTS } from "../../geometry/constants/PRIMITIVE_RADIAL_SEGMENTS";
+import { PRIMITIVE_SPHERE_RINGS } from "../../geometry/constants/PRIMITIVE_SPHERE_RINGS";
 
 /** Measure filled rest-axis cores of the engine's tessellated primitive solids. */
 export function autoMovieModelColumns(

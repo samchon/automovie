@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { describeInvalidValue } from "../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../validation/internal/describeInvalidValue";
 import { gatePerformShotStageAction } from "./gatePerformShotStageAction";
 import { performShotActors } from "./performShotActors";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";

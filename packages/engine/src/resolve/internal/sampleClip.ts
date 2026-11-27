@@ -10,7 +10,7 @@ import { AutoMovieEngineKeyframeSearch } from "../../math/AutoMovieEngineKeyfram
 import { Quaternion } from "../../math/Quaternion";
 import { cubicHermiteValue } from "../../math/internal/cubicHermiteValue";
 import { normalizeClipTime } from "../../math/internal/normalizeClipTime";
-import { clipDurationFault } from "../../validation/clipDurationFault";
+import { clipDurationFault } from "../../validation/internal/clipDurationFault";
 import { clipTrackShapeFaults } from "../../validation/clipTrackShapeFaults";
 import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";

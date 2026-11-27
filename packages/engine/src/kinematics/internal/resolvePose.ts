@@ -16,7 +16,7 @@ import { Vector3 } from "../../math/Vector3";
 import { SKELETON_ROOT_PARENT } from "../constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "../indexSkeletonTopology";
 import { jointToQuaternion } from "./jointToQuaternion";
-import { preparePoseResolution } from "../preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import { resolvePoseBone } from "./resolvePoseBone";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
@@ -78,7 +78,7 @@ export const resolvePose: (
     | Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>
     | undefined,
   topology?: IAutoMovieSkeletonTopology,
-  prepared?: ReturnType<typeof preparePoseResolution>,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   requested?: ReadonlySet<string>,
 ) => IAutoMovieResolvedBone[] = (
   pose: IAutoMoviePose,
@@ -86,7 +86,7 @@ export const resolvePose: (
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   topology?: IAutoMovieSkeletonTopology,
-  prepared?: ReturnType<typeof preparePoseResolution>,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   requested?: ReadonlySet<string>,
 ): IAutoMovieResolvedBone[] => {
   const childrenByParent: IAutoMovieSkeletonTopology["childrenByParent"] =

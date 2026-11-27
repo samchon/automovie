@@ -1,4 +1,4 @@
-import { type IAutoMovieScenePassRenderer, assertAutoMovieSceneShadowProfile, renderAutoMovieScenePass, AutoMovieSceneShadow } from "@automovie/render";
+import { type IAutoMovieScenePassRenderer, renderAutoMovieScenePass, AutoMovieSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -26,7 +26,7 @@ export function test_render_scene_render_scene_pass_shadow_admission(): void {
   scene.add(point, new THREE.AmbientLight(), new THREE.Group());
   let refused: unknown;
   try {
-    assertAutoMovieSceneShadowProfile(scene, { enabled: true, type: "vsm" });
+    AutoMovieSceneShadow.assertProfile(scene, { enabled: true, type: "vsm" });
   } catch (error) {
     refused = error;
   }
@@ -36,16 +36,16 @@ export function test_render_scene_render_scene_pass_shadow_admission(): void {
       refused.message.includes("point-caster") &&
       refused.message.includes("castShadow"),
   );
-  assertAutoMovieSceneShadowProfile(scene, { enabled: true, type: "pcf" });
-  assertAutoMovieSceneShadowProfile(scene, { enabled: false, type: "vsm" });
+  AutoMovieSceneShadow.assertProfile(scene, { enabled: true, type: "pcf" });
+  AutoMovieSceneShadow.assertProfile(scene, { enabled: false, type: "vsm" });
   point.castShadow = false;
-  assertAutoMovieSceneShadowProfile(scene, { enabled: true, type: "vsm" });
+  AutoMovieSceneShadow.assertProfile(scene, { enabled: true, type: "vsm" });
   const directional: THREE.DirectionalLight = new THREE.DirectionalLight(),
     spot: THREE.SpotLight = new THREE.SpotLight();
   directional.castShadow = true;
   spot.castShadow = true;
   scene.add(directional, spot);
-  assertAutoMovieSceneShadowProfile(scene, { enabled: true, type: "vsm" });
+  AutoMovieSceneShadow.assertProfile(scene, { enabled: true, type: "vsm" });
   TestValidator.equals(
     "native punctual projection preserves supplied identity and casting",
     [

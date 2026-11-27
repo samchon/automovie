@@ -8,7 +8,7 @@ import * as THREE from "three";
 import { IAutoMovieTextureLoader } from "./IAutoMovieTextureLoader.js";
 import { decodeAutoMovieImage } from "./internal/decodeAutoMovieImage.js";
 import { readAutoMovieTextureSource } from "./internal/readAutoMovieTextureSource.js";
-import { textureBindingAsset } from "./textureBindingAsset.js";
+import { textureBindingAsset } from "./internal/textureBindingAsset.js";
 
 /**
  * One shot's decoded texture assets: loaded once, handed out per binding, and

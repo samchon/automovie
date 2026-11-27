@@ -18,8 +18,8 @@ import { formationSlotPosition } from "../../populationRuntime/formation/interna
 import { placeFormationSlot } from "../../populationRuntime/formation/internal/placeFormationSlot";
 import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
 import { sampleFormationSlotMotion } from "../../populationRuntime/formation/sampleFormationSlotMotion";
-import { autoMovieModelColumns } from "../autoMovieModelColumns";
-import { engineDiagnostic } from "../engineDiagnostic";
+import { autoMovieModelColumns } from "./autoMovieModelColumns";
+import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
  * Place sampled members in a spatial grid and compare both same-unit and

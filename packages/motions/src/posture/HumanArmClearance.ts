@@ -1,4 +1,4 @@
-import { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -247,7 +247,7 @@ export namespace HumanArmClearance {
     arm: IAutoMovieMotionHumanArmClearance.IArm,
     others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     baseline: IAutoMovieMotionHumanArmClearance.IBaseline = NONE,
-    prepared?: ReturnType<typeof preparePoseResolution>,
+    prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   ): number {
     const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(
       body,
@@ -268,7 +268,7 @@ export namespace HumanArmClearance {
     side: AutoMovieHumanSide,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
     others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
-    prepared?: ReturnType<typeof preparePoseResolution>,
+    prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   ): IAutoMovieMotionHumanArmClearance.IBaseline {
     const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(
       body,
@@ -325,7 +325,7 @@ export namespace HumanArmClearance {
     baseline: IAutoMovieMotionHumanArmClearance.IBaseline = NONE,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanArmClearance.IArm {
-    let prepared: ReturnType<typeof preparePoseResolution> | undefined;
+    let prepared: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> | undefined;
     let borrowed: ReturnType<typeof prepareHumanPoseResolution> | undefined;
     let first: boolean = true;
     const over: (of: IAutoMovieMotionHumanArmClearance.IArm) => number = (
@@ -341,7 +341,7 @@ export namespace HumanArmClearance {
         source === undefined
           ? first
             ? undefined
-            : (prepared ??= preparePoseResolution())
+            : (prepared ??= AutoMovieEngineKinematics.preparePoseResolution())
           : (borrowed ??= prepareHumanPoseResolution(source))(),
       );
       first = false;
@@ -370,7 +370,7 @@ function roomTerms(
   arm: IAutoMovieMotionHumanArmClearance.IArm,
   others: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   baseline: IAutoMovieMotionHumanArmClearance.IBaseline,
-  prepared?: ReturnType<typeof preparePoseResolution>,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
 ): IAutoMovieMotionHumanArmClearance.IBaseline {
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,

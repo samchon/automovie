@@ -16,7 +16,7 @@ import { placeFormationSlot } from "../../populationRuntime/formation/internal/p
 import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
 import { sampleFormationSlotMotion } from "../../populationRuntime/formation/sampleFormationSlotMotion";
 import { heightAt } from "../../space/internal/heightAt";
-import { engineDiagnostic } from "../engineDiagnostic";
+import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
  * Sample actual placed members against authored space coverage and height,

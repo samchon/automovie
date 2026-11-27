@@ -1,4 +1,4 @@
-import { minimumJerk, preparePoseResolution } from "@automovie/engine";
+import { minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
@@ -170,9 +170,9 @@ function borrowResolution(
   let borrowed: Resolution | undefined = source;
   source = undefined;
   return {
-    read: (): ReturnType<typeof preparePoseResolution> => {
+    read: (): ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> => {
       const current: Resolution | undefined = borrowed;
-      return current === undefined ? preparePoseResolution() : current();
+      return current === undefined ? AutoMovieEngineKinematics.preparePoseResolution() : current();
     },
     release: (): void => {
       borrowed = undefined;

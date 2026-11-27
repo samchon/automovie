@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
-import { preparePoseResolution } from "../../kinematics/preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../../math/Quaternion";
 
@@ -101,7 +101,7 @@ export namespace resolveChainEffectorBaseRotation {
     lower: IAutoMovieChainBone,
     end: IAutoMovieChainBone,
     inverseLower?: IAutoMovieQuaternion,
-    resolution?: ReturnType<typeof preparePoseResolution>,
+    resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
     poseResolution?: prepareSkeletonPoseResolution.IRig,
   ): IAutoMovieQuaternion {
     let joint: IAutoMovieJointPose | undefined;

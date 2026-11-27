@@ -15,7 +15,7 @@ import { physicalShapeHull } from "../physics/physicalShapeHull";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
-import { preparePoseResolution } from "./preparePoseResolution";
+import { AutoMovieEngineKinematics } from "./AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./internal/resolvePose";
 
@@ -81,8 +81,8 @@ export function curlChainUntilContact(
       ): ReturnType<typeof physicalShapeSegmentDistance.prepare> =>
         physicalShapeSegmentDistance.prepare(collider.frame, collider.shape),
     );
-  const operation: ReturnType<typeof preparePoseResolution> =
-    preparePoseResolution();
+  const operation: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
+    AutoMovieEngineKinematics.preparePoseResolution();
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
     input.pose.joints.map(
       (

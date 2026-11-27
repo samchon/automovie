@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../../math/Vector3";
-import { describeInvalidValue } from "../../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 import { validateCameraClearanceEnvelope } from "./validateCameraClearanceEnvelope";
 import { validateCameraDepthPrecision } from "./validateCameraDepthPrecision";
 

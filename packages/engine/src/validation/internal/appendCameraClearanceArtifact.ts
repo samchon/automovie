@@ -3,10 +3,10 @@ import type {
   IAutoMovieConstraintViolation,
 } from "@automovie/interface";
 
-import { sampleTimes } from "../motion/internal/sampleTimes";
+import { sampleTimes } from "../../motion/internal/sampleTimes";
 import { pushViolation } from "./pushViolation";
-import { validateRange } from "./internal/validateRange";
-import { validateUniqueBy } from "./internal/validateUniqueBy";
+import { validateRange } from "./validateRange";
+import { validateUniqueBy } from "./validateUniqueBy";
 
 /** Count shared-clock intervals without allocating a hostile-sized grid. */
 function clearanceIntervalCount(

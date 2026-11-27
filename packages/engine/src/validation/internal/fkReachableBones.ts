@@ -4,7 +4,7 @@ import {
   type IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import { AutoMovieEngineKinematics } from "../kinematics";
+import { AutoMovieEngineKinematics } from "../../kinematics";
 
 /**
  * Return reachableBoneNames' fresh copy of root-reachable bone names, using a

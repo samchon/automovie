@@ -23,7 +23,7 @@ import { sampleMotion } from "../../motion/sampleMotion";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
 import { suggestCollisionResponse } from "../../physics/internal/suggestCollisionResponse";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { fkReachableBones } from "../fkReachableBones";
+import { fkReachableBones } from "./fkReachableBones";
 import { validateCapsule } from "./validateCapsule";
 
 const DEFAULT_SAMPLE_RATE: number = 24;

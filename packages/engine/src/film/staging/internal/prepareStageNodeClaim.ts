@@ -1,6 +1,6 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
-import { describeInvalidValue } from "../../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 
 /** Track occupied node ids across the categories of one staging call. */
 export function prepareStageNodeClaim(

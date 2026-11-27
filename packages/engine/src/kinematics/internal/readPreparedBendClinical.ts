@@ -1,14 +1,14 @@
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieRestFrame,
 } from "@automovie/interface";
+import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 
-import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
-import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
+import { HUMANOID_REST_FRAME } from "../../rom/constants/HUMANOID_REST_FRAME";
+import { HUMANOID_JOINT_AXES } from "../constants/HUMANOID_JOINT_AXES";
 
 /** Clinical directions and channels in their comparison order. */
 const AXES = ["flexion", "abduction", "twist"] as const;
@@ -20,7 +20,7 @@ const AXES = ["flexion", "abduction", "twist"] as const;
  * @returns Exact scalar words in their native order.
  */
 export function readPreparedBendClinical(
-  input: IAutoMoviePreparedBendClinical,
+  input: AutoMovieEngineKinematicsTypes.IReadPreparedBendClinicalInput,
 ): readonly (number | string | null | undefined)[] {
   const { upperBone, lowerBone, handBone } = input;
   const words: AutoMovieClinicalWords = [upperBone, lowerBone, handBone];
@@ -46,19 +46,7 @@ export function readPreparedBendClinical(
   return words;
 }
 
-/** Current axes and limits already selected by the ordinary arm scorer. */
-interface IAutoMoviePreparedBendClinical {
-  upperBone: AutoMovieHumanoidBone;
-  lowerBone: AutoMovieHumanoidBone;
-  handBone: AutoMovieHumanoidBone;
-  upperBasis: IAutoMovieJointAxes;
-  lowerBasis: IAutoMovieJointAxes;
-  lowerAxes: IAutoMovieJointAxes;
-  handAxes: IAutoMovieJointAxes;
-  upperRange: IAutoMovieJointConstraint | null;
-  lowerRange: IAutoMovieJointConstraint | null;
-  handRange: IAutoMovieJointConstraint | null;
-}
+
 
 /** Flat words with explicit absence and record boundaries. */
 type AutoMovieClinicalWords = (number | string | null | undefined)[];

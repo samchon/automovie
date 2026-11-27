@@ -1,4 +1,4 @@
-import { minimumJerk, preparePoseResolution } from "@automovie/engine";
+import { minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -135,7 +135,7 @@ export namespace HumanSegmentOverlay {
     // A bare leaf already owns its refit's FK. Additional stages may borrow
     // one reader here, but memory hits and no-FK paths never create it.
     const resolution:
-      | (() => ReturnType<typeof preparePoseResolution>)
+      | (() => ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>)
       | undefined =
       source === undefined &&
       (active?.length ?? 0) === 0 &&

@@ -4,7 +4,7 @@ import type {
   IAutoMovieConstraintViolation,
 } from "@automovie/interface";
 
-import { pushViolation } from "../pushViolation";
+import { pushViolation } from "./pushViolation";
 
 /**
  * Require node channels, matching transform-clip appliers: the pipeline

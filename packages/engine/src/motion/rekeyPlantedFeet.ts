@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 
@@ -30,8 +30,8 @@ export function rekeyPlantedFeet(
 ): IAutoMovieKeyframe[] {
   const topology: IAutoMovieSkeletonTopology = props.topology;
   const keyframes: IAutoMovieKeyframe[] = [];
-  const resolution: ReturnType<typeof preparePoseResolution> =
-    props.resolution ?? preparePoseResolution();
+  const resolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
+    props.resolution ?? AutoMovieEngineKinematics.preparePoseResolution();
   let prior: IAutoMoviePose | undefined;
   props.times.forEach((time: number, index: number): void => {
     const sampled: IAutoMovieMotionSample = props.poses[index]!;
@@ -77,7 +77,7 @@ const plantedJoints: (
   referencePose?: IAutoMoviePose,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-  resolution?: ReturnType<typeof preparePoseResolution>,
+  resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   poseResolution?: prepareSkeletonPoseResolution.IRig,
 ) => IAutoMovieJointPose[] = (
   skeleton: IAutoMovieSkeleton,
@@ -88,7 +88,7 @@ const plantedJoints: (
   referencePose?: IAutoMoviePose,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-  resolution?: ReturnType<typeof preparePoseResolution>,
+  resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   poseResolution?: prepareSkeletonPoseResolution.IRig,
 ): IAutoMovieJointPose[] => {
   let joints: IAutoMovieJointPose[] = pose.joints;
@@ -121,7 +121,7 @@ export namespace rekeyPlantedFeet {
   /** The re-keying props with the optional shared FK reader and prepared rig. */
   export interface IProps extends IAutoMovieRekeyPlantedFeet.IProps {
     /** Optional same-operation exact FK reader shared with stance detection. */
-    resolution?: ReturnType<typeof preparePoseResolution>;
+    resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>;
 
     /** Optional immutable snapshot of this exact rig/topology/clinical tables. */
     poseResolution?: prepareSkeletonPoseResolution.IRig;

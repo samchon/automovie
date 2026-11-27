@@ -16,7 +16,7 @@ import { segmentSegmentDistance } from "../../math/internal/segmentSegmentDistan
 import { sampleMotion } from "../../motion/sampleMotion";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { fkReachableBones } from "../fkReachableBones";
+import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 import { validateCapsule } from "./validateCapsule";
 

@@ -10,8 +10,8 @@ import {
 import { resolveBeatEnd } from "../../film/internal/resolveBeatEnd";
 import { resolveBeatOpening } from "../../film/internal/resolveBeatOpening";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { compareContinuityBoundary } from "../compareContinuityBoundary";
-import { readContinuityTolerances } from "../readContinuityTolerances";
+import { compareContinuityBoundary } from "./compareContinuityBoundary";
+import { readContinuityTolerances } from "./readContinuityTolerances";
 
 /**
  * Resolve end/opening states in playback order and compare adjacent beat

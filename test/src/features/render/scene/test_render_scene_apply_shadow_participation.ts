@@ -1,7 +1,4 @@
-import {
-  SPACE_GROUP_NAME,
-  applyAutoMovieShadowParticipation,
-} from "@automovie/render";
+import { SPACE_GROUP_NAME, AutoMovieSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -29,7 +26,7 @@ export function test_render_scene_apply_shadow_participation(): void {
   space.add(ground);
   const root: THREE.Group = new THREE.Group();
   root.add(space, solid, glass);
-  applyAutoMovieShadowParticipation(root);
+  AutoMovieSceneShadow.applyParticipation(root);
   TestValidator.equals(
     "participation",
     [ground, solid, glass].map((object: THREE.Mesh): boolean[] => [

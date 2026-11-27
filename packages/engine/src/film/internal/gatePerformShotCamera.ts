@@ -8,7 +8,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { describeInvalidValue } from "../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../validation/internal/describeInvalidValue";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 

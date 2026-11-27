@@ -2,7 +2,7 @@ import { type AutoMovieArchetype } from "../core/index";
 import { createSmoking as createSmokingImplementation } from "./internal/createSmoking";
 import { SmokingPropDraw } from "./SmokingPropDraw";
 import { AutoMovieArchetypeCigarette } from "./AutoMovieArchetypeCigarette";
-import { createLighter } from "./createLighter";
+import { AutoMovieArchetypeLighter } from "./AutoMovieArchetypeLighter";
 
 /** Public operations for Auto Movie Archetype Smoking. */
 export namespace AutoMovieArchetypeSmoking {
@@ -54,5 +54,5 @@ export namespace AutoMovieArchetypeSmoking {
   /** The named producer selected by each saved kind. */
   export const PRODUCERS = {
     cigarette: AutoMovieArchetypeCigarette.create,
-    lighter: createLighter,
+    lighter: AutoMovieArchetypeLighter.create,
   } as const satisfies Readonly<Record<Kind, unknown>>;}

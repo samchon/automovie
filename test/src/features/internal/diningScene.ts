@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeBowl, createTableKnife, AutoMovieArchetypeChopsticks, AutoMovieArchetypeFoodPortion, AutoMovieArchetypeFork } from "@automovie/archetypes";
+import { AutoMovieArchetypeBowl, AutoMovieArchetypeTableKnife, AutoMovieArchetypeChopsticks, AutoMovieArchetypeFoodPortion, AutoMovieArchetypeFork } from "@automovie/archetypes";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -118,7 +118,7 @@ export namespace diningScene {
     const models: Record<string, everydayTake.IPosable> = {
       steak: AutoMovieArchetypeFoodPortion.create({ id: "steak", kind: "steak" }),
       piece: AutoMovieArchetypeFoodPortion.create({ id: "piece", kind: "piece" }),
-      knife: createTableKnife({ id: "knife" }),
+      knife: AutoMovieArchetypeTableKnife.create({ id: "knife" }),
       fork: AutoMovieArchetypeFork.create({ id: "fork" }),
     };
     return {

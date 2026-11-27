@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoverySavedCurveBinding,
 } from "@automovie/interface";
 
-import { bindRecoveryOrderedFits } from "../internal/bindRecoveryOrderedFits";
+import { bindRecoveryOrderedFits } from "./internal/bindRecoveryOrderedFits";
 import { observeRecoveryOrderedCuts } from "../geometry/internal/observeRecoveryOrderedCuts";
 
 /**

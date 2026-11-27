@@ -6,10 +6,10 @@ import type {
   IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
-import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "./internal/normalizeJointAxes";
-import { resolvePoseBone } from "./internal/resolvePoseBone";
+import { DEFAULT_JOINT_AXES } from "../constants/DEFAULT_JOINT_AXES";
+import { jointToQuaternionOnBasis } from "../jointToQuaternionOnBasis";
+import { normalizeJointAxes } from "./normalizeJointAxes";
+import { resolvePoseBone } from "./resolvePoseBone";
 
 /** The factory's reader: its two methods as own data properties. */
 const READER: IReader = {
@@ -37,7 +37,7 @@ const READER: IReader = {
  * never certifies a mutable transform from an identity or resampled tuple.
  * Release the reader when the synchronous evaluation ends.
  */
-export function preparePoseResolution(): IReader {
+export function preparePoseResolution(): IAutoMoviePoseResolution {
   return { joint: READER.joint, bone: READER.bone };
 }
 

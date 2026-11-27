@@ -4,7 +4,7 @@ import {
   type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
-import { describeInvalidValue } from "../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../validation/internal/describeInvalidValue";
 import { CAMERA_FRAMINGS } from "../constants/CAMERA_FRAMINGS";
 import { CAMERA_MOVES } from "../constants/CAMERA_MOVES";
 

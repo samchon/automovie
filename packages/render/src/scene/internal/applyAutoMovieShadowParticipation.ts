@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
-import { SPACE_GROUP_NAME } from "./buildSpace.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { SPACE_GROUP_NAME } from "../buildSpace.js";
 
 /**
  * Say which objects cast a shadow and which receive one.

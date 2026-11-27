@@ -1,8 +1,4 @@
-import {
-  type IAutoMovieScenePassRenderer,
-  invalidateAutoMovieSceneShadowPrograms,
-  renderAutoMovieScenePass,
-} from "@automovie/render";
+import { type IAutoMovieScenePassRenderer, renderAutoMovieScenePass, AutoMovieSceneShadow } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -23,7 +19,7 @@ import { createScenePassRendererDouble } from "../../internal/createScenePassRen
  */
 export function test_render_scene_render_scene_pass(): void {
   const empty: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
-  invalidateAutoMovieSceneShadowPrograms(empty);
+  AutoMovieSceneShadow.invalidatePrograms(empty);
   const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene(),
     first: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial(),
     second: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial(),
@@ -37,7 +33,7 @@ export function test_render_scene_render_scene_pass(): void {
   );
   scene.overrideMaterial = override;
   const versions: number[] = [first.version, second.version, override.version];
-  invalidateAutoMovieSceneShadowPrograms(scene);
+  AutoMovieSceneShadow.invalidatePrograms(scene);
   TestValidator.equals(
     "unique materials and override each change once",
     [first.version, second.version, override.version],

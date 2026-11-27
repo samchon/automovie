@@ -3,7 +3,7 @@ import type {
   IAutoMovieEditorialMarker,
 } from "@automovie/interface";
 
-import { pushViolation } from "../pushViolation";
+import { pushViolation } from "./pushViolation";
 
 /** Append located violations for invalid editorial markers on a shot clock. */
 export function appendEditorialMarkersArtifact(

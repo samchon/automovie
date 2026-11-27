@@ -20,7 +20,7 @@ import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { descendDigitTasks } from "./descendDigitTasks";
 import { indexSkeletonTopology } from "../indexSkeletonTopology";
-import { preparePoseResolution } from "../preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "../prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 import { swingTwistRange } from "../swingTwistRange";
@@ -94,8 +94,8 @@ export function fitDigitToTarget(
     throw new Error("A digit fit's rate must be finite and positive");
   const topology: IAutoMovieSkeletonTopology =
     input.topology ?? indexSkeletonTopology(input.skeleton);
-  const prepared: ReturnType<typeof preparePoseResolution> =
-    input.prepared ?? preparePoseResolution();
+  const prepared: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
+    input.prepared ?? AutoMovieEngineKinematics.preparePoseResolution();
   let fixedPose:
     | ReturnType<prepareSkeletonPoseResolution.IRig["preparePose"]>
     | undefined;

@@ -7,7 +7,7 @@ import { AutoMovieArchetypeLadle } from "./AutoMovieArchetypeLadle";
 import { AutoMovieArchetypeScrewdriver } from "./AutoMovieArchetypeScrewdriver";
 import { AutoMovieArchetypeSpoon } from "./AutoMovieArchetypeSpoon";
 import { AutoMovieArchetypeStagePrimingWire } from "./AutoMovieArchetypeStagePrimingWire";
-import { createTableKnife } from "./createTableKnife";
+import { AutoMovieArchetypeTableKnife } from "./AutoMovieArchetypeTableKnife";
 
 /** Constructs the tool archetype from its recipe. */
 export namespace AutoMovieArchetypeTool {
@@ -95,7 +95,7 @@ export namespace AutoMovieArchetypeTool {
     spoon: AutoMovieArchetypeSpoon.create,
     fork: AutoMovieArchetypeFork.create,
     ladle: AutoMovieArchetypeLadle.create,
-    knife: createTableKnife,
+    knife: AutoMovieArchetypeTableKnife.create,
     primingWire: AutoMovieArchetypeStagePrimingWire.create,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 }

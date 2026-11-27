@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { engineDiagnostic } from "../engineDiagnostic";
+import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
  * Members one shot may single out of its crowds, in total.

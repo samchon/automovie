@@ -3,7 +3,7 @@ import type {
   IAutoMovieActorWorldFrame,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
+import { Quaternion } from "../../math/Quaternion";
 
 /**
  * Read the actor context's staged metre position and +Y heading as a rigid

@@ -8,7 +8,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { appendMeshTopology } from "../appendMeshTopology";
+import { appendMeshTopology } from "./appendMeshTopology";
 import { AUTOMOVIE_ARKIT_CHANNELS } from "../constants/AUTOMOVIE_ARKIT_CHANNELS";
 import { AUTOMOVIE_EXPRESSION_PRESETS } from "../constants/AUTOMOVIE_EXPRESSION_PRESETS";
 

@@ -1,4 +1,4 @@
-import { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -36,8 +36,8 @@ export function poleVaultTakeoffFrame(
           `${hand.side}UpperArm`,
       ),
     );
-  const resolution: ReturnType<typeof preparePoseResolution> =
-    preparePoseResolution();
+  const resolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
+    AutoMovieEngineKinematics.preparePoseResolution();
   const projection: ReturnType<typeof prepareHumanPostureProjection> =
     prepareHumanPostureProjection(body);
   const raw: IAutoMovieMotionHumanPosture = takeoff.plan.posture(

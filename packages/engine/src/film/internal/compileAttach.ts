@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { preparePoseResolution } from "../../kinematics/preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 
 import type { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
 import { resolveAttachment } from "../../kinematics/resolveAttachment";
@@ -86,8 +86,8 @@ export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProp
   };
   const demand: prepareSkeletonPoseResolution.IBoneDemand | undefined =
     props.poseResolution?.prepareBones(new Set([props.bone]));
-  const resolution: ReturnType<typeof preparePoseResolution> | undefined =
-    demand === undefined ? undefined : preparePoseResolution();
+  const resolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> | undefined =
+    demand === undefined ? undefined : AutoMovieEngineKinematics.preparePoseResolution();
   function boneAt(pose: IAutoMoviePose): IAutoMovieTransform {
     return resolveAttachment(
       pose,

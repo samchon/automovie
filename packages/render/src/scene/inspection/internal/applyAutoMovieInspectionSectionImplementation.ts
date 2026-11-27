@@ -1,9 +1,8 @@
-import type { IAutoMovieSectionPlane } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import { applyAutoMovieSectionPlanes } from "../internal/applyAutoMovieSectionPlanes.js";
+import type { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
+import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { applyAutoMovieSectionPlanes } from "../../internal/applyAutoMovieSectionPlanes.js";
 
 /**
  * Cut every material of a scene by one section plane, and return the call that
@@ -15,16 +14,7 @@ import { applyAutoMovieSectionPlanes } from "../internal/applyAutoMovieSectionPl
  * so the prior state of every material under the scene is recorded first. A
  * material whose plane count changes back is marked for recompilation.
  */
-export function applyAutoMovieInspectionSection(props: {
-  /** The scene to cut. */
-  scene: THREE.Scene;
-
-  /** The renderer whose local clipping the cut needs. */
-  renderer: IAutoMovieSectionRenderer;
-
-  /** The half-space cut away. */
-  section: IAutoMovieSectionPlane;
-}): () => void {
+export function applyAutoMovieInspectionSectionImplementation(props: AutoMovieRenderInspection.ApplySection.IProps): () => void {
   const enabled: boolean = props.renderer.localClippingEnabled;
   const clipping: Map<
     THREE.Material,

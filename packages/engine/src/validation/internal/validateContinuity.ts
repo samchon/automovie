@@ -6,8 +6,8 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { compareContinuityBoundary } from "../compareContinuityBoundary";
-import { readContinuityTolerances } from "../readContinuityTolerances";
+import { compareContinuityBoundary } from "./compareContinuityBoundary";
+import { readContinuityTolerances } from "./readContinuityTolerances";
 
 /**
  * Compare every prior-end actor to the incoming opening for missing presence,

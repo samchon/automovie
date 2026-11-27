@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import type { IAutoMovieChainContinuationObserver } from "./IAutoMovieChainContinuationObserver";
 import { continueHingedOrientation } from "./internal/continueHingedOrientation";
@@ -229,8 +229,8 @@ export namespace fitSeededChainToTarget {
     source: Omit<IAutoMovieFitChainToTargetProps, "target">,
     readAuthored?: Parameters<typeof prepareChainFit>[1],
     resolution: ReturnType<
-      typeof preparePoseResolution
-    > = preparePoseResolution(),
+      typeof AutoMovieEngineKinematics.preparePoseResolution
+    > = AutoMovieEngineKinematics.preparePoseResolution(),
     poseResolution?: prepareSkeletonPoseResolution.IRig,
     plant?: Parameters<typeof prepareChainFit>[5],
   ): IWorkspace {
@@ -283,8 +283,8 @@ export namespace fitSeededChainToTarget {
     source: ISource,
     readAuthored?: Parameters<typeof prepareChainFit>[1],
     resolution: ReturnType<
-      typeof preparePoseResolution
-    > = preparePoseResolution(),
+      typeof AutoMovieEngineKinematics.preparePoseResolution
+    > = AutoMovieEngineKinematics.preparePoseResolution(),
     poseResolution?: prepareSkeletonPoseResolution.IRig,
   ): (options: IOptions) => IWorkspace {
     let fixed: prepareChainFit.IWorkspace | undefined;
@@ -357,7 +357,7 @@ function twisted(
  */
 function preparedWorkspace(
   workspace: prepareChainFit.IWorkspace,
-  resolution: ReturnType<typeof preparePoseResolution>,
+  resolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   poseResolution?: prepareSkeletonPoseResolution.IRig,
 ): fitSeededChainToTarget.IWorkspace {
   const finish: (

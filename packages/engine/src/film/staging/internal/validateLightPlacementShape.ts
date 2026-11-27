@@ -7,7 +7,7 @@ import {
 
 import { Vector3 } from "../../../math/Vector3";
 import { AutoMovieEngineText } from "../../../text/AutoMovieEngineText";
-import { describeInvalidValue } from "../../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 import { validateColor } from "../../../validation/internal/validateColor";
 import { lightTypeOf } from "./lightTypeOf";
 

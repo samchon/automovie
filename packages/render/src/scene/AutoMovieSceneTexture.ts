@@ -1,5 +1,7 @@
+import { textureBindingAsset as textureBindingAssetImplementation } from "./internal/textureBindingAsset.js";
+
 import type * as THREE from "three";
-import { type IAutoMovieRenderTextureSource, type IAutoMovieRenderTextureTarget } from "@automovie/interface";
+import { type IAutoMovieRenderTextureSource, type IAutoMovieRenderTextureTarget, type AutoMovieTextureBinding } from "@automovie/interface";
 import { readAutoMovieTextureSource as readAutoMovieTextureSourceImplementation } from "./internal/readAutoMovieTextureSource.js";
 import { readAutoMovieRenderTextureTarget as readAutoMovieRenderTextureTargetImplementation } from "./internal/readAutoMovieRenderTextureTarget.js";
 
@@ -41,5 +43,14 @@ export namespace AutoMovieSceneTexture {
    */
   export function readRenderTarget(owner: string, target: THREE.RenderTarget, transmissionScope?: string): IAutoMovieRenderTextureTarget {
     return readAutoMovieRenderTextureTargetImplementation(owner, target, transmissionScope);
+  }
+
+  /**
+   * Read the asset id from an admitted legacy string or structured texture
+   * binding. Sampling configuration belongs to the resolver and cache rather than
+   * this selector.
+   */
+  export function bindingAsset(binding: AutoMovieTextureBinding): string {
+    return textureBindingAssetImplementation(binding);
   }
 }

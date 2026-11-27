@@ -1,4 +1,4 @@
-import { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
@@ -67,6 +67,6 @@ export namespace prepareHumanSegmentPose {
      * First demand acquires the exact reader; release this getter with the
      * evaluation.
      */
-    resolution(): ReturnType<typeof preparePoseResolution>;
+    resolution(): ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>;
   }
 }

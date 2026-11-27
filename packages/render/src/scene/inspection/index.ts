@@ -1,6 +1,4 @@
 
-export * from "./applyAutoMovieInspectionSection.js";
-export * from "./applyAutoMovieInspectionShade.js";
 export * from "./AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 export * from "./AUTO_MOVIE_INSPECTION_KEYS.js";
 export * from "./AUTO_MOVIE_INSPECTION_KINDS.js";

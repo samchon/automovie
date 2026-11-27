@@ -55,6 +55,8 @@ import { resolveLookAt as resolveLookAtImplementation } from "./internal/resolve
 import { resolvePose as resolvePoseImplementation } from "./internal/resolvePose";
 
 import type { AutoMovieEngineKinematicsTypes } from "./AutoMovieEngineKinematicsTypes";
+import { preparePoseResolution as preparePoseResolutionImplementation } from "./internal/preparePoseResolution";
+import { readPreparedBendClinical as readPreparedBendClinicalImplementation } from "./internal/readPreparedBendClinical";
 
 /** Pure forward-kinematics and authored-gaze operations for AutoMovie poses. */
 export namespace AutoMovieEngineKinematics {
@@ -1323,4 +1325,15 @@ export namespace AutoMovieEngineKinematics {
   export function resolveBoneTarget(target: IAutoMovieActionTarget, contexts: ReadonlyMap<string, IAutoMovieActorContext>, motions: Readonly<Record<string, IAutoMovieMotion>> | undefined, seconds: number): IAutoMovieVector3 | null {
     return resolveBoneTargetImplementation(target, contexts, motions, seconds);
   }
-}
+
+  /** Prepare pure joint-composition readers for one synchronous motion evaluation. */
+  export function preparePoseResolution(): IAutoMoviePoseResolution {
+    return preparePoseResolutionImplementation();
+  }
+
+  /** Capture current clinical directions and limits in comparison order. */
+  export function readPreparedBendClinical(
+    input: AutoMovieEngineKinematicsTypes.IReadPreparedBendClinicalInput,
+  ): readonly (number | string | null | undefined)[] {
+    return readPreparedBendClinicalImplementation(input);
+  }}

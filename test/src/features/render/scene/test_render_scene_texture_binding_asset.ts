@@ -1,4 +1,4 @@
-import { textureBindingAsset } from "@automovie/render";
+import { AutoMovieSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -10,10 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A structured binding names its asset.
  */
 export function test_render_scene_texture_binding_asset(): void {
-  TestValidator.equals("string", textureBindingAsset("wood.png"), "wood.png");
+  TestValidator.equals("string", AutoMovieSceneTexture.bindingAsset("wood.png"), "wood.png");
   TestValidator.equals(
     "structured",
-    textureBindingAsset({ asset: "brick.png", texCoord: 0, colorSpace: "srgb" }),
+    AutoMovieSceneTexture.bindingAsset({ asset: "brick.png", texCoord: 0, colorSpace: "srgb" }),
     "brick.png",
   );
 }

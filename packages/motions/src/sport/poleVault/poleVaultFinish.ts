@@ -1,9 +1,4 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  preparePoseResolution,
-} from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -177,9 +172,9 @@ export function poleVaultFinish(
     material?.seconds ??
     ((): number => {
       const [floorResolution, floorProjection]: [
-        ReturnType<typeof preparePoseResolution>,
+        ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
         ReturnType<typeof prepareHumanPostureProjection>,
-      ] = [preparePoseResolution(), prepareHumanPostureProjection(body)];
+      ] = [AutoMovieEngineKinematics.preparePoseResolution(), prepareHumanPostureProjection(body)];
       const readLowest: ReturnType<typeof GymnasticsFlight.prepareLowest> =
         GymnasticsFlight.prepareLowest(body);
       const lowest: (t: number) => number = (t: number): number =>

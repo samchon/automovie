@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, preparePoseResolution } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -72,7 +72,7 @@ export function HumanArmFrame(
   setup: IAutoMovieMotionHumanArmGeometry.ISetup,
   base: G.IBase,
   alone: boolean,
-  prepared?: ReturnType<typeof preparePoseResolution>,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
 ): IAutoMovieMotionHumanArmGeometry.IFrame {
   const body: IAutoMovieMotionHumanBody = setup.body;
   const bones: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = setup.bones;

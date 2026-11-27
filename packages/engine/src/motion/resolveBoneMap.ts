@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
-import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
 import { resolvePose } from "../kinematics/internal/resolvePose";
 
 /**
@@ -27,7 +27,7 @@ export const resolveBoneMap: (
   topology?: IAutoMovieSkeletonTopology,
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-  prepared?: ReturnType<typeof preparePoseResolution>,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   requested?: ReadonlySet<AutoMovieHumanoidBone>,
 ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
   skeleton: IAutoMovieSkeleton,
@@ -35,7 +35,7 @@ export const resolveBoneMap: (
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
-  prepared?: ReturnType<typeof preparePoseResolution>,
+  prepared?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   requested?: ReadonlySet<AutoMovieHumanoidBone>,
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
   const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();

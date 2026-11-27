@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, ROM_TOLERANCE, Vector3, physicalShapeSegmentDistance, preparePoseResolution, AutoMovieEngineKinematics } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, ROM_TOLERANCE, Vector3, physicalShapeSegmentDistance, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -90,7 +90,7 @@ export namespace HumanDigitFit {
     for (const digit of HumanPosture.DIGITS) {
       const goal: IAutoMovieHumanDigitGoal | undefined = digits[digit];
       if (goal === undefined) continue;
-      const workspace: ReturnType<typeof preparePoseResolution> = prepared();
+      const workspace: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> = prepared();
       const side: AutoMovieHumanSide = digit.startsWith("left")
         ? "left"
         : "right";

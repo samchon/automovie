@@ -12,7 +12,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { appendLightMotionsArtifact } from "../../validation/appendLightMotionsArtifact";
+import { appendLightMotionsArtifact } from "../../validation/internal/appendLightMotionsArtifact";
 import { compilePracticalLightMotion } from "./compilePracticalLightMotion";
 import { compileAutoMovieFlameFlicker } from "../flame/internal/compileAutoMovieFlameFlicker";
 

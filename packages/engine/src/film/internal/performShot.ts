@@ -37,9 +37,9 @@ import { transformFormationPoint } from "../../populationRuntime/formation/inter
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { admitShotEditorialMarkers } from "../../validation/internal/admitShotEditorialMarkers";
-import { appendLightMotionsArtifact } from "../../validation/appendLightMotionsArtifact";
+import { appendLightMotionsArtifact } from "../../validation/internal/appendLightMotionsArtifact";
 import { appendPolygonBodyCuesArtifact } from "../../validation/internal/appendPolygonBodyCuesArtifact";
-import { describeInvalidValue } from "../../validation/describeInvalidValue";
+import { describeInvalidValue } from "../../validation/internal/describeInvalidValue";
 import { validateShotArtifact } from "../../validation/internal/validateShotArtifact";
 import { admitPerformShotSurfaces } from "./admitPerformShotSurfaces";
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";

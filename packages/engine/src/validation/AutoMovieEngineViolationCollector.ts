@@ -6,7 +6,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { describeInvalidValue } from "./describeInvalidValue";
+import { describeInvalidValue } from "./internal/describeInvalidValue";
 import { directionLength } from "./internal/directionLength";
 import { toValidation } from "./toValidation";
 import { violation } from "./violation";

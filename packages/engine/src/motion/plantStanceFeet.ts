@@ -13,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
-import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import { AutoMovieEngineKinematics } from "../kinematics/AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { groundFunction } from "../space/internal/groundFunction";
 import { assemblePlantedFeet } from "./assemblePlantedFeet";
@@ -68,8 +68,8 @@ export function plantStanceFeet(
   const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(
     props.skeleton,
   );
-  const resolution: ReturnType<typeof preparePoseResolution> =
-    preparePoseResolution();
+  const resolution: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
+    AutoMovieEngineKinematics.preparePoseResolution();
   const demand: prepareSkeletonPoseResolution.IBoneDemand | undefined =
     props.poseResolution?.prepareBones(
       new Set(

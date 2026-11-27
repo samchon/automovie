@@ -5,7 +5,7 @@ import {
 
 import { appendCameraClearanceArtifact } from "./appendCameraClearanceArtifact";
 import { appendCameraIntentArtifact } from "./appendCameraIntentArtifact";
-import { appendEditorialMarkersArtifact } from "./internal/appendEditorialMarkersArtifact";
+import { appendEditorialMarkersArtifact } from "./appendEditorialMarkersArtifact";
 import { appendShotCoverageArtifact } from "./appendShotCoverageArtifact";
 import { appendShotEventsArtifact } from "./appendShotEventsArtifact";
 

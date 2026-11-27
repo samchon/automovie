@@ -7,7 +7,7 @@ import type {
   IAutoMovieSceneNode,
 } from "@automovie/interface";
 
-import { pushViolation } from "../pushViolation";
+import { pushViolation } from "./pushViolation";
 
 /** Model facts needed to resolve a practical track's target and materials. */
 type PracticalSurfaceModel = Pick<

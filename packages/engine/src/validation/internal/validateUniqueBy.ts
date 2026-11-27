@@ -3,7 +3,7 @@ import {
   type IAutoMovieValidateUniqueBy,
 } from "@automovie/interface";
 
-import { pushViolation } from "../pushViolation";
+import { pushViolation } from "./pushViolation";
 
 /** Scan ids with a seen set, reporting later occurrences at supplied paths. */
 export function validateUniqueBy(

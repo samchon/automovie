@@ -18,7 +18,7 @@ import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../../kinemati
 import { sampleMotion } from "../../motion/sampleMotion";
 import { windowSampleTimes } from "../../motion/internal/windowSampleTimes";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { fkReachableBones } from "../fkReachableBones";
+import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 
 const DEFAULT_SAMPLE_RATE: number = 24;

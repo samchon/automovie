@@ -23,7 +23,7 @@ export * from "./createAutoMovieClosedSphereGeometry.js";
 
 
 
-export * from "./textureBindingAsset.js";
+
 export * from "./AutoMovieGeometryPhysicalVertices.js";
 export * from "./subsurfaceShading/index.js";
 export * from "./detailNormalShading/index.js";
@@ -67,7 +67,7 @@ export * from "./buildScene.js";
 
 export * from "./IAutoMovieSceneObject.js";
 export * from "./IAutoMovieSceneSoftProps.js";
-export * from "./applyAutoMovieShadowParticipation.js";
+
 
 export * from "./medium/index.js";
 
@@ -79,9 +79,9 @@ export * from "./propArticulation/index.js";
 export * from "./IAutoMovieRendererEnvironmentHandle.js";
 
 export * from "./renderAutoMovieScenePass.js";
-export * from "./invalidateAutoMovieSceneShadowPrograms.js";
 
-export * from "./assertAutoMovieSceneShadowProfile.js";
+
+
 
 export * from "./IAutoMovieShadowRetirementHost.js";
 export * from "./IAutoMovieShadowTextureHost.js";

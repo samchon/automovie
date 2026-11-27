@@ -2,7 +2,7 @@ import { AutoMovieArchetypeSmoking } from "../AutoMovieArchetypeSmoking";
 import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
 import "../SmokingPropDraw";
 import "../AutoMovieArchetypeCigarette";
-import "../createLighter";
+import "../AutoMovieArchetypeLighter";
 
 /**
  * Read a saved smoking prop recipe and call the producer for its kind.

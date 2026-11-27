@@ -1,4 +1,4 @@
-import { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -30,7 +30,7 @@ export function overlayContactGoals(
   seconds: number,
   person: IAutoMovieMotionHumanSegment.IPerson,
   weight: number,
-  resolution?: () => ReturnType<typeof preparePoseResolution>,
+  resolution?: () => ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
 ): IAutoMovieMotionHumanPosture["limbs"] {
   const share: number = (seconds - overlay.start) / overlay.plan.duration;
   const contacts: IAutoMovieMotionHumanPosture["limbs"] = {};

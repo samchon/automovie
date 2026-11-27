@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { clipTrackShapeFaults } from "../clipTrackShapeFaults";
-import { pushViolation } from "../pushViolation";
+import { pushViolation } from "./pushViolation";
 import { validateHonorableChannel } from "./validateHonorableChannel";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";

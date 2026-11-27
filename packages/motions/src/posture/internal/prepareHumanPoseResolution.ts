@@ -1,4 +1,4 @@
-import { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMoviePoseResolution } from "@automovie/interface";
 
 /**
@@ -13,10 +13,10 @@ import type { IAutoMoviePoseResolution } from "@automovie/interface";
  */
 export function prepareHumanPoseResolution(
   source?: IAutoMoviePoseResolution.ISource,
-): () => ReturnType<typeof preparePoseResolution> {
-  const reader: ReturnType<typeof preparePoseResolution> =
+): () => ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> {
+  const reader: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> =
     prepareHumanPoseResolution.read(source);
-  return (): ReturnType<typeof preparePoseResolution> => reader;
+  return (): ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> => reader;
 }
 
 /** The reader an evaluation reads and whether it is the engine's own. */
@@ -30,8 +30,8 @@ export namespace prepareHumanPoseResolution {
    */
   export function read(
     source?: IAutoMoviePoseResolution.ISource,
-  ): ReturnType<typeof preparePoseResolution> {
-    if (source === undefined) return preparePoseResolution();
+  ): ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> {
+    if (source === undefined) return AutoMovieEngineKinematics.preparePoseResolution();
     return typeof source === "function" ? source() : source;
   }
 }

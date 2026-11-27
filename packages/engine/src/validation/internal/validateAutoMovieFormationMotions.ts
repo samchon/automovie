@@ -13,7 +13,7 @@ import {
 
 import { autoMovieModelGaits } from "../../autoMovieModelGaits";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { engineDiagnostic } from "../engineDiagnostic";
+import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
  * Check bounded formation cues against participating compiled formations,

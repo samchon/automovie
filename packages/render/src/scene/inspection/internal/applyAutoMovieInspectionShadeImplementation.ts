@@ -1,10 +1,10 @@
 import type { AutoMovieInspectionShade } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
-import { applyRenderMode } from "../applyRenderMode.js";
-import { overrideAutoMovieRenderModeMaterials } from "../internal/overrideAutoMovieRenderModeMaterials.js";
-import { AUTO_MOVIE_INSPECTION_PALETTE } from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
+import type { IAutoMovieRenderModeHandle } from "../../IAutoMovieRenderModeHandle.js";
+import { applyRenderMode } from "../../applyRenderMode.js";
+import { overrideAutoMovieRenderModeMaterials } from "../../internal/overrideAutoMovieRenderModeMaterials.js";
+import { AUTO_MOVIE_INSPECTION_PALETTE } from "../AUTO_MOVIE_INSPECTION_PALETTE.js";
 
 /**
  * Vertex stage of the faces shade: three.js's own deformation, projection and
@@ -60,7 +60,7 @@ void main() {
  * `update` does nothing. The `outline` and `pose` passes hold shells and
  * segments of their own, and their `update` is the pass's.
  */
-export function applyAutoMovieInspectionShade(
+export function applyAutoMovieInspectionShadeImplementation(
   scene: THREE.Scene,
   shade: AutoMovieInspectionShade,
 ): {

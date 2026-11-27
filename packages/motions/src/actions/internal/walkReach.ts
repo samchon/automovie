@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, minimumJerk, preparePoseResolution, AutoMovieEngineMath } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, minimumJerk, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -170,7 +170,7 @@ export namespace walkReach {
     feet: Readonly<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>
     >,
-    resolution?: ReturnType<typeof preparePoseResolution>,
+    resolution?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   ): IPelvis {
     const { yaw, pivots }: Pick<IPelvis, Pelvis> = turn(planned, feet);
     return {

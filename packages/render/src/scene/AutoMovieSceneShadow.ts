@@ -1,3 +1,7 @@
+import { applyAutoMovieShadowParticipation as applyAutoMovieShadowParticipationImplementation } from "./internal/applyAutoMovieShadowParticipation.js";
+import { assertAutoMovieSceneShadowProfile as assertAutoMovieSceneShadowProfileImplementation } from "./internal/assertAutoMovieSceneShadowProfile.js";
+import { invalidateAutoMovieSceneShadowPrograms as invalidateAutoMovieSceneShadowProgramsImplementation } from "./internal/invalidateAutoMovieSceneShadowPrograms.js";
+
 import type * as THREE from "three";
 import { type IAutoMovieFramebufferRenderer } from "./IAutoMovieFramebufferRenderer.js";
 import { type IAutoMovieShadowRetirementHost } from "./IAutoMovieShadowRetirementHost.js";
@@ -57,5 +61,70 @@ export namespace AutoMovieSceneShadow {
    */
   export function readTextureTargets(scope: string, renderer: IAutoMovieShadowTextureHost, lights: ReadonlyMap<string, THREE.Light>, effectiveShadows?: IAutoMovieSceneEnvironment["shadows"]): IAutoMovieRenderTextureTarget[] {
     return readAutoMovieShadowTextureTargetsImplementation(scope, renderer, lights, effectiveShadows);
+  }
+
+  /**
+   * Say which objects cast a shadow and which receive one.
+   *
+   * `stageScene` validates a light's `castShadow` and refuses shadow settings
+   * without it; the render inventory counts casters and its budget constrains
+   * that count. {@link buildLight} applies the flag and shadow camera settings,
+   * while {@link applyRendererEnvironment} sets the renderer shadow policy
+   * reversibly. This adapter supplies the remaining mesh participation flags;
+   * enabled maps and casting lights alone do not make a mesh participate.
+   *
+   * That absence is not visible as an absence. A benchmark authored a fascia and
+   * soffit band with a deliberate dark recess above the wall, and the darkening
+   * reads as a shadow in every captured frame while being nothing but geometry
+   * and material response to light direction. Building the appearance out of
+   * geometry is what an author reaches for when the mechanism is missing and no
+   * gate says it is missing.
+   *
+   * The requirement asks for caster and receiver to be **distinguished** rather
+   * than blanket-enabled, and the product knows the difference at exactly one
+   * place, which is here. A model's parts are solids: they cast and they receive,
+   * except that a mesh with a blended (transparent) material receives but does
+   * not cast, since a shadow map draws it fully opaque. The standable surfaces
+   * under {@link SPACE_GROUP_NAME} are open patches for structural guides and
+   * optional flat color. They neither cast nor receive. A volume-free patch
+   * casting onto its own plane produces depth acne, and its basic material has no
+   * shadow response. Objects without geometry are untouched.
+   *
+   * Exported, and separate from {@link buildScene}, for the reason
+   * {@link applySceneFog} is: a host that assembles its own scene graph — a
+   * production's film page, which is what the offline renderer captures — must
+   * make the same call, or it captures a production whose shadows were declared
+   * and never drawn.
+   *
+   * A scene that declares no shadows is unaffected. `three.js` compiles no shadow
+   * code and renders no depth pass while `renderer.shadowMap.enabled` is false,
+   * so these flags are inert until a production turns shadows on, and only such a
+   * production sees its frames change.
+   */
+  export function applyParticipation(root: THREE.Object3D): void {
+    applyAutoMovieShadowParticipationImplementation(root);
+  }
+
+  /**
+   * Admit an actual scene's punctual shadow casters through the Engine profile.
+   * Include hidden lights because their retained targets can participate in a
+   * later sample. Runtime names, or native UUIDs when unnamed, identify this
+   * scene projection; its light-array paths are not authored AST positions. Area
+   * and ambient lights have no punctual shadow product. The caller resolves
+   * effective renderer policy before any mutable pass state or GPU allocation.
+   */
+  export function assertProfile(scene: THREE.Scene, shadows: IAutoMovieSceneEnvironment["shadows"]): void {
+    assertAutoMovieSceneShadowProfileImplementation(scene, shadows);
+  }
+
+  /**
+   * Invalidate unique scene materials after the effective shadow enablement or
+   * filter changes. Three's program keys include shadow state, but changing the
+   * renderer flag alone does not always reevaluate an existing material program.
+   * The public needsUpdate boundary makes that changed state observable without
+   * touching SDK methods or caches. Shared materials are marked only once.
+   */
+  export function invalidatePrograms(scene: THREE.Scene): void {
+    invalidateAutoMovieSceneShadowProgramsImplementation(scene);
   }
 }

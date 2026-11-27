@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { appendMeshTopology } from "../appendMeshTopology";
+import { appendMeshTopology } from "./appendMeshTopology";
 
 /**
  * Run shared welded topology checks with caller-selected closedness policy and

@@ -1,4 +1,4 @@
-import { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -56,7 +56,7 @@ export function prepareHumanArmRoom(
     forearm: 0,
     segments: 0,
   },
-  operation?: ReturnType<typeof preparePoseResolution>,
+  operation?: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,
   read?: prepareHumanArmRoom.IRead,
   threshold?: number,
 ): (

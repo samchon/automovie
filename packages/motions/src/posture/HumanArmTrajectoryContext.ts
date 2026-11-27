@@ -1,4 +1,4 @@
-import { preparePoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmClearance,
@@ -119,8 +119,8 @@ function built(
   // leaves to, so the arm resting there is that one.
   const points: W.IWaypoint[] = problem.times.map(
     (_: number, k: number): W.IWaypoint => {
-      const prepared: ReturnType<typeof preparePoseResolution> | undefined =
-        setups.length > 1 ? preparePoseResolution() : undefined;
+      const prepared: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution> | undefined =
+        setups.length > 1 ? AutoMovieEngineKinematics.preparePoseResolution() : undefined;
       // Each arm reads its own view of the base where it has one
       // (`IBase.arms`): its own rests, never the other hand's.
       const base: HumanArmTrajectoryContext.IProblem["bases"][number] =
