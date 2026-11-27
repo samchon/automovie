@@ -3,7 +3,7 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateExpression } from "../validateExpression";
+import { validateExpression } from "./validateExpression";
 
 /**
  * Convert validateExpression's collected violations into the canonical

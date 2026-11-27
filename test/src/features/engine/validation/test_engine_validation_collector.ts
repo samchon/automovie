@@ -1,4 +1,4 @@
-import { AutoMovieEngineViolationCollector, violation } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieValidation,

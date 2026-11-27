@@ -1,4 +1,4 @@
-import { Vector3, makeActorSynthesizer, sampleMotion, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Vector3, makeActorSynthesizer, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
@@ -92,7 +92,7 @@ export function assertFilmVelocityAndOpeningContinuity(
         (): boolean =>
           velocitySecond.success &&
           Vector3.length(
-            sampleMotion(velocitySecond.source.motions[0]!, 1).pose.root
+            AutoMovieEngineMotionSampling.sampleMotion(velocitySecond.source.motions[0]!, 1).pose.root
               ?.translation ?? { x: 0, y: 0, z: 0 },
           ) >=
             0.5 - 1e-9,

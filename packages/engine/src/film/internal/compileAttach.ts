@@ -17,7 +17,7 @@ import { resolveAttachment } from "../../kinematics/resolveAttachment";
 import { Quaternion } from "../../math/Quaternion";
 import { Transform } from "../../math/Transform";
 import { Vector3 } from "../../math/Vector3";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
 /** Default child frame when the author gives no offset. */
 const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
@@ -111,7 +111,7 @@ export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProp
   for (let i: number = 0; i <= count; ++i) {
     const t: number = props.start + (i / count) * props.duration;
     const local: IAutoMovieTransform =
-      restBone ?? boneAt(sampleMotion.pose(parentMotion!, t));
+      restBone ?? boneAt(AutoMovieEngineMotionSampling.samplePose(parentMotion!, t));
     const parentWorld: IAutoMovieTransform =
       props.parentTransformAt?.(t) ?? props.parentTransform;
     const worldPos: IAutoMovieVector3 = Vector3.add(

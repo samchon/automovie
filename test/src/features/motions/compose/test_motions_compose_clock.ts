@@ -1,4 +1,4 @@
-import { sampleMotion } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieMotionClock,
@@ -45,14 +45,14 @@ function scenario_test_motions_compose_clock_sample_keys(): void {
     [1, false, 60],
     [-1, true, 20],
   ] as const) {
-    const sample = sampleMotion({ ...clip, loop }, seconds).pose;
+    const sample = AutoMovieEngineMotionSampling.sampleMotion({ ...clip, loop }, seconds).pose;
     TestValidator.equals("target skeleton", sample.skeleton, clip.skeleton);
     TestValidator.predicate(
       `elbow at ${seconds}s, loop=${loop}`,
       nclose(sample.joints[0]?.flexion ?? NaN, expected, 1e-9),
     );
   }
-  const zero = sampleMotion({ ...clip, duration: 0, loop: true }, 5);
+  const zero = AutoMovieEngineMotionSampling.sampleMotion({ ...clip, duration: 0, loop: true }, 5);
   TestValidator.predicate(
     "a zero-duration clip holds its entry",
     nclose(zero.pose.joints[0]?.flexion ?? NaN, 0, 0),

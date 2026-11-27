@@ -17,7 +17,7 @@ import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { Quaternion } from "../../math/Quaternion";
 import { MOTION_ROOT_NODE_ID } from "../../resolve/constants/MOTION_ROOT_NODE_ID";
 import { lowerSkeletonNodes } from "../../resolve/internal/lowerSkeletonNodes";
-import { sampleMotion } from "../sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../AutoMovieEngineMotionSampling";
 import { sampleTimes } from "./sampleTimes";
 
 const DEFAULT_SAMPLE_RATE: number = 24;
@@ -75,7 +75,7 @@ export function motionToClip(
     skeletonJointAxes(skeleton, props.jointAxes);
   const times: number[] = sampleTimes(motion.duration, sampleRate);
   const samples: IAutoMoviePose[] = times.map(
-    (time: number): IAutoMoviePose => sampleMotion.pose(motion, time),
+    (time: number): IAutoMoviePose => AutoMovieEngineMotionSampling.samplePose(motion, time),
   );
   const jointsBySample: Map<AutoMovieHumanoidBone, IAutoMovieJointPose>[] =
     samples.map(

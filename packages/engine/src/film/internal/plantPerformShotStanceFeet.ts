@@ -23,7 +23,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { STATIC_SUPPORT_HEIGHT_EPSILON } from "../../motion/constants/STATIC_SUPPORT_HEIGHT_EPSILON";
 import { plantStanceFeet } from "../../motion/plantStanceFeet";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { sampleStanceTimes } from "../../motion/internal/sampleStanceTimes";
 import { spaceGround } from "../../space/internal/spaceGround";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
@@ -205,7 +205,7 @@ export function plantPerformShotStanceFeet(
         terminalRoot ??=
           motion === undefined
             ? { x: 0, y: 0, z: 0 }
-            : (sampleMotion(motion, motion.duration).pose.root?.translation ?? {
+            : (AutoMovieEngineMotionSampling.sampleMotion(motion, motion.duration).pose.root?.translation ?? {
                 x: 0,
                 y: 0,
                 z: 0,
@@ -227,7 +227,7 @@ export function plantPerformShotStanceFeet(
         ))
           support.at(
             time,
-            sampleMotion(motion, time).pose.root?.translation ?? {
+            AutoMovieEngineMotionSampling.sampleMotion(motion, time).pose.root?.translation ?? {
               x: 0,
               y: 0,
               z: 0,

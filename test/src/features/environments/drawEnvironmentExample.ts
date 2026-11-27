@@ -1,4 +1,4 @@
-import { sampleMotion, AutoMovieEngineFilm, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineFilm, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   IAutoMovieCamera,
@@ -177,7 +177,7 @@ export function drawEnvironmentExample(
             ? undefined
             : motionTable.get(performance.motion);
         if (figure === undefined || motion === undefined) continue;
-        const pose: IAutoMoviePose = sampleMotion(
+        const pose: IAutoMoviePose = AutoMovieEngineMotionSampling.sampleMotion(
           motion,
           Math.max(0, seconds - performance.startOffset),
         ).pose;

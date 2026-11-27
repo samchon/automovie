@@ -12,32 +12,32 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { AutoMovieEngineKeyframeSearch } from "../math/AutoMovieEngineKeyframeSearch";
-import { Quaternion } from "../math/Quaternion";
-import { Transform } from "../math/Transform";
-import { Vector3 } from "../math/Vector3";
-import { normalizeClipTime } from "../math/internal/normalizeClipTime";
-import { cubicBezierEasing } from "./internal/cubicBezierEasing";
-import { ease } from "./internal/ease";
+import { AutoMovieEngineKeyframeSearch } from "../../math/AutoMovieEngineKeyframeSearch";
+import { Quaternion } from "../../math/Quaternion";
+import { Transform } from "../../math/Transform";
+import { Vector3 } from "../../math/Vector3";
+import { normalizeClipTime } from "../../math/internal/normalizeClipTime";
+import { cubicBezierEasing } from "./cubicBezierEasing";
+import { ease } from "./ease";
 
 const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
 
-/**
- * Sample caller-admitted clinical motion at finite seconds using clamped or
- * looping clip time and the outgoing segment's easing. Ordered finite keyframes
- * and valid pose/easing data are validateMotion's premise. End samples
- * shallowly share frame data; interior samples interpolate joints, roots and
- * expressions, treating unauthored values as neutral.
- */
-export function sampleMotion(
-  motion: IAutoMovieMotion,
-  seconds: number,
-): IAutoMovieMotionSample {
-  return readAt(motion, seconds, toSample, between);
-}
-
 /** Pose and root projections for geometry and world placement. */
 export namespace sampleMotion {
+  /**
+   * Sample caller-admitted clinical motion at finite seconds using clamped or
+   * looping clip time and the outgoing segment's easing. Ordered finite keyframes
+   * and valid pose/easing data are validateMotion's premise. End samples
+   * shallowly share frame data; interior samples interpolate joints, roots and
+   * expressions, treating unauthored values as neutral.
+   */
+  export function sample(
+    motion: IAutoMovieMotion,
+    seconds: number,
+  ): IAutoMovieMotionSample {
+    return readAt(motion, seconds, toSample, between);
+  }
+
   /**
    * Sample the clinical pose of admitted motion at clip-local seconds. This
    * uses the full sample's skeleton, joint order, easing and neutral values.

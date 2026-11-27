@@ -3,5 +3,7 @@
 export { markAutoMovieSlip } from "./validation/internal/markAutoMovieSlip";
 export { unsupportedAutoMovieMaterialExtensions } from "./validation/internal/unsupportedAutoMovieMaterialExtensions";
 export { validateUniqueIds } from "./validation/internal/validateUniqueIds";
+export { violation } from "./validation/internal/violation";
+export { validateExpression } from "./validation/internal/validateExpression";
 export * from "./film/internal";
 export { trianglesOf } from "./geometry/planar-region/internal/trianglesOf";

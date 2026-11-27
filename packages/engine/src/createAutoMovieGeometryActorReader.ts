@@ -15,7 +15,7 @@ import { placeTransformedPoint } from "./film/internal/placeTransformedPoint";
 import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "./kinematics/internal/resolvePose";
 import { Transform } from "./math/Transform";
-import { sampleMotion } from "./motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "./motion/AutoMovieEngineMotionSampling";
 import { sampleClipSequence } from "./resolve/internal/sampleClipSequence";
 
 /**
@@ -204,7 +204,7 @@ function actorPoseAt(
     throw new Error(
       `Actor "${actor}" references missing motion "${motionId}". Recompile the shot source.`,
     );
-  return sampleMotion.pose(
+  return AutoMovieEngineMotionSampling.samplePose(
     motion,
     performance === undefined
       ? time

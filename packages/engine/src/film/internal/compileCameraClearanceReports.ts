@@ -20,7 +20,7 @@ import {
   type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { validateModel } from "../../validation/internal/validateModel";
@@ -358,7 +358,7 @@ function movingBounds(
   const base: IAutoMovieTransform =
     actorMotion === undefined
       ? node.transform
-      : foldRoot(node.transform, sampleMotion.root(actorMotion, seconds));
+      : foldRoot(node.transform, AutoMovieEngineMotionSampling.sampleRoot(actorMotion, seconds));
   const translation: number[] | undefined = sampled.get(
     channelKey({ kind: "node", node: node.id, path: "translation" }),
   )?.value;

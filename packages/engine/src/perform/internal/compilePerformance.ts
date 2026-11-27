@@ -18,7 +18,6 @@ import type {
 } from "@automovie/interface";
 
 import { arrangeMotion } from "../../motion/internal/arrangeMotion";
-import { sampleMotion } from "../../motion/sampleMotion";
 import { sequenceMotion } from "../../motion/internal/sequenceMotion";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
@@ -196,7 +195,7 @@ function layerClips(id: string, clips: IAutoMovieMotion[]): IAutoMovieMotion {
       let expression: IAutoMovieExpression | null = null;
       for (const { clip, first, last } of envelopes) {
         if (time < first - 1e-9) continue; // not started: no claim yet
-        const s: IAutoMovieMotionSample = sampleMotion(clip, time);
+        const s: IAutoMovieMotionSample = AutoMovieEngineMotionSampling.sampleMotion(clip, time);
         if (time > last + 1e-9) {
           if (s.pose.root !== null)
             samples.push({

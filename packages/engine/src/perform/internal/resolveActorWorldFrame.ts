@@ -9,7 +9,7 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { actorContextWorldFrame } from "./actorContextWorldFrame";
 
 /**
@@ -24,7 +24,7 @@ export function resolveActorWorldFrame(
   seconds: number,
 ): IAutoMovieActorWorldFrame | null {
   if (motion === undefined) return null;
-  const root: IAutoMovieTransform | null = sampleMotion.root(motion, seconds);
+  const root: IAutoMovieTransform | null = AutoMovieEngineMotionSampling.sampleRoot(motion, seconds);
   if (root === null) return null;
   const staged: IAutoMovieActorWorldFrame = actorContextWorldFrame(context);
   const rotation: IAutoMovieQuaternion = Quaternion.multiply(

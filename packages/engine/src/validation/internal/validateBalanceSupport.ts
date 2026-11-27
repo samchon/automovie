@@ -12,7 +12,7 @@ import {
 import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../../kinematics/index";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { pointHullDistance } from "../../math/internal/pointHullDistance";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { windowSampleTimes } from "../../motion/internal/windowSampleTimes";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
@@ -205,7 +205,7 @@ export function validateBalanceSupport(
         IAutoMovieVector3
       >();
       const pose: IAutoMovieResolvedBone[] = AutoMovieEngineKinematics.resolvePose(
-        sampleMotion.pose(props.motion, time),
+        AutoMovieEngineMotionSampling.samplePose(props.motion, time),
         props.skeleton,
         props.jointAxes,
         props.restFrames,

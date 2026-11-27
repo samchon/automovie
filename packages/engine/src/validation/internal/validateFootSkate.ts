@@ -15,7 +15,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../../kinematics/index";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { windowSampleTimes } from "../../motion/internal/windowSampleTimes";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
@@ -189,7 +189,7 @@ const sampleWindow: (
   windowSampleTimes(contact.start, contact.end, sampleRate).map(
     (time: number): { time: number; position: IAutoMovieVector3 } => {
       const resolved: IAutoMovieResolvedBone | undefined = AutoMovieEngineKinematics.resolvePose(
-        sampleMotion.pose(motion, time),
+        AutoMovieEngineMotionSampling.samplePose(motion, time),
         skeleton,
         jointAxes,
         restFrames,

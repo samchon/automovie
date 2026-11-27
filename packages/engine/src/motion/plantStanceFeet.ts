@@ -21,7 +21,7 @@ import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
 import { pinStanceTargets } from "./pinStanceTargets";
 import { rekeyPlantedFeet } from "./rekeyPlantedFeet";
 import { resolveBoneMap } from "./resolveBoneMap";
-import { sampleMotion } from "./sampleMotion";
+import { AutoMovieEngineMotionSampling } from "./AutoMovieEngineMotionSampling";
 import { sampleStanceTimes } from "./internal/sampleStanceTimes";
 
 const DEFAULT_GROUND_Y: number = 0;
@@ -83,7 +83,7 @@ export function plantStanceFeet(
     support?.boundaries,
   );
   const poses: IAutoMovieMotionSample[] = times.map(
-    (time: number): IAutoMovieMotionSample => sampleMotion(props.motion, time),
+    (time: number): IAutoMovieMotionSample => AutoMovieEngineMotionSampling.sampleMotion(props.motion, time),
   );
   if (support !== undefined)
     poses.forEach((sampled: IAutoMovieMotionSample, i: number): void => {

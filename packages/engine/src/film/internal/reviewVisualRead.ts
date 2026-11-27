@@ -13,7 +13,7 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 import { roundToThousandths } from "../../math/internal/roundToThousandths";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
 import { foldRoot } from "./foldRoot";
 import { grammarDiagnosticsToReviewNotes } from "./grammarDiagnosticsToReviewNotes";
@@ -283,7 +283,7 @@ function missNote(
 function worldRootAt(performer: IPerformer, t: number): IAutoMovieVector3 {
   return foldRoot(
     performer.node.transform,
-    sampleMotion.root(performer.motion, Math.max(0, t - performer.offset)),
+    AutoMovieEngineMotionSampling.sampleRoot(performer.motion, Math.max(0, t - performer.offset)),
   ).translation;
 }
 

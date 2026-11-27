@@ -17,7 +17,7 @@ import {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
@@ -259,7 +259,7 @@ function actorAt(
     pose:
       motion === undefined
         ? node.pose
-        : sampleMotion.pose(motion.motion, localTime),
+        : AutoMovieEngineMotionSampling.samplePose(motion.motion, localTime),
     mount: context.mountByNode.get(node.id) ?? null,
     plants: context.plantsByNode.get(node.id),
     world,

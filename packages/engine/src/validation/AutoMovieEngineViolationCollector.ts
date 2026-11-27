@@ -9,7 +9,7 @@ import {
 import { describeInvalidValue } from "./internal/describeInvalidValue";
 import { directionLength } from "./internal/directionLength";
 import { toValidation } from "./internal/toValidation";
-import { violation } from "./violation";
+import { violation } from "./internal/violation";
 
 /** Largest deviation from unit norm a stated rotation may carry. */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;

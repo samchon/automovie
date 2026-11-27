@@ -48,7 +48,6 @@ export * from "./rekeyPlantedFeet";
 export * from "./resolveBoneMap";
 export * from "./resolvePreparedChainEffector";
 
-export * from "./sampleMotion";
 
 export * from "./seededSmoothNoise";
 

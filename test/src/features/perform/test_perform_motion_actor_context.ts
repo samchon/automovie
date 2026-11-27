@@ -1,4 +1,4 @@
-import { Quaternion, makeActorSynthesizer, sampleMotion, AutoMovieEngineFilm, AutoMovieEngineKinematics } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, Quaternion, makeActorSynthesizer, AutoMovieEngineFilm, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActorContext,
@@ -220,7 +220,7 @@ export function test_perform_motion_actor_context(): void {
     }),
   );
   const off = (time: number) =>
-    sampleMotion(moving(look, "walker")!, time).pose.joints.find(
+    AutoMovieEngineMotionSampling.sampleMotion(moving(look, "walker")!, time).pose.joints.find(
       (j) => j.bone === "head",
     )!.twist ?? 0;
   TestValidator.predicate(

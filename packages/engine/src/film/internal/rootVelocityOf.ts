@@ -6,7 +6,7 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 import { positiveModulo } from "../../math/internal/positiveModulo";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { VELOCITY_DT } from "../constants/VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
 
@@ -62,7 +62,7 @@ function worldRootAt(
   clip: IAutoMovieMotion,
   t: number,
 ): IAutoMovieVector3 {
-  return foldRoot(node.transform, sampleMotion.root(clip, t)).translation;
+  return foldRoot(node.transform, AutoMovieEngineMotionSampling.sampleRoot(clip, t)).translation;
 }
 
 /** Difference of the world root over `[t0, t1]`; zero for an empty window. */

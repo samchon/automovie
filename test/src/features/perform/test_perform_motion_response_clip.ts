@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, makeActorSynthesizer, sampleMotion, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, makeActorSynthesizer, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieMotion,
@@ -80,7 +80,7 @@ export function test_perform_motion_response_clip(): void {
       true,
     );
   const read = (node: string) =>
-    AutoMovieEngineKinematics.resolvePose(sampleMotion(clip(0.7, node), 0.16).pose, rig).find(
+    AutoMovieEngineKinematics.resolvePose(AutoMovieEngineMotionSampling.sampleMotion(clip(0.7, node), 0.16).pose, rig).find(
       (b) => b.bone === "head",
     )!.worldPosition.x;
   TestValidator.predicate(

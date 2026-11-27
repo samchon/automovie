@@ -13,7 +13,7 @@ import {
 
 import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../../kinematics/index";
 import { segmentSegmentDistance } from "../../math/internal/segmentSegmentDistance";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
@@ -75,7 +75,7 @@ export function validateSelfIntersection(
             const resolved: Map<AutoMovieHumanoidBone, IAutoMovieVector3> =
               new Map(
                 AutoMovieEngineKinematics.resolvePose(
-                  sampleMotion.pose(props.motion, time),
+                  AutoMovieEngineMotionSampling.samplePose(props.motion, time),
                   props.skeleton,
                   props.jointAxes,
                   props.restFrames,

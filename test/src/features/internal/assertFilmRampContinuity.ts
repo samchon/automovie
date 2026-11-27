@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion, Vector3, sampleMotion, AutoMovieEngineSpace } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
@@ -148,7 +148,7 @@ export function assertFilmRampContinuity(
           slopeSecondNode.transform.translation,
           Quaternion.rotateVector(
             slopeSecondNode.transform.rotation,
-            AutoMovieEngineKinematics.resolvePose(sampleMotion(slopeSecondMotion, 0).pose, rig).find(
+            AutoMovieEngineKinematics.resolvePose(AutoMovieEngineMotionSampling.sampleMotion(slopeSecondMotion, 0).pose, rig).find(
               (bone: ReturnType<typeof AutoMovieEngineKinematics.resolvePose>[number]): boolean =>
                 bone.bone === "leftFoot",
             )!.worldPosition,

@@ -12,7 +12,7 @@ import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_A
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
 /**
  * Resolve a bone action target to world metres using its actor rig and sampled
@@ -33,7 +33,7 @@ export function resolveBoneTarget(
   const pose: IAutoMoviePose =
     motion === undefined
       ? context.restPose
-      : sampleMotion.pose(motion, seconds);
+      : AutoMovieEngineMotionSampling.samplePose(motion, seconds);
   const [resolved]: IAutoMovieResolvedBone[] = resolvePose(
     pose,
     context.rig,

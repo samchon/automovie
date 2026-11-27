@@ -19,7 +19,7 @@ import { indexSkeletonTopology } from "../../kinematics/indexSkeletonTopology";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 import { Vector3 } from "../../math/Vector3";
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
 import { suggestCollisionResponse } from "../../physics/internal/suggestCollisionResponse";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
@@ -395,7 +395,7 @@ const resolveMap: (
 ): Map<AutoMovieHumanoidBone, IAutoMovieVector3> =>
   new Map(
     resolvePose(
-      sampleMotion.pose(actor.motion, time),
+      AutoMovieEngineMotionSampling.samplePose(actor.motion, time),
       actor.skeleton,
       actor.jointAxes,
       actor.restFrames,

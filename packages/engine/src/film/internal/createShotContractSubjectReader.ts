@@ -16,7 +16,7 @@ import {
   IAutoMovieVector3,
   IAutoMovieWorldLandmark,
 } from "@automovie/interface";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
@@ -126,7 +126,7 @@ export function createShotContractSubjectReader(
       return node.pose ?? { skeleton: rig.id, root: null, joints: [] };
     const motion: IAutoMovieMotion | undefined = motions.get(motionId);
     if (motion === undefined) throw new Error(`motion "${motionId}" is absent`);
-    return sampleMotion.pose(
+    return AutoMovieEngineMotionSampling.samplePose(
       motion,
       performance === undefined
         ? time

@@ -6,7 +6,7 @@ import {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { sampleMotion } from "../../motion/sampleMotion";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
 /** The root displacement of a pose that carries none. */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -37,7 +37,7 @@ export function animatedBaseAt(
       base,
       Quaternion.rotateVector(
         facing,
-        sampleMotion.root(motion, seconds)?.translation ?? ZERO,
+        AutoMovieEngineMotionSampling.sampleRoot(motion, seconds)?.translation ?? ZERO,
       ),
     );
 }

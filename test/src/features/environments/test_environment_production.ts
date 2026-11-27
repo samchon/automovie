@@ -1,4 +1,4 @@
-import { AutoMovieEngineWorld, Quaternion, Vector3, sampleMotion, AutoMovieEngineFilm, AutoMovieEngineSequence, AutoMovieEngineSpace } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineWorld, Quaternion, Vector3, AutoMovieEngineFilm, AutoMovieEngineSequence, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieMotionHumanBody,
@@ -361,7 +361,7 @@ function actorPose(
   const clip: IAutoMovieMotion = compiled.shot.source.motions.find(
     (motion) => motion.id === performance.motion,
   )!;
-  const pose: IAutoMoviePose = sampleMotion(
+  const pose: IAutoMoviePose = AutoMovieEngineMotionSampling.sampleMotion(
     clip,
     time - performance.startOffset,
   ).pose;

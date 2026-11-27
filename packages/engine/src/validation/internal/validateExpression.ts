@@ -6,7 +6,7 @@ import {
   type IAutoMovieViolationAppendRangeSink,
 } from "@automovie/interface";
 
-import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
+import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 
 /** Admit intensity/weight ranges and duplicate ARKit channels. */
 export function validateExpression<Sink extends IAutoMovieViolationAppendRangeSink>(

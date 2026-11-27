@@ -10,7 +10,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
-import { validateExpression } from "../validateExpression";
+import { validateExpression } from "./validateExpression";
 import { validatePose } from "../validatePose";
 
 /**
@@ -144,7 +144,7 @@ const checkAngularSpeed: (
         collector.push(
           "temporal",
           `${kp}.pose`,
-          `${j.bone} ${axis} changes ${delta.toFixed(0)}° in ${dt.toFixed(2)}s (${speed.toFixed(0)}°/s), exceeding ${MAX_ANGULAR_SPEED_DEG_PER_S}°/s`,
+          `${j.bone} ${axis} changes ${delta.toFixed(0)}째 in ${dt.toFixed(2)}s (${speed.toFixed(0)}째/s), exceeding ${MAX_ANGULAR_SPEED_DEG_PER_S}째/s`,
           speed,
         );
     }
@@ -201,7 +201,7 @@ const validateKeyframeBezier: (
 
   // Control x's must lie in [0, 1], the CSS cubic-bezier constraint the easing
   // solver relies on (`cubicBezierEasing` documents that CSS-legal x's keep
-  // x(s) monotone, so its Newton→bisection root-find is well-posed). An x
+  // x(s) monotone, so its Newton?뭕isection root-find is well-posed). An x
   // outside [0, 1] makes x(s) non-monotone: the solver returns whichever root
   // basin it lands in, a finite but wrong eased value the finiteness check
   // alone never catches (#1159). (y is unconstrained.)

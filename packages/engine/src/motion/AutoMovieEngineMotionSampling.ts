@@ -1,6 +1,7 @@
 import { samplePoseVelocity as samplePoseVelocityImplementation } from "./internal/samplePoseVelocity";
+import { sampleMotion as sampleMotionImplementation } from "./internal/sampleMotion";
 import { cubicBezierEasing as cubicBezierEasingImplementation } from "./internal/cubicBezierEasing";
-import { type IAutoMovieSpringStep, type IAutoMovieSpringParams, type AutoMovieEasing, type IAutoMovieInertializeOffset, type AutoMovieMotionSampleSide, type IAutoMoviePose, type IAutoMoviePoseState, type IAutoMoviePoseRig, type IAutoMoviePoseJointCodec, type IAutoMoviePoseLayer, type IAutoMovieQuaternion, type IAutoMovieVector3 } from "@automovie/interface";
+import { type IAutoMovieSpringStep, type IAutoMovieSpringParams, type AutoMovieEasing, type IAutoMovieInertializeOffset, type AutoMovieMotionSampleSide, type IAutoMoviePose, type IAutoMoviePoseState, type IAutoMoviePoseRig, type IAutoMoviePoseJointCodec, type IAutoMoviePoseLayer, type IAutoMovieQuaternion, type IAutoMovieVector3, type IAutoMovieMotion, type IAutoMovieMotionSample, type IAutoMovieTransform } from "@automovie/interface";
 import { dampedSpring as dampedSpringImplementation } from "./internal/dampedSpring";
 import { ease as easeImplementation } from "./internal/ease";
 import { inertializeOffset as inertializeOffsetImplementation } from "./internal/inertializeOffset";
@@ -58,6 +59,42 @@ export namespace AutoMovieEngineMotionSampling {
   export function samplePoseVelocityRotationVector(q: IAutoMovieQuaternion): IAutoMovieVector3 {
     return samplePoseVelocityImplementation.rotationVector(q);
   }
+
+  /**
+   * Sample caller-admitted clinical motion at finite seconds using clamped or
+   * looping clip time and the outgoing segment's easing. Ordered finite keyframes
+   * and valid pose/easing data are validateMotion's premise. End samples
+   * shallowly share frame data; interior samples interpolate joints, roots and
+   * expressions, treating unauthored values as neutral.
+   */
+  export function sampleMotion(
+    motion: IAutoMovieMotion,
+    seconds: number,
+  ): IAutoMovieMotionSample {
+    return sampleMotionImplementation.sample(motion, seconds);
+  }
+
+  /**
+   * Sample the clinical pose of admitted motion at clip-local seconds. This
+   * uses the full sample's skeleton, joint order, easing and neutral values.
+   * Endpoint pose wrappers borrow their key's joints and root.
+   */
+  export function samplePose(
+    motion: IAutoMovieMotion,
+    seconds: number,
+  ): IAutoMoviePose {
+    return sampleMotionImplementation.pose(motion, seconds);
+  }
+
+  /** Sample the root of an admitted motion, borrowing endpoint transforms. */
+  export function sampleRoot(
+    motion: IAutoMovieMotion,
+    seconds: number,
+  ): IAutoMovieTransform | null {
+    return sampleMotionImplementation.root(motion, seconds);
+  }
+
+
 
   /**
    * Evaluate a CSS-style cubic Bézier easing `[x1, y1, x2, y2]` at progress `t`.

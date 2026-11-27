@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Matrix4, sampleMotion, AutoMovieEngineMotionClip, AutoMovieEngineResolve, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineKinematics, Matrix4, AutoMovieEngineMotionClip, AutoMovieEngineResolve, AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieMotion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -71,7 +71,7 @@ export function test_resolve_motion_clip_frames(): void {
         placement.scale,
       );
       for (const joint of AutoMovieEngineKinematics.resolvePose(
-        sampleMotion(motion, seconds).pose,
+        AutoMovieEngineMotionSampling.sampleMotion(motion, seconds).pose,
         skeleton,
       )) {
         const actual = world.get(actor + "/" + joint.bone)!;

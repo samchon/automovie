@@ -1,4 +1,4 @@
-import { sampleMotion, AutoMovieEngineFilm, AutoMovieEngineScene } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineFilm, AutoMovieEngineScene } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
   IAutoMovieDeliveryCrop,
@@ -193,7 +193,7 @@ const actorsAt: (
       motion.skeleton,
     );
     if (skeleton === undefined) continue;
-    const pose: IAutoMoviePose = sampleMotion(
+    const pose: IAutoMoviePose = AutoMovieEngineMotionSampling.sampleMotion(
       motion,
       Math.max(0, time - performance.startOffset),
     ).pose;
