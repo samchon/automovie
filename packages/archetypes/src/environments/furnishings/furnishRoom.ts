@@ -73,7 +73,7 @@ export function furnishRoom(
   params: furnishRoom.IParams,
 ): IAutoMovieEnvironmentContribution {
   const layout: IAutoMovieFurnishingLayout = params.layout;
-  const [width, depth] = layout.room;
+  const { width, depth } = layout.room;
   const aisle: number = layout.aisle ?? furnishRoom.DEFAULT_AISLE;
   if (![width, depth, aisle].every((n: number): boolean => n > 0))
     throw new Error(
@@ -90,12 +90,12 @@ export function furnishRoom(
     maxZ: depth / 2,
   };
   const blocked: Map<string, FurnishingRect.IRect> = new Map();
-  for (const [id, [x, z, w, d]] of Object.entries(layout.keepClear ?? {})) {
+  for (const [id, { x, z, width, depth }] of Object.entries(layout.keepClear ?? {})) {
     const box: FurnishingRect.IRect = {
       minX: x,
-      maxX: x + w,
+      maxX: x + width,
       minZ: z,
-      maxZ: z + d,
+      maxZ: z + depth,
     };
     if (!(box.maxX > x && box.maxZ > z && FurnishingRect.within(box, room)))
       throw new Error(
@@ -135,8 +135,8 @@ export function furnishRoom(
     const candidate: FurnishingRect.IPlacement = FurnishingRect.locate(
       original.placement.model,
       original.placement.bounds,
-      override.at[0],
-      override.at[1],
+      override.at.x,
+      override.at.z,
       override.heading ?? 0,
     );
     FurnishingRect.claim(

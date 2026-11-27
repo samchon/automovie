@@ -23,14 +23,14 @@ import type {
 export function bakeTerrainHeight(
   id: string,
   origin: IAutoMovieVector3,
-  size: IAutoMovieTerrainRecipe.Point,
+  size: IAutoMovieTerrainRecipe.ISize,
   pitch: number,
   tolerance: number,
   height: (point: { x: number; z: number }) => number,
   advice?: string,
 ): IHeightfield {
-  let columns: number = Math.ceil(size[0] / pitch);
-  let rows: number = Math.ceil(size[1] / pitch);
+  let columns: number = Math.ceil(size.width / pitch);
+  let rows: number = Math.ceil(size.depth / pitch);
   let previous: IHeightfield | undefined;
   for (;;) {
     if ((columns + 1) * (rows + 1) > MAX_SAMPLES)
@@ -38,9 +38,9 @@ export function bakeTerrainHeight(
         `Terrain "${id}" needs more than ${MAX_SAMPLES} samples for its feature widths and ${tolerance} m mesh tolerance.${advice === undefined ? "" : ` ${advice}`}`,
       );
     const x: number =
-      previous === undefined ? size[0] / columns : previous.spacingX / 2;
+      previous === undefined ? size.width / columns : previous.spacingX / 2;
     const z: number =
-      previous === undefined ? size[1] / rows : previous.spacingZ / 2;
+      previous === undefined ? size.depth / rows : previous.spacingZ / 2;
     if (
       origin.x + x === origin.x ||
       origin.z + z === origin.z ||

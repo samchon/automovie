@@ -8,7 +8,11 @@ export type { IAutoMovieEnvironmentRecipe } from "./IAutoMovieEnvironmentRecipe"
 export type { IAutoMovieEnvironmentSupportReport } from "./IAutoMovieEnvironmentSupportReport";
 export type { IAutoMovieFurnishingClearance } from "./IAutoMovieFurnishingClearance";
 export type { IAutoMovieFurnishingLayout } from "./IAutoMovieFurnishingLayout";
+export type { IAutoMovieFurnishingOverride } from "./IAutoMovieFurnishingOverride";
+export type { IAutoMovieFurnishingPoint } from "./IAutoMovieFurnishingPoint";
 export type { IAutoMovieFurnishingPiece } from "./IAutoMovieFurnishingPiece";
+export type { IAutoMovieFurnishingRectangle } from "./IAutoMovieFurnishingRectangle";
+export type { IAutoMovieFurnishingRoomSize } from "./IAutoMovieFurnishingRoomSize";
 export type { IAutoMovieFurnishingRelation } from "./IAutoMovieFurnishingRelation";
 export type { IAutoMovieSetPieceSupport } from "./IAutoMovieSetPieceSupport";
 export type { IAutoMovieTerrainRecipe } from "./IAutoMovieTerrainRecipe";

@@ -61,7 +61,7 @@ export function test_location_terrain_noise(): void {
       items: {
         land: {
           at: { x: 0, y: 2, z: 0 },
-          use: AutoMovieEnvironment.terrain({ size: [60, 40], relief: NOISE, ...recipe }),
+          use: AutoMovieEnvironment.terrain({ size: { width: 60, depth: 40 }, relief: NOISE, ...recipe }),
         },
       },
     });
@@ -84,14 +84,14 @@ export function test_location_terrain_noise(): void {
   // path between their centres. Each pad's level apron ends 0.75 m from its
   // centre, inside the path's 1 m landing, so the pads add no grade of their
   // own to the path's 1 / 18.
-  const square: (cx: number, cz: number) => IAutoMovieTerrainRecipe.Point[] = (
+  const square: (cx: number, cz: number) => IAutoMovieTerrainRecipe.IXzPoint[] = (
     cx: number,
     cz: number,
-  ): IAutoMovieTerrainRecipe.Point[] => [
-    [cx - 0.25, cz - 0.25],
-    [cx + 0.25, cz - 0.25],
-    [cx + 0.25, cz + 0.25],
-    [cx - 0.25, cz + 0.25],
+  ): IAutoMovieTerrainRecipe.IXzPoint[] => [
+    { x: cx - 0.25, z: cz - 0.25 },
+    { x: cx + 0.25, z: cz - 0.25 },
+    { x: cx + 0.25, z: cz + 0.25 },
+    { x: cx - 0.25, z: cz + 0.25 },
   ];
   const graded: (maxSlope: number) => IAutoMovieEnvironment = (
     maxSlope: number,
@@ -104,8 +104,8 @@ export function test_location_terrain_noise(): void {
       paths: {
         trail: {
           points: [
-            [15, 20],
-            [35, 20],
+            { x: 15, z: 20 },
+            { x: 35, z: 20 },
           ],
           width: 2,
           shoulder: 4,
@@ -246,7 +246,7 @@ export function test_location_terrain_noise(): void {
           throwsError(
             () =>
               build(1, {
-                size: [400, 400],
+                size: { width: 400, depth: 400 },
                 relief: {
                   kind: "noise",
                   amplitude: 3,

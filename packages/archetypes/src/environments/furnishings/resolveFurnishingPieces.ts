@@ -3,6 +3,7 @@ import type {
   AutoMovieFurnishingWall,
   IAutoMovieFurnishingClearance,
   IAutoMovieFurnishingLayout,
+  IAutoMovieFurnishingOverride,
   IAutoMovieFurnishingRelation,
   IAutoMovieModel,
   IAutoMoviePropBox,
@@ -93,7 +94,7 @@ export function resolveFurnishingPieces(
   for (const role of roles) {
     const piece: resolveFurnishingPieces.IPiece = props.pieces[role]!;
     const override:
-      | { readonly at: readonly [number, number]; readonly heading?: number }
+      | IAutoMovieFurnishingOverride
       | undefined = props.overrides?.[role];
     let placement: FurnishingRect.IPlacement;
     let heading: number;
@@ -102,8 +103,8 @@ export function resolveFurnishingPieces(
       placement = FurnishingRect.locate(
         piece.model,
         piece.bounds,
-        override.at[0],
-        override.at[1],
+        override.at.x,
+        override.at.z,
         heading,
       );
     } else if (piece.place.kind === "at") {
@@ -111,8 +112,8 @@ export function resolveFurnishingPieces(
       placement = FurnishingRect.locate(
         piece.model,
         piece.bounds,
-        piece.place.at[0],
-        piece.place.at[1],
+        piece.place.at.x,
+        piece.place.at.z,
         heading,
       );
     } else if (piece.place.kind === "facing") {

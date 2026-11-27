@@ -86,7 +86,7 @@ export function terrainWoods(
   const instanceSets: IAutoMovieInstanceSetDesign[] = [];
   const models: IAutoMovieModel[] = [];
   const origin: IAutoMovieVector3 = context.frame.translation;
-  const [width, depth]: IAutoMovieTerrainRecipe.Point = recipe.size;
+  const { width, depth }: IAutoMovieTerrainRecipe.ISize = recipe.size;
   for (const [name, woods] of Object.entries(recipe.woods ?? {})) {
     const id: string = `${context.id}/woods/${name}`;
     const scale: number = woods.scale ?? 1;
@@ -103,7 +103,7 @@ export function terrainWoods(
         `Terrain woods "${id}" need a count from one to 100,000: ${woods.count}.`,
       );
     const outline: IAutoMoviePlanarPoint[] = woods.outline.map(
-      ([x, z]: IAutoMovieTerrainRecipe.Point): IAutoMoviePlanarPoint => ({
+      ({ x, z }: IAutoMovieTerrainRecipe.IXzPoint): IAutoMoviePlanarPoint => ({
         x,
         y: z,
       }),

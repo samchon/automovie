@@ -16,21 +16,24 @@ export function bankedParkRide(): compileEnvironmentExample.IInput {
           offset: { x: 1.6, y: 0, z: -4 },
         },
         use: AutoMovieEnvironment.terrain({
-          size: [12, 10],
+          size: { width: 12, depth: 10 },
           paths: {
             approach: {
               points: [
-                [4, 4],
-                [0, 4],
+                { x: 4, z: 4 },
+                { x: 0, z: 4 },
               ],
               width: 0.8,
             },
           },
-          amenities: { kitchen: [7.5, 4] },
+          amenities: { kitchen: { x: 7.5, z: 4 } },
         }),
       },
       concession: {
-        use: AutoMovieEnvironmentFurnishing.cafeKit({ room: [8, 6], tables: 1 }),
+        use: AutoMovieEnvironmentFurnishing.cafeKit({
+          room: { width: 8, depth: 6 },
+          tables: 1,
+        }),
         at: { anchor: "terrain/amenities/kitchen" },
       },
     });

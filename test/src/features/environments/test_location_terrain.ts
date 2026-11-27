@@ -42,11 +42,11 @@ export function test_location_terrain(): void {
         land: {
           at: { x: -4, y: 3, z: -3 },
           use: AutoMovieEnvironment.terrain({
-            size: [12, 10],
+            size: { width: 12, depth: 10 },
             relief: { kind: "rolling", amplitude: 1, wavelength: 7 },
             meshTolerance: 0.015,
             trees: {
-              grove: { center: [5, 5], radius: 1.2, count: 16, scale: 0.2 },
+              grove: { center: { x: 5, z: 5 }, radius: 1.2, count: 16, scale: 0.2 },
             },
           }),
         },
@@ -127,23 +127,23 @@ export function test_location_terrain(): void {
           items: {
             land: {
               use: AutoMovieEnvironment.terrain({
-                size: [10, 10],
+                size: { width: 10, depth: 10 },
                 pads: {
                   west: {
                     outline: [
-                      [1, 1],
-                      [4, 1],
-                      [4, 4],
-                      [1, 4],
+                      { x: 1, z: 1 },
+                      { x: 4, z: 1 },
+                      { x: 4, z: 4 },
+                      { x: 1, z: 4 },
                     ],
                     height: 1,
                   },
                   east: {
                     outline: [
-                      [3, 2],
-                      [7, 2],
-                      [7, 5],
-                      [3, 5],
+                      { x: 3, z: 2 },
+                      { x: 7, z: 2 },
+                      { x: 7, z: 5 },
+                      { x: 3, z: 5 },
                     ],
                     height: 2,
                   },
@@ -161,10 +161,10 @@ export function test_location_terrain(): void {
             items: {
               land: {
                 use: AutoMovieEnvironment.terrain({
-                  size: [10, 10],
+                  size: { width: 10, depth: 10 },
                   paths: {
                     hill: {
-                      points: [[1, 3], { anchor: "door" }],
+                      points: [{ x: 1, z: 3 }, { anchor: "door" }],
                       width: 1,
                       maxSlope: 0.1,
                     },
@@ -185,14 +185,14 @@ export function test_location_terrain(): void {
       items: {
         land: {
           use: AutoMovieEnvironment.terrain({
-            size: [12, 10],
+            size: { width: 12, depth: 10 },
             water: {
               pond: {
                 outline: [
-                  [5, 5],
-                  [8, 5],
-                  [8, 8],
-                  [5, 8],
+                  { x: 5, z: 5 },
+                  { x: 8, z: 5 },
+                  { x: 8, z: 8 },
+                  { x: 5, z: 8 },
                 ],
                 height: 0,
               },
@@ -200,8 +200,8 @@ export function test_location_terrain(): void {
             paths: {
               trail: {
                 points: [
-                  [2, 4],
-                  [10, 4],
+                  { x: 2, z: 4 },
+                  { x: 10, z: 4 },
                 ],
                 width,
               },

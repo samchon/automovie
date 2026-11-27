@@ -59,7 +59,7 @@ export function createCafeKit(
             kind: "wall",
             wall: "-z",
             offset:
-              (params.room[0] - (counterBox.max.x - counterBox.min.x)) / 2,
+              (params.room.width - (counterBox.max.x - counterBox.min.x)) / 2,
           },
           clear: [{ depth: params.aisle ?? furnishRoom.DEFAULT_AISLE }],
         },

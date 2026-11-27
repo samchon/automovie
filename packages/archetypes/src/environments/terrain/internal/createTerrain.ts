@@ -87,7 +87,7 @@ export function createTerrain(
       throw new Error(
         `Terrain "${context.id}" must be placed without rotation in the world-aligned plan.`,
       );
-    const [width, depth]: IAutoMovieTerrainRecipe.Point = recipe.size;
+    const { width, depth }: IAutoMovieTerrainRecipe.ISize = recipe.size;
     const right: number = origin.x + width;
     const far: number = origin.z + depth;
     const tolerance: number = recipe.meshTolerance ?? MESH_TOLERANCE;
@@ -107,22 +107,22 @@ export function createTerrain(
       grades,
     );
     const ring: (
-      points: readonly IAutoMovieTerrainRecipe.Point[],
+      points: readonly IAutoMovieTerrainRecipe.IXzPoint[],
     ) => IAutoMovieVector3[] = (
-      points: readonly IAutoMovieTerrainRecipe.Point[],
+      points: readonly IAutoMovieTerrainRecipe.IXzPoint[],
     ): IAutoMovieVector3[] =>
       points.map(
-        ([px, pz]: IAutoMovieTerrainRecipe.Point): IAutoMovieVector3 => ({
-          x: origin.x + px,
+        ({ x, z }: IAutoMovieTerrainRecipe.IXzPoint): IAutoMovieVector3 => ({
+          x: origin.x + x,
           y: 0,
-          z: origin.z + pz,
+          z: origin.z + z,
         }),
       );
     const outer: IAutoMovieVector3[] = ring([
-      [0, 0],
-      [width, 0],
-      [width, depth],
-      [0, depth],
+      { x: 0, z: 0 },
+      { x: width, z: 0 },
+      { x: width, z: depth },
+      { x: 0, z: depth },
     ]);
     const landHoles: IAutoMovieVector3[][] = [
       ...(recipe.holes ?? []).map(ring),
@@ -218,9 +218,9 @@ export function createTerrain(
         };
       },
     );
-    for (const [name, [px, pz]] of Object.entries(recipe.amenities ?? {})) {
-      const wx: number = origin.x + px;
-      const wz: number = origin.z + pz;
+    for (const [name, { x, z }] of Object.entries(recipe.amenities ?? {})) {
+      const wx: number = origin.x + x;
+      const wz: number = origin.z + z;
       if (!AutoMovieEngineSpace.footprintContains(land, wx, wz))
         throw new Error(
           `Terrain amenity "${context.id}/amenities/${name}" must rest on parcel land.`,
@@ -332,9 +332,9 @@ function terrainBase(
       : {
           kind: "plane",
           originHeight:
-            base - relief.slope[0] * origin.x - relief.slope[1] * origin.z,
-          slopeX: relief.slope[0],
-          slopeZ: relief.slope[1],
+            base - relief.slope.risePerX * origin.x - relief.slope.risePerZ * origin.z,
+          slopeX: relief.slope.risePerX,
+          slopeZ: relief.slope.risePerZ,
         };
   return {
     rule,

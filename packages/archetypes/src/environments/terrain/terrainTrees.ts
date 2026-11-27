@@ -42,7 +42,7 @@ export function terrainTrees(
   for (const [name, trees] of Object.entries(recipe.trees ?? {})) {
     const id: string = `${context.id}/trees/${name}`;
     const scale: number = trees.scale ?? 1;
-    const [x, z]: IAutoMovieTerrainRecipe.Point = trees.center;
+    const { x, z }: IAutoMovieTerrainRecipe.IXzPoint = trees.center;
     if (
       trees.radius <= 0 ||
       scale <= 0 ||
@@ -67,8 +67,8 @@ export function terrainTrees(
     if (
       x - radius < 0 ||
       z - radius < 0 ||
-      x + radius > recipe.size[0] ||
-      z + radius > recipe.size[1]
+      x + radius > recipe.size.width ||
+      z + radius > recipe.size.depth
     )
       throw new Error(
         `Terrain trees "${id}" and their trunk clearance must fit inside the parcel.`,

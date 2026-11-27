@@ -143,9 +143,9 @@ export function prepareTerrainGrades(
       preparePath(context, name, path, base, padAt),
   );
   const holes: IAutoMoviePlanarPoint[][] = (recipe.holes ?? []).map(
-    (ring: readonly IAutoMovieTerrainRecipe.Point[]): IAutoMoviePlanarPoint[] =>
+    (ring: readonly IAutoMovieTerrainRecipe.IXzPoint[]): IAutoMoviePlanarPoint[] =>
       ring.map(
-        ([x, z]: IAutoMovieTerrainRecipe.Point): IAutoMoviePlanarPoint => ({
+        ({ x, z }: IAutoMovieTerrainRecipe.IXzPoint): IAutoMoviePlanarPoint => ({
           x: origin.x + x,
           y: origin.z + z,
         }),
@@ -238,7 +238,7 @@ export function prepareTerrainGrades(
  */
 function preparePad(
   context: IAutoMovieEnvironmentModule.IContext,
-  size: IAutoMovieTerrainRecipe.Point,
+  size: IAutoMovieTerrainRecipe.ISize,
   family: string,
   name: string,
   pad: IAutoMovieTerrainRecipe.IPad,
@@ -249,7 +249,7 @@ function preparePad(
   if (frame.rotation.x !== 0 || frame.rotation.z !== 0)
     throw new Error(`Terrain grade "${id}" requires an upright pad frame.`);
   const outline: IAutoMoviePlanarPoint[] = pad.outline.map(
-    ([x, z]: IAutoMovieTerrainRecipe.Point): IAutoMoviePlanarPoint => {
+    ({ x, z }: IAutoMovieTerrainRecipe.IXzPoint): IAutoMoviePlanarPoint => {
       const point: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
         x,
         y: 0,
@@ -274,8 +274,8 @@ function preparePad(
       (point: IAutoMoviePlanarPoint): boolean =>
         point.x < origin.x ||
         point.y < origin.z ||
-        point.x > origin.x + size[0] ||
-        point.y > origin.z + size[1],
+        point.x > origin.x + size.width ||
+        point.y > origin.z + size.depth,
     )
   )
     throw new Error(`Terrain grade "${id}" is outside its parcel.`);
@@ -320,7 +320,7 @@ function preparePath(
   const fixed: boolean[] = [];
   const points: IAutoMovieVector3[] = recipe.points.map(
     (
-      point: IAutoMovieTerrainRecipe.Point | { anchor: string },
+      point: IAutoMovieTerrainRecipe.IXzPoint | { anchor: string },
       index: number,
     ): IAutoMovieVector3 => {
       const origin: IAutoMovieVector3 = context.frame.translation;
@@ -328,8 +328,8 @@ function preparePath(
         "anchor" in point
           ? context.anchor(point.anchor).translation
           : undefined;
-      const x: number = "anchor" in point ? anchored!.x : origin.x + point[0];
-      const z: number = "anchor" in point ? anchored!.z : origin.z + point[1];
+      const x: number = "anchor" in point ? anchored!.x : origin.x + point.x;
+      const z: number = "anchor" in point ? anchored!.z : origin.z + point.z;
       const pad: IPad | undefined = padAt({ x, y: z });
       const y: number = anchored?.y ?? pad?.height ?? base({ x, z });
       if (pad !== undefined && anchored !== undefined && y !== pad.height)

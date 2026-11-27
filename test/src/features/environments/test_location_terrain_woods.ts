@@ -17,18 +17,18 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
 const ORIGIN: { x: number; y: number; z: number } = { x: -5, y: 1, z: 2 };
 
 /** The 30 m by 20 m wood of every scenario, in local plan metres. */
-const OUTLINE: readonly IAutoMovieTerrainRecipe.Point[] = [
-  [5, 5],
-  [35, 5],
-  [35, 25],
-  [5, 25],
+const OUTLINE: readonly IAutoMovieTerrainRecipe.IXzPoint[] = [
+  { x: 5, z: 5 },
+  { x: 35, z: 5 },
+  { x: 35, z: 25 },
+  { x: 5, z: 25 },
 ];
 
 /** The 2 m path across the wood along local z = 15. */
 const PATH: IAutoMovieTerrainRecipe.IPath = {
   points: [
-    [2, 15],
-    [38, 15],
+    { x: 2, z: 15 },
+    { x: 38, z: 15 },
   ],
   width: 2,
 };
@@ -78,7 +78,7 @@ export function test_location_terrain_woods(): void {
         land: {
           at: ORIGIN,
           use: AutoMovieEnvironment.terrain({
-            size: [40, 30],
+            size: { width: 40, depth: 30 },
             relief: { kind: "noise", amplitude: 1, wavelength: 30, octaves: 2 },
             ...(path ? { paths: { trail: PATH } } : {}),
             woods: { stand: { outline: OUTLINE, spacing: 4, ...woods } },
@@ -301,10 +301,10 @@ export function test_location_terrain_woods(): void {
           (): IAutoMovieEnvironment =>
             build(1, {
               outline: [
-                [0, 5],
-                [35, 5],
-                [35, 25],
-                [0, 25],
+                { x: 0, z: 5 },
+                { x: 35, z: 5 },
+                { x: 35, z: 25 },
+                { x: 0, z: 25 },
               ],
             }),
           ["forest/land/woods/stand", "strictly inside the parcel"],

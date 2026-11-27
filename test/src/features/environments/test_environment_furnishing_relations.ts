@@ -1,6 +1,15 @@
-import { AutoMovieArchetypeSeat, AutoMovieArchetypeDrawerUnit, AutoMovieArchetypePlatformBed, AutoMovieArchetypeMirror, AutoMovieArchetypeTable } from "@automovie/archetypes";
-import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
-import { Quaternion, Transform, AutoMovieEngineFilm } from "@automovie/engine";
+import {
+  AutoMovieArchetypeDrawerUnit,
+  AutoMovieArchetypeMirror,
+  AutoMovieArchetypePlatformBed,
+  AutoMovieArchetypeSeat,
+  AutoMovieArchetypeTable,
+} from "@automovie/archetypes";
+import {
+  AutoMovieEnvironment,
+  AutoMovieEnvironmentFurnishing,
+} from "@automovie/archetypes/environments";
+import { AutoMovieEngineFilm, Quaternion, Transform } from "@automovie/engine";
 import type {
   AutoMovieFurnishingWall,
   IAutoMovieEnvironment,
@@ -65,16 +74,16 @@ interface IBox {
  */
 export function test_environment_furnishing_relations(): void {
   const build: (
-    room: readonly [number, number],
+    room: { width: number; depth: number },
     pieces: Readonly<Record<string, IAutoMovieFurnishingPiece>>,
     keepClear?: Readonly<
-      Record<string, readonly [number, number, number, number]>
+      Record<string, { x: number; z: number; width: number; depth: number }>
     >,
   ) => IAutoMovieEnvironment = (
-    room: readonly [number, number],
+    room: { width: number; depth: number },
     pieces: Readonly<Record<string, IAutoMovieFurnishingPiece>>,
     keepClear?: Readonly<
-      Record<string, readonly [number, number, number, number]>
+      Record<string, { x: number; z: number; width: number; depth: number }>
     >,
   ): IAutoMovieEnvironment =>
     AutoMovieEnvironment.create({
@@ -102,7 +111,8 @@ export function test_environment_furnishing_relations(): void {
     model: IAutoMovieModel,
   ): IBox => {
     const frame: IAutoMovieTransform = environment.anchors[`room/${role}`]!;
-    const rest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(model)!;
+    const rest: IAutoMoviePropBox =
+      AutoMovieEngineFilm.computeModelRestExtent(model)!;
     const corners: IAutoMovieVector3[] = [];
     for (const x of [rest.min.x, rest.max.x])
       for (const y of [rest.min.y, rest.max.y])
@@ -152,28 +162,44 @@ export function test_environment_furnishing_relations(): void {
     });
 
   // Scenarios 1 and 2: a sofa, a chest after it and a coffee table facing it.
-  const chest: IAutoMovieModel = AutoMovieArchetypeDrawerUnit.create({ kind: "chest" }, 1015);
-  const coffee: IAutoMovieModel = AutoMovieArchetypeTable.create({ kind: "coffee" }, 1016);
+  const chest: IAutoMovieModel = AutoMovieArchetypeDrawerUnit.create(
+    { kind: "chest" },
+    1015,
+  );
+  const coffee: IAutoMovieModel = AutoMovieArchetypeTable.create(
+    { kind: "coffee" },
+    1016,
+  );
   const lounge: (sofa: IAutoMovieModel) => IAutoMovieEnvironment = (
     sofa: IAutoMovieModel,
   ): IAutoMovieEnvironment =>
-    build([4.0, 3.2], {
-      sofa: { model: sofa, place: { kind: "wall", wall: "-z", offset: 0.4 } },
-      chest: {
-        model: chest,
-        place: { kind: "wall", wall: "-z", after: "sofa", gap: 0.05 },
+    build(
+      { width: 4.0, depth: 3.2 },
+      {
+        sofa: { model: sofa, place: { kind: "wall", wall: "-z", offset: 0.4 } },
+        chest: {
+          model: chest,
+          place: { kind: "wall", wall: "-z", after: "sofa", gap: 0.05 },
+        },
+        coffee: {
+          model: coffee,
+          place: { kind: "facing", target: "sofa", distance: 0.45 },
+        },
       },
-      coffee: {
-        model: coffee,
-        place: { kind: "facing", target: "sofa", distance: 0.45 },
-      },
-    });
-  const sofaA: IAutoMovieModel = AutoMovieArchetypeSeat.create({ kind: "sofa" }, 1017);
-  const sofaB: IAutoMovieModel = AutoMovieArchetypeSeat.create({ kind: "sofa", places: 3 }, 1018);
+    );
+  const sofaA: IAutoMovieModel = AutoMovieArchetypeSeat.create(
+    { kind: "sofa" },
+    1017,
+  );
+  const sofaB: IAutoMovieModel = AutoMovieArchetypeSeat.create(
+    { kind: "sofa", places: 3 },
+    1018,
+  );
   const widthOf: (model: IAutoMovieModel) => number = (
     model: IAutoMovieModel,
   ): number => {
-    const rest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(model)!;
+    const rest: IAutoMoviePropBox =
+      AutoMovieEngineFilm.computeModelRestExtent(model)!;
     return rest.max.x - rest.min.x;
   };
   const first: IAutoMovieEnvironment = lounge(sofaA);
@@ -223,45 +249,60 @@ export function test_environment_furnishing_relations(): void {
   );
 
   // Scenario 4: a wall mirror on +x and a sofa on -z.
-  const mirror: IAutoMovieModel = AutoMovieArchetypeMirror.create({ kind: "wall" }, 1019);
-  const mirrorRest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(mirror)!;
+  const mirror: IAutoMovieModel = AutoMovieArchetypeMirror.create(
+    { kind: "wall" },
+    1019,
+  );
+  const mirrorRest: IAutoMoviePropBox =
+    AutoMovieEngineFilm.computeModelRestExtent(mirror)!;
   const hungPieces: Readonly<Record<string, IAutoMovieFurnishingPiece>> = {
     sofa: { model: sofaA, place: { kind: "wall", wall: "-z", offset: 0.4 } },
     mirror: { model: mirror, place: { kind: "wall", wall: "+x", offset: 1.0 } },
   };
-  const hung: IAutoMovieEnvironment = build([4.0, 3.2], hungPieces);
-  const contribution: IAutoMovieEnvironmentContribution = AutoMovieEnvironmentFurnishing.furnishedRoom({
-    room: [4.0, 3.2],
-    pieces: hungPieces,
-  })({
-    id: "home/room",
-    seed: undefined,
-    frame: Transform.identity(),
-    anchor: (id: string): IAutoMovieTransform => {
-      throw new Error(`no anchor ${id}`);
-    },
-  });
+  const hung: IAutoMovieEnvironment = build(
+    { width: 4.0, depth: 3.2 },
+    hungPieces,
+  );
+  const contribution: IAutoMovieEnvironmentContribution =
+    AutoMovieEnvironmentFurnishing.furnishedRoom({
+      room: { width: 4.0, depth: 3.2 },
+      pieces: hungPieces,
+    })({
+      id: "home/room",
+      seed: undefined,
+      frame: Transform.identity(),
+      anchor: (id: string): IAutoMovieTransform => {
+        throw new Error(`no anchor ${id}`);
+      },
+    });
 
   // Scenario 5: a single bed with both long sides clear and a chest after it.
-  const bed: IAutoMovieModel = AutoMovieArchetypePlatformBed.create({ kind: "single" }, 1020);
+  const bed: IAutoMovieModel = AutoMovieArchetypePlatformBed.create(
+    { kind: "single" },
+    1020,
+  );
   const bedroom: (gap: number) => IAutoMovieEnvironment = (
     gap: number,
   ): IAutoMovieEnvironment =>
-    build([4.0, 3.2], {
-      bed: {
-        model: bed,
-        place: { kind: "wall", wall: "-z", offset: 0.8 },
-        clear: [
-          { side: "left", depth: 0.76, width: 1.22 },
-          { side: "right", depth: 0.76, width: 1.22 },
-        ],
+    build(
+      { width: 4.0, depth: 3.2 },
+      {
+        bed: {
+          model: bed,
+          place: { kind: "wall", wall: "-z", offset: 0.8 },
+          clear: [
+            { side: "left", depth: 0.76, width: 1.22 },
+            { side: "right", depth: 0.76, width: 1.22 },
+          ],
+        },
+        chest: {
+          model: chest,
+          place: { kind: "wall", wall: "-z", after: "bed", gap },
+        },
       },
-      chest: {
-        model: chest,
-        place: { kind: "wall", wall: "-z", after: "bed", gap },
-      },
-    });
-  const sofaRest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(sofaA)!;
+    );
+  const sofaRest: IAutoMoviePropBox =
+    AutoMovieEngineFilm.computeModelRestExtent(sofaA)!;
 
   const facts: Record<string, boolean> = namedFacts([
     [
@@ -387,13 +428,16 @@ export function test_environment_furnishing_relations(): void {
         sofaRest.max.z - sofaRest.min.z > 0.5 &&
         throwsError(
           (): IAutoMovieEnvironment =>
-            build([4.0, 1.5], {
-              sofa: {
-                model: sofaA,
-                place: { kind: "wall", wall: "-z" },
-                clear: [{ depth: 1.0 }],
+            build(
+              { width: 4.0, depth: 1.5 },
+              {
+                sofa: {
+                  model: sofaA,
+                  place: { kind: "wall", wall: "-z" },
+                  clear: [{ depth: 1.0 }],
+                },
               },
-            }),
+            ),
           ["home/room sofa front clearance", "outside the usable room"],
         ),
     ],
@@ -402,30 +446,36 @@ export function test_environment_furnishing_relations(): void {
       (): boolean =>
         throwsError(
           (): IAutoMovieEnvironment =>
-            build([4.0, 3.2], {
-              sofa: {
-                model: sofaA,
-                place: { kind: "wall", wall: "-z", offset: 0.4 },
+            build(
+              { width: 4.0, depth: 3.2 },
+              {
+                sofa: {
+                  model: sofaA,
+                  place: { kind: "wall", wall: "-z", offset: 0.4 },
+                },
+                chest: {
+                  model: chest,
+                  place: { kind: "wall", wall: "+x", after: "sofa" },
+                },
               },
-              chest: {
-                model: chest,
-                place: { kind: "wall", wall: "+x", after: "sofa" },
-              },
-            }),
+            ),
           ["home/room chest", '"sofa" is not on wall +x'],
         ) &&
         throwsError(
           (): IAutoMovieEnvironment =>
-            build([4.0, 3.2], {
-              coffee: {
-                model: coffee,
-                place: { kind: "facing", target: "sofa", distance: 0.45 },
+            build(
+              { width: 4.0, depth: 3.2 },
+              {
+                coffee: {
+                  model: coffee,
+                  place: { kind: "facing", target: "sofa", distance: 0.45 },
+                },
+                sofa: {
+                  model: sofaA,
+                  place: { kind: "wall", wall: "-z", offset: 0.4 },
+                },
               },
-              sofa: {
-                model: sofaA,
-                place: { kind: "wall", wall: "-z", offset: 0.4 },
-              },
-            }),
+            ),
           ["home/room coffee", '"sofa" is a later piece'],
         ) &&
         throwsError(
@@ -438,7 +488,7 @@ export function test_environment_furnishing_relations(): void {
                   place: { kind: "wall", wall: "-z", offset: 0.2 },
                 },
               },
-              { swing: [-1.9, -1.6, 0.9, 0.9] },
+              { swing: { x: -1.9, z: -1.6, width: 0.9, depth: 0.9 } },
             ),
           ["home/room chest", "keepClear.swing"],
         ),

@@ -1,5 +1,8 @@
 import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
-import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import {
+  AutoMovieEnvironment,
+  AutoMovieEnvironmentFurnishing,
+} from "@automovie/archetypes/environments";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentItem,
@@ -16,9 +19,16 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. A quarter-turned cafe with four dining groups and a two-station gym emit unique matching stage, model and prop identities. A cup authoring entry precedes its host and still rests on the scoped table.
- * 2. A chosen chair keeps its independently predicted world position after reseeding. Explicitly retaining the original table position leaves its automatic partner chair unmoved. The seated contact and the gym's floor weight preserve their contacts.
- * 3. A named door swing refuses an overlapping chair override, a shallow gym refuses its station count and a cup placed beyond the table cannot claim its support.
+ * 1. A quarter-turned cafe with four dining groups and a two-station gym emit
+ *    unique matching stage, model and prop identities. A cup authoring entry
+ *    precedes its host and still rests on the scoped table.
+ * 2. A chosen chair keeps its independently predicted world position after
+ *    reseeding. Explicitly retaining the original table position leaves its
+ *    automatic partner chair unmoved. The seated contact and the gym's floor
+ *    weight preserve their contacts.
+ * 3. A named door swing refuses an overlapping chair override, a shallow gym
+ *    refuses its station count and a cup placed beyond the table cannot claim
+ *    its support.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the resolved kit populations, scoped IDs, turned override and support assertions plus the refusal cases.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public environment and producer exports, reads the staged and runtime records, and observes layout and bearing refusals through ordinary construction.
@@ -27,11 +37,13 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership Runs once in the workspace feature test runner. Performs deterministic CPU composition and placement admission without installing a renderer or replacing any global input.
  */
 export function test_environment_furnishing(): void {
-  const cafeLayout: Parameters<typeof AutoMovieEnvironmentFurnishing.cafeKit>[0] = {
-    room: [10, 10],
+  const cafeLayout: Parameters<
+    typeof AutoMovieEnvironmentFurnishing.cafeKit
+  >[0] = {
+    room: { width: 10, depth: 10 },
     tables: 4,
-    keepClear: { entry: [-0.5, 4, 1, 1] },
-    overrides: { "table-1/chair-near": { at: [3, 3], heading: 90 } },
+    keepClear: { entry: { x: -0.5, z: 4, width: 1, depth: 1 } },
+    overrides: { "table-1/chair-near": { at: { x: 3, z: 3 }, heading: 90 } },
   };
   const cup: IAutoMovieEnvironmentItem = {
     at: { anchor: "cafe/table-1/stack" },
@@ -62,7 +74,10 @@ export function test_environment_furnishing(): void {
     },
     gym: {
       at: { x: -10, y: 0, z: 0 },
-      use: AutoMovieEnvironmentFurnishing.gymKit({ room: [6, 5], stations: 2 }),
+      use: AutoMovieEnvironmentFurnishing.gymKit({
+        room: { width: 6, depth: 5 },
+        stations: 2,
+      }),
     },
   };
   const plan: IAutoMovieEnvironment = AutoMovieEnvironment.create({
@@ -122,7 +137,7 @@ export function test_environment_furnishing(): void {
           ...cafeLayout,
           overrides: {
             ...cafeLayout.overrides,
-            "table-1": { at: [4 - table.z, table.x - 10] },
+            "table-1": { at: { x: 4 - table.z, z: table.x - 10 } },
           },
         }),
       },
@@ -153,7 +168,14 @@ export function test_environment_furnishing(): void {
       (): IAutoMovieEnvironment =>
         AutoMovieEnvironment.create({
           id: "small",
-          items: { gym: { use: AutoMovieEnvironmentFurnishing.gymKit({ room: [2, 2], stations: 3 }) } },
+          items: {
+            gym: {
+              use: AutoMovieEnvironmentFurnishing.gymKit({
+                room: { width: 2, depth: 2 },
+                stations: 3,
+              }),
+            },
+          },
         }),
       ["small/gym", "stations cannot fit 3"],
     ) &&
@@ -164,10 +186,10 @@ export function test_environment_furnishing(): void {
             items: {
               cafe: {
                 use: AutoMovieEnvironmentFurnishing.cafeKit({
-                  room: [8, 7],
+                  room: { width: 8, depth: 7 },
                   tables: 1,
-                  keepClear: { swing: [-0.5, 0.5, 1, 1] },
-                  overrides: { "table-1/chair-near": { at: [0, 1] } },
+                  keepClear: { swing: { x: -0.5, z: 0.5, width: 1, depth: 1 } },
+                  overrides: { "table-1/chair-near": { at: { x: 0, z: 1 } } },
                 }),
               },
             },

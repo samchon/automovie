@@ -49,14 +49,14 @@ export function pondTrail(): compileEnvironmentExample.IInput {
     items: {
       terrain: {
         use: AutoMovieEnvironment.terrain({
-          size: [24, 20],
+          size: { width: 24, depth: 20 },
           water: {
             pond: {
               outline: [
-                [9, 8],
-                [14, 8],
-                [14, 12],
-                [9, 12],
+                { x: 9, z: 8 },
+                { x: 14, z: 8 },
+                { x: 14, z: 12 },
+                { x: 9, z: 12 },
               ],
               height: 0,
             },
@@ -64,16 +64,16 @@ export function pondTrail(): compileEnvironmentExample.IInput {
           paths: {
             circuit: {
               points: [
-                [3, 5],
-                [18, 5],
+                { x: 3, z: 5 },
+                { x: 18, z: 5 },
               ],
               width: 2,
             },
           },
           trees: {
-            grove: { center: [19, 14], radius: 2, count: 24, scale: 0.2 },
+            grove: { center: { x: 19, z: 14 }, radius: 2, count: 24, scale: 0.2 },
           },
-          amenities: { bench: [15, 6] },
+          amenities: { bench: { x: 15, z: 6 } },
         }),
       },
       bench: {

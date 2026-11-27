@@ -1,4 +1,5 @@
 import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
+
 /**
  * The authored focus pull for a camera frame action.
  *

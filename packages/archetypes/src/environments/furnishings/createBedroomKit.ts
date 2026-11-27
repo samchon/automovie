@@ -88,7 +88,7 @@ export function createBedroomKit(
           place: {
             kind: "wall",
             wall: "-z",
-            offset: (params.room[0] - (bedBox.max.x - bedBox.min.x)) / 2,
+            offset: (params.room.width - (bedBox.max.x - bedBox.min.x)) / 2,
           },
           clear: [side("left"), side("right")],
         },

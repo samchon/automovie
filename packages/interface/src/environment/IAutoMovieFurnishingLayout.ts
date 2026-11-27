@@ -1,3 +1,7 @@
+import type { IAutoMovieFurnishingOverride } from "./IAutoMovieFurnishingOverride";
+import type { IAutoMovieFurnishingRectangle } from "./IAutoMovieFurnishingRectangle";
+import type { IAutoMovieFurnishingRoomSize } from "./IAutoMovieFurnishingRoomSize";
+
 /**
  * A rectangular room in which a furnishing kit places its props.
  *
@@ -8,7 +12,7 @@
  */
 export interface IAutoMovieFurnishingLayout {
   /** Interior width along X and depth along Z. */
-  readonly room: readonly [width: number, depth: number];
+  readonly room: IAutoMovieFurnishingRoomSize;
 
   /** Width between generated groups and at the room's sides, default 0.915 m. */
   readonly aisle?: number;
@@ -18,26 +22,11 @@ export interface IAutoMovieFurnishingLayout {
    * lower corner in the room frame.
    */
   readonly keepClear?: Readonly<
-    Record<
-      string,
-      readonly [x: number, z: number, width: number, depth: number]
-    >
+    Record<string, IAutoMovieFurnishingRectangle>
   >;
 
   /** Role-keyed placements measured from the room centre, with default yaw zero. */
   readonly overrides?: Readonly<
-    Record<
-      string,
-      {
-        /**
-         * Local XZ position of the model origin. Its underside is placed on the
-         * floor.
-         */
-        readonly at: readonly [x: number, z: number];
-
-        /** Turn about local +Y in degrees. */
-        readonly heading?: number;
-      }
-    >
+    Record<string, IAutoMovieFurnishingOverride>
   >;
 }

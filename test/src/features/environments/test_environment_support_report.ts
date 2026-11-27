@@ -73,7 +73,7 @@ export function test_environment_support_report(): void {
   const level: () => IAutoMovieEnvironmentItem =
     (): IAutoMovieEnvironmentItem => ({
       at: { x: -10, y: 0, z: -10 },
-      use: AutoMovieEnvironment.terrain({ size: [20, 20] }),
+      use: AutoMovieEnvironment.terrain({ size: { width: 20, depth: 20 } }),
     });
   const cup: (
     declared: boolean,
@@ -115,25 +115,25 @@ export function test_environment_support_report(): void {
       land: {
         at: { x: -10, y: 0, z: -10 },
         use: AutoMovieEnvironment.terrain({
-          size: [40, 20],
+          size: { width: 40, depth: 20 },
           pads: {
             plaza: {
               outline: [
-                [2, 2],
-                [18, 2],
-                [18, 18],
-                [2, 18],
+                { x: 2, z: 2 },
+                { x: 18, z: 2 },
+                { x: 18, z: 18 },
+                { x: 2, z: 18 },
               ],
               height: 0.5,
             },
           },
-          amenities: { cafe: [10, 10] },
+          amenities: { cafe: { x: 10, z: 10 } },
         }),
       },
       cafe: {
         at: { anchor: "land/amenities/cafe" },
         use: AutoMovieEnvironmentFurnishing.cafeKit({
-          room: [10, 8],
+          room: { width: 10, depth: 8 },
           tables: 2,
         }),
       },
@@ -180,7 +180,7 @@ export function test_environment_support_report(): void {
       land: level(),
       room: {
         use: AutoMovieEnvironmentFurnishing.furnishedRoom({
-          room: [4, 3.2],
+          room: { width: 4, depth: 3.2 },
           pieces: {
             mirror: {
               model: mirror,
@@ -231,7 +231,7 @@ export function test_environment_support_report(): void {
       floor: level(),
       room: {
         use: AutoMovieEnvironmentFurnishing.furnishedRoom({
-          room: [4, 3.2],
+          room: { width: 4, depth: 3.2 },
           pieces: {
             sofa: {
               model: AutoMovieArchetypeSeat.create({ kind: "sofa" }, 1022),
@@ -257,12 +257,12 @@ export function test_environment_support_report(): void {
       land: {
         at: { x: -15, y: 0, z: -10 },
         use: AutoMovieEnvironment.terrain({
-          size: [30, 20],
+          size: { width: 30, depth: 20 },
           paths: {
             trail: {
               points: [
-                [2, 10],
-                [28, 10],
+                { x: 2, z: 10 },
+                { x: 28, z: 10 },
               ],
               width: 2,
             },
@@ -270,15 +270,15 @@ export function test_environment_support_report(): void {
           woods: {
             stand: {
               outline: [
-                [4, 3],
-                [26, 3],
-                [26, 17],
-                [4, 17],
+                { x: 4, z: 3 },
+                { x: 26, z: 3 },
+                { x: 26, z: 17 },
+                { x: 4, z: 17 },
               ],
               spacing: 5,
             },
           },
-          amenities: { rock: [3, 12], bench: [27, 8] },
+          amenities: { rock: { x: 3, z: 12 }, bench: { x: 27, z: 8 } },
         }),
       },
       rock: {
@@ -432,7 +432,7 @@ export function test_environment_support_report(): void {
             land: level(),
             room: {
               use: AutoMovieEnvironmentFurnishing.furnishedRoom({
-                room: [4, 3.2],
+                room: { width: 4, depth: 3.2 },
                 pieces: {
                   mirror: {
                     model: mirror,

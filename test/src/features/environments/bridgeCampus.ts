@@ -44,7 +44,7 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
       lift: { use: lift, at: { x: 15, y: 0, z: -1.255 } },
       gym: {
         use: AutoMovieEnvironmentFurnishing.gymKit({
-          room: [8, 8],
+          room: { width: 8, depth: 8 },
           stations: 1,
         }),
         at: { anchor: "east/ground/room" },
@@ -52,20 +52,20 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
       garden: {
         at: { x: 3, y: 0, z: 8 },
         use: AutoMovieEnvironment.terrain({
-          size: [14, 6],
+          size: { width: 14, depth: 6 },
           paths: {
             promenade: {
               points: [
-                [1, 2],
-                [13, 2],
+                { x: 1, z: 2 },
+                { x: 13, z: 2 },
               ],
               width: 1.5,
             },
           },
           trees: {
-            grove: { center: [7, 4.5], radius: 1.1, count: 11, scale: 0.15 },
+            grove: { center: { x: 7, z: 4.5 }, radius: 1.1, count: 11, scale: 0.15 },
           },
-          amenities: { seat: [4, 3] },
+          amenities: { seat: { x: 4, z: 3 } },
         }),
       },
       bench: {

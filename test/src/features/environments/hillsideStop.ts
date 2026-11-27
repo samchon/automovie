@@ -47,13 +47,13 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
     degrees: 90,
   };
   const hallWidth: number = 6;
-  const cafeSize: readonly [number, number] = [8, 6];
-  const totalWidth: number = hallWidth + cafeSize[0];
+  const cafeSize: { width: number; depth: number } = { width: 8, depth: 6 };
+  const totalWidth: number = hallWidth + cafeSize.width;
   const wallThickness: number = 0.15;
-  const cafeRoom: readonly [number, number] = [
-    cafeSize[0] - wallThickness,
-    cafeSize[1] - wallThickness,
-  ];
+  const cafeRoom: { width: number; depth: number } = {
+    width: cafeSize.width - wallThickness,
+    depth: cafeSize.depth - wallThickness,
+  };
   const entryWidth: number = 1.2;
   const grade: number = 1.3;
   const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
@@ -63,16 +63,16 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       terrain: {
         at: { x: -10, y: 0, z: -10 },
         use: AutoMovieEnvironment.terrain({
-          size: [30, 24],
-          relief: { kind: "plane", slope: [0.1, 0] },
+          size: { width: 30, depth: 24 },
+          relief: { kind: "plane", slope: { risePerX: 0.1, risePerZ: 0 } },
           pads: {
             station: {
               at: "station",
               outline: [
-                [0, 0],
-                [totalWidth, 0],
-                [totalWidth, cafeSize[1]],
-                [0, cafeSize[1]],
+                { x: 0, z: 0 },
+                { x: totalWidth, z: 0 },
+                { x: totalWidth, z: cafeSize.depth },
+                { x: 0, z: cafeSize.depth },
               ],
               cut: true,
               height: { anchor: "station/ground/entry" },
@@ -81,7 +81,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
           paths: {
             approach: {
               width: 2.4,
-              points: [[13, 7], { anchor: "station/ground/entry" }],
+              points: [{ x: 13, z: 7 }, { anchor: "station/ground/entry" }],
             },
           },
         }),
@@ -95,8 +95,24 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
             {
               id: "ground",
               rooms: {
-                hall: { type: "rectangle", value: { x: 0, z: 0, width: hallWidth, depth: cafeSize[1] } },
-                cafe: { type: "rectangle", value: { x: hallWidth, z: 0, width: cafeSize[0], depth: cafeSize[1] } },
+                hall: {
+                  type: "rectangle",
+                  value: {
+                    x: 0,
+                    z: 0,
+                    width: hallWidth,
+                    depth: cafeSize.depth,
+                  },
+                },
+                cafe: {
+                  type: "rectangle",
+                  value: {
+                    x: hallWidth,
+                    z: 0,
+                    width: cafeSize.width,
+                    depth: cafeSize.depth,
+                  },
+                },
               },
               openings: [
                 {
@@ -130,12 +146,15 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
             room: cafeRoom,
             tables: 1,
             keepClear: {
-              entry: [
-                Math.max(entry.x - ctx.frame.translation.x, -cafeRoom[0] / 2),
-                entry.z - ctx.frame.translation.z - entryWidth / 2,
-                1,
-                entryWidth,
-              ],
+              entry: {
+                x: Math.max(
+                  entry.x - ctx.frame.translation.x,
+                  -cafeRoom.width / 2,
+                ),
+                z: entry.z - ctx.frame.translation.z - entryWidth / 2,
+                width: 1,
+                depth: entryWidth,
+              },
             },
           })(ctx);
         },
