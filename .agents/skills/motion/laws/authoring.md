@@ -6,11 +6,11 @@ Define the action's interaction through time-bounded effector goals. Fit them wi
 
 | Part | Names |
 | --- | --- |
-| End effector | A measured point on the body, such as the palm center or the seat bones |
-| Target | A declared region or socket, a prop's grip or surface, a point in the set or an aim point |
+| End effector | A measured body point, such as palm center or seat bones |
+| Target | A region, socket, prop grip or surface, set point or aim point |
 | Approach | The direction and orientation the act needs |
 | Window | When the goal holds, such as from grip to release |
-| Tracking | Whether the target is frozen at the window's start or tracked through it |
+| Tracking | Freeze the target at window start or track it throughout |
 
 Measure distances from the body and target. Cite provisional values. Take key poses, timing and windows from primary studies. Specify joint angles only where goals leave them open.
 

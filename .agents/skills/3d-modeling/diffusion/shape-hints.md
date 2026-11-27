@@ -5,7 +5,7 @@ Start with the existing geometry. Choose a technique by what must hold. See [3D 
 | Technique | What must hold |
 | --- | --- |
 | Geometry condition | The layout and proportions, while detail is added |
-| Texture on the given mesh | The geometry exactly, while only appearance is added |
+| Texture on the given mesh | Exact geometry while adding appearance |
 | Refinement of the given mesh | The silhouette, while surface detail is added |
 | Views rendered from the shape | The layout, when no model takes a shape |
 | Pose condition and rigging onto the given skeleton | A body's skeleton |

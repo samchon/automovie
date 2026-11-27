@@ -16,8 +16,8 @@ Finish when the latest baseline has no findings, all accepted issues are closed 
 Discovery runs in this order:
 
 1. Run a complete round over the declared scope under the [review rules](../review/SKILL.md#review-rules).
-2. Check each candidate's owner, history and duplicates, then accept, merge, split or reject it.
-3. Repeat complete rounds on the same baseline until one finds nothing meaningful.
+2. Check owner, history and duplicates. Accept, merge, split or reject each.
+3. Repeat full rounds on one baseline until one finds nothing meaningful.
 
 A round includes real workflows, related issues and pull requests, and the [contracts](../contracts/SKILL.md) even where tests pass. The last round freezes the accepted set, and a target-branch change restarts discovery.
 
@@ -70,8 +70,9 @@ Keep unfinished work and its checks in their current state when the user ends a 
 
 1. Stop every worker, keeping only changes that build, and commit them.
 2. Publish one handoff issue containing the context a fresh session needs.
-3. Comment the progress on each open issue, pointing to the handoff, and close only the issues whose acceptance is met.
-4. Update the pull request body to say what is met and what is not, then merge as the user directs.
+3. Comment on each open issue with progress and the handoff.
+   - Close only issues whose acceptance criteria are met.
+4. State met and unmet criteria in the PR body. Merge as the user directs.
 
 The handoff issue holds:
 

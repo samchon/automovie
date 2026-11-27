@@ -21,7 +21,7 @@ When findings recur, check the design and simplify or revert it.
 
 Review the base-to-head diff and uncommitted work. Report:
 
-- the single pass over Evidence-covered code, and the clean round over everything else;
+- the single Evidence pass and the clean round for other work
 - every check that could not run;
 - every claim fixed in code but not yet proven on a real host.
 

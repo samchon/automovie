@@ -32,7 +32,7 @@ For a commissioned [detail option](../development/entities.md#detail), use the s
 | [Crafting](crafting/SKILL.md) | Shape it in code from dimensions and formulas |
 | [Lofting](crafting/lofting.md) | Build or fit it from sections and guides |
 | [Sources](sources.md) | Find an existing mesh, material, environment map or motion clip |
-| [Conditioning](conditioning.md) | Take a found or generated mesh into the production, or vary it by a parameter |
+| [Conditioning](conditioning.md) | Use a found or generated mesh, or vary it by parameter |
 | [Mesh recovery](crafting/recovery.md) | Rebuild a fixed mesh as curves or surfaces |
 | [Rigging](rigging.md) | Add or change a skeleton, skin, attachment or deformation control |
-| [Materials](materials.md) | Give the form its surfaces: record materials, generated finishes and wear |
+| [Materials](materials.md) | Author surfaces, generated finishes and wear |

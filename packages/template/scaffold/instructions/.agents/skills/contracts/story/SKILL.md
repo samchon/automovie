@@ -29,7 +29,7 @@ Shared entries for complete layers are [scope and ownership](obligations/common.
 | Long settings | [World and scope](obligations/settings.md) |
 | Treatments | [Event design and handoff](obligations/treatments.md) |
 | Scripts | [Partition and scene coverage](obligations/scripts.md) |
-| Screenplay | [Complete realization, recurring forms, voices, rhythms and version](obligations/screenplay.md) |
+| Screenplay | [Full realization, recurring forms, voices, rhythm and version](obligations/screenplay.md) |
 
 If checking the settings index as a whole, use [canonical navigation](obligations/index.md).
 

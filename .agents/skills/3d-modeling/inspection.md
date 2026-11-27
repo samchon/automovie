@@ -41,7 +41,7 @@ A mesh without a generating definition has no construction, so these passes take
 
 | Judging | Pass |
 | --- | --- |
-| Density, seams and how the triangles follow the form | Mesh edges over the shaded surface |
+| Density, seams and how triangles follow form | Edges over shaded surfaces |
 | Which way each face points | Front and back faces in different colors |
 | Shading breaks | Normals shown as color |
 

@@ -6,12 +6,16 @@ Supply a reference image when appearance is decided.
 
 Each image given to the model shows:
 
-- one whole subject filling most of the frame, uncropped, with a margin on every side;
-- a plain background in a color apart from the subject's, or real transparency, never a gradient or a reflective floor;
-- even, diffuse light without harsh shadows or glare, because a shadow becomes a dark patch in the texture;
-- a front or three-quarter view from far away with a long lens, because perspective distortion becomes geometry;
-- the face and hands large enough to read, with the fingers apart;
-- the resolution the model's guide asks for, with any enhancement that redraws the input's details turned off.
+- one uncropped subject filling most of the frame, with a margin on every side
+- a plain contrasting background or real transparency
+  - Never use a gradient or reflective floor.
+- even diffuse light without glare or hard shadows
+  - A shadow becomes a dark patch in the texture.
+- a distant front or three-quarter view with a long lens
+  - Perspective distortion becomes geometry.
+- the face and hands large enough to read, with the fingers apart
+- the resolution in the model guide
+  - Disable enhancement that redraws input details.
 
 If the model crops or removes backgrounds, provide a square image with a real alpha channel to protect the silhouette.
 

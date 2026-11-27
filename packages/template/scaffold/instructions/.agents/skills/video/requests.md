@@ -18,9 +18,9 @@ Adherence is how much of the hint a request keeps. This scale is a starting poin
 
 | Keeps from the hint | Suits |
 | --- | --- |
-| Positions, contacts, timing and camera | Fights, stunts and other contact, and a pose the next shot continues |
-| Choreography and camera, while the model adds cloth and hair | Speech and reaction |
-| Blocking, rhythm and camera | Crowds, background action and establishing shots |
+| Positions, contacts, timing and camera | Fights, stunts and continued poses |
+| Choreography and camera, with model cloth and hair | Speech and reaction |
+| Blocking, rhythm and camera | Crowds, background action, establishing shots |
 | Camera and the coarse plan | A shot whose action the prompt carries |
 
 Where the model sets adherence, record the film's default level in [project context](../production/project-context.md) and give a request another level where the scale suits it better. [Dense channels](../motion/control-channels.md#dense-channels) sets how closely a shape is held.
@@ -39,7 +39,7 @@ Give each input one role, and state it in the prompt under [input roles](diffusi
 - the canon references, for identity and appearance;
 - a [shot frame](../image/diffusion/conditioning.md#shot-frames), for appearance at the hint's pose;
 - the accepted previous take, for continuing its motion under [continuity](diffusion/continuity.md#chaining-requests);
-- accepted dialogue audio or a voice reference, for commissioned speech where the model takes one.
+- accepted audio or voice reference for commissioned speech, if supported
 
 [Hints](diffusion/hints.md) sets how each input reaches the model. Render the request's hint and channels under [control channels](../motion/control-channels.md) at the model's frame rate and size. Never resample a channel afterwards, because resampling blends depth values and mask colors.
 

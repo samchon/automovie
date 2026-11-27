@@ -28,9 +28,10 @@ The documentation is two trees, each with a `_meta.ts` per folder. The guide in 
 Verify on the production build, because the dev server compiles the packages for minutes and serves what the export does not.
 
 1. Run `pnpm --filter @automovie/website typecheck`.
-2. Run `build`, which runs the checks and the bake before the export and the bundle check after it.
+2. Run `build` for pre-export checks and bake, then the bundle check.
 3. Run `smoke`, which opens every case in a headless browser.
-4. Use `shots --full --scroll` at 1440 and 390 px in both themes and reduced motion.
+4. Use `shots --full --scroll` at 1440 and 390 px.
+   - Check both themes and reduced motion.
 5. Inspect the take stills with `posters`.
 
 Judge the screenshots under [visual debugging](../visual-debugging/SKILL.md) and against the rules in DESIGN.md. Fix every finding of a round by cause before the next round.

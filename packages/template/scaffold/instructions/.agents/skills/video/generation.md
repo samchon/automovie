@@ -28,7 +28,7 @@ Repair a take by its cause:
 
 | Flaw | Repair |
 | --- | --- |
-| Lost action, identity or causality | Repair the source, the request or the selection |
+| Lost action, identity or causality | Fix source, request or selection |
 | A local flaw in an otherwise right take | Repair it under [partial repair](finishing.md#partial-repair) |
 | A framing the takes keep losing | Change the hint's camera under [staging](../motion/staging.md) |
 | Drifting motion or camera | Set a stricter adherence or shorten the request |

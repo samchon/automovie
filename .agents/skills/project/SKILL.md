@@ -28,9 +28,9 @@ The scaffold owns the [screenplay routes](../../../packages/template/scaffold/in
 | Commission | Ends at |
 | --- | --- |
 | Screenplay only | The text |
-| Film-generation hint | The whole video assembled from the required scenes' programmed staging and motion |
+| Film-generation hint | Whole video of required scenes' staging and motion |
 | Standalone asset | The asset verified in its commissioned use |
-| Finished video | The finished video, by direct 3D rendering or a chosen diffusion workflow |
+| Finished video | Direct 3D render or output from a chosen diffusion workflow |
 
 Supporting stills or isolated clips do not complete a film-generation hint.
 
@@ -76,20 +76,20 @@ Inventories are in the [root README](../../../README.md#packages) and the packag
 
 | Package | Owns |
 | --- | --- |
-| `interface` | Canonical common and domain contracts, including the authoring AST |
-| `engine` | Deterministic computation and runtime admission, and the universal motion primitives |
+| `interface` | Canonical domain and common contracts, with the authoring AST |
+| `engine` | Deterministic computation, admission and universal motion |
 | `motions` | Human action content |
 | `human` | The human figure generated from typed parameters by code |
-| `archetypes` | Coarse seeded producers of what a person acts with, and their affordances |
+| `archetypes` | Seeded coarse objects and the affordances people act on |
 | `recovery` | Reference-mesh reconstruction |
 | `ingest` | Deterministic decoding and inspection of external media bytes |
-| `render` | Building and drawing scenes, the passes, the inspection core, the capture plan and record |
+| `render` | Scene building, drawing, passes, inspection and capture records |
 | `viewer` | The interactive display, a React library |
-| `cli` | The `automovie` command: creating a production, and the hosts that capture, render and review it |
-| `evidence` | Reusable engineering defaults and optional narrative evidence composition, for native checking |
-| `template/scaffold` | The generated production instructions, editable contracts and thin configuration |
+| `cli` | The `automovie` creator and capture, render and review hosts |
+| `evidence` | Engineering and optional narrative checks for native Evidence |
+| `template/scaffold` | Shipped production prompts, contracts and config |
 
-`archetypes` covers objects, furniture, architecture, vehicles, animals and weapons, and no product package depends on it. `render` also owns frame schedules and encoding plans, and launches nothing. `cli` installs `template/scaffold`.
+`archetypes` covers objects, furniture, architecture, vehicles, animals and weapons, and no product package depends on it. `render` also owns capture plans, frame schedules and encoding plans, and launches nothing. `cli` installs `template/scaffold`.
 
 `interface` owns the pure contracts exposed by `engine`, `human`, `motions`, `recovery`, `ingest` and `render`, including inputs, results and callbacks. Keep runtime code, frontend contracts and types with implementation dependencies in their owning packages. Reuse common model, affordance, body, rig and geometry types for new assets.
 
@@ -113,9 +113,10 @@ Productions live in [automovie-examples](https://github.com/samchon/automovie-ex
 
 ## Commands
 
-- The workspace runs Node 22.23.2, and `human` and generated projects require at least that.
-- `pnpm run build` compiles with correctness lint and the shared native declaration guards.
+- Workspace Node is 22.23.2, the minimum for Human and generated projects.
+- `pnpm run build` compiles with correctness lint and native declaration guards.
 - `pnpm run evidence` separately checks checklist answers.
-- CI runs the build in `build.yml` and the suite in `test.yml`; `website.yml` also deploys on a `master` push.
+- `build.yml` builds and `test.yml` runs the suite.
+  - `website.yml` also deploys on pushes to `master`.
 
 The Node floor exists because older Node 22 loaders can expose an unevaluated ES module in a mixed CommonJS and ES-module graph.

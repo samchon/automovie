@@ -4,11 +4,11 @@ Author anatomical points, construction lines and curve controls before lofting. 
 
 ## Centres before curves
 
-1. Place joint centres by published measurement definitions in parent segment frames.
+1. Place joint centres in parent frames using published measurement definitions.
 2. Derive each section's course centre and its offset from the joint frame.
 3. Draw a continuous course through its centres.
-   - Locate each station, knot and site by its fraction between successive centres.
-4. Draw outlines, fullness and inflection lines as continuous functions along the course.
+   - Place each station, knot and site by fraction between successive centres.
+4. Draw continuous outlines, fullness and inflection lines along the course.
    - Carry changes into the functions and their derivatives between knots.
 5. Extend the course and control fields across the joint into their neighbour.
    - Derive the joint from both parts' centres and frames.
@@ -40,10 +40,10 @@ Fit a relief to the solved wall. Read each depth and girth at the landmarks and 
    - Proportion divisions and extrema stations
    - Tangent rays and joint bisection planes
    - Control polygons or handles
-3. Check each curve against the aids, then against the reference and its neighbours.
+3. Check each curve against aids, reference and neighbours, in that order.
    - Check the order of every connection's start, course and end.
 4. Expose the actual controls and their endpoint tangents.
-   - Label interpolation points, off-curve controls and evaluated points distinctly.
+   - Distinguish interpolation points, off-curve controls and evaluated points.
    - Derive handles from anatomy, measures or the declared construction.
 
 ## Choose the representation
@@ -53,11 +53,13 @@ Choose by endpoint continuity, fullness extrema and editing domain. Record the p
 | Need | Choice and limit |
 | --- | --- |
 | Line or conic | Exact degree-one span or rational conic |
-| Endpoints and tangents | Cubic Bézier, with each end edge setting its tangent |
-| Fullness between tangent-fixed ends | Quartic Bézier, with one central control |
-| Position and two derivatives at both ends | Quintic Hermite or its exact six-point Bézier |
-| Local edits across many segments | Clamped B-spline, continuous to degree minus knot multiplicity |
-| Monotone scalar sketch | PCHIP. Check second derivative jumps before using it on a C2 skin. |
+| Endpoints and tangents | Cubic Bézier; its end edges set the tangents |
+| Fullness between fixed end tangents | Quartic B?zier, one central control |
+| Position and two end derivatives | Quintic Hermite or exact six-point Bézier |
+| Local edits across spans | Clamped B-spline |
+| Monotone scalar sketch | PCHIP |
+
+A clamped B-spline is continuous to its degree minus knot multiplicity. Check PCHIP's second derivative jumps before using it on C2 skin.
 
 Apply unit and frame maps first. Convert bases exactly in the same parameter and use the engine's evaluator.
 
@@ -69,7 +71,7 @@ Aligned handles give G1. Check speed and second derivatives separately for C2. I
 
 ## Generate from parameters
 
-Step 3 of the [method](SKILL.md#three-steps) generates from anatomical inputs, laws and population priors. Mark each value as supplied, derived or estimated.
+Mark each parameter value as supplied, derived or estimated.
 
 Resolve datums and shared definitions once. Draw each curve directly from them using pure laws. Read shared boundaries from their [owner](construction.md#connections).
 

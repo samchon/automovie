@@ -7,11 +7,11 @@ description: Reviews independently what an author made.
 
 | Read | For |
 | --- | --- |
-| [Independent reading](independent-reading.md) | Reading a narrative independently before auditing author records |
-| [Narrative rounds](narrative-rounds.md) | Judging a narrative pass, exchanging findings and closing its round |
+| [Independent reading](independent-reading.md) | Read the narrative before auditing author records |
+| [Narrative rounds](narrative-rounds.md) | Judge a pass, share findings and close its round |
 | [Source review](source-review.md) | Reviewing source, its tests and the truth of its answers |
-| [Screenplay handoff](delivery-review.md#narrative) | Accepting or handing off commissioned text under its narrative route |
-| [Video delivery](delivery-review.md#video) | Accepting a whole motion hint, direct 3D film or generated film |
+| [Screenplay handoff](delivery-review.md#narrative) | Accept or hand off commissioned text under its route |
+| [Video delivery](delivery-review.md#video) | Accept a whole hint, direct 3D film or generated film |
 | [Asset delivery](delivery-review.md#assets) | Checking a standalone visual or audio asset |
-| [Estimation](estimation.md) | Estimating quality or comparing editions without approving anything |
+| [Estimation](estimation.md) | Estimate quality or compare editions without approval |
 | [Segment review](../motion/segment-review.md) | Author-led review of staged intervals and joins |

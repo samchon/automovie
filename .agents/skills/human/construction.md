@@ -14,7 +14,7 @@ Choose the operator by the parts' topology.
 
 | Where parts meet | Operator |
 | --- | --- |
-| A child branches from a continuing parent | Port on the parent's landmark loop |
+| Child branches from a continuing parent | Port on the parent's landmark loop |
 | Children branch from the same open end | Split along a shared saddle seam |
 | Two compatible open ends meet | Continuation |
 | A part emerges through a surface | Merge from a shared landmark seed |
@@ -28,7 +28,7 @@ One owner supplies the common section or both complete port curves with transver
 
 Use the published anatomical landmarks to define the parent loop, such as the shoulder and axillary folds for the armscye. Cut the loop from the parent's skin with a surface in skeleton coordinates. Derive the cut's offset and orientation from the person's measures. Verify that every defining landmark lies on the result.
 
-The parent publishes the loop's outlines and slopes. Start the child's view curves from those values in its own frame. [Compare both sides](verification.md#shared-connections) before lofting.
+The parent publishes the loop's outlines and slopes. Start the child's view curves from those values in its own frame. Compare both sides before lofting.
 
 The child forms its mass from its joint through the port and extends its field past the root rail. Blend both 2-jets with the engine's quintic Hermite strip for G2. Derive margins, rails, ribbons and ring placement from the same curves. Size loops to clear neighbouring loops and the section family, and put the port on the landmark loop at a crest.
 
@@ -47,13 +47,13 @@ Find each defect from the first stage that produces it. Keep working neighbours 
 1. Identify the owning face, observed deviation and generating stage.
 2. Reconcile the 2D source lines at shared boundaries.
 3. Trace a wall defect to the anchor curves, curvature or field between knots.
-   - Record bound or near-chord values and reconstruct from sound neighbouring knots.
+   - Log bound or near-chord values and rebuild from sound neighbouring knots.
 4. Refit all dependent reliefs, cutters and bands affected by the change.
 5. Use a relief where its [cast](../3d-modeling/crafting/lofting.md#composition-before-lofting) sees the skin.
    - Use an inflection line or a family for skin outside that cast.
 6. Extend the [tree](#tree) when the kernel lacks a capability.
 
-Follow [research](SKILL.md#research) before editing. For a refusal, isolate the target, window or bound against a passing control. Change the method when measured constraints show it cannot express the form.
+For a refusal, isolate the target, window or bound against a passing control. Change the method when measured constraints show it cannot express the form.
 
 ## Parametric identity and binding
 
@@ -65,7 +65,7 @@ Recompute affected addresses and bindings after topology or chart edits. Recompu
 
 ## Form
 
-Use the [2D curves](curves.md) as the source through composition and lofting. Author each shared contour in one frame and map its interval into the neighbouring parts. Reflect both sides from one construction, including boundary maps, derivatives and orientation.
+Use the original 2D curves as the source through composition and lofting. Author each shared contour in one frame and map its interval into the neighbouring parts. Reflect both sides from one construction, including boundary maps, derivatives and orientation.
 
 Keep part files named for their region and piece, with controls in common body or bone-relative frames. Split domains where topology, continuity or editability requires it. Use multiple pieces or loops when a section has branches or undercuts.
 
@@ -75,7 +75,7 @@ When a part or join fails, return its diagnostic and keep the rest of the figure
 
 ## Numbers
 
-The first two [steps](SKILL.md#three-steps) trace one reference. Step 3 derives from anatomical inputs, published laws, geometry and population priors.
+Derive the parameterized form from anatomical inputs, published laws, geometry and population priors.
 
 Use the fewest independent values that still express the guides, sections and measurements. Use named constants for fixed definitions, unit factors, published ranges, ratios and normalized priors. Calculate values that depend on the person's inputs. Cite each constant and curve in its doc comment.
 

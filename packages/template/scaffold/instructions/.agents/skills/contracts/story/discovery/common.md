@@ -21,7 +21,7 @@ For language requirements, identify the speakers, passages, audience cues and ow
 At each discovery checkpoint, account for what the team inspected.
 
 - Assign a local gap to a work contract or folder.
-- Research a proposed shared criterion and keep it local until corroborated elsewhere.
+- Research proposed shared criteria. Keep them local pending corroboration.
 - For a negative, name the risk and the owner that covers it.
 
 Leave unread scope open. Record each [user decision](../../../story/planning/requirements.md#asking-the-user) as fixed, delegated or open.

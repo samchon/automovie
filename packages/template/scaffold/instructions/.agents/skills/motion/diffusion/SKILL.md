@@ -12,9 +12,9 @@ Use a model the user chooses only for movement the installed vocabulary lacks.
 | Read | To |
 | --- | --- |
 | [Motion models](models.md) | Choose a generator or a pose estimator |
-| [Hints](hints.md) | Bring the composed performance to a model, and check that the result keeps it |
+| [Hints](hints.md) | Supply the composed performance and check the model preserves it |
 | [Clips](clips.md) | Check a generated or captured clip and its licenses |
-| [Tracing](tracing.md) | Trace a performer in footage into a clip, keys or a study's measurements |
+| [Tracing](tracing.md) | Extract a clip, keys or study measurements from footage |
 
 Generate a stretch the user chose in these steps:
 

@@ -16,7 +16,7 @@ At intake, use the user's explicit choice or ask which approach they want. Recor
 
 | Choice | Narrative passes | Screenplay |
 | --- | --- | --- |
-| This workflow, recommended | The route's | The writer develops the screenplay through them |
+| This workflow, recommended | The route's | Develop through those layers |
 | Without this workflow | None | The writer [writes it directly](#direct-writing) |
 | The user's, refined | The route's | Material, through [intake](../document-layout.md#intake-of-existing-work) |
 | The user's, fixed | None | [Used exactly as given](#fixed-screenplay) |

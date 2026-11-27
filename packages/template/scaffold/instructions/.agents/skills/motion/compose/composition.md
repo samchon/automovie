@@ -9,9 +9,9 @@ Read the performer's intent, skill, circumstances and style in the beat and subj
 Choose the smallest implementation that performs those details.
 
 1. Use a shipped action or row when its mechanics and defaults fit the beat.
-2. Set supported parameters or compose actions when the changes are already expressible.
+2. Set supported parameters or compose actions for expressible changes.
 3. Register a row to reuse a fitted set of parameters with a name.
-4. Register a law with [effector goals](../laws/authoring.md) for the interval or channels needing new mechanics.
+4. Register a law with [effector goals](../laws/authoring.md) for channels or times with new mechanics.
 
 For example, a startled retreat needs the abrupt reactions and steps observed for that person. A kickboxing backstep carries its own stance and rhythm. A wuxia scene's style comes from the studied performance, including how its cast moves before and after contact. Use a shipped action only where its displayed movement fits that style.
 
@@ -29,17 +29,19 @@ Settle each beat element's axes in order from the beat and study.
 
 | Axis | Settle |
 | --- | --- |
-| Base | What carries the body: the floor, a seat, a wall, a bar, water, a moving vehicle or mount, or another person |
-| Travel | Whether and where the body travels, at what gait, and its spacing from a partner or target |
-| Action | The vocabulary's action, and its named entry where the action has a table of them |
-| Effector | The hand, fingers, foot or other part that performs it or bears weight, and what each hand already holds |
+| Base | What carries the body |
+| Travel | Whether, where, gait and spacing from partner or target |
+| Action | Vocabulary action and named entry when it has a table |
+| Effector | What acts or bears weight, and what each hand already holds |
 | Target | What the action reaches, with the contact site on it |
 | Object | The object involved and how the body relates to it |
 | Partner | The performer's role where several perform one action |
-| Force | What acts on the body from outside, such as a hit, shove, load or slip, and the outcome the beat decides |
+| Force | External hit, shove, load or slip, and the beat's chosen outcome |
 | Manner | Effort, pace, count and how long it is held |
-| Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
-| Timing | When it happens against other actions, partners, hits, commands, dialogue and beats |
+| Layer | Ongoing gaze, breath, listening or mood beneath the action |
+| Timing | Relation to other actions, partners, hits, cues, dialogue and beats |
+
+A base can be a floor, seat, wall, bar, water, moving vehicle or mount, or another person. Effectors include hands, fingers and feet.
 
 Set each axis through installed operators. Omit a parameter only if its default performs the choice. Leave joint fitting and contact response to the package owners. Return missing story choices to [concretization](../../story/correction/repair.md#concretization).
 

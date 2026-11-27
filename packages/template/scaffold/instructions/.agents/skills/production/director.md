@@ -12,11 +12,15 @@ Confirm [scope and authority](project-context.md#intake). [Register required pro
 
 At each handoff:
 
-- Inspect the current artifact, subject records, cited studies and [commissioned references](../review/delivery-review.md#assets).
-- Read the screenplay in viewing order. Follow people and props and check timing, space and intended effect.
+- Inspect the artifact, subject records and cited studies.
+  - Inspect the [commissioned references](../review/delivery-review.md#assets).
+- Read the screenplay in viewing order.
+  - Follow people and props. Check timing, space and intended effect.
 - Test any standalone asset in its commissioned use. Record your judgment.
-- Use reports to locate issues. Verify independent verdicts and active Evidence against that revision.
-- Leave unobserved work pending. Only active Evidence checks the current respondent.
+- Locate issues with reports.
+  - Verify independent verdicts and active Evidence at the inspected revision.
+- Leave unobserved work pending.
+  - Only active Evidence checks the current respondent.
 
 Batch findings. Give each repair owner the location, observed loss and what to preserve. Inspect the revision and any retake joins. Honor [closed passes](../story/correction/repair.md#closed-passes) and refer changes to [fixed text](../story/workflow/routes.md#fixed-screenplay) or reserved decisions to the user.
 

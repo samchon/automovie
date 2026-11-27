@@ -12,6 +12,6 @@
 
 Work only in the local checkout, never in another clone or worktree, so every worker and the supervisor see one tree. Give every file write and output redirect an absolute path, because a relative one resolves against the process's own directory and lands a stray file elsewhere in the tree.
 
-Preserve existing diffs. Do not stash, reset, clean or commit unfinished work merely to obtain a clean checkout. Construction commits must pass the [delivery gate](supervision.md#before-delivery).
+Preserve existing diffs. Do not stash, reset, clean or commit unfinished work merely to obtain a clean checkout.
 
 Before cleanup or a branch change, inspect added and ignored paths and protect existing work and private references. Delete only verified task-owned scratch paths under the user's shell and cleanup rules.

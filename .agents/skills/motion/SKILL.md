@@ -22,12 +22,15 @@ An act that needs a missing axis or operator, such as a new kind of support, eff
 
 ## Adding an action
 
-1. Read the family issue and the primary studies for timing, key poses and novice and expert measurements.
-2. Specify the [law inputs and events](laws/declaration.md), [effector goals and reach](laws/authoring.md), [contacts](laws/contacts.md) and [variation](laws/variation.md).
+1. Read the family issue and primary studies.
+   - Find timing, key poses and novice and expert measurements.
+2. Specify the [law inputs and events](laws/declaration.md), [contacts](laws/contacts.md) and [variation](laws/variation.md).
+   - Set [effector goals and reach](laws/authoring.md).
 3. Plan its knots, branch points and pure pose function under [pose by time](laws/transitions.md#pose-by-time).
 4. [Declare cuts](laws/transitions.md#declared-cuts) from this law and from the actions that can lead into it.
-5. Write [bounded checks](laws/verification.md) from the study and cover relevant bodies, supports and compositions.
-6. Run the focused tests and fix the round by cause. Cite each study in the law and the sub-issue.
+5. Write [bounded checks](laws/verification.md) for relevant bodies, supports and compositions.
+   - Derive the bounds from the study.
+6. Run focused tests and fix by cause. Cite studies in the law and sub-issue.
 
 Keep any feature test that exposes an outside defect. Record failed measurements and remaining failures in the family's sub-issue and fix the outside defect at its owner in the same pull request.
 

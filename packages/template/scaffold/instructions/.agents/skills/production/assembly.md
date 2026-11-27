@@ -22,10 +22,11 @@ Include only commissioned [sound](../audio/film-sound.md) and [captions](caption
 
 Follow [delivery repairs](../review/delivery-review.md#repairs) for a failed cut. Hand off the candidate with:
 
-- its revision, media identities, fixed inputs, source, dependencies and reproduction commands;
+- revision, media IDs, fixed inputs, source, dependencies and rerun commands
 - checks, observers and outstanding limits;
 - for a hint, shot names, frame ranges, cameras and lenses;
 - rights, attribution, generation requests and the derivatives they produced;
-- takes with content credentials, required disclosures and any required music cue sheet from the locked cut.
+- takes with content credentials and the locked cut's required disclosures
+  - Include a cue sheet if required.
 
 Take frame ranges from `cut` in the [verified render report](media-records.md#render-reports). Keep secrets out of the handoff.

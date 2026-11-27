@@ -11,9 +11,9 @@ Plan each capture. The inspector in `viewer` and capture host in `cli` drive the
 
 | Read | For |
 | --- | --- |
-| [Instrument](instrument.md) | Knowing what the instrument draws, plans, records and leaves out |
-| [Capture](capture.md) | Restoring the instrument, or planning a capture's subject, views, times and stills |
-| [Passes](passes.md) | Choosing what each still draws, and marking what a measurement found |
+| [Instrument](instrument.md) | What the instrument draws, plans, records and omits |
+| [Capture](capture.md) | Restore it or plan subjects, views, times and stills |
+| [Passes](passes.md) | Choose what stills draw and mark measured findings |
 | [Comparison](comparison.md) | Setting two captures against each other |
 | [Correction rounds](correction-rounds.md) | Correcting what a capture shows |
 | [Rendering cost](rendering-cost.md) | Measuring what drawing costs |

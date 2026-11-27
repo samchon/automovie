@@ -16,6 +16,6 @@ Use `series/<name>` for a long production. The add command creates `movies/short
 
 ## Share code
 
-Put libraries several productions use under `packages/` and declare them in each consumer with a `workspace:^` dependency. Keep shared agent instructions at this root in [`AGENTS.md`](AGENTS.md) and `.agents/skills/`.
+Put libraries several productions use under `packages/` and declare them in each consumer with a `workspace:^` dependency. Keep shared agent instructions at this root in `AGENTS.md` and `.agents/skills/`.
 
 From the root, run `pnpm lint` or `pnpm test` to check all workspace members. Use `pnpm --filter <name> <script>` for one member.
