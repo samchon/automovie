@@ -31,7 +31,7 @@ export function test_archetypes_nature_irregular_rock_form(): void {
       ),
   );
   const base = hull.faces.find(
-    (face) => nclose(face.offset, 0, tolerance) && face.normal.y < -0.99,
+    (face) => nclose(face.offset, 0, tolerance) && (face.normal.y < -0.99),
   );
   TestValidator.predicate(
     "the rock rests on a flat support facet at Y zero",

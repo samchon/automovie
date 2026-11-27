@@ -183,7 +183,7 @@ export function test_engine_geometry_quadratic_program(): void {
       infeasible.dual[0]! < -0.1 &&
       infeasible.dual[1]! > 0.1 &&
       Math.abs(infeasible.dual[0]! + infeasible.dual[1]!) < 1e-7 &&
-      2 * infeasible.dual[0]! + infeasible.dual[1]! < -0.1,
+      (2 * infeasible.dual[0]! + infeasible.dual[1]! < -0.1),
   );
   const unbounded: Result = solve({ diagonal: [0], linear: [-1], rows: [] });
   TestValidator.predicate(
