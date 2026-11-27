@@ -1,12 +1,16 @@
 import type { RecoveryFileVectorTable } from "./RecoveryFileVectorTable";
 import type { RecoveryFileVectorTableInput } from "./RecoveryFileVectorTableInput";
 
-/*
+/**
  * Keep a private binary64 vector table behind at most three reusable pages. The
  * caller owns its exclusive file and descriptor. Reads return copied triples;
  * writes retain their logical order while private disk flushes may be delayed.
  * Final bytes are meaningful only after finish and successful descriptor close.
  * Failed operations latch their original thrown value and cannot be reused.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Complete three-double rows use little-endian binary64. The contour sink supplies integer row addresses from kernel emission and progress from native fs calls. The table checks address range, vector length and progress bounds. It leaves integer address and count checks and finite scalar admission to callers. A detected transfer failure prevents a later successful flush.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The contour sink owns descriptor and publication lifetime. Each table holds at most three LRU pages of 2730 vectors and 65520 bytes each, derived from the 8192-scalar publication quantum. Reads change LRU order and can flush a dirty victim before reading one valid prefix on a miss. A hit uses that page's current values. Each row encodes or decodes three scalars. The sink closes the descriptors and releases both tables after completion or failure.
+ * @evidence contracts/development/common.md#meaningful-documentation States exclusive backing, delayed physical writes, copied triples, terminal failures, idempotent finish and caller close obligations.
  */
 export function createRecoveryFileVectorTable(
   input: RecoveryFileVectorTableInput,

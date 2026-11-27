@@ -7,7 +7,7 @@ import path from "node:path";
 import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
 import { readRecoveryFixedReference as read } from "./readRecoveryFixedReference";
 
-/*
+/**
  * Publish fitted atlas coefficients and a separate private source-ownership
  * ledger. The observation specification references a fixed registered mesh
  * specification, a fixed curve bundle supplying only automatic station levels,
@@ -19,6 +19,10 @@ import { readRecoveryFixedReference as read } from "./readRecoveryFixedReference
  * endpoint retained, and reclassifies every coalesced slab. scalarWindowMm
  * restricts work to complete slabs with positive window overlap; declared
  * bounds and the conservative whole-slab extent are published separately.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Hash-admitted observations are clipped at saved automatic levels or an explicitly declared physical-spacing subsequence. Private topology, harmonic mapping and constrained joint Bernstein fitting publish independent coefficients. Source arrays and incidence remain in this process and the private ledger; neither source triangle arrays, normals nor mesh references enter the public geometry contract.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed input admission, private ownership publication and public coefficient publication remain separate from engine realization, which opens only atlas.json. Each fixed file is read and hashed once; source assembly is linear in bytes and faces. Observation helpers own indexed clipping and bounded chart solves, while publication streams JSON without a whole serialized string. Saved station levels and open-event addresses define one work order; admitted source arrays serve topology and fitting without another extraction or hidden geometry fallback. Source and curve publications remain live for one observation command and are released on return; explicit interval/chart/patch/iteration budgets bound retained fitted output and immutable files belong to the caller.
+ * @evidence contracts/development/common.md#meaningful-documentation States fixed-byte admission, new-fit comparison scope, deterministic work priority, incomplete chart coverage and explicit C0/external-jet limitations.
  */
 export function observeRecoveryAtlas(
   inputFile: string,

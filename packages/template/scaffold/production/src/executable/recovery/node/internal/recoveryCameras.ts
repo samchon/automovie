@@ -12,11 +12,15 @@ import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 import { recoveryCameraMap } from "./recoveryCameraMap";
 import { recoveryCameraScene } from "./recoveryCameraScene";
 
-/*
+/**
  * Dispatch map/scene acquisition or run the calibrated pair estimator on files.
  * estimate consumes a versioned two-image manifest and publishes one new JSON
  * evidence artifact. Completed observations may refuse a camera; the artifact's
  * status and reasons remain authoritative even when the command completes.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Bounded complete-byte reads, SHA-256 verification and explicit sRGB P6 decoding precede the public resident camera operation. Supplied calibration and declared prior pixel history stay assertions, while this host verifies the exact files it actually acquired. No source directory scan, unverified image, format fallback, synthetic camera, trained feature, changed budget or overwrite supplies a result. A cancelled/refused/failed resident operation without a value publishes nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The Node command owns explicit paths, codec dispatch, input/source provenance and immutable publication; the resident operation owns feature observation, camera fitting and qualification without filesystem access. The pair branch reads/hashes two bounded sources in O(B) and copies O(P) raster bytes; map and scene branches delegate bounded acquisition over three or N admitted sources plus their declared numerical costs. Each host decrements aggregate pixels before decoder allocation and serializes bounded evidence once. Every source is read and hashed once, and one public operation supplies the complete artifact. Source/input digests and source epoch identify publication without sharing or resuming an effectful command. Pair readers retain at most two rasters; delegated map/scene hosts own at most three or N rasters under their admitted pixel/view ceilings. Readers close descriptors, rasters expire after estimation, and the atomic writer owns staging cleanup; no resident RGB enters JSON evidence.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives command arguments, per-file byte bound, unchanged decoding chart, prior-history assertion, source epoch and computational completion versus conditional camera status.
  */
 export function recoveryCameras(args: string[], sourceEpoch: string): void {
   if (args[0] === "scene") {

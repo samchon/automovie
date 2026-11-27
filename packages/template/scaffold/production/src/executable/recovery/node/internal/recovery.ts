@@ -16,7 +16,7 @@ import path from "node:path";
 
 import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
 
-/*
+/**
  * Generic command seam for fixed meshes to saved cubics and saved cubics to
  * engine models. Extraction accepts a JSON specification with units mm, frame,
  * pose, meshes containing path/sha256, and the AutoMovieRecoveryMeshSections
@@ -26,6 +26,10 @@ import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
  * artifact. source epoch argument identifies a frozen source commit.
  * curveFormat selects all saved cubic occurrences; reconstruction admits either
  * saved cubic basis.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Complete-byte hashes admit each fixed input; independent extract and reconstruct commands make source-free geometry consumption observable. No subject name, rig field, source control table or normal field is read. Existing output bytes are never overwritten.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The CLI owns byte admission and atomic publication, public recovery operations own terminal states and orchestration, and existing engine operations retain shared curve and surface computation. JSON parsing and mesh assembly are linear in input bytes and geometry; downstream operators document extraction and tessellation costs. Each input is read and hashed once; the generated model and construction share one completed engine result. Synchronous reads close their handles; arrays live for one command and immutable outputs are caller-owned.
+ * @evidence contracts/development/common.md#meaningful-documentation States full extraction, explicit incomplete prefix extraction and curve-only reconstruction, with input structure, physical units and pre-execution source epoch requirement.
  */
 export function recovery(
   args: string[],

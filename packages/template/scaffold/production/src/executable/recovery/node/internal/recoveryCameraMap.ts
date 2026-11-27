@@ -9,11 +9,15 @@ import { writeRecoveryArtifact } from "../artifact/writeRecoveryArtifact";
 import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 import { readRecoveryCameraImages } from "./readRecoveryCameraImages";
 
-/*
+/**
  * Acquire fixed three-image bytes and publish one immutable sparse-map
  * artifact. The command is cameras map input.json new-output.json
  * maxInputBytes. Completed seed-only/refused geometry still has an artifact; a
  * no-value failure has none.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Bounded complete reads and SHA checks precede explicit unchanged-chart sRGB P6 decoding. One public resident map operation supplies geometry, and immutable publication preserves source epoch, manifest identity and authoritative stage qualification. No source scan, unverified image, transform fallback, truth camera, inferred calibration, changed numerical threshold, overwrite or installation supplies a result.
+ * @evidence contracts/development/implementation.md#efficient-algorithms This Node owner handles paths, byte provenance, decoding and publication; resident recovery owns automatic observation, track geometry and policy. Three bounded reads/hashes cost O(B), decoding O(P), followed by the public map's explicit work limits. Remaining aggregate pixels are decremented before each raster allocation; serialization scales with the bounded sparse artifact. Each declared source is acquired/hashed once; a single public operation supplies the artifact with unchanged metadata, and there is no repeated geometry or effect cache. Bounded readers close their own descriptors; at most three rasters accumulate under the aggregate ceiling and expire after estimation. The existing atomic writer owns staging cleanup and no RGB enters the published JSON.
+ * @evidence contracts/development/common.md#meaningful-documentation States command arguments, relative paths, per-file and aggregate pixel limits, source epoch, unchanged chart and computation versus accepted map semantics.
  */
 export function recoveryCameraMap(args: string[], sourceEpoch: string): void {
   const [command, inputPath, outputPath, byteText]: string[] = args;

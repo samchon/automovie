@@ -8,8 +8,12 @@ import path from "node:path";
 
 import { readRecoveryBoundedFile } from "./readRecoveryBoundedFile";
 
-/*
+/**
  * Acquire a bounded fixed camera set without changing its supplied pixel chart.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Closed path/hash/provenance metadata, complete-byte SHA verification and explicit P6 sRGB decoding bind every acquired source. Remaining aggregate pixels are checked by the decoder before each raster allocation. No unverified byte, directory scan, transform/codec fallback, environment alias or truth camera supplies an image.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Shared Node acquisition serves map/scene commands while resident operations own calibration admission, observation and geometry. N complete bounded reads/hashes cost O(B), decoding O(P); aggregate pixels bound retained RGB arrays. No geometric fitting or feature extraction occurs here. Each declared image is read and hashed once; the same decoded array transfers to the public operation without an intermediate file or new decode. Bounded readers close their descriptors synchronously; call-owned encoded buffers expire per iteration and decoded rasters transfer to the enclosing host. Throws retain no staging or external handle.
+ * @evidence contracts/development/common.md#meaningful-documentation States manifest-relative paths, complete per-file byte/header limits, aggregate pixels and unchanged-chart provenance.
  */
 export function readRecoveryCameraImages(
   sources: readonly IAutoMovieRecoveryCameraFile[],

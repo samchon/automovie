@@ -14,7 +14,7 @@ An object says where a person meets it through its affordances: a seat, a handle
 import { AutoMovieArchetypeDrinkware, AutoMovieArchetypeSeat } from "@automovie/archetypes";
 import { AutoMovieMotionHumanChain, AutoMovieMotionHumanObject, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
-const chair = AutoMovieArchetypeSeat.create({ kind: "dining" }, "scene-3/chair-1");
+const chair = AutoMovieArchetypeSeat.create({ kind: "dining" }, 31);
 const glass = AutoMovieArchetypeDrinkware.create({ kind: "glass" });
 
 new AutoMovieMotionHumanPerformance({
@@ -50,7 +50,7 @@ An archetype is a coarse model made by a typed producer function from parameters
 ```ts
 import { AutoMovieArchetypeDoor, AutoMovieArchetypeSeat } from "@automovie/archetypes";
 
-const chair = AutoMovieArchetypeSeat.create({ kind: "dining" }, "scene-3/chair-1"); // every free dimension drawn in its band
+const chair = AutoMovieArchetypeSeat.create({ kind: "dining" }, 31); // every free dimension drawn in its band
 const stool = AutoMovieArchetypeSeat.create({ kind: "barStool", seatHeight: 0.78 }); // one dimension fixed, the rest at mid-band
 
 const door = AutoMovieArchetypeDoor.create({ hinge: "left", hardware: "lever" }, 7);

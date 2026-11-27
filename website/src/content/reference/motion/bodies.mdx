@@ -36,11 +36,15 @@ A composition that plans can still perform badly. A scene is checked on three th
 3. Stills of the performance show a pose that reads wrongly, which numbers do not.
 
 ```ts
-import { AutoMovieMotionHumanSignature, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import { type AutoMovieMotionHumanPerformance, AutoMovieMotionHumanSignature, AutoMovieMotionHumanVerdicts } from "@automovie/motions";
 
-const report = AutoMovieMotionHumanVerdicts.read(performance);
+declare const humanPerformance: AutoMovieMotionHumanPerformance;
+declare const body: IAutoMovieMotionHumanBody;
+
+const report = AutoMovieMotionHumanVerdicts.read(humanPerformance);
 if (!report.clean) throw new Error(AutoMovieMotionHumanVerdicts.describe(report));
 
-const reader = AutoMovieMotionHumanSignature.read(performance, "a", body, 0);
+const reader = AutoMovieMotionHumanSignature.read(humanPerformance, "a", body, 0);
 const lean = AutoMovieMotionHumanSignature.trunk(reader, 1.5) - AutoMovieMotionHumanSignature.trunk(reader, 0);
 ```
