@@ -2,13 +2,32 @@
 
 ## Names
 
-Publish runtime APIs as classes or non-callable namespaces.
+Publish SDK operations in classes or non-callable namespaces.
 
 Use one namespace level. Put related methods and types directly on the owner or in a separate named owner.
 
 Use PascalCase for top-level public names and include the owning package in the prefix, as in `AutoMovieEngine`. Only `@automovie/interface` omits the package name.
 
-Use camelCase for methods and standalone functions.
+Use camelCase for methods and utility functions.
+
+## React components
+
+Name React component functions in PascalCase. Declare props as
+`Component.IProps` in the component's type-only namespace.
+
+```tsx
+import type { ReactElement } from "react";
+
+export function SomeComponent(props: SomeComponent.IProps): ReactElement {
+  return <span>{props.label}</span>;
+}
+
+export namespace SomeComponent {
+  export interface IProps {
+    label: string;
+  }
+}
+```
 
 ## Folders
 
