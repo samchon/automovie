@@ -1,4 +1,4 @@
-import { getConstraint } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -49,7 +49,7 @@ export namespace HumanTrunkTurn {
     let twist: number = 0;
     for (const bone of ["spine", "chest"] as const) {
       const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
-      const limits: ReturnType<typeof getConstraint> = range(body, bone);
+      const limits: ReturnType<typeof AutoMovieEngineKinematics.getConstraint> = range(body, bone);
       const next: [number, number, number] = [
         was[0],
         toward(was[1], limits?.abduction, -toLeft, share),
@@ -61,7 +61,7 @@ export namespace HumanTrunkTurn {
     }
     for (const bone of ["neck", "head"] as const) {
       const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
-      const limits: ReturnType<typeof getConstraint> = range(body, bone);
+      const limits: ReturnType<typeof AutoMovieEngineKinematics.getConstraint> = range(body, bone);
       joints[bone] = [
         was[0],
         within(was[1] - roll / 2, was[1], limits?.abduction),
@@ -73,14 +73,14 @@ export namespace HumanTrunkTurn {
 }
 
 /** One freedom's range, or none. */
-type Limits = NonNullable<ReturnType<typeof getConstraint>>["twist"];
+type Limits = NonNullable<ReturnType<typeof AutoMovieEngineKinematics.getConstraint>>["twist"];
 
 /** A joint's range on this body's rig. */
 function range(
   body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
-): ReturnType<typeof getConstraint> {
-  return getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
+): ReturnType<typeof AutoMovieEngineKinematics.getConstraint> {
+  return AutoMovieEngineKinematics.getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
 }
 
 /**

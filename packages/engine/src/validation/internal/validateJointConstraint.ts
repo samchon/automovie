@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { swingConeAngle } from "../../rom/swingConeAngle";
+import { swingConeAngle } from "../../rom/internal/swingConeAngle";
 
 const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
   "flexion",

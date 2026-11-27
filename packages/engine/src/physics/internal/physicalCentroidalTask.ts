@@ -1,5 +1,5 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
 import type {
-  IAutoMoviePhysicalProfile,
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -29,7 +29,7 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  * @returns The task: the mass center, the force and the moment.
  */
 export function physicalCentroidalTask(
-  input: physicalCentroidalTask.IInput,
+  input: AutoMovieEnginePhysicalBalanceTypes.CentroidalTask.IInput,
 ): AutoMovieXpbdWorld.IRootTask {
   let mass: number = 0;
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -92,46 +92,4 @@ export function physicalCentroidalTask(
   if (magnitude > input.maximumForce)
     force = Vector3.scale(force, input.maximumForce / magnitude);
   return { origin, force, torque: input.torque };
-}
-
-/** The input of physicalCentroidalTask. */
-export namespace physicalCentroidalTask {
-  /** The body, its goals and the root's gains and demands. */
-  export interface IInput {
-    /** The body's profile: its segments' masses and mass centers. */
-    profile: IAutoMoviePhysicalProfile;
-
-    /** The body's rigid segments by bone. */
-    segments: ReadonlyMap<string, AutoMovieXpbdBody>;
-
-    /** Every segment's sampled goal. */
-    goals: Readonly<Record<string, IAutoMovieSamplePhysicalTarget.IResult>>;
-
-    /** The root's bone. */
-    root: string;
-
-    /** Where the root should stand, with its shifts, world metres. */
-    rootGoal: IAutoMovieVector3;
-
-    /** The root's goal velocity, with its shifts, metres per second. */
-    rootVelocity: IAutoMovieVector3;
-
-    /** The mass center's stiffness, newtons per metre. */
-    stiffness: number;
-
-    /** The mass center's damping, newton seconds per metre. */
-    damping: number;
-
-    /** The force's bound, newtons. */
-    maximumForce: number;
-
-    /** The gravity force compensated, newtons; zero without compensation. */
-    weight: IAutoMovieVector3;
-
-    /** The trunk's orientation demand, newton metres. */
-    torque: IAutoMovieVector3;
-
-    /** The native step, seconds. */
-    dt: number;
-  }
 }

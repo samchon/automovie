@@ -5,7 +5,7 @@
 // CoMIntegrationTools.java integrateCoMPositionWithConstantCMP l.136-170 and
 // integrateCoMPositionOverPolynomial l.355-370.
 // See vendor/ihmc/NOTICE.
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
 
 import { physicalDisturbanceBranches as Branches } from "../physicalDisturbanceBranches";
 import { physicalDisturbanceFollow } from "../physicalDisturbanceFollow";
@@ -14,7 +14,7 @@ import { physicalDisturbanceResponse as Response } from "../physicalDisturbanceR
 import type { physicalIcpPlannerTools as Tools } from "../physicalIcpPlannerTools";
 
 /** A planted foot. */
-type Foot = preparePhysicalDisturbanceSpan.IFoot;
+type Foot = AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IFoot;
 
 /** One closed-form piece of the response. */
 type IPiece = physicalDisturbanceForm.IPiece;
@@ -97,8 +97,8 @@ const { outline }: typeof physicalDisturbanceForm = physicalDisturbanceForm;
  * @returns The prepared span.
  */
 export function preparePhysicalDisturbanceSpan(
-  input: preparePhysicalDisturbanceSpan.IInput,
-): preparePhysicalDisturbanceSpan.ISpan {
+  input: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IInput,
+): AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan {
   const scope: Response.IResponse = Response.create(input);
   const { omega, t0, pieces, branches, tolerance, across, swings, contacts } =
     scope;
@@ -219,165 +219,4 @@ export function preparePhysicalDisturbanceSpan(
       return outline({ ...foot, frame: { ...foot.frame, origin: at } });
     },
   });
-}
-
-/** The span's input, branch points, sample and result. */
-export namespace preparePhysicalDisturbanceSpan {
-  /** The state just after the first push and the pushes after it. */
-  export interface IInput {
-    /** The first push's time, local seconds. */
-    seconds: number;
-
-    /** The centre of mass just after it, world metres. */
-    center: IAutoMovieVector3;
-
-    /** Its velocity, metres per second, the push's impulse over the mass added. */
-    velocity: IAutoMovieVector3;
-
-    /** The pendulum's rate, per second (IHMC's omega0). */
-    omega: number;
-
-    /** The body's mass, kilograms. */
-    mass: number;
-
-    /** Gravity's magnitude, metres per second squared. */
-    gravity: number;
-
-    /**
-     * The two planted feet: each its endpoint bone, its side, its sole frame
-     * and its contact outline in that frame, x forward and y to the left
-     * (`physicalSupportSole.foot`).
-     */
-    feet: readonly IFoot[];
-
-    /** The authored capture point and its rate at the push, held for the span. */
-    authored: {
-      position: { x: number; z: number };
-      velocity: { x: number; z: number };
-    };
-
-    /** The pushes after the first, each its time and velocity jump. */
-    pushes?: readonly IPush[];
-
-    /** The policy's longest step, metres. */
-    maximumStep: number;
-
-    /** The policy's reaction time before a step, seconds; zero when absent. */
-    reactionSeconds?: number;
-
-    /** The floor's height, metres. */
-    floor: number;
-  }
-
-  /** A later push of the stated disturbance. */
-  export interface IPush {
-    /** When, local seconds. */
-    seconds: number;
-
-    /** The centre of mass's velocity jump, metres per second. */
-    velocity: IAutoMovieVector3;
-  }
-
-  /** A planted foot. */
-  export interface IFoot {
-    /** Its endpoint bone. */
-    bone: string;
-
-    /** Its side. */
-    side: "left" | "right";
-
-    /** Its sole frame, world x and z. */
-    frame: {
-      origin: { x: number; z: number };
-      forward: { x: number; z: number };
-    };
-
-    /** Its contact outline in the sole frame. */
-    polygon: { x: number; y: number }[];
-
-    /**
-     * Its leg's reach, when known: the hip anchor's horizontal offset from the
-     * centre of mass, world x and z, its height over the floor, and the leg's
-     * chain length, metres. A footstep stays within sqrt(L^2 - h^2) of the hip
-     * where it stands at touchdown, carried by the centre of mass.
-     */
-    leg?: { hip: { x: number; z: number }; height: number; length: number };
-  }
-
-  /** A branch point of the span. */
-  export interface IBranch {
-    /** What happens there. */
-    kind: "push" | "trigger" | "touchdown" | "standing" | "end" | "fall";
-
-    /** When, local seconds. */
-    seconds: number;
-
-    /** The stepping foot, at a trigger or touchdown. */
-    bone?: string;
-  }
-
-  /** The response at a time. */
-  export interface ISample {
-    /** The walking state the time falls in. */
-    phase: "double" | "single" | "toStanding" | "standing" | "after";
-
-    /** Whether the controller's pivot is held on the support. */
-    saturated: boolean;
-
-    /** The capture point, world x and z, metres. */
-    capture: { x: number; z: number };
-
-    /** Its rate, metres per second. */
-    captureVelocity: { x: number; z: number };
-
-    /** The centroidal moment pivot, world x and z, metres. */
-    pivot: { x: number; z: number };
-
-    /** The centre of mass, world metres, its height held from the push. */
-    center: IAutoMovieVector3;
-
-    /** Its velocity, metres per second, horizontal. */
-    centerVelocity: IAutoMovieVector3;
-
-    /** Each foot's endpoint on the floor, world metres, by bone. */
-    feet: Record<string, IAutoMovieVector3>;
-
-    /**
-     * The ground's reaction, newtons, at the pivot on the floor: m omega^2 (c -
-     * cmp) across and the weight up.
-     */
-    reaction: { point: IAutoMovieVector3; force: IAutoMovieVector3 };
-
-    /** Each planted foot's share of the reaction, by bone, summing to one. */
-    loads: Record<string, number>;
-  }
-
-  /** The prepared span. */
-  export interface ISpan {
-    /** Its branch points in time order. */
-    branches: IBranch[];
-
-    /** The last recovery step's foot and footstep, if it steps. */
-    footstep?: {
-      bone: string;
-      position: { x: number; z: number };
-      viable: boolean;
-    };
-
-    /**
-     * When the response has settled within `maxErrorToStanding` of its plan
-     * after its last branch point, or falls, local seconds: where the body is
-     * handed back to the physics.
-     */
-    until: number;
-
-    /**
-     * The response at a time: pure, in any order; before the push, the state
-     * just after it.
-     *
-     * @param seconds Local seconds.
-     * @returns The response.
-     */
-    sample(seconds: number): ISample;
-  }
 }

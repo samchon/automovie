@@ -1,4 +1,4 @@
-import { getConstraint } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -124,7 +124,7 @@ export namespace HumanCarriedCouplingFit {
       ] as const
     ).map(
       ([bone, axis]: LegCoordinate, k: number): IAutoMovieAngleRange =>
-        getConstraint(bone, readHumanBone(borne, bone)?.constraint ?? null)?.[
+        AutoMovieEngineKinematics.getConstraint(bone, readHumanBone(borne, bone)?.constraint ?? null)?.[
           axis
         ] ?? { min: row.legs[k]!, max: row.legs[k]! },
     );

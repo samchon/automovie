@@ -33,7 +33,7 @@ const point = (id: string, at: IAutoMovieVector3): IAutoMovieAffordance => ({
 });
 
 /**
- * A 6 m ring prop as `createRing` declares it, placed at (10, 0, 0) and turned
+ * A 6 m ring prop as `AutoMovieArchetypeRing.create` declares it, placed at (10, 0, 0) and turned
  * 90 degrees: its canvas at 1 m, its top ropes `east` metres out east and 3 m
  * out on the other sides, its posts' tops at the corners.
  */

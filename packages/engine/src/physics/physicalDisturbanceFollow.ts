@@ -1,10 +1,10 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { physicalDisturbanceForm } from "./physicalDisturbanceForm";
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
-import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /** One closed form of a plan's capture point (`physicalDisturbanceForm`). */
 type IForm = physicalDisturbanceForm.IForm;
@@ -294,21 +294,21 @@ export namespace physicalDisturbanceFollow {
   /** The span from its pieces. */
   export function span(input: {
     pieces: readonly IPiece[];
-    branches: preparePhysicalDisturbanceSpan.IBranch[];
-    footstep: preparePhysicalDisturbanceSpan.ISpan["footstep"];
-    input: preparePhysicalDisturbanceSpan.IInput;
+    branches: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IBranch[];
+    footstep: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan["footstep"];
+    input: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IInput;
     until: number;
     feet: (seconds: number) => Record<string, Tools.IFloor>;
     contacts: (seconds: number) => string[];
     outline: (bone: string, at: Tools.IFloor) => Tools.IFloor[];
-  }): preparePhysicalDisturbanceSpan.ISpan {
+  }): AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan {
     const { pieces } = input;
     const { omega, mass, gravity, floor } = input.input;
     return {
       branches: input.branches,
       ...(input.footstep ? { footstep: input.footstep } : {}),
       until: input.until,
-      sample: (seconds: number): preparePhysicalDisturbanceSpan.ISample => {
+      sample: (seconds: number): AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample => {
         const piece: IPiece | undefined =
           pieces.find((p: IPiece): boolean => seconds < p.end) ??
           pieces[pieces.length - 1];

@@ -187,7 +187,7 @@ const addSdkConsumer = (directory, { parity = true } = {}) => {
   fs.writeFileSync(
     path.join(directory, "src", "composition", "films", "starter.ts"),
     `import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing, createBuilding } from "@automovie/archetypes/environments";
-import { createBookcase, createSeat } from "@automovie/archetypes/furniture";
+import { AutoMovieArchetypeBookcase, AutoMovieArchetypeSeat } from "@automovie/archetypes/furniture";
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
 import {
@@ -221,8 +221,8 @@ export function starter(): IFilm {
             rooms: { studio: [0, 0, 6, 4] },
             openings: [{ id: "entry", kind: "passage", between: ["studio", null], edge: [[0, 0], [6, 0]], width: 1.2, height: 2.1 }],
           }] }) },
-          bench: { use: AutoMovieEnvironmentFurnishing.prop({ model: createSeat({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
-          bookcase: { use: AutoMovieEnvironmentFurnishing.prop({ model: createBookcase() }), at: { x: 4.6, y: 0, z: 2.85 } },
+          bench: { use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
+          bookcase: { use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeBookcase.create() }), at: { x: 4.6, y: 0, z: 2.85 } },
         },
       });
       const id: string = "starter";
@@ -276,11 +276,11 @@ export function starter(): IFilm {
   );
   fs.writeFileSync(
     path.join(directory, "src", "installedSdkSmoke.ts"),
-    `import { createRing } from "@automovie/archetypes";
+    `import { AutoMovieArchetypeRing } from "@automovie/archetypes/gym";
 import { HumanChain } from "@automovie/motions";
 
 // E2E-only: execute published SDK imports in the inspector's browser graph.
-if (createRing({ id: "browser-sdk" }).parts.length === 0 ||
+if (AutoMovieArchetypeRing.create({ id: "browser-sdk" }).parts.length === 0 ||
     !HumanChain.subject("browser-sdk").stand({ hold: 1 }).node)
   throw new Error("Installed SDK returned an incomplete model or motion");
 document.documentElement.dataset.sdkSmoke = "ready";

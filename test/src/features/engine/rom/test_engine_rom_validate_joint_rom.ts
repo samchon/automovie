@@ -1,9 +1,4 @@
-import {
-  AutoMovieEngineViolationCollector,
-  getConstraint,
-  validateJointRom,
-  AutoMovieEngineText,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineText, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieJointConstraint,
@@ -48,7 +43,7 @@ const faults: (
 ): IAutoMovieConstraintViolation[] => {
   const collector: AutoMovieEngineViolationCollector =
     new AutoMovieEngineViolationCollector();
-  validateJointRom({ joint, constraint, path: "$input", collector });
+  AutoMovieEngineKinematics.validateJointRom({ joint, constraint, path: "$input", collector });
   return collector.items;
 };
 
@@ -168,7 +163,7 @@ export function test_engine_rom_validate_joint_rom(): void {
       resting[0]!.path === zero[0]!.path &&
       nclose(resting[0]!.overshoot!, zero[0]!.overshoot!, EXACT),
   );
-  const shoulder: IAutoMovieJointConstraint = getConstraint(
+  const shoulder: IAutoMovieJointConstraint = AutoMovieEngineKinematics.getConstraint(
     "leftUpperArm",
     null,
   )!;

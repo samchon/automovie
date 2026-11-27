@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createSeat } from "./createSeat";
+import type { AutoMovieArchetypeSeat } from "./AutoMovieArchetypeSeat";
 import { AutoMovieArchetypeTable } from "./AutoMovieArchetypeTable";
 
 /** A band in metres. */
@@ -50,12 +50,12 @@ const STOOL: string = "typical round stool seat, not read at a source";
 
 /**
  * The band of each free dimension of a seat, by kind, with the source it was
- * read at; `createSeat.BANDS` is this table.
+ * read at; `AutoMovieArchetypeSeat.BANDS` is this table.
  */
 export const SEAT_BANDS: Readonly<
   Record<
-    createSeat.Kind,
-    Readonly<Partial<Record<createSeat.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeSeat.Kind,
+    Readonly<Partial<Record<AutoMovieArchetypeSeat.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   dining: {

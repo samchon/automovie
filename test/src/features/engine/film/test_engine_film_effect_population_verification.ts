@@ -1,4 +1,4 @@
-import { verifyProductionFilmEffectPopulation } from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import {
   IAutoMovieCompiledFilmEffect,
   IAutoMovieFilmTimeline,
@@ -37,7 +37,7 @@ export function test_engine_film_effect_population_verification(): void {
     current: IAutoMovieFilmTimeline = timeline,
   ): string =>
     filmEffectRefusal((): void =>
-      verifyProductionFilmEffectPopulation({
+      AutoMovieEngineEffect.verifyProductionFilmEffectPopulation({
         timeline: current,
         effects: candidate,
       }),

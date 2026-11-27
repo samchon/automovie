@@ -5,7 +5,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { STORAGE_BANDS } from "./STORAGE_BANDS";
-import { createBookcase } from "./createBookcase";
+import { AutoMovieArchetypeBookcase } from "./AutoMovieArchetypeBookcase";
 import { AutoMovieArchetypeDrawerUnit } from "./AutoMovieArchetypeDrawerUnit";
 import { AutoMovieArchetypeHingedCabinet } from "./AutoMovieArchetypeHingedCabinet";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
@@ -51,7 +51,7 @@ export function create(
     chest: { build: AutoMovieArchetypeDrawerUnit.create },
     filingCabinet: { build: AutoMovieArchetypeDrawerUnit.create },
     locker: { build: AutoMovieArchetypeHingedCabinet.create },
-    bookcase: { build: createBookcase },
+    bookcase: { build: AutoMovieArchetypeBookcase.create },
   };
   return variants[kind].build(params, seed);
 }
@@ -74,7 +74,7 @@ export namespace AutoMovieArchetypeStorage {
     locker: typeof AutoMovieArchetypeHingedCabinet.create;
 
     /** The named producer for the saved `bookcase` selector. */
-    bookcase: typeof createBookcase;
+    bookcase: typeof AutoMovieArchetypeBookcase.create;
   }
 
   /** Resolve the exact named producer for a saved selector on demand. */
@@ -91,8 +91,8 @@ export namespace AutoMovieArchetypeStorage {
     get locker(): typeof AutoMovieArchetypeHingedCabinet.create {
       return AutoMovieArchetypeHingedCabinet.create;
     },
-    get bookcase(): typeof createBookcase {
-      return createBookcase;
+    get bookcase(): typeof AutoMovieArchetypeBookcase.create {
+      return AutoMovieArchetypeBookcase.create;
     },
   };
 

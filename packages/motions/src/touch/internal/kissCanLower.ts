@@ -1,4 +1,4 @@
-import { getConstraint } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -40,7 +40,7 @@ export function kissCanLower(
   return (["left", "right"] as const).every(
     (side: AutoMovieHumanSide): boolean => {
       const name: AutoMovieHumanoidBone = `${side}LowerLeg`;
-      const range = getConstraint(
+      const range = AutoMovieEngineKinematics.getConstraint(
         name,
         readHumanBone(body, name)?.constraint ?? null,
       )?.flexion;

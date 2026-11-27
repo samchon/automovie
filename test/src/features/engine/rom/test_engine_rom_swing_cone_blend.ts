@@ -1,4 +1,4 @@
-import { swingConeBlend } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -18,13 +18,13 @@ const BISECTION: number = 2 ** -38;
  * 3. From an anchor of 20 degrees to 80 under a 50 degree limit, t = 1/2.
  */
 export function test_engine_rom_swing_cone_blend(): void {
-  TestValidator.equals("inside the limit", swingConeBlend(30, 0, 0, 0, 45), 1);
+  TestValidator.equals("inside the limit", AutoMovieEngineKinematics.swingConeBlend(30, 0, 0, 0, 45), 1);
   TestValidator.predicate(
     "half the segment",
-    nclose(swingConeBlend(90, 0, 0, 0, 45), 0.5, BISECTION),
+    nclose(AutoMovieEngineKinematics.swingConeBlend(90, 0, 0, 0, 45), 0.5, BISECTION),
   );
   TestValidator.predicate(
     "from an anchor",
-    nclose(swingConeBlend(80, 0, 20, 0, 50), 0.5, BISECTION),
+    nclose(AutoMovieEngineKinematics.swingConeBlend(80, 0, 20, 0, 50), 0.5, BISECTION),
   );
 }

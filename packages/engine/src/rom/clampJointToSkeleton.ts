@@ -12,9 +12,9 @@ import type {
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { skeletonJointAxes } from "../kinematics/internal/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
-import { clampJointRom } from "./clampJointRom";
+import { clampJointRom } from "./internal/clampJointRom";
 import { clampJointRomValues } from "./internal/clampJointRomValues";
-import { getConstraint } from "./getConstraint";
+import { getConstraint } from "./internal/getConstraint";
 
 /**
  * Synchronous joint projection; returned records can alias an unconstrained

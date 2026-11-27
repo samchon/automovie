@@ -17,7 +17,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { clampJointToSkeleton } from "../../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../../rom/constants/ROM_TOLERANCE";
-import { getConstraint } from "../../rom/getConstraint";
+import { getConstraint } from "../../rom/internal/getConstraint";
 import { descendDigitTasks } from "./descendDigitTasks";
 import { indexSkeletonTopology } from "../indexSkeletonTopology";
 import { preparePoseResolution } from "../preparePoseResolution";

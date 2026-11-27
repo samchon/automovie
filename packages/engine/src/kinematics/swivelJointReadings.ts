@@ -11,7 +11,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { abductionRange } from "../rom/abductionRange";
+import { abductionRange } from "../rom/internal/abductionRange";
 import { swivelArcs } from "./swivelArcs";
 
 /**

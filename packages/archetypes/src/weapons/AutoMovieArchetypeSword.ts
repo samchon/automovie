@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createSword as createSwordImplementation } from "./internal/createSword";
-import { createSwordShapes as parts } from "./createSwordShapes";
+import { createSwordShapes as parts } from "./internal/createSwordShapes";
 import { AutoMovieArchetypeDrawSession } from "../core";
 import { SWORD_MODELS } from "./SWORD_MODELS";
 import { SWORD_BANDS } from "./SWORD_BANDS";

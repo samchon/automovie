@@ -1,7 +1,4 @@
-import {
-  AutoMovieFilmEffectRuntimeError,
-  validateProductionFilmEffectRuntime,
-} from "@automovie/engine";
+import { AutoMovieFilmEffectRuntimeError, AutoMovieEngineEffect } from "@automovie/engine";
 import type { IAutoMovieCompiledFilmEffect } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -13,7 +10,7 @@ const refusal: (runtime: IAutoMovieCompiledFilmEffect) => string | null = (
   runtime: IAutoMovieCompiledFilmEffect,
 ): string | null => {
   try {
-    validateProductionFilmEffectRuntime(runtime);
+    AutoMovieEngineEffect.validateProductionFilmEffectRuntime(runtime);
     return null;
   } catch (error) {
     return error instanceof AutoMovieFilmEffectRuntimeError ? error.code : null;

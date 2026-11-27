@@ -1,9 +1,9 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
-import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /**
  * The closed forms a disturbance response is laid from
@@ -12,7 +12,7 @@ import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalD
  */
 export namespace physicalDisturbanceForm {
   /** One planted foot of a disturbance span, as the span prepares it. */
-  export type Foot = preparePhysicalDisturbanceSpan.IFoot;
+  export type Foot = AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IFoot;
 
   /**
    * Zulu's walking timing the response is laid with: its default swing time
@@ -66,7 +66,7 @@ export namespace physicalDisturbanceForm {
     end: number;
 
     /** The walking state. */
-    phase: preparePhysicalDisturbanceSpan.ISample["phase"];
+    phase: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample["phase"];
 
     /** Whether the pivot is held on the support. */
     saturated: boolean;

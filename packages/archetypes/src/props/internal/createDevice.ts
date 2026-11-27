@@ -5,7 +5,7 @@ import { AutoMovieArchetypePhone } from "../AutoMovieArchetypePhone";
 import { AutoMovieArchetypeRemote } from "../AutoMovieArchetypeRemote";
 import { AutoMovieArchetypeTablet } from "../AutoMovieArchetypeTablet";
 import "../HandheldDevice";
-import { createRadio } from "../createRadio";
+import { AutoMovieArchetypeRadio } from "../AutoMovieArchetypeRadio";
 
 /**
  * Reads a saved handheld device recipe and calls the producer for its kind.
@@ -66,7 +66,7 @@ export function createDevice(
         s,
       ),
     walkieTalkie: (p, s) =>
-      createRadio(
+      AutoMovieArchetypeRadio.create(
         {
           ...p,
           model: ArchetypeDraw.admit("device", "model", p.model, [

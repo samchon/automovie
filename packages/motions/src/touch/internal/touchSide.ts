@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, getConstraint } from "@automovie/engine";
+import { ROM_TOLERANCE, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -48,7 +48,7 @@ function resolution(
   const range = (
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointConstraint | null =>
-    getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
+    AutoMovieEngineKinematics.getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
   const shoulder: IAutoMovieJointConstraint | null = range(`${side}UpperArm`);
   const halves: number[] = [
     shoulder?.flexion,

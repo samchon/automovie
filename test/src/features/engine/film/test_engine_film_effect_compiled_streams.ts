@@ -1,4 +1,4 @@
-import { materializeCompiledEffects } from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import {
   IAutoMovieCompiledEffect,
   IAutoMovieShotContract,
@@ -62,7 +62,7 @@ export function test_engine_film_effect_compiled_streams(): void {
     },
   ];
 
-  const shot: IAutoMovieCompiledEffect[] = materializeCompiledEffects({
+  const shot: IAutoMovieCompiledEffect[] = AutoMovieEngineEffect.materializeCompiledEffects({
     world,
     contract,
     fixedStepSeconds: 1 / 30,
@@ -149,7 +149,7 @@ export function test_engine_film_effect_compiled_streams(): void {
     production: "p",
     film: "f",
   };
-  const film: IAutoMovieCompiledEffect = materializeCompiledEffects({
+  const film: IAutoMovieCompiledEffect = AutoMovieEngineEffect.materializeCompiledEffects({
     world,
     seedOwner: owner,
     fixedStepSeconds: 0.125,

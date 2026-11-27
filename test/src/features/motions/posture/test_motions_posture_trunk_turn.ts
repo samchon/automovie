@@ -1,4 +1,4 @@
-import { getConstraint } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -19,7 +19,7 @@ const TRUNK: readonly AutoMovieHumanoidBone[] = ["spine", "chest"];
 const HEAD: readonly AutoMovieHumanoidBone[] = ["neck", "head"];
 
 /** A joint's ranges. */
-type Range = NonNullable<ReturnType<typeof getConstraint>>;
+type Range = NonNullable<ReturnType<typeof AutoMovieEngineKinematics.getConstraint>>;
 
 /**
  * `HumanTrunkTurn.turned` turns the trunk toward a side by a share of its
@@ -46,8 +46,8 @@ export async function test_motions_posture_trunk_turn(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const range = (
     bone: AutoMovieHumanoidBone,
-  ): ReturnType<typeof getConstraint> =>
-    getConstraint(
+  ): ReturnType<typeof AutoMovieEngineKinematics.getConstraint> =>
+    AutoMovieEngineKinematics.getConstraint(
       bone,
       body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
         ?.constraint ?? null,

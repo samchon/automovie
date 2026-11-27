@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type {
   IAutoMovieAdvancePhysicalBalance,
   IAutoMoviePhysicalRecoveryState,
@@ -7,7 +8,6 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
-import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalRecoverySwing } from "./internal/physicalRecoverySwing";
 import { physicalStanceSwing } from "./physicalStanceSwing";
 import { samplePhysicalRecoveryGoal } from "./internal/samplePhysicalRecoveryGoal";
@@ -41,7 +41,7 @@ import { samplePhysicalRecoveryGoal } from "./internal/samplePhysicalRecoveryGoa
  */
 export function physicalBalanceSwing(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: physicalBalanceSense.ISense;
+  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
   trace?: IAutoMoviePhysicalBalanceTrace[];
 }): physicalBalanceSwing.IResult {
   const { sense } = input;
@@ -56,7 +56,7 @@ export function physicalBalanceSwing(input: {
   if (lifted.length === 0) return { state, goals, drives };
   const paths: { height: number; hang: number }[] = [];
   for (const swing of lifted) {
-    const limb: physicalBalanceSense.ILimb = sense.limb(swing.bone);
+    const limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb = sense.limb(swing.bone);
 
     // The swinging limb's effective mass at its endpoint: the reaction its
     // path's acceleration asks of the stance (`physicalStanceBalance`

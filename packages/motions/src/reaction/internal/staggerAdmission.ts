@@ -1,4 +1,4 @@
-import { Vector3, getConstraint } from "@automovie/engine";
+import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -102,7 +102,7 @@ export function staggerAdmission(
   const knee: (side: AutoMovieHumanSide) => number = (
     side: AutoMovieHumanSide,
   ): number =>
-    getConstraint(
+    AutoMovieEngineKinematics.getConstraint(
       `${side}LowerLeg`,
       readHumanBone(body, `${side}LowerLeg`)?.constraint ?? null,
     )?.flexion?.max ?? 180;

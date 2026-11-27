@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeRefusal,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { createEscalatorConstants } from "./createEscalatorConstants";
+import { createEscalatorConstants } from "./internal/createEscalatorConstants";
 
 const { KONE, ESTIMATE, PITCH, RAIL_OFFSET, PLATE, LANDING } =
   createEscalatorConstants;

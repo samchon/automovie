@@ -1,7 +1,4 @@
-import {
-  AutoMovieFilmEffectRuntimeError,
-  productionFilmEffectFrameRate,
-} from "@automovie/engine";
+import { AutoMovieFilmEffectRuntimeError, AutoMovieEngineEffect } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,12 +12,12 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_effect_runtime_production_film_effect_frame_rate(): void {
   TestValidator.equals(
     "a bare rate",
-    productionFilmEffectFrameRate(24, "film-effect-input-invalid"),
+    AutoMovieEngineEffect.productionFilmEffectFrameRate(24, "film-effect-input-invalid"),
     { numerator: 24, denominator: 1 },
   );
   TestValidator.equals(
     "lowest terms",
-    productionFilmEffectFrameRate(
+    AutoMovieEngineEffect.productionFilmEffectFrameRate(
       { numerator: 60, denominator: 4 },
       "film-effect-input-invalid",
     ),
@@ -28,7 +25,7 @@ export function test_engine_effect_runtime_production_film_effect_frame_rate(): 
   );
   let code: string | null = null;
   try {
-    productionFilmEffectFrameRate(
+    AutoMovieEngineEffect.productionFilmEffectFrameRate(
       { numerator: 0, denominator: 1 },
       "film-effect-runtime-invalid",
     );

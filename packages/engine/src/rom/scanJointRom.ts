@@ -13,8 +13,8 @@ import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { nearestAngleAlias } from "../math/internal/nearestAngleAlias";
-import { abductionRange } from "./abductionRange";
-import { swingConeAngle } from "./swingConeAngle";
+import { abductionRange } from "./internal/abductionRange";
+import { swingConeAngle } from "./internal/swingConeAngle";
 
 /** Clinical axes in the scanner's existing report and finite-check order. */
 const AXES: readonly ["flexion", "abduction", "twist"] = [

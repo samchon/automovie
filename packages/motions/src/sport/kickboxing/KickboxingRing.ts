@@ -35,7 +35,7 @@ export function KickboxingRing(
         values: affordances.map((a: IAutoMovieAffordance): string => a.id),
       },
       reason,
-      fix: "name a ring whose canvas, top ropes and corner posts its contacts declare, as createRing does",
+      fix: "name a ring whose canvas, top ropes and corner posts its contacts declare, as AutoMovieArchetypeRing.create does",
     });
   const at: (id: string) => IAutoMovieVector3 = (
     id: string,
@@ -93,14 +93,14 @@ export function KickboxingRing(
  * to 7.3 m inside the ropes; the size is the production's). Corners are named
  * in the ring's own frame: the red and blue corners on one diagonal, the two
  * neutral corners on the other. A ring placed in the scene is read from its own
- * contacts (`of`, `createRing`'s): its centre and floor from the `canvas`, its
+ * contacts (`of`, `AutoMovieArchetypeRing.create`'s): its centre and floor from the `canvas`, its
  * size from the top ropes on opposite sides, its heading from the placement,
  * and its corners named on its posts' tops, `corner1` (`+X +Z`) blue, `corner3`
  * red, `corner4` and `corner2` the neutral corners.
  */
 export namespace KickboxingRing {
   /**
-   * The posts' tops by corner (`createRing`'s `corner1` to `corner4`, counted
+   * The posts' tops by corner (`AutoMovieArchetypeRing.create`'s `corner1` to `corner4`, counted
    * round from `+X +Z`).
    */
   export const POSTS: Readonly<

@@ -8,8 +8,8 @@ import type {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { clampJointRom } from "../rom/clampJointRom";
-import { getConstraint } from "../rom/getConstraint";
+import { clampJointRom } from "../rom/internal/clampJointRom";
+import { getConstraint } from "../rom/internal/getConstraint";
 
 /**
  * Scale one input deflection down the recoil chain. An absent or zero push is

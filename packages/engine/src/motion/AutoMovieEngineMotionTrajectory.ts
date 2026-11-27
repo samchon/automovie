@@ -1,3 +1,5 @@
+import { locomoteMotion as locomoteMotionImplementation } from "./internal/locomoteMotion";
+
 import { type IAutoMoviePathLocomotion, type IAutoMovieFollowPathMotion, type IAutoMovieMotion, type IAutoMovieVector3, type IAutoMovieQuaternion, type IAutoMovieTransform, type IAutoMovieWarpRoot } from "@automovie/interface";
 import { followPathMotion as followPathMotionImplementation } from "./internal/followPathMotion";
 import { timeScaleMotion as timeScaleMotionImplementation } from "./internal/timeScaleMotion";
@@ -55,5 +57,15 @@ export namespace AutoMovieEngineMotionTrajectory {
    */
   export function warpRoot(root: IAutoMovieTransform, warp: IAutoMovieWarpRoot.IWarp, seconds: number): IAutoMovieTransform {
     return warpRootImplementation(root, warp, seconds);
+  }
+
+  /**
+   * Carry an admitted gait over a positive metre distance in a finite nonzero
+   * direction at a requested positive speed. Whole cycles determine duration; a
+   * trip shorter than half a nominal stride compresses one cycle, and optional
+   * faceTravel aligns model +Z with the horizontal heading.
+   */
+  export function locomoteMotion(id: string, gait: IAutoMovieMotion, distance: number, speed: number, direction: IAutoMovieVector3, faceTravel?: boolean): IAutoMovieMotion {
+    return locomoteMotionImplementation(id, gait, distance, speed, direction, faceTravel);
   }
 }

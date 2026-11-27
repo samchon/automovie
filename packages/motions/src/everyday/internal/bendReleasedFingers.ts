@@ -1,4 +1,4 @@
-import { getConstraint } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -65,7 +65,7 @@ export function bendReleasedFingers(
           for (const bone of fingers) {
             const original = joints[bone]!;
             const minimum =
-              getConstraint(bone, body.bones.get(bone)?.constraint ?? null)
+              AutoMovieEngineKinematics.getConstraint(bone, body.bones.get(bone)?.constraint ?? null)
                 ?.flexion?.min ?? original[0];
             joints[bone] = [
               Math.max(minimum, original[0] - extension),

@@ -1,10 +1,4 @@
-import {
-  ANKLE_DORSIFLEXION,
-  Quaternion,
-  Vector3,
-  getConstraint,
-  minimumJerk,
-} from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Quaternion, Vector3, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -229,7 +223,7 @@ export function crutchHeldLeg(
       from.lower[0],
       from.foot[0],
     ];
-    const footRange: IAutoMovieJointConstraint | null = getConstraint(
+    const footRange: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
       `${side}Foot`,
       readHumanBone(body, `${side}Foot`)?.constraint ?? null,
     );
@@ -266,11 +260,11 @@ export function crutchHeldLeg(
     ): IAutoMovieMotionHumanColliders.IPlaced[] =>
       segments(posed(bases[j]!, from, angles(x, j), share(knots[j]!)));
     const held4: number[] = [props.hip, 0, 0, props.knee];
-    const hipRange: IAutoMovieJointConstraint | null = getConstraint(
+    const hipRange: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
       `${side}UpperLeg`,
       readHumanBone(body, `${side}UpperLeg`)?.constraint ?? null,
     );
-    const kneeRange: IAutoMovieJointConstraint | null = getConstraint(
+    const kneeRange: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
       `${side}LowerLeg`,
       readHumanBone(body, `${side}LowerLeg`)?.constraint ?? null,
     );

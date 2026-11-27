@@ -1,4 +1,4 @@
-import { AutoMovieFilmEffectRuntimeError, productionFilmEffectEditFingerprint, verifyProductionFilmEffectPopulation, AutoMovieEngineCanonicalJson, AutoMovieEngineText, AutoMovieEngineRenderTarget, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieFilmEffectRuntimeError, AutoMovieEngineCanonicalJson, AutoMovieEngineText, AutoMovieEngineRenderTarget, AutoMovieEngineFilm, AutoMovieEngineEffect } from "@automovie/engine";
 import type {
   AutoMovieGuidePass,
   IAutoMovieCompiledFilmEffect,
@@ -143,10 +143,10 @@ export const planProductionRenderJob: (
   }
   const legacyGuidePass: Exclude<AutoMovieGuidePass, "beauty"> =
     assertSingleGuidePass(props.guidePasses ?? ["pose"]);
-  const editFingerprint: string = productionFilmEffectEditFingerprint(
+  const editFingerprint: string = AutoMovieEngineEffect.productionFilmEffectEditFingerprint(
     props.timeline,
   );
-  verifyProductionFilmEffectPopulation({
+  AutoMovieEngineEffect.verifyProductionFilmEffectPopulation({
     timeline: props.timeline,
     effects: props.effects,
   });

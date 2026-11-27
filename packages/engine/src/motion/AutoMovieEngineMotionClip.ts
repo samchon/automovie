@@ -1,3 +1,5 @@
+import { sequenceMotion as sequenceMotionImplementation } from "./internal/sequenceMotion";
+
 import { importedNodeClipToAutoMovieMotion as importedNodeClipToAutoMovieMotionImplementation } from "./internal/importedNodeClipToAutoMovieMotion";
 
 import { type IAutoMovieMotionClipBridge, type IAutoMovieMotionToClip, type IAutoMovieMotion, type IAutoMovieImportedNodeMotionProps } from "@automovie/interface";
@@ -27,5 +29,14 @@ export namespace AutoMovieEngineMotionClip {
    */
   export function importedNodeClipToAutoMovieMotion(props: IAutoMovieImportedNodeMotionProps): IAutoMovieMotion {
     return importedNodeClipToAutoMovieMotionImplementation(props);
+  }
+
+  /**
+   * Concatenate nonempty admitted same-skeleton clips in seconds. Durations must
+   * be finite and positive; later time-zero seam frames transfer their easing to
+   * the retained previous endpoint. Pose and expression values remain borrowed.
+   */
+  export function sequenceMotion(id: string, parts: IAutoMovieMotion[], loop?: boolean): IAutoMovieMotion {
+    return sequenceMotionImplementation(id, parts, loop);
   }
 }

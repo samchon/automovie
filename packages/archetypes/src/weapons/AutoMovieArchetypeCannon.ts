@@ -11,10 +11,10 @@ import {
 } from "../core/index";
 import { CannonPieces } from "./CannonPieces";
 import { FIELD_GUN } from "./FIELD_GUN";
-import { buildFieldGun } from "./buildFieldGun";
-import { cannonLaunch } from "./cannonLaunch";
-import { cannonRecoil } from "./cannonRecoil";
-import { cannonTowing } from "./cannonTowing";
+import { buildFieldGun } from "./internal/buildFieldGun";
+import { cannonLaunch } from "./internal/cannonLaunch";
+import { cannonRecoil } from "./internal/cannonRecoil";
+import { cannonTowing } from "./internal/cannonTowing";
 
 /** A hundredweight, kilograms: 112 pounds. */
 const CWT: number = 112 * AutoMovieArchetypeUnits.POUND;

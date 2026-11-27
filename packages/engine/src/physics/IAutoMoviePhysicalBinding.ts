@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalHandoff,
@@ -16,7 +17,6 @@ import type {
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { IPhysicalCoupledTargetRun } from "./internal/IPhysicalCoupledTargetRun";
-import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /**
  * Solver handles are transient and rebuilt in creation order after snapshot
@@ -70,7 +70,7 @@ export interface IAutoMoviePhysicalBinding {
     string,
     {
       input: NonNullable<IAutoMoviePhysicalRecoveryState["span"]>;
-      span: preparePhysicalDisturbanceSpan.ISpan;
+      span: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan;
       handed?: boolean;
       started?: boolean;
     }

@@ -1,4 +1,4 @@
-import { productionFilmEffectEditFingerprint } from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import {
   type IAutoMovieFilmEffectCurrentIdentity,
   IAutoMovieFilmTimeline,
@@ -13,5 +13,5 @@ export const filmEffectIdentity: (
   production: "production",
   film: timeline.id,
   compileFingerprint: timeline.inputFingerprint,
-  editFingerprint: productionFilmEffectEditFingerprint(timeline),
+  editFingerprint: AutoMovieEngineEffect.productionFilmEffectEditFingerprint(timeline),
 });

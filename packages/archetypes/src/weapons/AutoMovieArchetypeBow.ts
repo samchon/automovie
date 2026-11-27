@@ -9,8 +9,8 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 import { BOW_BANDS } from "./BOW_BANDS";
-import { bowLaunchSpeed } from "./bowLaunchSpeed";
-import { bowLimbs } from "./bowLimbs";
+import { bowLaunchSpeed } from "./internal/bowLaunchSpeed";
+import { bowLimbs } from "./internal/bowLimbs";
 import { AutoMovieArchetypeStageHandBowProp } from "./AutoMovieArchetypeStageHandBowProp";
 import { AutoMovieArchetypeStageStockBowProp } from "./AutoMovieArchetypeStageStockBowProp";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";

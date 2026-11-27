@@ -7,6 +7,7 @@
 // qpInput/ConstraintToConvexRegion.java formulateConstraint() l.167-172 and
 // getInequalityConstraintSize() l.179-198.
 // See vendor/ihmc/NOTICE.
+import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
 import { physicalPlanarPolygon as Polygon } from "../physicalPlanarPolygon";
 import { solveDenseActiveSet } from "../solveDenseActiveSet";
 
@@ -32,8 +33,8 @@ import { solveDenseActiveSet } from "../solveDenseActiveSet";
  * @returns The feedback pair, or null.
  */
 export function physicalIcpControllerQp(
-  input: physicalIcpControllerQp.IInput,
-): physicalIcpControllerQp.ISolution | null {
+  input: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput,
+): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.ISolution | null {
   const h: number[][] = Array.from({ length: 4 }, (): number[] =>
     new Array<number>(4).fill(0),
   );
@@ -63,7 +64,7 @@ export function physicalIcpControllerQp(
 
   // Dynamics (l.748-752; InputCalculator l.107-137, l.271-280): J x = e with
   // J = [K^-1, K^-1], weighted by w I: J^T w J into H and J^T w e into h.
-  const inverse: physicalIcpControllerQp.IMatrix = invert(input.gains);
+  const inverse: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix = invert(input.gains);
   const jacobian: number[][] = [0, 1].map((r: number): number[] => [
     inverse[r]![0],
     inverse[r]![1],
@@ -131,90 +132,6 @@ export function physicalIcpControllerQp(
     : null;
 }
 
-/** The program's terms and solution. */
-export namespace physicalIcpControllerQp {
-  /** A 2 x 2 matrix, row by row. */
-  export type IMatrix = readonly [
-    readonly [number, number],
-    readonly [number, number],
-  ];
-
-  /** The terms `ICPController` hands the solver each update. */
-  export interface IInput {
-    /** The capture point's error from its plan, dead-banded, metres. */
-    error: Polygon.IPoint;
-
-    /**
-     * The feed-forward centre of pressure the feedback is added to, metres; it
-     * offsets the support constraint (`ConstraintToConvexRegion` l.167-172).
-     */
-    feedForwardCop: Polygon.IPoint;
-
-    /** The feedback gains K = 1 + K_p in the caller's frame. */
-    gains: IMatrix;
-
-    /** The CoP feedback weight in the caller's frame. */
-    copWeight: IMatrix;
-
-    /** The CMP feedback weight, the angular-momentum minimization weight. */
-    cmpWeight: number;
-
-    /** The dynamics task's weight. */
-    dynamicsWeight: number;
-
-    /** The desired feedback, K times the error, of any length. */
-    direction: Polygon.IPoint;
-
-    /** The feedback direction task's weight; zero drops the task. */
-    directionWeight: number;
-
-    /** The total feedback's rate weight, over the control period squared. */
-    rateWeight: number;
-
-    /** The CoP and CMP feedbacks' own rate weight, over the period squared. */
-    copCmpRateWeight: number;
-
-    /** The last solution, the rate tasks' objective, metres. */
-    previous: ISolution;
-
-    /**
-     * The support polygon's vertices in any order, metres; its convex hull
-     * constrains the centre of pressure, and none constrains it when empty.
-     */
-    support: readonly Polygon.IPoint[];
-
-    /** How far inside the support the centre of pressure stays, metres. */
-    safeDistance: number;
-
-    /**
-     * The total feedback's bound, |T (dCoP + dCMP)| per axis, with T the
-     * transform into the plan's motion frame; infinite bounds add no row.
-     */
-    maximum: {
-      transform: IMatrix;
-      x: number;
-      y: number;
-    };
-
-    /**
-     * The total feedback's rate bound, metres per second, and the control
-     * period, seconds; an infinite rate adds no row.
-     */
-    rate: {
-      limit: number;
-      dt: number;
-    };
-  }
-
-  /** The program's solution. */
-  export interface ISolution {
-    /** The centre of pressure's feedback, metres. */
-    cop: Polygon.IPoint;
-
-    /** The pivot's offset from the centre of pressure, metres. */
-    cmp: Polygon.IPoint;
-  }
-}
 
 /**
  * The centre of pressure on the support's hull shrunk by the safe distance, as
@@ -224,7 +141,7 @@ export namespace physicalIcpControllerQp {
  * (l.567-568, l.179-198).
  */
 function copRows(
-  input: physicalIcpControllerQp.IInput,
+  input: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput,
 ): solveDenseActiveSet.IRow[] {
   const hull: Polygon.IPoint[] = Polygon.hull(input.support);
   if (hull.length === 0) return [];
@@ -246,12 +163,12 @@ function copRows(
  * and is left out, which leaves the minimizer unchanged.
  */
 function magnitudeRows(
-  maximum: physicalIcpControllerQp.IInput["maximum"],
+  maximum: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput["maximum"],
 ): solveDenseActiveSet.IRow[] {
   const x: number = Math.abs(maximum.x);
   const y: number = Math.abs(maximum.y);
   if (x === Infinity && y === Infinity) return [];
-  const t: physicalIcpControllerQp.IMatrix = maximum.transform;
+  const t: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix = maximum.transform;
   return [
     { a: [t[0][0], t[0][1], t[0][0], t[0][1]], b: x },
     { a: [t[1][0], t[1][1], t[1][0], t[1][1]], b: y },
@@ -266,7 +183,7 @@ function magnitudeRows(
  * previous total plus or minus dt times the rate, per axis.
  */
 function rateRows(
-  rate: physicalIcpControllerQp.IInput["rate"],
+  rate: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput["rate"],
   total: Polygon.IPoint,
 ): solveDenseActiveSet.IRow[] {
   if (rate.limit === Infinity) return [];
@@ -281,8 +198,8 @@ function rateRows(
 
 /** A 2 x 2 matrix's inverse (`UnrolledInverseFromMinor_DDRM.inv`, l.113). */
 function invert(
-  m: physicalIcpControllerQp.IMatrix,
-): physicalIcpControllerQp.IMatrix {
+  m: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix,
+): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix {
   const det: number = m[0][0] * m[1][1] - m[0][1] * m[1][0];
   return [
     [m[1][1] / det, -m[0][1] / det],
@@ -291,7 +208,7 @@ function invert(
 }
 
 /** A scalar times the 2 x 2 identity (`MatrixTools.setDiagonal`). */
-function diagonal(value: number): physicalIcpControllerQp.IMatrix {
+function diagonal(value: number): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix {
   return [
     [value, 0],
     [0, value],
@@ -303,7 +220,7 @@ function addBlock(
   target: number[][],
   row: number,
   column: number,
-  block: physicalIcpControllerQp.IMatrix,
+  block: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IMatrix,
 ): void {
   for (let i: number = 0; i < 2; i++)
     for (let j: number = 0; j < 2; j++)

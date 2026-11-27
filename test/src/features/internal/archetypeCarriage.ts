@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeAssembly, AutoMovieArchetypeFrame, AutoMovieArchetypeBar, createSeat, AutoMovieArchetypeWall } from "@automovie/archetypes";
+import { AutoMovieArchetypeAssembly, AutoMovieArchetypeFrame, AutoMovieArchetypeBar, AutoMovieArchetypeSeat, AutoMovieArchetypeWall } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 /**
@@ -22,18 +22,18 @@ export namespace archetypeCarriage {
   export type Members = {
     /** The rear bench. */
     bench1: AutoMovieArchetypeAssembly.IMember<
-      createSeat.Affordance,
-      createSeat.Dimension
+      AutoMovieArchetypeSeat.Affordance,
+      AutoMovieArchetypeSeat.Dimension
     >;
     /** The middle bench. */
     bench2: AutoMovieArchetypeAssembly.IMember<
-      createSeat.Affordance,
-      createSeat.Dimension
+      AutoMovieArchetypeSeat.Affordance,
+      AutoMovieArchetypeSeat.Dimension
     >;
     /** The front bench. */
     bench3: AutoMovieArchetypeAssembly.IMember<
-      createSeat.Affordance,
-      createSeat.Dimension
+      AutoMovieArchetypeSeat.Affordance,
+      AutoMovieArchetypeSeat.Dimension
     >;
     /** The rail along the left side. */
     railLeft: AutoMovieArchetypeAssembly.IMember<
@@ -60,15 +60,15 @@ export namespace archetypeCarriage {
   export function members(seed: number): Members {
     return {
       bench1: {
-        archetype: createSeat({ kind: "bench" }, seed),
+        archetype: AutoMovieArchetypeSeat.create({ kind: "bench" }, seed),
         placement: placement(0, 0, -2, 0),
       },
       bench2: {
-        archetype: createSeat({ kind: "bench" }, seed),
+        archetype: AutoMovieArchetypeSeat.create({ kind: "bench" }, seed),
         placement: placement(0, 0, 0, 0),
       },
       bench3: {
-        archetype: createSeat({ kind: "bench" }, seed),
+        archetype: AutoMovieArchetypeSeat.create({ kind: "bench" }, seed),
         placement: placement(0, 0, 2, 0),
       },
       railLeft: {

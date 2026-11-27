@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type {
   IAutoMoviePhysicalBalance,
   IAutoMoviePhysicalRecoveryState,
@@ -7,7 +8,6 @@ import type {
 
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { physicalAuthoredCapture } from "./internal/physicalAuthoredCapture";
-import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import type { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
@@ -113,7 +113,7 @@ export namespace physicalBalancePlan {
   /** What the plan reads of the body's readings. */
   export type ISense = physicalAuthoredCapture.ISense &
     Pick<
-      physicalBalanceSense.ISense,
+      AutoMovieEnginePhysicalBalanceTypes.Sense.ISense,
       "center" | "velocity" | "gravity" | "floor" | "seconds"
     >;
 

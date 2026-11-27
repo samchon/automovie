@@ -1,9 +1,4 @@
-import {
-  AutoMovieEngineEffect,
-  materializeCompiledEffects,
-  productionFilmFrameForShotTime,
-  projectProductionShotEffectFilmIntervals,
-} from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import {
   type IAutoMovieCompiledEffect,
   type IAutoMovieEffectSample,
@@ -80,7 +75,7 @@ export function test_engine_film_effect_shot_frame_projection(): void {
   });
   TestValidator.equals(
     "every occurrence is trimmed to its segment",
-    projectProductionShotEffectFilmIntervals({
+    AutoMovieEngineEffect.projectProductionShotEffectFilmIntervals({
       timeline: clock,
       shots: new Map([
         ["s1", { effects: [effect("c1", 0.5, 1.25)] }],
@@ -104,11 +99,11 @@ export function test_engine_film_effect_shot_frame_projection(): void {
   TestValidator.equals(
     "float estimates are corrected onto the exact boundary",
     [
-      projectProductionShotEffectFilmIntervals({
+      AutoMovieEngineEffect.projectProductionShotEffectFilmIntervals({
         timeline: at25,
         shots: new Map([["w", { effects: [effect("witness", 0.28, 1.16)] }]]),
       }),
-      projectProductionShotEffectFilmIntervals({
+      AutoMovieEngineEffect.projectProductionShotEffectFilmIntervals({
         timeline: { fps: 24, segments: [segment("w", 0, 100, 0)] },
         shots: new Map([
           [
@@ -156,7 +151,7 @@ export function test_engine_film_effect_shot_frame_projection(): void {
           end: number;
         }): string =>
           filmEffectRefusal((): IAutoMovieShotEffectFilmInterval[] =>
-            projectProductionShotEffectFilmIntervals({
+            AutoMovieEngineEffect.projectProductionShotEffectFilmIntervals({
               timeline: clock,
               shots: new Map([["s1", { effects: [item] }]]),
             }),
@@ -164,7 +159,7 @@ export function test_engine_film_effect_shot_frame_projection(): void {
       )
       .concat(
         filmEffectRefusal((): IAutoMovieShotEffectFilmInterval[] =>
-          projectProductionShotEffectFilmIntervals({
+          AutoMovieEngineEffect.projectProductionShotEffectFilmIntervals({
             timeline: {
               ...clock,
               frameRate: { numerator: 25, denominator: 1 },
@@ -184,7 +179,7 @@ export function test_engine_film_effect_shot_frame_projection(): void {
     shot: string,
     time: number,
     timeline: IAutoMovieFilmEffectClock = clock,
-  ): number | null => productionFilmFrameForShotTime({ timeline, shot, time });
+  ): number | null => AutoMovieEngineEffect.productionFilmFrameForShotTime({ timeline, shot, time });
   TestValidator.equals(
     "a second realized exactly once maps to its film frame",
     [
@@ -223,7 +218,7 @@ export function test_engine_film_effect_shot_frame_projection(): void {
     "film-effect-input-invalid",
   );
 
-  const flash: IAutoMovieCompiledEffect = materializeCompiledEffects({
+  const flash: IAutoMovieCompiledEffect = AutoMovieEngineEffect.materializeCompiledEffects({
     world: filmEffectWorld(),
     contract: shotContractFixture("w"),
     fixedStepSeconds: 0.1,
@@ -239,7 +234,7 @@ export function test_engine_film_effect_shot_frame_projection(): void {
   })[0]!;
   TestValidator.equals(
     "a source trim places the two owned off-grid frames at the edit start",
-    projectProductionShotEffectFilmIntervals({
+    AutoMovieEngineEffect.projectProductionShotEffectFilmIntervals({
       timeline: { fps: 24, segments: [segment("w", 1, 4, 0)] },
       shots: new Map([["w", { effects: [flash] }]]),
     }),

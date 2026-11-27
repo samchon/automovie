@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, getConstraint, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -67,7 +67,7 @@ export namespace HumanSeatedReach {
   ): IAutoMovieMotionHumanSeatedReach.IJoint[] {
     if (role.seated !== true) return [];
     const range = (bone: AutoMovieHumanoidBone): number | null =>
-      getConstraint(bone, readHumanBone(role.body, bone)?.constraint ?? null)
+      AutoMovieEngineKinematics.getConstraint(bone, readHumanBone(role.body, bone)?.constraint ?? null)
         ?.flexion?.max ?? null;
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       role.bones.get(bone)!.worldPosition;

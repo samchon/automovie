@@ -1,4 +1,4 @@
-import { Quaternion, getConstraint } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -73,7 +73,7 @@ export function respondHumanMounted(
     );
   const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
   for (const [bone, part] of SHARES) {
-    const limits: ReturnType<typeof getConstraint> = getConstraint(
+    const limits: ReturnType<typeof AutoMovieEngineKinematics.getConstraint> = AutoMovieEngineKinematics.getConstraint(
       bone,
       readHumanBone(body, bone)?.constraint ?? null,
     );
@@ -96,7 +96,7 @@ export function respondHumanMounted(
 }
 
 /** A joint range of the engine's constraint table. */
-type Range = NonNullable<ReturnType<typeof getConstraint>>["flexion"];
+type Range = NonNullable<ReturnType<typeof AutoMovieEngineKinematics.getConstraint>>["flexion"];
 
 /** A value held within a range; unchanged where the joint has none. */
 function clamp(value: number, range: Range | undefined): number {

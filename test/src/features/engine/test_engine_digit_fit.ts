@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, AutoMovieEngineViolationCollector, getConstraint, resolveAutoMovieHumanoidSurfaces, validateJointRom, AutoMovieEngineKinematics } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, AutoMovieEngineViolationCollector, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -93,7 +93,7 @@ const random = (
   draw: () => number,
 ): IAutoMovieJointPose[] =>
   bones.map((bone: AutoMovieHumanoidBone): IAutoMovieJointPose => {
-    const c = getConstraint(
+    const c = AutoMovieEngineKinematics.getConstraint(
       bone,
       body.skeleton.bones.find((b) => b.bone === bone)?.constraint ?? null,
     );
@@ -197,7 +197,7 @@ export function test_engine_digit_fit(): void {
       // verdicts' measure), not by the clamp the fit projects with: a
       // thumb base gated by swing and twist is judged by its cone.
       for (const j of result.joints) {
-        const constraint: IAutoMovieJointConstraint | null = getConstraint(
+        const constraint: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
           j.bone,
           body.skeleton.bones.find((b) => b.bone === j.bone)?.constraint ??
             null,
@@ -205,7 +205,7 @@ export function test_engine_digit_fit(): void {
         if (constraint === null) continue;
         const collector: IAutoMovieViolationCollector =
           new AutoMovieEngineViolationCollector();
-        validateJointRom({ joint: j, constraint, path: j.bone, collector });
+        AutoMovieEngineKinematics.validateJointRom({ joint: j, constraint, path: j.bone, collector });
         for (const item of collector.items)
           outside.push(JSON.stringify(item).slice(0, 160));
       }

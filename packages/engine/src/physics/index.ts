@@ -2,6 +2,7 @@ export * from "./AutoMovieAir";
 export * from "./AutoMovieGravity";
 export * from "./AutoMovieMotionAudit";
 export * from "./AutoMoviePhysicalBalance";
+export * from "./AutoMovieEnginePhysicalBalanceTypes";
 export * from "./physicalBalanceAssessment";
 export * from "./physicalBalanceCandidate";
 export * from "./physicalBalancePair";

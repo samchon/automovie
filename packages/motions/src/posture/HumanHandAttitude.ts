@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, getConstraint, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -217,7 +217,7 @@ function wrist(
     AutoMovieEngineKinematics.skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
   const domain: IAutoMovieJointRotationDomain = {
     bone: hand,
-    constraint: getConstraint(hand, found?.constraint ?? null),
+    constraint: AutoMovieEngineKinematics.getConstraint(hand, found?.constraint ?? null),
   };
   const clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
     clampJointToSkeleton.resolved(

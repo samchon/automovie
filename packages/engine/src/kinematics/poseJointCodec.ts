@@ -11,7 +11,7 @@ import type {
   IAutoMovieResolvedJointAngles,
 } from "@automovie/interface";
 
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 import { decomposeJointRotation } from "./internal/decomposeJointRotation";
 import { jointToQuaternion } from "./internal/jointToQuaternion";
 import { skeletonJointAxes } from "./internal/skeletonJointAxes";

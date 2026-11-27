@@ -21,7 +21,7 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
-import { requireEnvironmentFrame } from "../requireEnvironmentFrame";
+import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
 
 /**
  * Place typed modules and prepare the stage and runtime pieces a shot uses.

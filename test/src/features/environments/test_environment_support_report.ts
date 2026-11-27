@@ -1,4 +1,4 @@
-import { createSeat, AutoMovieArchetypeMoldedCrate, AutoMovieArchetypeMirror, AutoMovieArchetypeRock, AutoMovieArchetypeDrinkware, AutoMovieArchetypeTable } from "@automovie/archetypes";
+import { AutoMovieArchetypeSeat, AutoMovieArchetypeMoldedCrate, AutoMovieArchetypeMirror, AutoMovieArchetypeRock, AutoMovieArchetypeDrinkware, AutoMovieArchetypeTable } from "@automovie/archetypes";
 import { createBuilding, createCafeKit, createFurnishedRoom, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
@@ -210,7 +210,7 @@ export function test_environment_support_report(): void {
           room: [4, 3.2],
           pieces: {
             sofa: {
-              model: createSeat({ kind: "sofa" }, 1022),
+              model: AutoMovieArchetypeSeat.create({ kind: "sofa" }, 1022),
               place: { kind: "wall", wall: "-z", offset: 0.4 },
             },
             coffee: {
@@ -266,7 +266,7 @@ export function test_environment_support_report(): void {
       bench: {
         at: { anchor: "land/amenities/bench" },
         use: AutoMovieEnvironmentFurnishing.prop({
-          model: createSeat({ kind: "bench" }, 1024),
+          model: AutoMovieArchetypeSeat.create({ kind: "bench" }, 1024),
         }),
       },
     },

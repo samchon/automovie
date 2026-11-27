@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type {
   IAutoMoviePhysicalRecoveryState,
   IAutoMovieQuaternion,
@@ -6,7 +7,6 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 
 /**
@@ -43,7 +43,7 @@ export namespace physicalSupportSole {
    * @returns The sole frame, world x and z.
    */
   export function frame(
-    sense: physicalBalanceSense.ISense,
+    sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense,
     state: Readonly<IAutoMoviePhysicalRecoveryState>,
     bone: string,
     at?: IAutoMovieVector3,
@@ -80,7 +80,7 @@ export namespace physicalSupportSole {
    * @returns The limb.
    */
   export function foot(
-    sense: physicalBalanceSense.ISense,
+    sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense,
     state: Readonly<IAutoMoviePhysicalRecoveryState>,
     bone: string,
     side: "left" | "right",
@@ -110,7 +110,7 @@ export namespace physicalSupportSole {
    * @returns Its side.
    */
   export function side(
-    sense: physicalBalanceSense.ISense,
+    sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense,
     bone: string,
   ): "left" | "right" {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -121,14 +121,14 @@ export namespace physicalSupportSole {
       { x: 0, y: 0, z: 1 },
     );
     const at: IAutoMovieVector3 = sense.actual(bone);
-    const others: physicalBalanceSense.ILimb[] = sense.limbs.filter(
-      (limb: physicalBalanceSense.ILimb): boolean => limb.bone !== bone,
+    const others: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb[] = sense.limbs.filter(
+      (limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): boolean => limb.bone !== bone,
     );
     const mean: IAutoMovieVector3 = Vector3.scale(
       others.reduce(
         (
           sum: IAutoMovieVector3,
-          limb: physicalBalanceSense.ILimb,
+          limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb,
         ): IAutoMovieVector3 => Vector3.add(sum, sense.actual(limb.bone)),
         { x: 0, y: 0, z: 0 },
       ),

@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, clampJointToSkeleton, getConstraint, AutoMovieEngineMath } from "@automovie/engine";
+import { ROM_TOLERANCE, clampJointToSkeleton, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -120,7 +120,7 @@ export namespace AutoMovieMotionHumanArmReachJoints {
    */
   export function rangesOf(body: IAutoMovieMotionHumanBody): IRanges {
     function of(bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint | null {
-      return getConstraint(bone, body.bones.get(bone)?.constraint ?? null);
+      return AutoMovieEngineKinematics.getConstraint(bone, body.bones.get(bone)?.constraint ?? null);
     }
     return { upper: of(UPPER), lower: of(LOWER), hand: of(HAND) };
   }

@@ -1,4 +1,4 @@
-import { sortProductionFilmEffectCues } from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectCue } from "../../internal/filmEffectCue";
@@ -21,7 +21,7 @@ export function test_engine_effect_runtime_sort_production_film_effect_cues(): v
   ];
   TestValidator.equals(
     "start frame then code-unit id",
-    sortProductionFilmEffectCues(input).map(
+    AutoMovieEngineEffect.sortProductionFilmEffectCues(input).map(
       (cue: { id: string; startFrame: number }): string =>
         `${cue.startFrame}${cue.id}`,
     ),

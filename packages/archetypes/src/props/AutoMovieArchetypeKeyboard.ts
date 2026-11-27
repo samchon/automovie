@@ -1,8 +1,8 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { createKeyboard as createKeyboardImplementation } from "./internal/createKeyboard";
 import { KeyboardHardware } from "./KeyboardHardware";
-import { createDesktopKeyboard } from "./createDesktopKeyboard";
-import { createLaptop } from "./createLaptop";
+import { AutoMovieArchetypeDesktopKeyboard } from "./AutoMovieArchetypeDesktopKeyboard";
+import { AutoMovieArchetypeLaptop } from "./AutoMovieArchetypeLaptop";
 
 /** Public operations for Auto Movie Archetype Keyboard. */
 export namespace AutoMovieArchetypeKeyboard {
@@ -65,14 +65,14 @@ export namespace AutoMovieArchetypeKeyboard {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `keyboard` selector. */
-    keyboard: typeof createDesktopKeyboard;
+    keyboard: typeof AutoMovieArchetypeDesktopKeyboard.create;
 
     /** The named producer for the saved `laptop` selector. */
-    laptop: typeof createLaptop;
+    laptop: typeof AutoMovieArchetypeLaptop.create;
   }
 
   /** The public producer for each saved kind. */
   export const PRODUCERS: Readonly<IProducers> = {
-    keyboard: createDesktopKeyboard,
-    laptop: createLaptop,
+    keyboard: AutoMovieArchetypeDesktopKeyboard.create,
+    laptop: AutoMovieArchetypeLaptop.create,
   };}

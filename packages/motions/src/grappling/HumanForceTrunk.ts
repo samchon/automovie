@@ -1,4 +1,4 @@
-import { getConstraint } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -59,12 +59,12 @@ export namespace HumanForceTrunk {
   ): number {
     let sum: number = 0;
     for (const bone of ["spine", "chest"] as const) {
-      const limits: ReturnType<typeof getConstraint> = getConstraint(
+      const limits: ReturnType<typeof AutoMovieEngineKinematics.getConstraint> = AutoMovieEngineKinematics.getConstraint(
         bone,
         readHumanBone(body, bone)?.constraint ?? null,
       );
       const abduction:
-        | NonNullable<ReturnType<typeof getConstraint>>["abduction"]
+        | NonNullable<ReturnType<typeof AutoMovieEngineKinematics.getConstraint>>["abduction"]
         | null = limits?.abduction ?? null;
       if (abduction === null || abduction === undefined) continue;
       sum +=

@@ -1,4 +1,4 @@
-import { clampJointRom, clampJointToSkeleton, jointToQuaternionOnBasis, prepareJointRotationProjection, AutoMovieEngineKinematics } from "@automovie/engine";
+import { clampJointToSkeleton, jointToQuaternionOnBasis, prepareJointRotationProjection, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
@@ -310,7 +310,7 @@ function nullAffineFrames(): void {
       basis,
       frame,
       clamp: (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
-        const admitted: IAutoMovieJointPose = clampJointRom(joint, constraint);
+        const admitted: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(joint, constraint);
         return rest ? { ...admitted, abduction: null, twist: null } : admitted;
       },
     });
@@ -437,7 +437,7 @@ function generalFallback(basis: IAutoMovieJointAxes): void {
         basis,
         frame,
         clamp: (joint: IAutoMovieJointPose): IAutoMovieJointPose => {
-          const admitted: IAutoMovieJointPose = clampJointRom(
+          const admitted: IAutoMovieJointPose = AutoMovieEngineKinematics.clampJointRom(
             joint,
             constraint,
           );

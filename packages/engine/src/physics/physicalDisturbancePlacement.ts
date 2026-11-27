@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import { physicalDisturbanceForm } from "./physicalDisturbanceForm";
 import { physicalDisturbanceResponse } from "./physicalDisturbanceResponse";
 import { physicalFootstepAdjustor } from "./physicalFootstepAdjustor";
@@ -6,10 +7,9 @@ import type { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
 import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
-import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /** A planted foot. */
-type Foot = preparePhysicalDisturbanceSpan.IFoot;
+type Foot = AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IFoot;
 
 /** The response being laid. */
 type IResponse = physicalDisturbanceResponse.IResponse;

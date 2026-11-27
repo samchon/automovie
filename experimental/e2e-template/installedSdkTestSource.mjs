@@ -4,8 +4,13 @@ export const installedSdkTestSource = (
 ) => `import assert from "node:assert/strict";
 import {
   AutoMovieArchetypeCamera, AutoMovieArchetypePhone, AutoMovieArchetypeRemote, AutoMovieArchetypeTablet,
-  createCargoPod, createDesktopKeyboard, createLaptop, createRadio, createRing, createScenicContainer,
+  AutoMovieArchetypeDesktopKeyboard as RootAutoMovieArchetypeDesktopKeyboard,
+  AutoMovieArchetypeLaptop as RootAutoMovieArchetypeLaptop,
+  AutoMovieArchetypeRadio as RootAutoMovieArchetypeRadio,
+  createScenicContainer,
 } from "@automovie/archetypes";
+import { AutoMovieArchetypeCargoPod, AutoMovieArchetypeDesktopKeyboard, AutoMovieArchetypeLaptop, AutoMovieArchetypeRadio } from "@automovie/archetypes/props";
+import { AutoMovieArchetypeRing } from "@automovie/archetypes/gym";
 import * as props from "@automovie/archetypes/props";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
@@ -27,17 +32,17 @@ import { starter } from "../../../src/composition/films/starter";
  * @evidence contracts/development/testing.md#independent-expectations Ricoh specifies a 109.4 mm camera width. The case collider and the declared 94-percent screen width determine the glass targets, with a 9 mm acceptance bound and a 285 ms stroke target. The two seeds cover the representative phone and a prior worst case. Literal names check the cargo mount and room models, and strict equality checks identity across export paths.
  */
 export async function test_installed_sdk(): Promise<void> {
-  assert.ok(createRing({ id: "sdk-consumer" }).parts.length > 0);
+  assert.ok(AutoMovieArchetypeRing.create({ id: "sdk-consumer" }).parts.length > 0);
   assert.equal(AutoMovieArchetypeCamera, props.AutoMovieArchetypeCamera);
-  assert.equal(createDesktopKeyboard, props.createDesktopKeyboard);
-  assert.equal(createLaptop, props.createLaptop);
+  assert.equal(RootAutoMovieArchetypeDesktopKeyboard, props.AutoMovieArchetypeDesktopKeyboard);
+  assert.equal(RootAutoMovieArchetypeLaptop, props.AutoMovieArchetypeLaptop);
   assert.equal(AutoMovieArchetypePhone, props.AutoMovieArchetypePhone);
-  assert.equal(createRadio, props.createRadio);
+  assert.equal(RootAutoMovieArchetypeRadio, props.AutoMovieArchetypeRadio);
   assert.equal(AutoMovieArchetypeRemote, props.AutoMovieArchetypeRemote);
   assert.equal(AutoMovieArchetypeTablet, props.AutoMovieArchetypeTablet);
   assert.equal(AutoMovieArchetypeCamera.create({ model: "grIII" }).dimensions.width, 0.1094);
   const oldPod = createScenicContainer({ kind: "cargoPod" }, 7);
-  const pod = createCargoPod({}, 7);
+  const pod = AutoMovieArchetypeCargoPod.create({}, 7);
   assert.deepEqual(oldPod.affordances.map((contact) => contact.id), ["top"]);
   assert.deepEqual(pod.affordance("top"), oldPod.affordance("top"));
   assert.equal(pod.affordance("mount").frame.translation.y, 0);

@@ -1,7 +1,4 @@
-import {
-  AutoMovieEngineEffect,
-  materializeCompiledEffects,
-} from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import type {
   IAutoMovieCompiledEffect,
   IAutoMovieEffectRecipe,
@@ -42,7 +39,7 @@ export function test_engine_physics_materialize_compiled_effects(): void {
       budget: { maxParticles: 1, lodDistance: 100 },
       blend: "alpha",
     };
-    const effect: IAutoMovieCompiledEffect = materializeCompiledEffects({
+    const effect: IAutoMovieCompiledEffect = AutoMovieEngineEffect.materializeCompiledEffects({
       world: {
         effectRecipes: [recipe],
         effectZones: [

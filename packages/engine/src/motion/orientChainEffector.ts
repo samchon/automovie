@@ -17,7 +17,7 @@ import { skeletonJointAxes } from "../kinematics/internal/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 import type { prepareChainFit } from "./internal/prepareChainFit";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { resolveBoneMap } from "./resolveBoneMap";

@@ -17,7 +17,7 @@ import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";
-import { getConstraint } from "../../rom/getConstraint";
+import { getConstraint } from "../../rom/internal/getConstraint";
 import { derivePhysicalActuators } from "./derivePhysicalActuators";
 
 /**

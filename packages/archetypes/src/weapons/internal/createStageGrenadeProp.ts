@@ -4,7 +4,7 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype } from "../../core/index";
 import { StageTokenConstruction } from "../StageTokenConstruction";
 import { AutoMovieArchetypeProjectile } from "../AutoMovieArchetypeProjectile";
-import { stageTokenSphere } from "../stageTokenSphere";
+import { stageTokenSphere } from "./stageTokenSphere";
 
 /**
  * Rounded period stage silhouette.

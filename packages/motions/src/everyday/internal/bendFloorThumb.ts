@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3, getConstraint, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
+import { ROM_TOLERANCE, Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -36,7 +36,7 @@ export function bendFloorThumb(
   side: AutoMovieHumanSide,
 ): number {
   const thumb: AutoMovieHumanoidBone = `${side}ThumbMetacarpal`;
-  const range: IAutoMovieAngleRange | null | undefined = getConstraint(
+  const range: IAutoMovieAngleRange | null | undefined = AutoMovieEngineKinematics.getConstraint(
     thumb,
     body.bones.get(thumb)?.constraint ?? null,
   )?.twist;

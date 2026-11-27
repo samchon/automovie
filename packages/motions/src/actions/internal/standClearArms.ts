@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, getConstraint } from "@automovie/engine";
+import { ROM_TOLERANCE, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -61,7 +61,7 @@ export function standClearArms(
   for (const side of ["left", "right"] as const) {
     const from: number = quiet[`${side}UpperArm`]![1];
     if (!sinks(side, from)) continue;
-    const range: IAutoMovieAngleRange | null | undefined = getConstraint(
+    const range: IAutoMovieAngleRange | null | undefined = AutoMovieEngineKinematics.getConstraint(
       `${side}UpperArm`,
       readHumanBone(body, `${side}UpperArm`)?.constraint ?? null,
     )?.abduction;

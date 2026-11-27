@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, Quaternion, Vector3, getConstraint, swingTwist, AutoMovieEngineKinematics } from "@automovie/engine";
+import { HUMANOID_REST_FRAME, Quaternion, Vector3, swingTwist, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieJointAxes,
@@ -239,7 +239,7 @@ export namespace AutoMovieMotionHumanBendStrain {
     side: AutoMovieHumanSide,
   ): IHand {
     return {
-      range: getConstraint(
+      range: AutoMovieEngineKinematics.getConstraint(
         `${side}Hand`,
         readHumanBone(body, `${side}Hand`)?.constraint ?? null,
       ),

@@ -9,6 +9,7 @@ import { physicalBalanceBracing as physicalBalanceBracingImplementation } from "
 import { physicalBalanceReference as physicalBalanceReferenceImplementation } from "./internal/physicalBalanceReference";
 import { planPhysicalBalanceTargets as planPhysicalBalanceTargetsImplementation } from "./internal/planPhysicalBalanceTargets";
 
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import { type IAutoMoviePhysicalBalance, type IAutoMoviePhysicalSupportPatch, type IAutoMovieVector3, type IAutoMoviePhysicalBalanceExhaustion, type IAutoMoviePhysicalBalanceBracing, type IAutoMoviePhysicalBalanceReference, type IAutoMoviePlanPhysicalSupportTargets, type IAutoMoviePlanPhysicalBalanceTargets } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
@@ -529,20 +530,8 @@ export namespace AutoMoviePhysicalBalance {
    * @returns The readings: the mass centre's position and velocity and the root
    *   segment found now, the rest computed when asked for.
    */
-  export function sense(input: sense.IInput): sense.ISense {
+  export function sense(input: AutoMovieEnginePhysicalBalanceTypes.Sense.IInput): AutoMovieEnginePhysicalBalanceTypes.Sense.ISense {
     return physicalBalanceSenseImplementation(input);
-  }
-
-  /** The readings {@link physicalBalanceSense} gives the balance phases. */
-  export namespace sense {
-    /** One supporting limb of the policy's pattern. */
-    export type ILimb = physicalBalanceSenseImplementation.ILimb;
-
-    /** What the readings are taken from. */
-    export type IInput = physicalBalanceSenseImplementation.IInput;
-
-    /** The readings, world metres, seconds and newtons. */
-    export type ISense = physicalBalanceSenseImplementation.ISense;
   }
 
   /**
@@ -563,14 +552,8 @@ export namespace AutoMoviePhysicalBalance {
    * @param input The body's segments, goals, gains and demands.
    * @returns The task: the mass center, the force and the moment.
    */
-  export function centroidalTask(input: centroidalTask.IInput): AutoMovieXpbdWorld.IRootTask {
+  export function centroidalTask(input: AutoMovieEnginePhysicalBalanceTypes.CentroidalTask.IInput): AutoMovieXpbdWorld.IRootTask {
     return physicalCentroidalTaskImplementation(input);
-  }
-
-  /** The input of physicalCentroidalTask. */
-  export namespace centroidalTask {
-    /** The body, its goals and the root's gains and demands. */
-    export type IInput = physicalCentroidalTaskImplementation.IInput;
   }
 
   /**
@@ -594,20 +577,8 @@ export namespace AutoMoviePhysicalBalance {
    *   already divided by the control period squared.
    * @returns The feedback pair, or null.
    */
-  export function icpControllerQp(input: icpControllerQp.IInput): icpControllerQp.ISolution | null {
+  export function icpControllerQp(input: AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.IInput): AutoMovieEnginePhysicalBalanceTypes.IcpControllerQp.ISolution | null {
     return physicalIcpControllerQpImplementation(input);
-  }
-
-  /** The program's terms and solution. */
-  export namespace icpControllerQp {
-    /** A 2 x 2 matrix, row by row. */
-    export type IMatrix = physicalIcpControllerQpImplementation.IMatrix;
-
-    /** The terms `ICPController` hands the solver each update. */
-    export type IInput = physicalIcpControllerQpImplementation.IInput;
-
-    /** The program's solution. */
-    export type ISolution = physicalIcpControllerQpImplementation.ISolution;
   }
 
   /**
@@ -677,28 +648,8 @@ export namespace AutoMoviePhysicalBalance {
    * @param input The state just after the first push and the pushes after it.
    * @returns The prepared span.
    */
-  export function prepareDisturbanceSpan(input: prepareDisturbanceSpan.IInput): prepareDisturbanceSpan.ISpan {
+  export function prepareDisturbanceSpan(input: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IInput): AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan {
     return preparePhysicalDisturbanceSpanImplementation(input);
   }
 
-  /** The span's input, branch points, sample and result. */
-  export namespace prepareDisturbanceSpan {
-    /** The state just after the first push and the pushes after it. */
-    export type IInput = preparePhysicalDisturbanceSpanImplementation.IInput;
-
-    /** A later push of the stated disturbance. */
-    export type IPush = preparePhysicalDisturbanceSpanImplementation.IPush;
-
-    /** A planted foot. */
-    export type IFoot = preparePhysicalDisturbanceSpanImplementation.IFoot;
-
-    /** A branch point of the span. */
-    export type IBranch = preparePhysicalDisturbanceSpanImplementation.IBranch;
-
-    /** The response at a time. */
-    export type ISample = preparePhysicalDisturbanceSpanImplementation.ISample;
-
-    /** The prepared span. */
-    export type ISpan = preparePhysicalDisturbanceSpanImplementation.ISpan;
-  }
 }

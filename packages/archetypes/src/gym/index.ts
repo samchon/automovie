@@ -19,7 +19,7 @@ export { AutoMovieArchetypeStilt } from "./AutoMovieArchetypeStilt";
 export { AutoMovieArchetypeTrampoline } from "./AutoMovieArchetypeTrampoline";
 export { AutoMovieArchetypeRack } from "./AutoMovieArchetypeRack";
 export { AutoMovieArchetypeRhythmicBall } from "./AutoMovieArchetypeRhythmicBall";
-export * from "./createRing";
+export { AutoMovieArchetypeRing } from "./AutoMovieArchetypeRing";
 export { AutoMovieArchetypeRowingMachine } from "./AutoMovieArchetypeRowingMachine";
 export { AutoMovieArchetypeSled } from "./AutoMovieArchetypeSled";
 export { AutoMovieArchetypeSpringboard } from "./AutoMovieArchetypeSpringboard";

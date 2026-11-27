@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -67,7 +67,7 @@ export function prepareLieDownFootPins(
       socket,
       extension:
         socket === "toe"
-          ? (getConstraint(
+          ? (AutoMovieEngineKinematics.getConstraint(
               `${side}Toes`,
               body.bones.get(`${side}Toes`)?.constraint ?? null,
             )?.flexion?.max ?? 0)

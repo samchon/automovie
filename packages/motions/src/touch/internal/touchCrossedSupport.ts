@@ -1,4 +1,4 @@
-import { Vector3, getConstraint } from "@automovie/engine";
+import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -169,7 +169,7 @@ export namespace touchCrossedSupport {
   ): NonNullable<IAutoMovieMotionHumanTouchStance.IProps["girdles"]> {
     const bounds = (side: AutoMovieHumanSide): Angles => {
       const bone: AutoMovieHumanoidBone = `${side}Shoulder`;
-      const range: IAutoMovieJointConstraint | null = getConstraint(
+      const range: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
         bone,
         readHumanBone(body, bone)?.constraint ?? null,
       );

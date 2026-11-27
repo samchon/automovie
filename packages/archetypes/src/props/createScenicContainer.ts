@@ -6,7 +6,7 @@ import {
 } from "../core";
 import { SCENIC_CONTAINER_BANDS } from "./SCENIC_CONTAINER_BANDS";
 import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
-import { createCargoPod } from "./createCargoPod";
+import { AutoMovieArchetypeCargoPod } from "./AutoMovieArchetypeCargoPod";
 import { AutoMovieArchetypeMoldedCrate } from "./AutoMovieArchetypeMoldedCrate";
 import { AutoMovieArchetypePlankCoffer } from "./AutoMovieArchetypePlankCoffer";
 import { AutoMovieArchetypeScenicBasket } from "./AutoMovieArchetypeScenicBasket";
@@ -16,7 +16,7 @@ import { AutoMovieArchetypeScenicBasket } from "./AutoMovieArchetypeScenicBasket
  * identifier and model choices.
  *
  * A saved cargo pod keeps its original single top surface. The named
- * {@link createCargoPod} builds the same geometry and adds the bottom `mount`
+ * {@link AutoMovieArchetypeCargoPod.create} builds the same geometry and adds the bottom `mount`
  * for stacking, so the saved selector keeps the surface-only construction.
  *
  * @param params The historic selector and optional fixed settings in the
@@ -83,7 +83,7 @@ export namespace createScenicContainer {
     moldedCrate: typeof AutoMovieArchetypeMoldedCrate.create;
 
     /** The named producer for the saved `cargoPod` selector. */
-    cargoPod: typeof createCargoPod;
+    cargoPod: typeof AutoMovieArchetypeCargoPod.create;
   }
 
   /**
@@ -104,8 +104,8 @@ export namespace createScenicContainer {
     get moldedCrate(): typeof AutoMovieArchetypeMoldedCrate.create {
       return AutoMovieArchetypeMoldedCrate.create;
     },
-    get cargoPod(): typeof createCargoPod {
-      return createCargoPod;
+    get cargoPod(): typeof AutoMovieArchetypeCargoPod.create {
+      return AutoMovieArchetypeCargoPod.create;
     },
   };
 

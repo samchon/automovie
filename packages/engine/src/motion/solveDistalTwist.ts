@@ -14,7 +14,7 @@ import { Vector3 } from "../math/Vector3";
 import { bracketedCrossing } from "../math/internal/bracketedCrossing";
 import { swingTwist } from "../math/swingTwist";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { prepareDistalTwistEffector } from "./internal/prepareDistalTwistEffector";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";

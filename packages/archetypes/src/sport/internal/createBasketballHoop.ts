@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeBasketballHoop } from "../AutoMovieArchetypeBasketballHoop";
 import type { AutoMovieArchetype } from "../../core/index";
 import { GoalBuild } from "../GoalBuild";
-import { buildBasketballHoop } from "../buildBasketballHoop";
+import { buildBasketballHoop } from "./buildBasketballHoop";
 
 
 /**

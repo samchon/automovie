@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type {
   IAutoMovieAdvancePhysicalBalance,
   IAutoMovieCollectPhysicalSupports,
@@ -23,7 +24,6 @@ import { physicalBalanceSettle } from "./physicalBalanceSettle";
 import { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalBalanceSwing } from "./physicalBalanceSwing";
 import { physicalSupportSole } from "./physicalSupportSole";
-import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /**
  * Advance one body's generic recovery controller from actual floor manifolds.
@@ -83,17 +83,17 @@ export function advancePhysicalBalance(input: {
   /**
    * The authored pose's centre of mass, its velocity and acceleration, world; a
    * body's disturbance response stands in for it.
-   */ command?: physicalBalanceSense.IInput["command"];
+   */ command?: AutoMovieEnginePhysicalBalanceTypes.Sense.IInput["command"];
   /** Where the phases record their events and readings, if anywhere. */ trace?: IAutoMoviePhysicalBalanceTrace[];
   /**
    * On the substep after a stated disturbance's first push, its later pushes,
    * whose response the body prepares now.
-   */ disturbance?: { pushes: readonly preparePhysicalDisturbanceSpan.IPush[] };
+   */ disturbance?: { pushes: readonly AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IPush[] };
 }): IAutoMovieAdvancePhysicalBalance.IResult {
   const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
     input.supports ??
     collectPhysicalSupports({ ...input, pattern: input.policy.pattern });
-  const sense: physicalBalanceSense.ISense = physicalBalanceSense({
+  const sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense = physicalBalanceSense({
     profile: input.profile,
     segments: input.segments,
     policy: input.policy,
@@ -187,8 +187,8 @@ export function advancePhysicalBalance(input: {
  */
 function disturbance(
   state: IAutoMoviePhysicalRecoveryState,
-  sense: physicalBalanceSense.ISense,
-  stated: { pushes: readonly preparePhysicalDisturbanceSpan.IPush[] },
+  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense,
+  stated: { pushes: readonly AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IPush[] },
 ): NonNullable<IAutoMoviePhysicalRecoveryState["span"]> {
   const omega: number = state.omega ?? physicalBalancePlan.omega(sense, state);
   const authored: physicalAuthoredCapture.IDesired = physicalAuthoredCapture(
@@ -204,7 +204,7 @@ function disturbance(
     mass: sense.profile.mass,
     gravity: sense.gravity,
     feet: sense.limbs.map(
-      (limb: physicalBalanceSense.ILimb): physicalSupportSole.IFoot =>
+      (limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): physicalSupportSole.IFoot =>
         physicalSupportSole.foot(
           sense,
           state,
@@ -216,7 +216,7 @@ function disturbance(
       position: { ...authored.position },
       velocity: { ...authored.velocity },
     },
-    pushes: stated.pushes.map((push: preparePhysicalDisturbanceSpan.IPush) => ({
+    pushes: stated.pushes.map((push: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IPush) => ({
       seconds: push.seconds,
       velocity: { ...push.velocity },
     })),

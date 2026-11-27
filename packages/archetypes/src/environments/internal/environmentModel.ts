@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
-import { placeEnvironmentSpace } from "../placeEnvironmentSpace";
-import { requireEnvironmentFrame } from "../requireEnvironmentFrame";
+import { placeEnvironmentSpace } from "./placeEnvironmentSpace";
+import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
 
 /**
  * Offer a supplied model as a reusable environment module.

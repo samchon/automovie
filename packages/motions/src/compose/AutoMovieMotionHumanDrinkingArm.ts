@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  getConstraint,
-  rotationBetween,
-} from "@automovie/engine";
+import { Quaternion, Vector3, rotationBetween, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -197,7 +192,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
         (j: IAutoMovieJointPose): boolean => j.bone === `${side}LowerArm`,
       )?.twist ?? 0;
     const range: IAutoMovieAngleRange | null =
-      getConstraint(
+      AutoMovieEngineKinematics.getConstraint(
         `${side}LowerArm`,
         readHumanBone(body, `${side}LowerArm`)?.constraint ?? null,
       )?.twist ?? null;

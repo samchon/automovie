@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeDraw, type AutoMovieArchetype, type AutoMovieArchetypeDrawSession, type AutoMovieArchetypeFriction, type AutoMovieArchetypeRide, type IAutoMovieArchetypeBand } from "../core/index";
 import { CART_BANDS } from "./CART_BANDS";
 import { CartFit } from "./CartFit";
-import { cartTowing } from "./cartTowing";
+import { cartTowing } from "./internal/cartTowing";
 import { AutoMovieArchetypeCarriage } from "./AutoMovieArchetypeCarriage";
 import { AutoMovieArchetypeChariot } from "./AutoMovieArchetypeChariot";
 import { AutoMovieArchetypeHorseCart } from "./AutoMovieArchetypeHorseCart";
@@ -11,8 +11,8 @@ import { AutoMovieArchetypeRickshaw } from "./AutoMovieArchetypeRickshaw";
 import { AutoMovieArchetypeShoppingTrolley } from "./AutoMovieArchetypeShoppingTrolley";
 import { AutoMovieArchetypeWagon } from "./AutoMovieArchetypeWagon";
 import { AutoMovieArchetypeWheelbarrow } from "./AutoMovieArchetypeWheelbarrow";
-import { createCartParts as parts } from "./createCartParts";
-import { createCartMeasures as measures } from "./createCartMeasures";
+import { createCartParts as parts } from "./internal/createCartParts";
+import { createCartMeasures as measures } from "./internal/createCartMeasures";
 
 /** Constructs the cart archetype from its recipe. */
 export namespace AutoMovieArchetypeCart {

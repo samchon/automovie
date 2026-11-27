@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { addTransitBusSeating } from "./addTransitBusSeating";
+import { addTransitBusSeating } from "./internal/addTransitBusSeating";
 
 /**
  * Builds a rigid, two-door low-floor city bus for boarding, standing and seated

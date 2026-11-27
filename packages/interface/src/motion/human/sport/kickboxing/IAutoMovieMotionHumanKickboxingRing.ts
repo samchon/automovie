@@ -9,7 +9,7 @@ import type { IAutoMovieVector3 } from "../../../../geometry/IAutoMovieVector3";
  * to 7.3 m inside the ropes; the size is the production's). Corners are named
  * in the ring's own frame: the red and blue corners on one diagonal, the two
  * neutral corners on the other. A ring placed in the scene is read from its own
- * contacts (`of`, `createRing`'s): its centre and floor from the `canvas`, its
+ * contacts (`of`, `AutoMovieArchetypeRing.create`'s): its centre and floor from the `canvas`, its
  * size from the top ropes on opposite sides, its heading from the placement,
  * and its corners named on its posts' tops, `corner1` (`+X +Z`) blue, `corner3`
  * red, `corner4` and `corner2` the neutral corners.

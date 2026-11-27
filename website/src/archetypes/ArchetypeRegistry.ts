@@ -2,6 +2,13 @@ import * as archetypes from "@automovie/archetypes";
 
 /** Stable authored IDs whose package owners are namespaces with `.create`. */
 const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
+  AutoMovieArchetypeCargoPod: "createCargoPod",
+  AutoMovieArchetypeDesktopKeyboard: "createDesktopKeyboard",
+  AutoMovieArchetypeLaptop: "createLaptop",
+  AutoMovieArchetypeRadio: "createRadio",
+  AutoMovieArchetypeBookcase: "createBookcase",
+  AutoMovieArchetypeSeat: "createSeat",
+  AutoMovieArchetypeRing: "createRing",
   AutoMovieArchetypeCar: "createCar",
   AutoMovieArchetypeBicycle: "createBicycle",
   AutoMovieArchetypeMotorcycle: "createMotorcycle",

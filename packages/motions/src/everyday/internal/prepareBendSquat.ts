@@ -1,10 +1,4 @@
-import {
-  ANKLE_DORSIFLEXION,
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
-  getConstraint,
-} from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Quaternion, ROM_TOLERANCE, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -106,7 +100,7 @@ export function prepareBendSquat(
   const palm = HumanHand.offset(body, other, "palm", "flat");
   const span: number = body.measure.upperArm + body.measure.forearm;
   const clinical = (bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint =>
-    getConstraint(bone, body.bones.get(bone)?.constraint ?? null)!;
+    AutoMovieEngineKinematics.getConstraint(bone, body.bones.get(bone)?.constraint ?? null)!;
   const spine = clinical("spine"),
     chest = clinical("chest");
   const rollLimit: number = spine.abduction!.max;

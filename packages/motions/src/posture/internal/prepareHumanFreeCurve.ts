@@ -1,11 +1,4 @@
-import {
-  ROM_TOLERANCE,
-  getConstraint,
-  hingedArmSwivel,
-  jointRomOvershoot,
-  samplePoseVelocity,
-  swingTwistRange,
-} from "@automovie/engine";
+import { ROM_TOLERANCE, hingedArmSwivel, jointRomOvershoot, samplePoseVelocity, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -68,7 +61,7 @@ export function prepareHumanFreeCurve(
     (joint: IAutoMovieJointPose) => number
   > = new Map();
   for (const bone of body.skeleton.bones) {
-    const constraint: IAutoMovieJointConstraint | null = getConstraint(
+    const constraint: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
       bone.bone,
       bone.constraint ?? null,
     );

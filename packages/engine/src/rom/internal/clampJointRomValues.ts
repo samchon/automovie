@@ -10,8 +10,8 @@ import type {
 import { decomposeJointRotation } from "../../kinematics/internal/decomposeJointRotation";
 import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
 import { swingTwistRange } from "../../kinematics/swingTwistRange";
-import { abductionRange } from "../abductionRange";
-import { swingConeBlend } from "../swingConeBlend";
+import { abductionRange } from "./abductionRange";
+import { swingConeBlend } from "./swingConeBlend";
 
 /**
  * Project one joint, given as its bone and its three clinical angles, into its

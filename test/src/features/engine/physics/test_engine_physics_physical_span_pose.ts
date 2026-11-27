@@ -1,4 +1,4 @@
-import { Vector3, physicalSpanPose, AutoMovieEnginePhysics, AutoMoviePhysicalBalance } from "@automovie/engine";
+import { Vector3, physicalSpanPose, AutoMovieEnginePhysics, AutoMoviePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
 import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
@@ -63,7 +63,7 @@ export function test_engine_physics_physical_span_pose(): void {
   const omega: number = PhysicalDisturbance.omegaOf(subject);
   const placed = limbs.map((limb) => endpoint(goals, limb.bone));
   const middle: number = (placed[0]!.x + placed[1]!.x) / 2;
-  const span: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan({
+  const span: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan({
     seconds: 0.2,
     center,
     velocity: { x: 0, y: 0, z: 2 },
@@ -71,7 +71,7 @@ export function test_engine_physics_physical_span_pose(): void {
     mass: subject.profile.mass,
     gravity: 9.81,
     feet: limbs.map(
-      (limb, i: number): AutoMoviePhysicalBalance.prepareDisturbanceSpan.IFoot => ({
+      (limb, i: number): AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IFoot => ({
         bone: limb.bone,
         side: placed[i]!.x > middle ? "left" : "right",
         frame: {
@@ -104,7 +104,7 @@ export function test_engine_physics_physical_span_pose(): void {
   for (const share of [0.1, 0.4, 0.7, 0.95]) {
     const t: number =
       trigger.seconds + share * (touchdown.seconds - trigger.seconds);
-    const sample: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISample = span.sample(t);
+    const sample: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISample = span.sample(t);
     const pose = physicalSpanPose({ body, goals, sample });
     for (const joint of subject.profile.joints) {
       const parent = pose[joint.parent];

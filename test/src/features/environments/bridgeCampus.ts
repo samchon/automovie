@@ -1,5 +1,5 @@
 import { createBuilding, createGymKit, createLift, createPassage, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
-import { createSeat } from "@automovie/archetypes/furniture";
+import { AutoMovieArchetypeSeat } from "@automovie/archetypes/furniture";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieStageActor,
@@ -62,7 +62,7 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
       },
       bench: {
         at: { anchor: "garden/amenities/seat" },
-        use: AutoMovieEnvironmentFurnishing.prop({ model: createSeat({ kind: "bench" }) }),
+        use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }),
       },
     },
   });

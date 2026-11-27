@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { HUMANOID_REST_FRAME } from "../../rom/constants/HUMANOID_REST_FRAME";
-import { getConstraint } from "../../rom/getConstraint";
+import { getConstraint } from "../../rom/internal/getConstraint";
 import { armChainFault } from "./armChainFault";
 import { clinicalDeviation } from "./clinicalDeviation";
 import { HUMANOID_JOINT_AXES } from "../constants/HUMANOID_JOINT_AXES";

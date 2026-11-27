@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type {
   IAutoMovieAdvancePhysicalBalance,
   IAutoMovieCollectPhysicalSupports,
@@ -16,7 +17,6 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 import { physicalAuthoredCenter } from "./physicalAuthoredCenter";
-import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 import { samplePhysicalAuthoredTargets } from "./internal/samplePhysicalAuthoredTargets";
 
 /**
@@ -209,7 +209,7 @@ function disturbance(
   input: IAutoMoviePhysicalSimulationInput.IInput,
   body: IAutoMoviePhysicalSimulationInput.IBody,
   seconds: number,
-): { disturbance?: { pushes: preparePhysicalDisturbanceSpan.IPush[] } } {
+): { disturbance?: { pushes: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IPush[] } } {
   const substeps: number = input.substeps!;
   const rate: number = input.rate * substeps;
   const tick: number = Math.round(seconds * rate);

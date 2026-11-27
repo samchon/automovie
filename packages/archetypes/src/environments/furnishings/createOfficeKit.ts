@@ -7,9 +7,9 @@ import type {
 } from "@automovie/interface";
 
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
-import { createBookcase } from "../../furniture/createBookcase";
+import { AutoMovieArchetypeBookcase } from "../../furniture/AutoMovieArchetypeBookcase";
 import { AutoMovieArchetypeDrawerUnit } from "../../furniture/AutoMovieArchetypeDrawerUnit";
-import { createSeat } from "../../furniture/createSeat";
+import { AutoMovieArchetypeSeat } from "../../furniture/AutoMovieArchetypeSeat";
 import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
@@ -47,7 +47,7 @@ export function createOfficeKit(
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
     const desk: IAutoMovieModel = AutoMovieArchetypeTable.create({ kind: "desk" }, draw("desk"));
-    const chair: IAutoMovieModel = createSeat(
+    const chair: IAutoMovieModel = AutoMovieArchetypeSeat.create(
       { kind: "office" },
       draw("chair"),
     );
@@ -55,7 +55,7 @@ export function createOfficeKit(
       { kind: "filingCabinet" },
       draw("filing"),
     );
-    const bookcase: IAutoMovieModel = createBookcase({}, draw("bookcase"));
+    const bookcase: IAutoMovieModel = AutoMovieArchetypeBookcase.create({}, draw("bookcase"));
     const deskBox: IAutoMoviePropBox = furnishRoom.measure(desk);
     const chairBox: IAutoMoviePropBox = furnishRoom.measure(chair);
     const filingBox: IAutoMoviePropBox = furnishRoom.measure(filing);

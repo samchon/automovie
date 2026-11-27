@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
 import type {
   IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
@@ -5,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import type { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
@@ -54,10 +54,10 @@ export namespace physicalAuthoredCapture {
 
   /** What the capture reads of the body's readings. */
   export type ISense = Pick<
-    physicalBalanceSense.ISense,
+    AutoMovieEnginePhysicalBalanceTypes.Sense.ISense,
     "command" | "targets"
   > & {
-    profile: Pick<physicalBalanceSense.ISense["profile"], "segments" | "mass">;
+    profile: Pick<AutoMovieEnginePhysicalBalanceTypes.Sense.ISense["profile"], "segments" | "mass">;
   };
 
   /**

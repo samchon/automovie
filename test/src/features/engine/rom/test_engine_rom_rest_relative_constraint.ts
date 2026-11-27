@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, restRelativeConstraint } from "@automovie/engine";
+import { HUMANOID_REST_FRAME, AutoMovieEngineKinematics } from "@automovie/engine";
 import { IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,7 +33,7 @@ const CLINICAL: IAutoMovieJointConstraint = {
  */
 export function test_engine_rom_rest_relative_constraint(): void {
   // 1. sign +1
-  const left: IAutoMovieJointConstraint = restRelativeConstraint(CLINICAL, {
+  const left: IAutoMovieJointConstraint = AutoMovieEngineKinematics.restRelativeConstraint(CLINICAL, {
     abduction: { sign: 1, neutral: 90 },
   });
   TestValidator.predicate(
@@ -44,7 +44,7 @@ export function test_engine_rom_rest_relative_constraint(): void {
   );
 
   // 2. sign −1 mirrors + re-sorts
-  const right: IAutoMovieJointConstraint = restRelativeConstraint(CLINICAL, {
+  const right: IAutoMovieJointConstraint = AutoMovieEngineKinematics.restRelativeConstraint(CLINICAL, {
     abduction: { sign: -1, neutral: 90 },
   });
   TestValidator.predicate(
@@ -83,7 +83,7 @@ export function test_engine_rom_rest_relative_constraint(): void {
   );
 
   // 5. Preserve the existing rest-relative cap policy without asserting clinical metric invariance.
-  const coned: IAutoMovieJointConstraint = restRelativeConstraint(
+  const coned: IAutoMovieJointConstraint = AutoMovieEngineKinematics.restRelativeConstraint(
     { ...CLINICAL, swingDeg: 180 },
     { abduction: { sign: 1, neutral: 90 } },
   );
@@ -97,12 +97,12 @@ export function test_engine_rom_rest_relative_constraint(): void {
       nclose(coned.abduction.min, -120, 0) &&
       nclose(coned.abduction.max, 90, 0),
   );
-  const nullCone: IAutoMovieJointConstraint = restRelativeConstraint(
+  const nullCone: IAutoMovieJointConstraint = AutoMovieEngineKinematics.restRelativeConstraint(
     { ...CLINICAL, swingDeg: null },
     { abduction: { sign: 1, neutral: 90 } },
   );
   TestValidator.equals("null cone stays null", nullCone.swingDeg, null);
-  const shifted: IAutoMovieJointConstraint = restRelativeConstraint(
+  const shifted: IAutoMovieJointConstraint = AutoMovieEngineKinematics.restRelativeConstraint(
     {
       flexion: { min: -180, max: 180 },
       abduction: { min: -180, max: 180 },

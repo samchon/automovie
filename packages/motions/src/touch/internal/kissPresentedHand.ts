@@ -1,4 +1,4 @@
-import { Vector3, getConstraint, AutoMovieEngineMath } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBody,
@@ -89,7 +89,7 @@ export function kissPresentedHand(
   }
   const hipTurns: number[] = (["leftUpperLeg", "rightUpperLeg"] as const).map(
     (bone) => {
-      const rotation = getConstraint(
+      const rotation = AutoMovieEngineKinematics.getConstraint(
         bone,
         readHumanBone(body, bone)?.constraint ?? null,
       )?.twist;

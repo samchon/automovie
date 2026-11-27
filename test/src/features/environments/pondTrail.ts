@@ -1,5 +1,5 @@
 import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
-import { createSeat } from "@automovie/archetypes/furniture";
+import { AutoMovieArchetypeSeat } from "@automovie/archetypes/furniture";
 import { Quaternion, Transform, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
@@ -77,7 +77,7 @@ export function pondTrail(): compileEnvironmentExample.IInput {
         }),
       },
       bench: {
-        use: AutoMovieEnvironmentFurnishing.prop({ model: createSeat({ kind: "bench" }) }),
+        use: AutoMovieEnvironmentFurnishing.prop({ model: AutoMovieArchetypeSeat.create({ kind: "bench" }) }),
         at: { anchor: "terrain/amenities/bench" },
       },
       marker: {

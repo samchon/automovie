@@ -5,7 +5,7 @@ import { AutoMovieArchetypePhone } from "./AutoMovieArchetypePhone";
 import { AutoMovieArchetypeCamera } from "./AutoMovieArchetypeCamera";
 import { AutoMovieArchetypeRemote } from "./AutoMovieArchetypeRemote";
 import { AutoMovieArchetypeTablet } from "./AutoMovieArchetypeTablet";
-import { createRadio } from "./createRadio";
+import { AutoMovieArchetypeRadio } from "./AutoMovieArchetypeRadio";
 
 /** Public operations for Auto Movie Archetype Device. */
 export namespace AutoMovieArchetypeDevice {
@@ -67,7 +67,7 @@ export namespace AutoMovieArchetypeDevice {
     tablet: typeof AutoMovieArchetypeTablet.create;
 
     /** The named producer for the saved `walkieTalkie` selector. */
-    walkieTalkie: typeof createRadio;
+    walkieTalkie: typeof AutoMovieArchetypeRadio.create;
   }
 
   /** The public producer for each saved kind, in the same family. */
@@ -76,5 +76,5 @@ export namespace AutoMovieArchetypeDevice {
     camera: AutoMovieArchetypeCamera.create,
     remote: AutoMovieArchetypeRemote.create,
     tablet: AutoMovieArchetypeTablet.create,
-    walkieTalkie: createRadio,
+    walkieTalkie: AutoMovieArchetypeRadio.create,
   };}

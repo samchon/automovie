@@ -35,9 +35,9 @@ import { QuadrupedSwingGoal } from "./QuadrupedSwingGoal";
 import type { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import { planEquineFlight } from "./planEquineFlight";
-import { refuseQuadrupedReach } from "./refuseQuadrupedReach";
-import { trialEquineFlight } from "./trialEquineFlight";
+import { planEquineFlight } from "./internal/planEquineFlight";
+import { refuseQuadrupedReach } from "./internal/refuseQuadrupedReach";
+import { trialEquineFlight } from "./internal/trialEquineFlight";
 
 /**
  * A quadruped going along a course: its root on the path, its trunk rising and

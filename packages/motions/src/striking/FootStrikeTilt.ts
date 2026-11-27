@@ -1,9 +1,4 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  Quaternion,
-  Vector3,
-  abductionRange,
-} from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -102,7 +97,7 @@ function over(
   // The range ellipse's reach at that azimuth, its abduction ceiling the
   // one the leg's flexion admits.
   const F: number = constraint.flexion.max;
-  const flexed: IAutoMovieAngleRange | null = abductionRange(
+  const flexed: IAutoMovieAngleRange | null = AutoMovieEngineKinematics.abductionRange(
     constraint,
     Math.max(0, elevation * Math.cos(azimuth)),
   );

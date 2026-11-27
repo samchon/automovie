@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeStageBallProp } from "../AutoMovieArchetypeStage
 import { type AutoMovieArchetype } from "../../core/index";
 import { StageTokenConstruction } from "../StageTokenConstruction";
 
-import { stageTokenSphere } from "../stageTokenSphere";
+import { stageTokenSphere } from "./stageTokenSphere";
 
 /**
  * Small round display token.

@@ -12,7 +12,7 @@ import type {
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 import { prepareChainRigConstants } from "./prepareChainRigConstants";
 
 /**

@@ -20,8 +20,8 @@ import { AutoMovieArchetypeFriction } from "./AutoMovieArchetypeFriction";
 import { AutoMovieArchetypeMass } from "./AutoMovieArchetypeMass";
 import { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
-import { archetypeSpanAnchor } from "./archetypeSpanAnchor";
-import { buildNativeArchetype } from "./buildNativeArchetype";
+import { archetypeSpanAnchor } from "./internal/archetypeSpanAnchor";
+import { buildNativeArchetype } from "./internal/buildNativeArchetype";
 
 /**
  * What every producer assembles an archetype with: dimensioned primitives,

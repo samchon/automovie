@@ -16,7 +16,7 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { basisOf } from "./basisOf";
 import { orientChainEffector } from "./orientChainEffector";

@@ -1,6 +1,6 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 
-import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
 import { physicalStanceSeat } from "./physicalStanceSeat";
 
@@ -32,7 +32,7 @@ import { physicalStanceSeat } from "./physicalStanceSeat";
  */
 export function physicalBalanceRamp(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: physicalBalanceSense.ISense;
+  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
 }): IAutoMoviePhysicalRecoveryState {
   const { state, sense } = input;
   const first: boolean = state.seating === undefined;

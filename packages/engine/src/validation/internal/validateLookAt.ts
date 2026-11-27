@@ -8,7 +8,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { getConstraint } from "../../rom/getConstraint";
+import { getConstraint } from "../../rom/internal/getConstraint";
 
 type AutoMovieLookAtRange =
   | "horizontalInner"

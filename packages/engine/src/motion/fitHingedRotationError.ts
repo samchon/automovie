@@ -14,7 +14,7 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { basisOf } from "./basisOf";
 import type { prepareChainFit } from "./internal/prepareChainFit";

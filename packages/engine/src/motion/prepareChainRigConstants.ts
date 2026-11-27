@@ -22,7 +22,7 @@ import { skeletonJointAxes } from "../kinematics/internal/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 import { scanJointRom } from "../rom/scanJointRom";
 import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 import { solveDistalTwist } from "./solveDistalTwist";

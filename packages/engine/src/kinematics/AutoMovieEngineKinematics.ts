@@ -1,3 +1,12 @@
+import { abductionRange as abductionRangeImplementation } from "../rom/internal/abductionRange";
+import { type swingTwistRange } from "./swingTwistRange";
+import { clampJointRom as clampJointRomImplementation } from "../rom/internal/clampJointRom";
+import { getConstraint as getConstraintImplementation } from "../rom/internal/getConstraint";
+import { restRelativeConstraint as restRelativeConstraintImplementation } from "../rom/internal/restRelativeConstraint";
+import { swingConeAngle as swingConeAngleImplementation } from "../rom/internal/swingConeAngle";
+import { swingConeBlend as swingConeBlendImplementation } from "../rom/internal/swingConeBlend";
+import { validateJointRom as validateJointRomImplementation } from "../rom/internal/validateJointRom";
+
 import { hingedArmArticulation as hingedArmArticulationImplementation } from "./internal/hingedArmArticulation";
 import { resolveAutoMovieBoneRates as resolveAutoMovieBoneRatesImplementation } from "./internal/resolveAutoMovieBoneRates";
 import { solveResolvedRate as solveResolvedRateImplementation } from "./internal/solveResolvedRate";
@@ -36,7 +45,7 @@ import { type distalTwistSwivelRange } from "./distalTwistSwivelRange";
 import { distalEndSwivelNearest as distalEndSwivelNearestImplementation } from "./internal/distalEndSwivelNearest";
 import { immobileAxisSwivels as immobileAxisSwivelsImplementation } from "./internal/immobileAxisSwivels";
 
-import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation } from "@automovie/interface";
+import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation, type IAutoMovieAngleRange, type IAutoMovieValidateJointRom } from "@automovie/interface";
 
 import { resolveLookAt as resolveLookAtImplementation } from "./internal/resolveLookAt";
 import { resolvePose as resolvePoseImplementation } from "./internal/resolvePose";
@@ -1187,4 +1196,98 @@ export namespace AutoMovieEngineKinematics {
   }
 
 
+
+  /**
+   * A joint's admitted abduction interval at a flexion: its `abduction` interval,
+   * the ceiling raised linearly with flexion by its `abductionFlexed` coupling up
+   * to that coupling's flexion and held beyond (`IAutoMovieFlexedAbduction`);
+   * extension keeps the neutral ceiling.
+   *
+   * @param constraint The joint's range.
+   * @param flexion Its flexion, degrees, or null at rest; a non-finite flexion
+   *   reads as rest.
+   * @returns The interval, the constraint's own when it has no coupling or the
+   *   flexion adds nothing; null for an immobile axis.
+   */
+  export function abductionRange(constraint: IAutoMovieJointConstraint, flexion: number | null): IAutoMovieAngleRange | null {
+    return abductionRangeImplementation(constraint, flexion);
+  }
+
+  /**
+   * Project one joint into admitted axis intervals, preserving null rest and
+   * forcing specified immobile axes to zero. Specified nonfinite angles first
+   * become neutral. A swing cap blends toward the box point nearest neutral;
+   * unrestricted multi-turn overrides are outside the bisection's
+   * monotonic-segment guarantee.
+   *
+   * A ball joint whose constraint declares `swingTwist`, on a bone with axes in
+   * its frame (the caller's `rig`, or the humanoid tables' through
+   * `swingTwistRange.of`), is instead brought into its range as a rotation
+   * (`swingTwistRange.project`: its direction along its great circle from rest,
+   * its twist clamped) and read back in the reading the three-angle box prefers;
+   * a joint already inside comes back as given.
+   *
+   * @param joint The joint's clinical angles.
+   * @param constraint Its resolved range.
+   * @param rig The bone's frame as the caller's rig resolves it; the humanoid
+   *   tables' when absent.
+   * @returns The joint in range: a value, the input record itself where every
+   *   projected angle is its own, else a fresh record; neither is to be edited.
+   */
+  export function clampJointRom(joint: IAutoMovieJointPose, constraint: IAutoMovieJointConstraint, rig?: swingTwistRange.IPrepared): IAutoMovieJointPose {
+    return clampJointRomImplementation(joint, constraint, rig);
+  }
+
+  /**
+   * Borrow a nonnull supplied override, otherwise the default humanoid
+   * constraint, otherwise null. Null override means fallback rather than explicit
+   * disablement; this lookup validates no numerical bounds.
+   */
+  export function getConstraint(bone: AutoMovieHumanoidBone, override: IAutoMovieJointConstraint | null): IAutoMovieJointConstraint | null {
+    return getConstraintImplementation(bone, override);
+  }
+
+  /**
+   * Convert clinical degree interval endpoints by (clinical - neutral) / sign and
+   * reorder mirrored bounds. Null axes remain immobile and absent frames retain
+   * range identity. swingDeg is carried as the existing rest-deviation policy;
+   * arbitrary neutral shifts do not prove clinical swing-metric invariance.
+   */
+  export function restRelativeConstraint(clinical: IAutoMovieJointConstraint, frame: IAutoMovieRestFrame): IAutoMovieJointConstraint {
+    return restRelativeConstraintImplementation(clinical, frame);
+  }
+
+  /**
+   * Compute combined orthogonal-axis swing as 2 * acos(cos(flexion/2) *
+   * cos(abduction/2)), with degree inputs/output. Finite representable arithmetic
+   * returns the closed range [0, 360]; multi-turn inputs are periodic and are not
+   * universally monotonic from zero.
+   */
+  export function swingConeAngle(flexion: number, abduction: number): number {
+    return swingConeAngleImplementation(flexion, abduction);
+  }
+
+  /**
+   * From a feasible anchor toward an outside endpoint, the greatest parameter
+   * read whose swing stays inside the cone, to the width forty bisections leave
+   * (`HALVINGS`). The swing along the segment is continuous, so the bracket is
+   * closed by false position and whatever width that leaves by bisection
+   * (`bracketedCrossing`); the retained lower end is a parameter actually read
+   * inside the cone. The largest-boundary interpretation requires monotonic swing
+   * on that segment, a premise current admission does not prove for unrestricted
+   * multi-turn overrides. An already admitted endpoint returns one.
+   */
+  export function swingConeBlend(flexion: number, abduction: number, anchorFlexion: number, anchorAbduction: number, swingDeg: number): number {
+    return swingConeBlendImplementation(flexion, abduction, anchorFlexion, anchorAbduction, swingDeg);
+  }
+
+  /**
+   * Append axis range/ROM violations and a combined swing violation to the
+   * caller's collector. Null angles mean rest and contribute zero to swing;
+   * immobile axes admit null/zero. Field paths and degree overshoots preserve
+   * correction provenance, while constraint admission is separate.
+   */
+  export function validateJointRom(props: IAutoMovieValidateJointRom.IProps): void {
+    validateJointRomImplementation(props);
+  }
 }

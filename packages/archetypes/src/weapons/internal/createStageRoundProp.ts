@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeStageRoundProp } from "../AutoMovieArchetypeStag
 import { type AutoMovieArchetype } from "../../core/index";
 import { StageTokenConstruction } from "../StageTokenConstruction";
 
-import { stageTokenSphere } from "../stageTokenSphere";
+import { stageTokenSphere } from "./stageTokenSphere";
 
 /**
  * Heavy round display silhouette.

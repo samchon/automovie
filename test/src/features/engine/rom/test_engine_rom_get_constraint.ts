@@ -1,8 +1,4 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  getConstraint,
-  swingConeAngle,
-} from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,19 +33,19 @@ const OVERRIDE: IAutoMovieJointConstraint = {
 export function test_engine_rom_get_constraint(): void {
   TestValidator.predicate(
     "the override",
-    getConstraint("leftUpperArm", OVERRIDE) === OVERRIDE,
+    AutoMovieEngineKinematics.getConstraint("leftUpperArm", OVERRIDE) === OVERRIDE,
   );
   TestValidator.predicate(
     "the table entry",
-    getConstraint("leftUpperArm", null) === DEFAULT_HUMANOID_ROM.leftUpperArm,
+    AutoMovieEngineKinematics.getConstraint("leftUpperArm", null) === DEFAULT_HUMANOID_ROM.leftUpperArm,
   );
   TestValidator.predicate(
     "no entry",
     DEFAULT_HUMANOID_ROM.hips !== undefined ||
-      getConstraint("hips", null) === null,
+      AutoMovieEngineKinematics.getConstraint("hips", null) === null,
   );
-  const elbow: IAutoMovieJointConstraint = getConstraint("leftLowerArm", null)!;
-  const knee: IAutoMovieJointConstraint = getConstraint("leftLowerLeg", null)!;
+  const elbow: IAutoMovieJointConstraint = AutoMovieEngineKinematics.getConstraint("leftLowerArm", null)!;
+  const knee: IAutoMovieJointConstraint = AutoMovieEngineKinematics.getConstraint("leftLowerLeg", null)!;
   TestValidator.predicate(
     "elbow and knee",
     nclose(elbow.flexion!.min, 0, 0) &&
@@ -59,24 +55,24 @@ export function test_engine_rom_get_constraint(): void {
       knee.abduction === null &&
       knee.twist === null,
   );
-  const shoulder: IAutoMovieJointConstraint = getConstraint(
+  const shoulder: IAutoMovieJointConstraint = AutoMovieEngineKinematics.getConstraint(
     "leftUpperArm",
     null,
   )!;
   TestValidator.predicate(
     "the shoulder cone",
     nclose(shoulder.swingDeg!, 180, 0) &&
-      nclose(getConstraint("rightUpperArm", null)!.swingDeg!, 180, 0) &&
-      swingConeAngle(shoulder.flexion!.max, shoulder.abduction!.max) <=
+      nclose(AutoMovieEngineKinematics.getConstraint("rightUpperArm", null)!.swingDeg!, 180, 0) &&
+      AutoMovieEngineKinematics.swingConeAngle(shoulder.flexion!.max, shoulder.abduction!.max) <=
         shoulder.swingDeg! &&
-      nclose(swingConeAngle(shoulder.flexion!.max, 0), 180, 1e-9),
+      nclose(AutoMovieEngineKinematics.swingConeAngle(shoulder.flexion!.max, 0), 180, 1e-9),
   );
-  const hip: IAutoMovieJointConstraint = getConstraint("leftUpperLeg", null)!;
+  const hip: IAutoMovieJointConstraint = AutoMovieEngineKinematics.getConstraint("leftUpperLeg", null)!;
   TestValidator.predicate(
     "the hip cone",
     nclose(hip.swingDeg!, 120, 0) &&
-      nclose(getConstraint("rightUpperLeg", null)!.swingDeg!, 120, 0) &&
-      nclose(swingConeAngle(hip.flexion!.max, 0), hip.swingDeg!, 1e-9) &&
-      swingConeAngle(hip.flexion!.max, hip.abduction!.max) > hip.swingDeg!,
+      nclose(AutoMovieEngineKinematics.getConstraint("rightUpperLeg", null)!.swingDeg!, 120, 0) &&
+      nclose(AutoMovieEngineKinematics.swingConeAngle(hip.flexion!.max, 0), hip.swingDeg!, 1e-9) &&
+      AutoMovieEngineKinematics.swingConeAngle(hip.flexion!.max, hip.abduction!.max) > hip.swingDeg!,
   );
 }

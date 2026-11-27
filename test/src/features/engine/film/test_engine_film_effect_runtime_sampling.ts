@@ -1,7 +1,4 @@
-import {
-  AutoMovieEngineEffect,
-  sampleProductionFilmEffects,
-} from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import {
   IAutoMovieCompiledFilmEffect,
   type IAutoMovieEffectSample,
@@ -52,7 +49,7 @@ export function test_engine_film_effect_runtime_sampling(): void {
     candidates: readonly IAutoMovieCompiledFilmEffect[] = effects,
     current: IAutoMovieFilmEffectCurrentIdentity = identity,
   ): IAutoMovieProductionFilmEffectSample[] =>
-    sampleProductionFilmEffects({
+    AutoMovieEngineEffect.sampleProductionFilmEffects({
       identity: current,
       effects: candidates,
       timelineFrame,

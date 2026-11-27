@@ -1,4 +1,4 @@
-import { abductionRange } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieJointConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,13 +29,13 @@ const FLEXED: IAutoMovieJointConstraint = {
 export function test_engine_rom_abduction_range(): void {
   TestValidator.predicate(
     "half share",
-    nclose(abductionRange(FLEXED, 45)!.max, 40, ROUNDING) &&
-      abductionRange(FLEXED, 45)!.min === -10,
+    nclose(AutoMovieEngineKinematics.abductionRange(FLEXED, 45)!.max, 40, ROUNDING) &&
+      AutoMovieEngineKinematics.abductionRange(FLEXED, 45)!.min === -10,
   );
-  TestValidator.equals("a clamped share", abductionRange(FLEXED, 200)!.max, 60);
+  TestValidator.equals("a clamped share", AutoMovieEngineKinematics.abductionRange(FLEXED, 200)!.max, 60);
   TestValidator.equals(
     "no flexion",
-    [abductionRange(FLEXED, null), abductionRange(FLEXED, 0)],
+    [AutoMovieEngineKinematics.abductionRange(FLEXED, null), AutoMovieEngineKinematics.abductionRange(FLEXED, 0)],
     [
       { min: -10, max: 20 },
       { min: -10, max: 20 },
@@ -43,7 +43,7 @@ export function test_engine_rom_abduction_range(): void {
   );
   TestValidator.predicate(
     "no range or no rule",
-    abductionRange({ ...FLEXED, abduction: null }, 45) === null &&
-      abductionRange({ ...FLEXED, abductionFlexed: null }, 45)!.max === 20,
+    AutoMovieEngineKinematics.abductionRange({ ...FLEXED, abduction: null }, 45) === null &&
+      AutoMovieEngineKinematics.abductionRange({ ...FLEXED, abductionFlexed: null }, 45)!.max === 20,
   );
 }

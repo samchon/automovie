@@ -1,4 +1,4 @@
-import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, decomposeJointRotationOnBasis, getConstraint, jointToQuaternionOnBasis, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, decomposeJointRotationOnBasis, jointToQuaternionOnBasis, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -74,7 +74,7 @@ const COLD: ILookup = {
     body: IBlendBody,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointConstraint | null =>
-    getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null),
+    AutoMovieEngineKinematics.getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null),
   frame: (
     body: IBlendBody,
     bone: AutoMovieHumanoidBone,

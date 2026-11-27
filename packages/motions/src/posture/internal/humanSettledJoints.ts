@@ -1,4 +1,4 @@
-import { getConstraint } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
@@ -44,7 +44,7 @@ export function humanSettledJoints(
 
 /** Whether the clamp of a bone's joint gives back a record it issued. */
 function idempotent(bone: IAutoMovieBone): boolean {
-  const constraint: IAutoMovieJointConstraint | null = getConstraint(
+  const constraint: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
     bone.bone,
     bone.constraint ?? null,
   );

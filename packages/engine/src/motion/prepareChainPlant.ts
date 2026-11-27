@@ -15,7 +15,7 @@ import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolveChainEffectorBaseRotation } from "./internal/resolveChainEffectorBaseRotation";
 

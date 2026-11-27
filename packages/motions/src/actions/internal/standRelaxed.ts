@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, getConstraint } from "@automovie/engine";
+import { ROM_TOLERANCE, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -225,7 +225,7 @@ export namespace standRelaxed {
       }
       return HumanDigitFit.penetrates(body, bones);
     };
-    const range: IAutoMovieAngleRange | null | undefined = getConstraint(
+    const range: IAutoMovieAngleRange | null | undefined = AutoMovieEngineKinematics.getConstraint(
       "leftUpperArm",
       readHumanBone(body, "leftUpperArm")?.constraint ?? null,
     )?.abduction;

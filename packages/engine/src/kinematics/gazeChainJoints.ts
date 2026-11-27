@@ -8,7 +8,7 @@ import type {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 
 /** The bone a gaze is expressed on: the last link, and the one the eyes ride. */
 const HEAD: AutoMovieHumanoidBone = "head";

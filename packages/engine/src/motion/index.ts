@@ -31,7 +31,7 @@ export * from "./integrateMotionTrajectory";
 export * from "./resolveHydrodynamicForce";
 export * from "./solveAirborneTakeoff";
 
-export * from "./locomoteMotion";
+
 export * from "./minimumJerk";
 
 export * from "./orientChainEffector";
@@ -52,7 +52,7 @@ export * from "./sampleMotion";
 export * from "./samplePoseVelocity";
 
 export * from "./seededSmoothNoise";
-export * from "./sequenceMotion";
+
 
 export * from "./solvePreparedChainPlant";
 export * from "./solveDistalTwist";

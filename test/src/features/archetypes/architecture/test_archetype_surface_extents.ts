@@ -1,4 +1,4 @@
-import { type AutoMovieArchetype, AutoMovieArchetypeBoard, AutoMovieArchetypeCamera, AutoMovieArchetypeClipboard, createLaptop, createPaper, AutoMovieArchetypePhone, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch, AutoMovieArchetypeScenicParadeBanner, AutoMovieArchetypeScenicStandard, AutoMovieArchetypeMachine } from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeBoard, AutoMovieArchetypeCamera, AutoMovieArchetypeClipboard, AutoMovieArchetypeLaptop, createPaper, AutoMovieArchetypePhone, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch, AutoMovieArchetypeScenicParadeBanner, AutoMovieArchetypeScenicStandard, AutoMovieArchetypeMachine } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModel,
@@ -83,7 +83,7 @@ const LISTED: readonly IListed[] = [
     top: "upright",
     builds: () =>
       (["air13", "air15"] as const).flatMap((model) =>
-        seeded((seed) => createLaptop({ model }, seed)),
+        seeded((seed) => AutoMovieArchetypeLaptop.create({ model }, seed)),
       ),
   },
   {

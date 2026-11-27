@@ -36,7 +36,7 @@ import { swivelArcs } from "../kinematics/swivelArcs";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
-import { getConstraint } from "../rom/getConstraint";
+import { getConstraint } from "../rom/internal/getConstraint";
 import { distalTwistRange } from "./internal/distalTwistRange";
 import { fitHingedClosedRoots } from "./internal/fitHingedClosedRoots";
 import { fitHingedRotationError } from "./fitHingedRotationError";

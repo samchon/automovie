@@ -7,7 +7,7 @@ import { AutoMovieArchetypeEquineGait, rideHorse, AutoMovieArchetypeHorse } from
 import type { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeDoor, AutoMovieArchetypeWindow, AutoMovieArchetypeAppliance, AutoMovieArchetypeSanitary } from "../architecture";
 import { type AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
-import { createSeat, AutoMovieArchetypeShowcase, AutoMovieArchetypeBarrel, AutoMovieArchetypeConsole, AutoMovieArchetypeHighChair, AutoMovieArchetypeLectern, AutoMovieArchetypeLoad, AutoMovieArchetypeSafe, AutoMovieArchetypeBed, AutoMovieArchetypeStorage, AutoMovieArchetypeTable } from "../furniture";
+import { AutoMovieArchetypeSeat, AutoMovieArchetypeShowcase, AutoMovieArchetypeBarrel, AutoMovieArchetypeConsole, AutoMovieArchetypeHighChair, AutoMovieArchetypeLectern, AutoMovieArchetypeLoad, AutoMovieArchetypeSafe, AutoMovieArchetypeBed, AutoMovieArchetypeStorage, AutoMovieArchetypeTable } from "../furniture";
 import { AutoMovieArchetypeBalanceBeam, AutoMovieArchetypeBoxingGlove, AutoMovieArchetypeHeavyBag, AutoMovieArchetypeRhythmicBall, AutoMovieArchetypeStillRings, AutoMovieArchetypeUnevenBars, AutoMovieArchetypeWoodenDummy } from "../gym";
 import { AutoMovieArchetypeMicrophone, AutoMovieArchetypeInstrument } from "../music";
 import { AutoMovieArchetypeFireRing, AutoMovieArchetypeRock, AutoMovieArchetypeTent, AutoMovieArchetypeTree } from "../nature";
@@ -175,8 +175,8 @@ export function archetypeCaptureCatalog(): Readonly<
     seats: still(
       kinds(
         "seat",
-        createSeat.KINDS,
-        (kind: createSeat.Kind): AutoMovieArchetype => createSeat({ kind }),
+        AutoMovieArchetypeSeat.KINDS,
+        (kind: AutoMovieArchetypeSeat.Kind): AutoMovieArchetype => AutoMovieArchetypeSeat.create({ kind }),
       ),
     ),
     furniture: still({

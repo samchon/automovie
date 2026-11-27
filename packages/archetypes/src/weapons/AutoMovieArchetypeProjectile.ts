@@ -13,7 +13,7 @@ import { AutoMovieArchetypeStageGrenadeProp } from "./AutoMovieArchetypeStageGre
 import { AutoMovieArchetypeStageRoundProp } from "./AutoMovieArchetypeStageRoundProp";
 import { AutoMovieArchetypeStageShaftToken } from "./AutoMovieArchetypeStageShaftToken";
 import { AutoMovieArchetypeStageStoneProp } from "./AutoMovieArchetypeStageStoneProp";
-import { projectileFlight } from "./projectileFlight";
+import { projectileFlight } from "./internal/projectileFlight";
 
 /** Constructs the projectile archetype from its recipe. */
 export namespace AutoMovieArchetypeProjectile {

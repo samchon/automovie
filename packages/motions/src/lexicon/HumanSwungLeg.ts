@@ -1,9 +1,4 @@
-import {
-  ROM_TOLERANCE,
-  getConstraint,
-  hingedArmSwivel,
-  minimumJerk,
-} from "@automovie/engine";
+import { ROM_TOLERANCE, hingedArmSwivel, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -389,7 +384,7 @@ export namespace HumanSwungLeg {
     bone: AutoMovieHumanoidBone,
     axis: number,
   ): readonly [number, number] {
-    const constraint: IAutoMovieJointConstraint | null = getConstraint(
+    const constraint: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
       bone,
       readHumanBone(body, bone)?.constraint ?? null,
     );

@@ -1,4 +1,4 @@
-import { createSeat, AutoMovieArchetypeTable } from "@automovie/archetypes";
+import { AutoMovieArchetypeSeat, AutoMovieArchetypeTable } from "@automovie/archetypes";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -34,7 +34,7 @@ export namespace diningTable {
 
   /** The seated scene at a table. */
   export function stage(): IStage {
-    const chair = createSeat({ id: "chair", kind: "dining" });
+    const chair = AutoMovieArchetypeSeat.create({ id: "chair", kind: "dining" });
     const placement = { at: CHAIR, yaw: 0, fixed: true } as const;
     const table = AutoMovieArchetypeTable.create({ id: "table", kind: "dining" });
     const top: IAutoMovieAffordance = table.affordances!.find(

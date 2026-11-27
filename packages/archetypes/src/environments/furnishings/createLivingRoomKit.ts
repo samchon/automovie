@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
-import { createBookcase } from "../../furniture/createBookcase";
-import { createSeat } from "../../furniture/createSeat";
+import { AutoMovieArchetypeBookcase } from "../../furniture/AutoMovieArchetypeBookcase";
+import { AutoMovieArchetypeSeat } from "../../furniture/AutoMovieArchetypeSeat";
 import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { furnishRoom } from "./furnishRoom";
 
@@ -48,16 +48,16 @@ export function createLivingRoomKit(
       throw new Error(
         `${context.id} tableGap needs a finite nonnegative distance: ${gap}`,
       );
-    const sofa: IAutoMovieModel = createSeat({ kind: "sofa" }, draw("sofa"));
+    const sofa: IAutoMovieModel = AutoMovieArchetypeSeat.create({ kind: "sofa" }, draw("sofa"));
     const coffee: IAutoMovieModel = AutoMovieArchetypeTable.create(
       { kind: "coffee" },
       draw("coffee"),
     );
-    const armchair: IAutoMovieModel = createSeat(
+    const armchair: IAutoMovieModel = AutoMovieArchetypeSeat.create(
       { kind: "armchair" },
       draw("armchair"),
     );
-    const bookcase: IAutoMovieModel = createBookcase({}, draw("bookcase"));
+    const bookcase: IAutoMovieModel = AutoMovieArchetypeBookcase.create({}, draw("bookcase"));
     const sofaBox: IAutoMoviePropBox = furnishRoom.measure(sofa);
     const coffeeBox: IAutoMoviePropBox = furnishRoom.measure(coffee);
     const armchairBox: IAutoMoviePropBox = furnishRoom.measure(armchair);

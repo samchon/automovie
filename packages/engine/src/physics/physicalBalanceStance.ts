@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type {
   IAutoMoviePhysicalBalance,
   IAutoMoviePhysicalRecoveryState,
@@ -9,7 +10,6 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
-import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalRecoveryLifted } from "./internal/physicalRecoveryLifted";
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
 import { physicalStanceBalance } from "./physicalStanceBalance";
@@ -37,17 +37,17 @@ import { physicalStanceSwing } from "./physicalStanceSwing";
  */
 export function physicalBalanceStance(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: physicalBalanceSense.ISense;
+  sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
 }): physicalBalanceStance.IStance {
   const { state, sense } = input;
   const lifted: string[] = physicalRecoveryLifted(state);
   const planted: IAutoMoviePhysicalSupportPatch[] = sense.limbs
     .filter(
-      (limb: physicalBalanceSense.ILimb): boolean =>
+      (limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): boolean =>
         !lifted.includes(limb.bone),
     )
     .map(
-      (limb: physicalBalanceSense.ILimb): IAutoMoviePhysicalSupportPatch =>
+      (limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): IAutoMoviePhysicalSupportPatch =>
         sense.footprint(limb, state),
     );
   const plane: number =
@@ -66,11 +66,11 @@ export function physicalBalanceStance(input: {
   // the heaviest leg less its weight; the swing lasts at least
   // `Balance.MINIMUM_SWING`.
   const heaviest: number = Math.max(
-    ...sense.limbs.map((limb: physicalBalanceSense.ILimb): number =>
+    ...sense.limbs.map((limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb): number =>
       sense.legMass(limb),
     ),
   );
-  const legs = sense.limbs.map((limb: physicalBalanceSense.ILimb) =>
+  const legs = sense.limbs.map((limb: AutoMovieEnginePhysicalBalanceTypes.Sense.ILimb) =>
     physicalStanceSwing.swingLeg(sense.profile, sense.segments, limb),
   );
   const leg = legs.reduce((a, b) => (b.mass > a.mass ? b : a));

@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import { physicalDisturbanceFollow } from "./physicalDisturbanceFollow";
 import { physicalDisturbanceForm } from "./physicalDisturbanceForm";
 import { physicalDisturbancePlacement as Placement } from "./physicalDisturbancePlacement";
@@ -9,10 +10,9 @@ import type { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
 import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
-import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /** A planted foot. */
-type Foot = preparePhysicalDisturbanceSpan.IFoot;
+type Foot = AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IFoot;
 
 /** The closed forms the response is laid with. */
 const {
@@ -60,7 +60,7 @@ export namespace physicalDisturbanceResponse {
   /** The response being laid: its constants, its record and its state. */
   export interface IResponse {
     /** The state just after the first push and the pushes after it. */
-    input: preparePhysicalDisturbanceSpan.IInput;
+    input: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IInput;
 
     /** The pendulum's rate, per second. */
     omega: number;
@@ -75,10 +75,10 @@ export namespace physicalDisturbanceResponse {
     pieces: physicalDisturbanceForm.IPiece[];
 
     /** The branch points passed so far. */
-    branches: preparePhysicalDisturbanceSpan.IBranch[];
+    branches: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IBranch[];
 
     /** The pushes still to come, in time order. */
-    pushes: preparePhysicalDisturbanceSpan.IPush[];
+    pushes: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IPush[];
 
     /** The policy's reaction time, seconds. */
     reaction: number;
@@ -142,7 +142,7 @@ export namespace physicalDisturbanceResponse {
     standingEnd: number | undefined;
 
     /** The last footstep laid. */
-    footstep: preparePhysicalDisturbanceSpan.ISpan["footstep"];
+    footstep: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan["footstep"];
 
     /** When the response fell, if it did. */
     fallen: number | undefined;
@@ -156,7 +156,7 @@ export namespace physicalDisturbanceResponse {
    * @returns The response before its first branch point's test.
    */
   export function create(
-    input: preparePhysicalDisturbanceSpan.IInput,
+    input: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IInput,
   ): IResponse {
     const { omega } = input;
     const t0: number = input.seconds;

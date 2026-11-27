@@ -1,4 +1,4 @@
-import { createSeat, AutoMovieArchetypeDrawerUnit, AutoMovieArchetypePlatformBed, AutoMovieArchetypeMirror, AutoMovieArchetypeTable } from "@automovie/archetypes";
+import { AutoMovieArchetypeSeat, AutoMovieArchetypeDrawerUnit, AutoMovieArchetypePlatformBed, AutoMovieArchetypeMirror, AutoMovieArchetypeTable } from "@automovie/archetypes";
 import { createFurnishedRoom, AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import { Quaternion, Transform, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
@@ -168,8 +168,8 @@ export function test_environment_furnishing_relations(): void {
         place: { kind: "facing", target: "sofa", distance: 0.45 },
       },
     });
-  const sofaA: IAutoMovieModel = createSeat({ kind: "sofa" }, 1017);
-  const sofaB: IAutoMovieModel = createSeat({ kind: "sofa", places: 3 }, 1018);
+  const sofaA: IAutoMovieModel = AutoMovieArchetypeSeat.create({ kind: "sofa" }, 1017);
+  const sofaB: IAutoMovieModel = AutoMovieArchetypeSeat.create({ kind: "sofa", places: 3 }, 1018);
   const widthOf: (model: IAutoMovieModel) => number = (
     model: IAutoMovieModel,
   ): number => {

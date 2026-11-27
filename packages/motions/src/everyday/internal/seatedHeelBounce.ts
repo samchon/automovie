@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  getConstraint,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -233,12 +228,12 @@ export namespace seatedHeelBounce {
       };
     };
 
-    const toeRange = getConstraint(
+    const toeRange = AutoMovieEngineKinematics.getConstraint(
       toes,
       body.skeleton.bones.find((b): boolean => b.bone === toes)?.constraint ??
         null,
     )?.flexion;
-    const ankleRange = getConstraint(
+    const ankleRange = AutoMovieEngineKinematics.getConstraint(
       part,
       body.skeleton.bones.find((b): boolean => b.bone === part)?.constraint ??
         null,

@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  getConstraint,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -189,13 +184,13 @@ export function prepareHumanEquestrianRide(
   );
   const ranges: ReadonlyMap<
     AutoMovieHumanoidBone,
-    ReturnType<typeof getConstraint>
+    ReturnType<typeof AutoMovieEngineKinematics.getConstraint>
   > = new Map(
     BONES.map(
       (bone: (typeof BONES)[number]) =>
         [
           bone,
-          getConstraint(
+          AutoMovieEngineKinematics.getConstraint(
             bone,
             readHumanBone(context.body, bone)?.constraint ?? null,
           ),
@@ -278,7 +273,7 @@ export function prepareHumanEquestrianRide(
         ["head", -0.08 * pitch - 5 * rise, -0.15 * roll, 0.9],
       ];
       for (const [bone, flex, bend, share] of joints) {
-        const limits: ReturnType<typeof getConstraint> | undefined =
+        const limits: ReturnType<typeof AutoMovieEngineKinematics.getConstraint> | undefined =
           ranges.get(bone);
         const before: readonly [number, number, number] = posture.joints[
           bone

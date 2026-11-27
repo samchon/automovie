@@ -13,7 +13,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { nearestAngleAlias } from "../math/internal/nearestAngleAlias";
 import { positiveModulo } from "../math/internal/positiveModulo";
-import { swingConeAngle } from "../rom/swingConeAngle";
+import { swingConeAngle } from "../rom/internal/swingConeAngle";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
 import { swingTwistBasis } from "./swingTwistBasis";

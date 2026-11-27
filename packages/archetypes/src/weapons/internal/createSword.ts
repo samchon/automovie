@@ -4,7 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core/index";
 import "../SWORD_BANDS";
 import "../SWORD_MODELS";
-import "../createSwordShapes";
+import "./createSwordShapes";
 
 /**
  * A blade held by its hilt: a longsword, an arming sword, a sabre, a katana, a

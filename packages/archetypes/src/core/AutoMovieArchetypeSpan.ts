@@ -7,8 +7,8 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
-import { poseArchetypeSpanGrips } from "./poseArchetypeSpanGrips";
-import { resolveArchetypeSpanParts } from "./resolveArchetypeSpanParts";
+import { poseArchetypeSpanGrips } from "./internal/poseArchetypeSpanGrips";
+import { resolveArchetypeSpanParts } from "./internal/resolveArchetypeSpanParts";
 
 /**
  * A taut line between two frames of a model that move apart: a bowstring from a

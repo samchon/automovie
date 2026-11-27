@@ -1,3 +1,4 @@
+import type { AutoMovieEnginePhysicalBalanceTypes } from "./AutoMovieEnginePhysicalBalanceTypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { physicalDisturbanceFollow } from "./physicalDisturbanceFollow";
@@ -8,10 +9,9 @@ import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import type { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
-import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /** A planted foot. */
-type Foot = preparePhysicalDisturbanceSpan.IFoot;
+type Foot = AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.IFoot;
 
 /** The closed forms the branch points lay. */
 const {

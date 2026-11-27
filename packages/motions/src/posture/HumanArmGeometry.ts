@@ -1,4 +1,4 @@
-import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, ROM_TOLERANCE, clampJointToSkeleton, decomposeJointRotationOnBasis, getConstraint, jointToQuaternionOnBasis, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, ROM_TOLERANCE, clampJointToSkeleton, decomposeJointRotationOnBasis, jointToQuaternionOnBasis, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -87,12 +87,12 @@ export namespace HumanArmGeometry {
     const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
       AutoMovieEngineKinematics.skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
     const lowerBone: IAutoMovieBone = find(body, bones.lower);
-    const lower: IAutoMovieJointConstraint | null = getConstraint(
+    const lower: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
       bones.lower,
       lowerBone.constraint ?? null,
     );
     const handBone: IAutoMovieBone = find(body, bones.hand);
-    const hand: IAutoMovieJointConstraint | null = getConstraint(
+    const hand: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
       bones.hand,
       handBone.constraint ?? null,
     );
@@ -110,7 +110,7 @@ export namespace HumanArmGeometry {
         AutoMovieEngineKinematics.normalizeJointAxes(axes[bone] ?? DEFAULT_JOINT_AXES, `arm axes: ${bone}`),
       );
     const upperBone: IAutoMovieBone = find(body, bones.upper);
-    const upperConstraint: IAutoMovieJointConstraint = getConstraint(
+    const upperConstraint: IAutoMovieJointConstraint = AutoMovieEngineKinematics.getConstraint(
       bones.upper,
       upperBone.constraint ?? null,
     )!;

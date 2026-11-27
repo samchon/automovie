@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { armourBone } from "./armourBone";
+import { armourBone } from "./internal/armourBone";
 import { AutoMovieArchetypeCostumeCuirass } from "./AutoMovieArchetypeCostumeCuirass";
 import { AutoMovieArchetypeCostumeGauntlet } from "./AutoMovieArchetypeCostumeGauntlet";
 import { AutoMovieArchetypeCostumeGreave } from "./AutoMovieArchetypeCostumeGreave";

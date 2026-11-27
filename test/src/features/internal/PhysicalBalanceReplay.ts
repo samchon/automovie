@@ -1,4 +1,4 @@
-import { AutoMovieXpbdBody, AutoMovieXpbdWorld, advancePhysicalBalance, physicalIcpController, trackPhysicalRoot, AutoMoviePhysicalBalance } from "@automovie/engine";
+import { AutoMovieXpbdBody, AutoMovieXpbdWorld, advancePhysicalBalance, physicalIcpController, trackPhysicalRoot, AutoMoviePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
 import type {
   IAutoMovieCollectPhysicalSupports,
   IAutoMoviePhysicalProfile,
@@ -531,7 +531,7 @@ export namespace PhysicalBalanceReplay {
     record: IAdvanceRecord,
     built: IAutoMoviePhysicalProfile,
   ): {
-    sense: AutoMoviePhysicalBalance.sense.ISense;
+    sense: AutoMovieEnginePhysicalBalanceTypes.Sense.ISense;
     state: IAutoMoviePhysicalRecoveryState;
   } {
     const input: IAdvanceInput = record.input;

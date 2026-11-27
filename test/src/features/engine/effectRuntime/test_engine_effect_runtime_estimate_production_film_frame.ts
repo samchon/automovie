@@ -1,4 +1,4 @@
-import { estimateProductionFilmFrame } from "@automovie/engine";
+import { AutoMovieEngineEffect } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,7 +20,7 @@ export function test_engine_effect_runtime_estimate_production_film_frame(): voi
   };
   TestValidator.equals(
     "1.5 s at 24 fps",
-    estimateProductionFilmFrame(1.5, film, Math.round),
+    AutoMovieEngineEffect.estimateProductionFilmFrame(1.5, film, Math.round),
     36,
   );
   const ntsc: { numerator: number; denominator: number } = {
@@ -30,19 +30,19 @@ export function test_engine_effect_runtime_estimate_production_film_frame(): voi
   TestValidator.equals(
     "the rounding is the caller's",
     [
-      estimateProductionFilmFrame(0.51, ntsc, Math.floor),
-      estimateProductionFilmFrame(0.51, ntsc, Math.ceil),
+      AutoMovieEngineEffect.estimateProductionFilmFrame(0.51, ntsc, Math.floor),
+      AutoMovieEngineEffect.estimateProductionFilmFrame(0.51, ntsc, Math.ceil),
     ],
     [0, 1],
   );
   TestValidator.equals(
     "a negative time floors at 0",
-    estimateProductionFilmFrame(-3, film, Math.floor),
+    AutoMovieEngineEffect.estimateProductionFilmFrame(-3, film, Math.floor),
     0,
   );
   TestValidator.equals(
     "past the safe range",
-    estimateProductionFilmFrame(Number.MAX_SAFE_INTEGER, film, Math.floor),
+    AutoMovieEngineEffect.estimateProductionFilmFrame(Number.MAX_SAFE_INTEGER, film, Math.floor),
     null,
   );
 }

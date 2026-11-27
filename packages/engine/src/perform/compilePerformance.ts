@@ -19,7 +19,7 @@ import type {
 
 import { arrangeMotion } from "../motion/arrangeMotion";
 import { sampleMotion } from "../motion/sampleMotion";
-import { sequenceMotion } from "../motion/sequenceMotion";
+import { sequenceMotion } from "../motion/internal/sequenceMotion";
 import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { actionRegion } from "./actionRegion";
 import { blendPoses } from "./blendPoses";

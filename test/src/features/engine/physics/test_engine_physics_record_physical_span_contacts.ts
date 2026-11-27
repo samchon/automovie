@@ -1,4 +1,4 @@
-import { recordPhysicalSpanContacts, AutoMoviePhysicalBalance } from "@automovie/engine";
+import { recordPhysicalSpanContacts, AutoMoviePhysicalBalance, type AutoMovieEnginePhysicalBalanceTypes } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalRecoveryState,
@@ -69,7 +69,7 @@ export function test_engine_physics_record_physical_span_contacts(): void {
     reactionSeconds: 0.1,
     floor: 0,
   };
-  const span: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input);
+  const span: AutoMovieEnginePhysicalBalanceTypes.PrepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input);
   const trigger = span.branches.find((branch) => branch.kind === "trigger");
   const touchdown = span.branches.find((branch) => branch.kind === "touchdown");
   TestValidator.predicate("the push steps", !!trigger && !!touchdown);

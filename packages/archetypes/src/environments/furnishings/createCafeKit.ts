@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
-import { createSeat } from "../../furniture/createSeat";
+import { AutoMovieArchetypeSeat } from "../../furniture/AutoMovieArchetypeSeat";
 import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
 import { furnishRoom } from "./furnishRoom";
 
@@ -42,7 +42,7 @@ export function createCafeKit(
       { kind: "dining" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "table"),
     );
-    const chair: IAutoMovieModel = createSeat(
+    const chair: IAutoMovieModel = AutoMovieArchetypeSeat.create(
       { kind: "dining" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "chair"),
     );

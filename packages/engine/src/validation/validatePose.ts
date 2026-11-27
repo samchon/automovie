@@ -8,8 +8,8 @@ import {
   type IAutoMovieViolationAppendRotationSink,
 } from "@automovie/interface";
 
-import { getConstraint } from "../rom/getConstraint";
-import { validateJointRom } from "../rom/validateJointRom";
+import { getConstraint } from "../rom/internal/getConstraint";
+import { validateJointRom } from "../rom/internal/validateJointRom";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { validateTransformScalars } from "./internal/validateTransformScalars";
 

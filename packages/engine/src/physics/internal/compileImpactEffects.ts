@@ -5,7 +5,7 @@ import type {
   IAutoMovieEffectRecipe,
 } from "@automovie/interface";
 
-import { materializeCompiledEffects } from "../../effectRuntime/materializeCompiledEffects";
+import { materializeCompiledEffects } from "../../effectRuntime/internal/materializeCompiledEffects";
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";

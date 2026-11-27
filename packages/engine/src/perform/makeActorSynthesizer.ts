@@ -28,7 +28,7 @@ import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGr
 import { gaitMotion } from "../motion/gaitMotion";
 import { gestureMotion } from "../motion/gestureMotion";
 import { holdMotion } from "../motion/holdMotion";
-import { locomoteMotion } from "../motion/locomoteMotion";
+import { locomoteMotion } from "../motion/internal/locomoteMotion";
 import { reactMotion } from "../motion/reactMotion";
 import { timeScaleMotion } from "../motion/internal/timeScaleMotion";
 import { actorAimPoints } from "./actorAimPoints";

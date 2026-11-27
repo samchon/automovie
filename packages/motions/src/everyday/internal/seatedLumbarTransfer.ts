@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, getConstraint, AutoMovieEngineMath } from "@automovie/engine";
+import { ROM_TOLERANCE, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -31,7 +31,7 @@ export function seatedLumbarTransfer(
     0, 0, 0,
   ];
   const maximum: number =
-    getConstraint("chest", body.bones.get("chest")?.constraint ?? null)?.flexion
+    AutoMovieEngineKinematics.getConstraint("chest", body.bones.get("chest")?.constraint ?? null)?.flexion
       ?.max ?? chest[0];
   const limit: number = Math.min(spine[0], maximum - chest[0]);
   if (limit <= 0) return 0;

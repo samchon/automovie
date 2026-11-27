@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeStageStockBowProp } from "../AutoMovieArchetypeStageStockBowProp";
 import { type AutoMovieArchetype } from "../../core/index";
 import { StageBowConstruction } from "../StageBowConstruction";
-import { buildCrossbow } from "../buildCrossbow";
+import { buildCrossbow } from "./buildCrossbow";
 
 
 /**

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -63,7 +63,7 @@ function hipRange(
   side: AutoMovieHumanSide,
 ): number {
   const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
-  const constraint: IAutoMovieJointConstraint | null = getConstraint(
+  const constraint: IAutoMovieJointConstraint | null = AutoMovieEngineKinematics.getConstraint(
     bone,
     readHumanBone(body, bone)?.constraint ?? null,
   );

@@ -14,7 +14,7 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRideTerminal } from "./QuadrupedRideTerminal";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 import { QuadrupedScapula } from "./QuadrupedScapula";
-import { chooseQuadrupedBodyRoot } from "./chooseQuadrupedBodyRoot";
+import { chooseQuadrupedBodyRoot } from "./internal/chooseQuadrupedBodyRoot";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { QuadrupedRidePoseTypes } from "./QuadrupedRidePoseTypes";
 import type { QuadrupedRidePoseGoals } from "./QuadrupedRidePoseGoals";

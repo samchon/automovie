@@ -1,4 +1,4 @@
-import { getConstraint } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -89,7 +89,7 @@ export namespace HumanTouchArmReference {
     // A law does not ask a joint at the end of its range: the forearm's
     // twist is kept `MARGIN` degrees inside the forearm's own range.
     const range: IAutoMovieAngleRange | null =
-      getConstraint(
+      AutoMovieEngineKinematics.getConstraint(
         `${side}LowerArm`,
         readHumanBone(body, `${side}LowerArm`)?.constraint ?? null,
       )?.twist ?? null;
