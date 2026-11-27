@@ -1,5 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieSkinnedMesh, createAutoMovieSurfaceAppearance, readAutoMovieBufferAttribute, AutoMovieRenderMaterial, AutoMovieRenderDualQuaternionSkinning } from "@automovie/render";
+import { AutoMovieSkinnedMesh, AutoMovieRenderSurfaceAppearance, readAutoMovieBufferAttribute, AutoMovieRenderMaterial, AutoMovieRenderDualQuaternionSkinning } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -7,7 +7,7 @@ import * as THREE from "three";
 import { singleMaterial } from "../../internal/singleMaterial";
 
 /**
- * `createAutoMovieSurfaceAppearance` lays a sampled appearance on a surface.
+ * `AutoMovieRenderSurfaceAppearance.create` lays a sampled appearance on a surface.
  * Local appearance follows the actual posed DQ skin, inverts compression,
  * preserves shaders and restores on seek. Empty/sparse RGB, Float32 overflow
  * and duplicate resource ownership refuse; representable HDR multipliers remain
@@ -43,8 +43,8 @@ export function test_render_scene_create_surface_appearance(): void {
   head.rotation.z = Math.PI / 2;
   mesh.updateMatrixWorld(true);
   mesh.skeleton.update();
-  const appearance: ReturnType<typeof createAutoMovieSurfaceAppearance> =
-    createAutoMovieSurfaceAppearance({
+  const appearance: AutoMovieRenderSurfaceAppearance.Create.IResult =
+    AutoMovieRenderSurfaceAppearance.create({
       surfaces: [{ bone: "head", mesh }],
       space: "posed-mesh",
       sample: (
@@ -100,8 +100,8 @@ export function test_render_scene_create_surface_appearance(): void {
   if (mesh.geometry !== geometry || mesh.material !== material)
     findings.push("original resource restoration");
   assert.throws(
-    (): ReturnType<typeof createAutoMovieSurfaceAppearance> =>
-      createAutoMovieSurfaceAppearance({
+    (): AutoMovieRenderSurfaceAppearance.Create.IResult =>
+      AutoMovieRenderSurfaceAppearance.create({
         surfaces: [
           { bone: "head", mesh },
           { bone: "second", mesh },
@@ -129,8 +129,8 @@ export function test_render_scene_create_surface_appearance(): void {
     const isolated: THREE.Mesh = new THREE.Mesh(source, original);
     try {
       assert.throws(
-        (): ReturnType<typeof createAutoMovieSurfaceAppearance> =>
-          createAutoMovieSurfaceAppearance({
+        (): AutoMovieRenderSurfaceAppearance.Create.IResult =>
+          AutoMovieRenderSurfaceAppearance.create({
             surfaces: [{ bone: "surface", mesh: isolated }],
             sample: (): {
               color: [number, number, number];
@@ -154,8 +154,8 @@ export function test_render_scene_create_surface_appearance(): void {
     { color: [1, 1, 1], displacement: { x: 1e308, y: 0, z: 0 } },
   ];
   for (const response of invalid) {
-    const rejected: ReturnType<typeof createAutoMovieSurfaceAppearance> =
-      createAutoMovieSurfaceAppearance({
+    const rejected: AutoMovieRenderSurfaceAppearance.Create.IResult =
+      AutoMovieRenderSurfaceAppearance.create({
         surfaces: [{ bone: "head", mesh }],
         sample: (): {
           color: [number, number, number];
@@ -170,8 +170,8 @@ export function test_render_scene_create_surface_appearance(): void {
     assert.equal(mesh.geometry, geometry);
     assert.equal(mesh.material, material);
   }
-  const hdr: ReturnType<typeof createAutoMovieSurfaceAppearance> =
-    createAutoMovieSurfaceAppearance({
+  const hdr: AutoMovieRenderSurfaceAppearance.Create.IResult =
+    AutoMovieRenderSurfaceAppearance.create({
       surfaces: [{ bone: "head", mesh }],
       sample: (): {
         color: [number, number, number];

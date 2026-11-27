@@ -1,10 +1,46 @@
 import { type IAutoMovieInspectionDiagnosticOverlay } from "./IAutoMovieInspectionDiagnosticOverlay.js";
+import type * as THREE from "three";
+import { createAutoMovieInspectionDotsImplementation } from "./internal/createAutoMovieInspectionDotsImplementation.js";
 import { createAutoMovieInspectionDiagnosticOverlay as createAutoMovieInspectionDiagnosticOverlayImplementation } from "./internal/createAutoMovieInspectionDiagnosticOverlay.js";
 import { type LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { createAutoMovieInspectionStrokes as createAutoMovieInspectionStrokesImplementation } from "./internal/createAutoMovieInspectionStrokes.js";
 
 /** Public operations for Auto Movie Render Inspection Overlay. */
 export namespace AutoMovieRenderInspectionOverlay {
+  /** Named input contract for creating inspection point marks. */
+  export namespace CreateDots {
+    /** Point stroke width and depth behavior. */
+    export interface IOptions {
+      /** Inspection stroke width in screen pixels. */
+      stroke: number;
+      /** Whether the points ignore depth. */
+      xray: boolean;
+    }
+    /** Point buffers and their draw options. */
+    export interface IProps {
+      /** XYZ position buffer, one point per triple. */
+      positions: Float32Array;
+      /** Matching linear RGB colour buffer. */
+      colors: Float32Array;
+      /** Point stroke width and depth behavior. */
+      options: IOptions;
+    }
+  }
+  /**
+   * Create one screen-sized, unlit point per xyz vertex with its matching colour.
+   * Position and colour buffers remain shared with the returned object so the
+   * caller can update positions in place. Points are three stroke widths across.
+   * Xray disables depth testing; otherwise the shader leads points toward camera.
+   *
+   * @throws {Error} When buffer lengths differ or are not xyz triples.
+   */
+  export function createDots(props: CreateDots.IProps): THREE.Points {
+    return createAutoMovieInspectionDotsImplementation(
+      props.positions,
+      props.colors,
+      props.options,
+    );
+  }
   /**
    * Create a witness-cube overlay that review pictures share.
    *

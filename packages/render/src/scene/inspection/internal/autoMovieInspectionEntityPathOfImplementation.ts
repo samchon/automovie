@@ -3,14 +3,14 @@ import type * as THREE from "three";
 /**
  * The unique inspection identity of a displayed node beneath `root`.
  *
- * Named nodes form a `/`-joined name path, as `autoMovieInspectionPathOf` reads
+ * Named nodes form a `/`-joined name path, as `AutoMovieRenderInspectionPath.pathOf` reads
  * it, so unnamed wrapper groups add no segment. Among the named nodes that
  * share the same nearest named ancestor (or the root), a name held by more than
  * one becomes `name#k`, with `k` the node's 0-based order among them in
  * depth-first child order. Unnamed nodes below the nearest named ancestor
  * append `.children[i]`, their index in the parent, and a node with no named
  * ancestor starts from `scene`. With unique names and named nodes the result
- * equals `autoMovieInspectionPathOf`.
+ * equals `AutoMovieRenderInspectionPath.pathOf`.
  *
  * A caller naming many nodes of one unchanged graph passes one `frontiers` map
  * to all calls, so each ancestor's frontier is scanned once; a graph that
@@ -23,7 +23,7 @@ import type * as THREE from "three";
  * @returns The node's identity, unique among the nodes beneath `root`.
  * @throws {Error} When `object` is not `root` or beneath it.
  */
-export function autoMovieInspectionEntityPathOf(
+export function autoMovieInspectionEntityPathOfImplementation(
   root: THREE.Object3D,
   object: THREE.Object3D,
   frontiers?: Map<

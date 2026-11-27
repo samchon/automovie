@@ -22,11 +22,11 @@ import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasur
 import type { IAutoMovieInspectionOverlay } from "../IAutoMovieInspectionOverlay.js";
 import type { IAutoMovieInspectionPath } from "../IAutoMovieInspectionPath.js";
 import { admitAutoMovieInspectionPatterns } from "./admitAutoMovieInspectionPatterns.js";
-import { autoMovieInspectionPathOf } from "../autoMovieInspectionPathOf.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
 import { AutoMovieRenderInspectionMarks } from "../AutoMovieRenderInspectionMarks.js";
-import { colorAutoMovieInspectionObjects } from "../colorAutoMovieInspectionObjects.js";
 import { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
+import { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
+import { AutoMovieRenderInspectionMaterial } from "../AutoMovieRenderInspectionMaterial.js";
 import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks.js";
 import { listAutoMovieInspectionPaths } from "./listAutoMovieInspectionPaths.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
@@ -168,7 +168,7 @@ export function applyAutoMovieInspection(
     THREE.Object3D
   >();
   scene.traverse((object: THREE.Object3D): void => {
-    const path: string = autoMovieInspectionPathOf(scene, object);
+    const path: string = AutoMovieRenderInspectionPath.pathOf({ root: scene, object });
     if (!anchors.has(path)) anchors.set(path, object);
   });
 
@@ -263,7 +263,7 @@ export function applyAutoMovieInspection(
     // Colours: the meshes the request colours take their colour over the shade.
     if (request.color.length !== 0)
       undo.push(
-        colorAutoMovieInspectionObjects({
+        AutoMovieRenderInspectionMaterial.colorObjects({
           meshes: meshes.filter(({ path }: { path: string }): boolean =>
             selects(path),
           ),

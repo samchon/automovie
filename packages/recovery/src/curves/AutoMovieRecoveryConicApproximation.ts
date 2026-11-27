@@ -6,7 +6,7 @@ import { approximateAutoMovieRecoveryConicsGhosh as approximateAutoMovieRecovery
 
 import { type AutoMovieVector2Tuple, type IAutoMovieConicApproximation, type IAutoMovieCubicCriticalParameters, type IAutoMoviePlanarCurveSource, type IAutoMovieRegisteredConicArc, type IAutoMovieGhoshConicApproximationBalance, type IAutoMovieGhoshConicApproximationDisplacement } from "@automovie/interface";
 
-import { findAutoMovieRecoveryCubicCriticalParameters } from "./findAutoMovieRecoveryCubicCriticalParameters";
+import { findAutoMovieRecoveryCubicCriticalParameters } from "./internal/findAutoMovieRecoveryCubicCriticalParameters";
 
 /**
  * Shared planar, millimetre-valued contract for experimental conic recovery.

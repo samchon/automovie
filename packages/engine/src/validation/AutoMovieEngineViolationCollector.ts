@@ -8,7 +8,7 @@ import {
 
 import { describeInvalidValue } from "./internal/describeInvalidValue";
 import { directionLength } from "./internal/directionLength";
-import { toValidation } from "./toValidation";
+import { toValidation } from "./internal/toValidation";
 import { violation } from "./violation";
 
 /** Largest deviation from unit norm a stated rotation may carry. */

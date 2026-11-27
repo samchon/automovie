@@ -1,5 +1,5 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
-import { auditAutoMovieDeliveryContent } from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** The audit's input. */
@@ -90,7 +90,7 @@ export function test_render_delivery_audit_delivery_content_delivery_loudness_au
   ): string[] => findings.map((finding: Finding): string => finding.kind);
 
   const quiet: IAutoMovieDeliveryContentAudit.IResult =
-    auditAutoMovieDeliveryContent(
+    AutoMovieRenderDelivery.auditContent(
       props({ integratedLufs: -24.2, truePeakDbtp: -3 }),
     );
   const miss: Finding | undefined = quiet.findings[0];
@@ -107,7 +107,7 @@ export function test_render_delivery_audit_delivery_content_delivery_loudness_au
   );
 
   const near: IAutoMovieDeliveryContentAudit.IResult =
-    auditAutoMovieDeliveryContent(
+    AutoMovieRenderDelivery.auditContent(
       props({ integratedLufs: -23.2, truePeakDbtp: -3 }),
     );
   TestValidator.equals(
@@ -117,7 +117,7 @@ export function test_render_delivery_audit_delivery_content_delivery_loudness_au
   );
 
   const hot: IAutoMovieDeliveryContentAudit.IResult =
-    auditAutoMovieDeliveryContent(
+    AutoMovieRenderDelivery.auditContent(
       props({ integratedLufs: -23, truePeakDbtp: -0.3 }),
     );
   const over: Finding | undefined = hot.findings[0];
@@ -131,9 +131,9 @@ export function test_render_delivery_audit_delivery_content_delivery_loudness_au
   );
 
   const unmeasured: IAutoMovieDeliveryContentAudit.IResult =
-    auditAutoMovieDeliveryContent(props(undefined));
+    AutoMovieRenderDelivery.auditContent(props(undefined));
   const unchecked: IAutoMovieDeliveryContentAudit.IResult =
-    auditAutoMovieDeliveryContent(props(undefined, null));
+    AutoMovieRenderDelivery.auditContent(props(undefined, null));
   TestValidator.equals(
     "an unmeasured stream blocks only when targets apply",
     [
@@ -149,7 +149,7 @@ export function test_render_delivery_audit_delivery_content_delivery_loudness_au
     "a negative tolerance is refused",
     (() => {
       try {
-        auditAutoMovieDeliveryContent(
+        AutoMovieRenderDelivery.auditContent(
           props(
             { integratedLufs: -23, truePeakDbtp: -3 },
             { ...targets, toleranceLu: -1 },

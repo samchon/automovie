@@ -1,10 +1,11 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import * as THREE from "three";
+import type { AutoMovieRenderSurfaceAppearance } from "../AutoMovieRenderSurfaceAppearance.js";
 
-import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
-import { createAutoMovieSurfaceVertexAdapter } from "./internal/createAutoMovieSurfaceVertexAdapter.js";
-import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
+import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
+import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 
 /** The largest finite binary32 magnitude a GPU vertex attribute can hold. */
 const F32_MAX: number = 3.4028234663852886e38;
@@ -16,25 +17,7 @@ const exceedsF32 = (value: number): boolean => Math.abs(value) > F32_MAX;
  * Apply provider-local color and compression to actual vertices, with owned
  * resources.
  */
-export function createAutoMovieSurfaceAppearance(input: {
-  /** Actual local surfaces and the physical bones carrying their vertices. */
-  surfaces: { bone: string; mesh: THREE.Mesh }[];
-  /**
-   * Default bone-local rigid vertices; posed-mesh samples the actual linear/DQ
-   * skin and inverts its displacement.
-   */
-  space?: "bone-local" | "posed-mesh";
-  /**
-   * Sampler in the selected metre frame; mesh.matrixWorld maps posed-mesh
-   * points into scene world.
-   */
-  sample: (
-    bone: string,
-    point: IAutoMovieVector3,
-    seconds: number,
-    mesh: THREE.Mesh,
-  ) => { color: [number, number, number]; displacement: IAutoMovieVector3 };
-}): { update: (seconds: number) => void; dispose: () => void } {
+export function createAutoMovieSurfaceAppearance(input: AutoMovieRenderSurfaceAppearance.Create.IProps): AutoMovieRenderSurfaceAppearance.Create.IResult {
   const meshes: Set<THREE.Mesh> = new Set();
   for (const surface of input.surfaces) {
     if (meshes.has(surface.mesh))

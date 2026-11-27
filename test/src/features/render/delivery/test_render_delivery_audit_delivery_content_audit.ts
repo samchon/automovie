@@ -1,5 +1,5 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
-import { auditAutoMovieDeliveryContent } from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 type Audit = IAutoMovieDeliveryContentAudit.IProps;
@@ -61,7 +61,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
     streams: { video: decodedVideo, audio: { status: "missing" } },
   };
 
-  const black = auditAutoMovieDeliveryContent({
+  const black = AutoMovieRenderDelivery.auditContent({
     ...base,
     expected: {
       ...base.expected,
@@ -112,7 +112,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
     [source, 4, thresholds],
   );
 
-  const held = auditAutoMovieDeliveryContent({
+  const held = AutoMovieRenderDelivery.auditContent({
     ...base,
     expected: {
       ...base.expected,
@@ -150,7 +150,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
     sampleRate: 48000,
     observations: [],
   } as const;
-  const silence = auditAutoMovieDeliveryContent({
+  const silence = AutoMovieRenderDelivery.auditContent({
     ...base,
     expected: { ...base.expected, audioRequired: true },
     streams: {
@@ -179,10 +179,10 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
   );
   TestValidator.equals(
     "video-only is valid",
-    auditAutoMovieDeliveryContent(base).passed,
+    AutoMovieRenderDelivery.auditContent(base).passed,
     true,
   );
-  const missingAudio = auditAutoMovieDeliveryContent({
+  const missingAudio = AutoMovieRenderDelivery.auditContent({
     ...base,
     expected: { ...base.expected, audioRequired: true },
   });
@@ -209,10 +209,10 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
   };
   TestValidator.equals(
     "quantization to 1602 audio samples passes",
-    auditAutoMovieDeliveryContent(fractional).passed,
+    AutoMovieRenderDelivery.auditContent(fractional).passed,
     true,
   );
-  const short = auditAutoMovieDeliveryContent({
+  const short = AutoMovieRenderDelivery.auditContent({
     ...fractional,
     streams: {
       ...fractional.streams,
@@ -229,7 +229,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
     },
   ]);
 
-  const incomplete = auditAutoMovieDeliveryContent({
+  const incomplete = AutoMovieRenderDelivery.auditContent({
     ...base,
     streams: {
       video: { status: "uncovered", reason: "Decoder did not reach EOF" },
@@ -258,8 +258,8 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
       },
     },
   };
-  const optional = auditAutoMovieDeliveryContent(unavailable);
-  const required = auditAutoMovieDeliveryContent({
+  const optional = AutoMovieRenderDelivery.auditContent(unavailable);
+  const required = AutoMovieRenderDelivery.auditContent({
     ...unavailable,
     expected: { ...unavailable.expected, audioRequired: true },
   });
@@ -273,7 +273,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
     ],
     [true, false, false, true],
   );
-  const invalid = auditAutoMovieDeliveryContent({
+  const invalid = AutoMovieRenderDelivery.auditContent({
     ...base,
     streams: {
       ...base.streams,
@@ -326,7 +326,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
     },
     reference: { video: drawnVideo },
   };
-  const split = auditAutoMovieDeliveryContent(encodedBlack);
+  const split = AutoMovieRenderDelivery.auditContent(encodedBlack);
   TestValidator.equals(
     "the reference separates drawn black from encoded black",
     content(split).map(({ outcome, blocking, start, end }) => ({
@@ -345,7 +345,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
       { outcome: "drawn", blocking: true, start: frame(2), end: video(2048) },
     ],
   );
-  const waived = auditAutoMovieDeliveryContent({
+  const waived = AutoMovieRenderDelivery.auditContent({
     ...encodedBlack,
     expected: { ...encodedBlack.expected, contentRequired: false },
   });
@@ -354,7 +354,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
     [waived.findings.map((finding) => finding.blocking), waived.passed],
     [[true, false], false],
   );
-  const allowedFirst = auditAutoMovieDeliveryContent({
+  const allowedFirst = AutoMovieRenderDelivery.auditContent({
     ...encodedBlack,
     expected: {
       ...encodedBlack.expected,
@@ -375,7 +375,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
     ],
   );
 
-  const shifted = auditAutoMovieDeliveryContent({
+  const shifted = AutoMovieRenderDelivery.auditContent({
     ...encodedBlack,
     expected: { ...encodedBlack.expected, contentRequired: false },
     thresholds: {
@@ -412,7 +412,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
   };
   TestValidator.equals(
     "the padded soundtrack explains only its own silence",
-    content(auditAutoMovieDeliveryContent(quiet)).map(
+    content(AutoMovieRenderDelivery.auditContent(quiet)).map(
       ({ outcome, blocking, start, end }) => [outcome, blocking, start, end],
     ),
     [
@@ -423,7 +423,7 @@ export function test_render_delivery_audit_delivery_content_audit(): void {
   TestValidator.equals(
     "a reference that stops short of the film explains nothing",
     content(
-      auditAutoMovieDeliveryContent({
+      AutoMovieRenderDelivery.auditContent({
         ...quiet,
         reference: { audio: { ...drawnAudio, end: audio(4800) } },
       }),

@@ -3,9 +3,55 @@ import { type IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionPaths as listAutoMovieInspectionPathsImplementation } from "./internal/listAutoMovieInspectionPaths.js";
 
 import { matchAutoMovieInspectionPath as matchAutoMovieInspectionPathImplementation } from "./internal/matchAutoMovieInspectionPath.js";
+import { autoMovieInspectionPathOfImplementation } from "./internal/autoMovieInspectionPathOfImplementation.js";
+import { autoMovieInspectionEntityPathOfImplementation } from "./internal/autoMovieInspectionEntityPathOfImplementation.js";
 
 /** Public operations for Auto Movie Render Inspection Path. */
 export namespace AutoMovieRenderInspectionPath {
+  /** Named input contract for making a path from the inspected root. */
+  export namespace PathOf {
+    /** Root and object pair used to form one inspection path. */
+    export interface IProps {
+      /** Root excluded from the path. */
+      root: THREE.Object3D;
+      /** Root or descendant whose path is read. */
+      object: THREE.Object3D;
+    }
+  }
+  /** Named input contract for making a unique node identity. */
+  export namespace EntityPathOf {
+    /** Root, object and optional cache used to form one unique identity. */
+    export interface IProps {
+      /** Root excluded from the identity. */
+      root: THREE.Object3D;
+      /** Root or descendant to identify. */
+      object: THREE.Object3D;
+      /** Optional named-frontier cache, valid while the scene graph is unchanged. */
+      frontiers?: Map<THREE.Object3D, ReadonlyMap<string, readonly THREE.Object3D[]>>;
+    }
+  }
+  /**
+   * Return the object path below root, joining nonempty names with /. The root
+   * itself has an empty path; unnamed objects add no segment, while a name
+   * containing / contributes those segments.
+   *
+   * @throws {Error} When the object is not the root or beneath it.
+   */
+  export function pathOf(props: PathOf.IProps): string {
+    return autoMovieInspectionPathOfImplementation(props.root, props.object);
+  }
+  /**
+   * Return a unique identity below root. Repeated named siblings take #k in
+   * depth-first child order; unnamed nodes add their child index. A supplied
+   * frontier cache is reused while the graph remains unchanged.
+   *
+   * @throws {Error} When the object is not the root or beneath it.
+   */
+  export function entityPathOf(
+    props: EntityPathOf.IProps,
+  ): string {
+    return autoMovieInspectionEntityPathOfImplementation(props.root, props.object, props.frontiers);
+  }
   /**
    * Decide whether a path pattern selects an object path.
    *

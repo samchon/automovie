@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
-import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
-import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "./AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
+import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
+import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /**
  * Make the points object inspection marks draw their places with: one
@@ -20,7 +20,7 @@ import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "./AUTO_MOVIE_INSPECTION_DEPTH_
  * ignored with `xray`, and otherwise led `AUTO_MOVIE_INSPECTION_DEPTH_LEAD`
  * toward the camera.
  */
-export function createAutoMovieInspectionDots(
+export function createAutoMovieInspectionDotsImplementation(
   positions: Float32Array,
   colors: Float32Array,
   options: { stroke: number; xray: boolean },

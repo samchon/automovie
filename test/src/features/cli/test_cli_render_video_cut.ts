@@ -5,9 +5,6 @@ import type {
 import {
   AUTOMOVIE_MP4_SRGB_COLOUR,
   AutoMovieRenderDelivery,
-
-
-  auditAutoMovieDeliveryContent,
   createAutoMovieLoudnessMeter,
   renderAutoMovieDrawnVideo,
 
@@ -64,7 +61,6 @@ export async function test_cli_render_video_cut(): Promise<void> {
     host: {
       render: {
         renderAutoMovieDrawnVideo,
-        auditAutoMovieDeliveryContent,
         createAutoMovieLoudnessMeter,
         AUTOMOVIE_MP4_SRGB_COLOUR,
         AutoMovieRenderDelivery,

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
-import { createCafeKit, createGymKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import { createGymKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentItem,
@@ -27,7 +27,7 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership Runs once in the workspace feature test runner. Performs deterministic CPU composition and placement admission without installing a renderer or replacing any global input.
  */
 export function test_environment_furnishing(): void {
-  const cafeLayout: Parameters<typeof createCafeKit>[0] = {
+  const cafeLayout: Parameters<typeof AutoMovieEnvironmentFurnishing.cafeKit>[0] = {
     room: [10, 10],
     tables: 4,
     keepClear: { entry: [-0.5, 4, 1, 1] },
@@ -58,7 +58,7 @@ export function test_environment_furnishing(): void {
     cafe: {
       at: { x: 10, y: 2, z: 4 },
       rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
-      use: createCafeKit(cafeLayout),
+      use: AutoMovieEnvironmentFurnishing.cafeKit(cafeLayout),
     },
     gym: {
       at: { x: -10, y: 0, z: 0 },
@@ -118,7 +118,7 @@ export function test_environment_furnishing(): void {
       ...items,
       cafe: {
         ...items.cafe!,
-        use: createCafeKit({
+        use: AutoMovieEnvironmentFurnishing.cafeKit({
           ...cafeLayout,
           overrides: {
             ...cafeLayout.overrides,
@@ -163,7 +163,7 @@ export function test_environment_furnishing(): void {
             id: "door",
             items: {
               cafe: {
-                use: createCafeKit({
+                use: AutoMovieEnvironmentFurnishing.cafeKit({
                   room: [8, 7],
                   tables: 1,
                   keepClear: { swing: [-0.5, 0.5, 1, 1] },

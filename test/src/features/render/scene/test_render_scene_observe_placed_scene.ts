@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import {
   type IObserveAutoMoviePlacedScene,
-  observeAutoMoviePlacedScene,
+  AutoMovieRenderInspection,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { Group, PerspectiveCamera, Scene } from "three";
@@ -55,7 +55,7 @@ export function test_render_scene_observe_placed_scene(): void {
       },
     },
   };
-  const uninstrumented = observeAutoMoviePlacedScene({
+  const uninstrumented = AutoMovieRenderInspection.PlacedScene.observe({
     scene,
     camera,
     time,
@@ -161,7 +161,7 @@ export function test_render_scene_observe_placed_scene(): void {
     { key: "lantern:continuous", required: true, input: edge },
     { key: "lantern:cut", required: true, input: { ...edge, boundary: "cut" } },
   ];
-  const placed = observeAutoMoviePlacedScene({ scene, camera, time, checks });
+  const placed = AutoMovieRenderInspection.PlacedScene.observe({ scene, camera, time, checks });
   const gap = placed.findings.find(({ check }) => check === "support");
   const grip = placed.findings.find(({ check }) => check === "grip");
   const step = placed.findings.find(
@@ -201,7 +201,7 @@ export function test_render_scene_observe_placed_scene(): void {
         ({ key, status }) => key === "lantern:cut" && status === "excluded",
       ),
   );
-  const earlier = observeAutoMoviePlacedScene({
+  const earlier = AutoMovieRenderInspection.PlacedScene.observe({
     scene,
     camera,
     time: { filmSeconds: 1.25 },

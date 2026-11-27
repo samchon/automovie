@@ -12,7 +12,7 @@ import type * as THREE from "three";
  *
  * It throws when the object is not the root or beneath it.
  */
-export function autoMovieInspectionPathOf(
+export function autoMovieInspectionPathOfImplementation(
   root: THREE.Object3D,
   object: THREE.Object3D,
 ): string {

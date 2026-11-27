@@ -134,7 +134,7 @@ export * from "./AutoMovieTransitionDisplays.js";
 export * from "./readAutoMovieTransmissionTextureTarget.js";
 export * from "./readAutoMovieDisplayDestinationEncoding.js";
 export * from "./updateAutoMovieComparisonCamera.js";
-export { createAutoMovieSurfaceAppearance } from "./createAutoMovieSurfaceAppearance.js";
+export { AutoMovieRenderSurfaceAppearance } from "./AutoMovieRenderSurfaceAppearance.js";
 
 export * from "./human-polygon/index.js";
 export * from "./AutoMovieResourceRetirementScope.js";

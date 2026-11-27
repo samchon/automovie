@@ -1,5 +1,5 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
-import { auditAutoMovieDeliveryContent } from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { AutoMovieCliDelivery } from "automovie";
 
@@ -96,7 +96,7 @@ export async function test_cli_delivery_recorded_audit(): Promise<void> {
     source: string,
     policy: Partial<Audit["expected"]> = {},
   ) =>
-    auditAutoMovieDeliveryContent({
+    AutoMovieRenderDelivery.auditContent({
       source: { file, sha256: "ab".repeat(32) },
       expected: {
         ...expected,
@@ -233,7 +233,7 @@ export async function test_cli_delivery_recorded_audit(): Promise<void> {
       { status: "missing" },
     ],
   );
-  const lost = auditAutoMovieDeliveryContent({
+  const lost = AutoMovieRenderDelivery.auditContent({
     source: { file: "black.mp4", sha256: "ab".repeat(32) },
     expected: { ...expected, audioRequired: false, contentRequired: false },
     thresholds,

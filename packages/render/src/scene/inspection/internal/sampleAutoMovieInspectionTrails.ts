@@ -1,8 +1,8 @@
 import type { IAutoMovieInspectionTrail } from "@automovie/interface";
 import * as THREE from "three";
 
-import { autoMovieInspectionPathOf } from "../autoMovieInspectionPathOf.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
+import { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
 
 /**
  * Distance in metres within which every sample of a trail counts as one place:
@@ -72,7 +72,7 @@ export async function sampleAutoMovieInspectionTrails(props: {
   // The shallowest matched paths, each with its first object.
   const first: Map<string, THREE.Object3D> = new Map<string, THREE.Object3D>();
   props.scene.traverse((object: THREE.Object3D): void => {
-    const path: string = autoMovieInspectionPathOf(props.scene, object);
+    const path: string = AutoMovieRenderInspectionPath.pathOf({ root: props.scene, object });
     if (!first.has(path)) first.set(path, object);
   });
   const objects: [string, THREE.Object3D][] = [...first].filter(

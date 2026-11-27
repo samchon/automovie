@@ -1,11 +1,11 @@
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
 } from "@automovie/interface";
 
+import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeSeat } from "../../furniture/AutoMovieArchetypeSeat";
 import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
@@ -28,7 +28,7 @@ import { furnishRoom } from "./furnishRoom";
  * @throws When the room cannot accommodate the tables and clear approaches.
  */
 export function createCafeKit(
-  params: createCafeKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.CafeKit.IParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -92,13 +92,4 @@ export function createCafeKit(
       },
     });
   };
-}
-
-/** Types of the cafe kit producer. */
-export namespace createCafeKit {
-  /** The room layout and the positive integer count of the kit's repeated group. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** Positive integer count of dining groups. */
-    readonly tables: number;
-  }
 }

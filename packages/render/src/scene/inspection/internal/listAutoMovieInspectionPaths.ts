@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionPath } from "../IAutoMovieInspectionPath.js";
-import { autoMovieInspectionPathOf } from "../autoMovieInspectionPathOf.js";
+import { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
 
 /**
  * List every object of a scene that three.js draws, each with its inspection
@@ -29,7 +29,7 @@ export function listAutoMovieInspectionPaths(
       AutoMovieThreeKind.isPoints(object) ||
       AutoMovieThreeKind.isSprite(object)
     )
-      paths.push({ path: autoMovieInspectionPathOf(root, object), object });
+      paths.push({ path: AutoMovieRenderInspectionPath.pathOf({ root, object }), object });
   });
   return paths;
 }

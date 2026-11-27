@@ -4,12 +4,12 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../../core/index";
-import type { createTransitBus } from "../createTransitBus";
+import type { AutoMovieArchetypeTransitBus } from "../AutoMovieArchetypeTransitBus";
 
 /** Bus geometry and affordances share the same builder. */
 type BusBuilder = AutoMovieArchetypeBuilder<
-  createTransitBus.Affordance,
-  createTransitBus.Dimension
+  AutoMovieArchetypeTransitBus.Affordance,
+  AutoMovieArchetypeTransitBus.Dimension
 >;
 
 /** Nominal seat width including the gap between pads. */

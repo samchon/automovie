@@ -11,7 +11,7 @@ import type {
   IAutoMovieRecoveryTensorConstruction,
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
-import { AutoMovieRecoveryOpenRun, AutoMovieRecoveryReconstruction, restoreRecoveryCurveBasis } from "@automovie/recovery";
+import { AutoMovieRecoveryCurveConversion, AutoMovieRecoveryOpenRun, AutoMovieRecoveryReconstruction } from "@automovie/recovery";
 
 /** Browser consumer policy; mathematical limits remain the official Node limits. */
 interface Options {
@@ -120,8 +120,9 @@ export async function ReferenceRuledRealization(
   if (options.operator !== "ruled")
     throw new Error("Explicit recoveryLocal ruled operator required");
   const bundle: IAutoMovieRecoveryTensorFamiliesInput =
-    restoreRecoveryCurveBasis(
+    AutoMovieRecoveryCurveConversion.convertBundle(
       savedCurves,
+      "bezier",
     ) as IAutoMovieRecoveryTensorFamiliesInput;
   if (
     !(

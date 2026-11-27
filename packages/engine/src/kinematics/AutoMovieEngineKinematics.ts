@@ -1,4 +1,5 @@
 import { bodyRegionBones as bodyRegionBonesImplementation } from "../perform/internal/bodyRegionBones";
+import { actionRegion as actionRegionImplementation } from "../perform/internal/actionRegion";
 import { resolveActorWorldFrame as resolveActorWorldFrameImplementation } from "../perform/internal/resolveActorWorldFrame";
 import { resolveBoneTarget as resolveBoneTargetImplementation } from "../perform/internal/resolveBoneTarget";
 
@@ -49,7 +50,7 @@ import { type distalTwistSwivelRange } from "./distalTwistSwivelRange";
 import { distalEndSwivelNearest as distalEndSwivelNearestImplementation } from "./internal/distalEndSwivelNearest";
 import { immobileAxisSwivels as immobileAxisSwivelsImplementation } from "./internal/immobileAxisSwivels";
 
-import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation, type IAutoMovieAngleRange, type IAutoMovieValidateJointRom, type AutoMovieBodyRegion, type IAutoMovieActorWorldFrame, type IAutoMovieActorContext, type IAutoMovieMotion, type IAutoMovieActionTarget } from "@automovie/interface";
+import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation, type IAutoMovieAngleRange, type IAutoMovieValidateJointRom, type AutoMovieBodyRegion, type IAutoMovieActorWorldFrame, type IAutoMovieActorContext, type IAutoMovieMotion, type IAutoMovieActionTarget, type IAutoMovieActionCall } from "@automovie/interface";
 
 import { resolveLookAt as resolveLookAtImplementation } from "./internal/resolveLookAt";
 import { resolvePose as resolvePoseImplementation } from "./internal/resolvePose";
@@ -1336,4 +1337,14 @@ export namespace AutoMovieEngineKinematics {
     input: AutoMovieEngineKinematicsTypes.IReadPreparedBendClinicalInput,
   ): readonly (number | string | null | undefined)[] {
     return readPreparedBendClinicalImplementation(input);
-  }}
+  }
+
+  /**
+   * Resolve an action's explicit body region, else its gesture-kind default, verb
+   * default, or fullBody. Head-only and whole-body gesture defaults match the
+   * actual reference gesture channels; explicit overrides remain authoritative.
+   */
+  export function actionRegion(action: IAutoMovieActionCall): AutoMovieBodyRegion {
+    return actionRegionImplementation(action);
+  }
+}

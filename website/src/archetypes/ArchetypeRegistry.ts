@@ -10,6 +10,7 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypeSeat: "createSeat",
   AutoMovieArchetypeRing: "createRing",
   AutoMovieArchetypeCar: "createCar",
+  AutoMovieArchetypeTransitBus: "createTransitBus",
   AutoMovieArchetypeBicycle: "createBicycle",
   AutoMovieArchetypeMotorcycle: "createMotorcycle",
   AutoMovieArchetypeBoat: "createBoat",

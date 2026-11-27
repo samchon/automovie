@@ -22,7 +22,7 @@ type IEnvelope = Pick<ICheck, "key" | "required" | "paths" | "observedContact">;
 
 /**
  * Select the production's declared checks active at one placed sample, for
- * `observeAutoMoviePlacedScene`.
+ * `AutoMovieRenderInspection.PlacedScene.observe`.
  *
  * A support or grip contributes its phase or window containing the sample
  * second. Custody contributes the holder its schedule allows at that second and

@@ -4,15 +4,11 @@ export * from "./AUTO_MOVIE_INSPECTION_KEYS.js";
 export * from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 export * from "./AUTO_MOVIE_INSPECTION_PALETTE.js";
 export * from "./AutoMovieCollisionSource.js";
-export * from "./autoMovieInspectionEntityPathOf.js";
-export * from "./autoMovieInspectionPathOf.js";
 
 
 export { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
-export * from "./colorAutoMovieInspectionObjects.js";
 
 
-export * from "./createAutoMovieInspectionDots.js";
 
 
 
@@ -41,7 +37,6 @@ export type { ISelectAutoMoviePlacedChecks } from "./ISelectAutoMoviePlacedCheck
 
 
 export * from "./observeAutoMovieCollisionMotion.js";
-export * from "./observeAutoMoviePlacedScene.js";
 export * from "./observeAutoMovieSceneCollision.js";
 
 

@@ -215,7 +215,7 @@ export async function renderAutoMovieVideo(
         thresholds,
         run,
       );
-      attempt.delivery = props.host.render.auditAutoMovieDeliveryContent({
+      attempt.delivery = props.host.render.AutoMovieRenderDelivery.auditContent({
         source: attempt.source,
         expected,
         thresholds,

@@ -136,7 +136,7 @@ export * from "./mesh-observations";
 export * from "./refineRecoveryFeasibleState";
 
 
-export * from "./restoreRecoveryCurveBasis";
+
 
 
 export * from "./selectRecoveryFeasibleTrial";

@@ -11,144 +11,154 @@ import {
 } from "../core";
 import { addTransitBusSeating } from "./internal/addTransitBusSeating";
 
-/**
- * Builds a rigid, two-door low-floor city bus for boarding, standing and seated
- * passenger scenes. The origin is at road height under the center of the body.
- * +Z points forward and −X faces the curb in right-hand traffic. Open either
- * door by advancing its leader to half the doorway width, in metres. The
- * threshold and aisle are level with one another. Board the front door toward
- * +X, travel along the aisle and exit the rear door toward −X.
- *
- * The New Flyer 40-foot Xcelsior supplies the nominal envelope, floor height
- * and wheelbase
- * (https://www.newflyer.com/site-content/uploads/2020/01/NF_Xcelsior_2020-web.pdf).
- * LA Metro's [boarding
- * guide](https://www.metro.net/riding/how-to-ride-metro-bus/) and [rider
- * guide](https://www.metro.net/safety-support/rider-guide/) ground the
- * passenger routes and handhold use. The grasping diameter follows
- * [§1192.29(b)](https://www.access-board.gov/ada/vehicles/subpart-b/).
- *
- * @param params The model id, supplied as an option or as a positional string.
- * @param seed Draws the aisle width in the Xcelsior seat-model range. Omit it
- *   for the nominal 0.59 m aisle.
- * @returns A bus at rest with both passenger doors shut.
- */
-export function createTransitBus(
-  params: { id?: string } | string = {},
-  seed?: number,
-): AutoMovieArchetype<createTransitBus.Affordance, createTransitBus.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createTransitBus.Dimension> =
-    new AutoMovieArchetypeDrawSession("transitBus", { aisleWidth: "m" }, seed, {
-      aisleWidth: seed === undefined ? 0.59 : undefined,
+/** Constructs a low-floor city bus with passenger contacts and door controls. */
+export namespace AutoMovieArchetypeTransitBus {
+  /**
+   * Builds a rigid, two-door low-floor city bus for boarding, standing and seated
+   * passenger scenes. The origin is at road height under the center of the body.
+   * +Z points forward and −X faces the curb in right-hand traffic. Open either
+   * door by advancing its leader to half the doorway width, in metres. The
+   * threshold and aisle are level with one another. Board the front door toward
+   * +X, travel along the aisle and exit the rear door toward −X.
+   *
+   * The New Flyer 40-foot Xcelsior supplies the nominal envelope, floor height
+   * and wheelbase
+   * (https://www.newflyer.com/site-content/uploads/2020/01/NF_Xcelsior_2020-web.pdf).
+   * LA Metro's [boarding
+   * guide](https://www.metro.net/riding/how-to-ride-metro-bus/) and [rider
+   * guide](https://www.metro.net/safety-support/rider-guide/) ground the
+   * passenger routes and handhold use. The grasping diameter follows
+   * [§1192.29(b)](https://www.access-board.gov/ada/vehicles/subpart-b/).
+   *
+   * @param params The model id, supplied as an option or as a positional string.
+   * @param seed Draws the aisle width in the Xcelsior seat-model range. Omit it
+   *   for the nominal 0.59 m aisle.
+   * @returns A bus at rest with both passenger doors shut.
+   */
+  export function create(
+    params: AutoMovieArchetypeTransitBus.IParams | string = {},
+    seed?: number,
+  ): AutoMovieArchetype<AutoMovieArchetypeTransitBus.Affordance, AutoMovieArchetypeTransitBus.Dimension> {
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeTransitBus.Dimension> =
+      new AutoMovieArchetypeDrawSession("transitBus", { aisleWidth: "m" }, seed, {
+        aisleWidth: seed === undefined ? 0.59 : undefined,
+      });
+    const { aisleWidth }: Record<AutoMovieArchetypeTransitBus.Dimension, number> =
+      draw.dimensions({ aisleWidth: AISLE_BAND });
+    const builder: BusBuilder = new AutoMovieArchetypeBuilder({
+      id: (typeof params === "string" ? params : params.id) ?? "transitBus",
+      name: "low-floor transit bus",
+      material: "steel",
+      draw,
     });
-  const { aisleWidth }: Record<createTransitBus.Dimension, number> =
-    draw.dimensions({ aisleWidth: AISLE_BAND });
-  const builder: BusBuilder = new AutoMovieArchetypeBuilder({
-    id: (typeof params === "string" ? params : params.id) ?? "transitBus",
-    name: "low-floor transit bus",
-    material: "steel",
-    draw,
-  });
 
-  builder.box(
-    "deck",
-    v(2 * (HALF_WIDTH - WELL_WIDTH), DECK_DEPTH, 2 * END),
-    v(0, FLOOR - DECK_DEPTH / 2, 0),
-    DARK,
-  );
-  // The center deck stays continuous while the outer strips clear each tyre.
-  addDeck(builder, -END, AXLES.rear - ARCH_HALF, "aft");
-  addDeck(builder, AXLES.rear + ARCH_HALF, AXLES.front - ARCH_HALF, "mid");
-  addDeck(builder, AXLES.front + ARCH_HALF, END, "fore");
-  builder.box(
-    "roof",
-    v(2 * HALF_WIDTH, 0.27, 2 * END),
-    v(0, CEILING + 0.135, 0),
-    BODY,
-  );
-  builder.box(
-    "air-conditioning",
-    v(1.65, ROOF - CEILING - 0.27, 2.6),
-    v(0, (ROOF + CEILING + 0.27) / 2, -1.65),
-    BODY,
-  );
-  for (const end of [-1, 1] as const) {
-    const z: number = end * (END - 0.035);
     builder.box(
-      "end-lower-" + end,
-      v(2 * HALF_WIDTH, 1.02, 0.07),
-      v(0, FLOOR + 0.51, z),
+      "deck",
+      v(2 * (HALF_WIDTH - WELL_WIDTH), DECK_DEPTH, 2 * END),
+      v(0, FLOOR - DECK_DEPTH / 2, 0),
+      DARK,
+    );
+    // The center deck stays continuous while the outer strips clear each tyre.
+    addDeck(builder, -END, AXLES.rear - ARCH_HALF, "aft");
+    addDeck(builder, AXLES.rear + ARCH_HALF, AXLES.front - ARCH_HALF, "mid");
+    addDeck(builder, AXLES.front + ARCH_HALF, END, "fore");
+    builder.box(
+      "roof",
+      v(2 * HALF_WIDTH, 0.27, 2 * END),
+      v(0, CEILING + 0.135, 0),
       BODY,
     );
     builder.box(
-      "end-window-" + end,
-      v(2 * HALF_WIDTH, CEILING - FLOOR - 1.02, 0.07),
-      v(0, (CEILING + FLOOR + 1.02) / 2, z),
-      GLASS,
+      "air-conditioning",
+      v(1.65, ROOF - CEILING - 0.27, 2.6),
+      v(0, (ROOF + CEILING + 0.27) / 2, -1.65),
+      BODY,
     );
-    builder.box(
-      "bumper-" + end,
-      v(2 * HALF_WIDTH, 0.25, BUMPER),
-      v(0, FLOOR + 0.1, end * (END + BUMPER / 2)),
-      DARK,
-    );
-    for (const side of [-1, 1] as const)
+    for (const end of [-1, 1] as const) {
+      const z: number = end * (END - 0.035);
       builder.box(
-        "lamp-" + end + "-" + side,
-        v(0.32, 0.15, 0.035),
-        v(side * (HALF_WIDTH - 0.33), FLOOR + 0.37, end * END),
-        end === 1 ? HEADLAMP : TAILLAMP,
-      );
-  }
-
-  // Mullions, wheel openings and door pockets are fixed to the shell.
-  addWall(builder, 1, -END, END, "street");
-  addWall(builder, -1, -END, EXIT.z - LEAF, "curb-rear");
-  addWall(builder, -1, EXIT.z + LEAF, ENTRY.z - LEAF, "curb-middle");
-  addWall(builder, -1, ENTRY.z + LEAF, END, "curb-front");
-  builder.box(
-    "curb-header",
-    v(WALL, CEILING - FLOOR - DOOR_HEIGHT, 2 * END),
-    v(-HALF_WIDTH + WALL / 2, (CEILING + FLOOR + DOOR_HEIGHT) / 2, 0),
-    BODY,
-  );
-  for (const axle of ["front", "rear"] as const)
-    for (const side of [-1, 1] as const) {
-      const z: number = AXLES[axle];
-      builder.rod(
-        "tyre-" + axle + "-" + side,
-        RADIUS,
-        v(side * (HALF_WIDTH - TYRE_WIDTH - 0.03), RADIUS, z),
-        v(side * (HALF_WIDTH - 0.03), RADIUS, z),
-        DARK,
-      );
-      builder.rod(
-        "hub-" + axle + "-" + side,
-        0.21,
-        v(side * (HALF_WIDTH - 0.04), RADIUS, z),
-        v(side * (HALF_WIDTH - 0.012), RADIUS, z),
+        "end-lower-" + end,
+        v(2 * HALF_WIDTH, 1.02, 0.07),
+        v(0, FLOOR + 0.51, z),
         BODY,
       );
-      addWheelHousing(builder, side, z, "wheel-housing-" + axle + "-" + side);
+      builder.box(
+        "end-window-" + end,
+        v(2 * HALF_WIDTH, CEILING - FLOOR - 1.02, 0.07),
+        v(0, (CEILING + FLOOR + 1.02) / 2, z),
+        GLASS,
+      );
+      builder.box(
+        "bumper-" + end,
+        v(2 * HALF_WIDTH, 0.25, BUMPER),
+        v(0, FLOOR + 0.1, end * (END + BUMPER / 2)),
+        DARK,
+      );
+      for (const side of [-1, 1] as const)
+        builder.box(
+          "lamp-" + end + "-" + side,
+          v(0.32, 0.15, 0.035),
+          v(side * (HALF_WIDTH - 0.33), FLOOR + 0.37, end * END),
+          end === 1 ? HEADLAMP : TAILLAMP,
+        );
     }
 
-  addDoor(builder, ENTRY);
-  addDoor(builder, EXIT);
+    // Mullions, wheel openings and door pockets are fixed to the shell.
+    addWall(builder, 1, -END, END, "street");
+    addWall(builder, -1, -END, EXIT.z - LEAF, "curb-rear");
+    addWall(builder, -1, EXIT.z + LEAF, ENTRY.z - LEAF, "curb-middle");
+    addWall(builder, -1, ENTRY.z + LEAF, END, "curb-front");
+    builder.box(
+      "curb-header",
+      v(WALL, CEILING - FLOOR - DOOR_HEIGHT, 2 * END),
+      v(-HALF_WIDTH + WALL / 2, (CEILING + FLOOR + DOOR_HEIGHT) / 2, 0),
+      BODY,
+    );
+    for (const axle of ["front", "rear"] as const)
+      for (const side of [-1, 1] as const) {
+        const z: number = AXLES[axle];
+        builder.rod(
+          "tyre-" + axle + "-" + side,
+          RADIUS,
+          v(side * (HALF_WIDTH - TYRE_WIDTH - 0.03), RADIUS, z),
+          v(side * (HALF_WIDTH - 0.03), RADIUS, z),
+          DARK,
+        );
+        builder.rod(
+          "hub-" + axle + "-" + side,
+          0.21,
+          v(side * (HALF_WIDTH - 0.04), RADIUS, z),
+          v(side * (HALF_WIDTH - 0.012), RADIUS, z),
+          BODY,
+        );
+        addWheelHousing(builder, side, z, "wheel-housing-" + axle + "-" + side);
+      }
 
-  addTransitBusSeating(builder, FLOOR, aisleWidth, DARK);
-  builder.affordance({
-    id: "aisle",
-    kind: "surface",
-    frame: AutoMovieArchetypeFrame.upright(v(0, FLOOR, 0)),
-    extent: null,
-    width: aisleWidth,
-    depth: 2 * (END - 0.07),
-  });
-  return builder.build(27_750 * AutoMovieArchetypeUnits.POUND);
+    addDoor(builder, ENTRY);
+    addDoor(builder, EXIT);
+
+    addTransitBusSeating(builder, FLOOR, aisleWidth, DARK);
+    builder.affordance({
+      id: "aisle",
+      kind: "surface",
+      frame: AutoMovieArchetypeFrame.upright(v(0, FLOOR, 0)),
+      extent: null,
+      width: aisleWidth,
+      depth: 2 * (END - 0.07),
+    });
+    return builder.build(27_750 * AutoMovieArchetypeUnits.POUND);
+  }
+
 }
 
 /** Authorable passenger contacts and door controls in the bus frame. */
-export namespace createTransitBus {
+export namespace AutoMovieArchetypeTransitBus {
+  /** Optional scene identifier for the bus. */
+  export interface IParams {
+    /** Unique in the scene; defaults to `transitBus`. */
+    id?: string;
+  }
+
   /** The clear span in metres between the innermost seat edges. */
   export type Dimension = "aisleWidth";
 
@@ -174,8 +184,8 @@ export namespace createTransitBus {
 
 /** Archetype construction with the bus's contact ids and seating fit. */
 type BusBuilder = AutoMovieArchetypeBuilder<
-  createTransitBus.Affordance,
-  createTransitBus.Dimension
+  AutoMovieArchetypeTransitBus.Affordance,
+  AutoMovieArchetypeTransitBus.Dimension
 >;
 
 /** A curbside bay binds its geometry to both moving and fixed affordances. */

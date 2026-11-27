@@ -17,12 +17,12 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { arrangeMotion } from "../../motion/internal/arrangeMotion";
 import { sampleMotion } from "../../motion/sampleMotion";
 import { sequenceMotion } from "../../motion/internal/sequenceMotion";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { actionRegion } from "../actionRegion";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
+import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { bodyRegionBones } from "./bodyRegionBones";
 
 const ROOT_REGIONS: Set<AutoMovieBodyRegion> = new Set<AutoMovieBodyRegion>([
@@ -312,7 +312,7 @@ export function compilePerformance(
             )
           : base;
 
-      const region: AutoMovieBodyRegion = actionRegion(action);
+      const region: AutoMovieBodyRegion = AutoMovieEngineKinematics.actionRegion(action);
       const regions: Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]> =
         byActor.get(actor) ??
         new Map<AutoMovieBodyRegion, IAutoMovieRegionPlacement[]>();

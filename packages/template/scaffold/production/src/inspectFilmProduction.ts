@@ -7,7 +7,7 @@ import {
   type IAutoMovieDrawScene,
   observeAutoMovieCollisionMotion,
   AutoMovieRenderInspectionCamera,
-  observeAutoMoviePlacedScene,
+  AutoMovieRenderInspection,
   observeAutoMovieSceneCollision,
 } from "@automovie/render";
 
@@ -143,7 +143,7 @@ export function inspectFilmProduction(props: {
   const layers: Parameters<typeof observeAutoMovieSceneCollision>[0]["layers"] =
     layersAt(sample.time.filmSeconds);
   const native: Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage"> =
-    observeAutoMoviePlacedScene({
+    AutoMovieRenderInspection.PlacedScene.observe({
       scene: sample.scene,
       camera: sample.camera,
       time: sample.time,

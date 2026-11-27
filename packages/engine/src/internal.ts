@@ -1,4 +1,7 @@
 // The engine internals the test programme reads directly. They are not part of the public surface: a host reaches the engine through the main entry. Each folder's barrel holds that folder's exports.
 
+export { markAutoMovieSlip } from "./validation/internal/markAutoMovieSlip";
+export { unsupportedAutoMovieMaterialExtensions } from "./validation/internal/unsupportedAutoMovieMaterialExtensions";
+export { validateUniqueIds } from "./validation/internal/validateUniqueIds";
 export * from "./film/internal";
 export { trianglesOf } from "./geometry/planar-region/internal/trianglesOf";

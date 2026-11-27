@@ -1,12 +1,9 @@
-import type {
-  AutoMovieInspectionShade,
-  IAutoMovieInspectionColorAssignment,
-} from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieRenderDualQuaternionSkinning } from "../dualQuaternionSkinning/index.js";
-import { AutoMovieRenderFormationCycle } from "../formationCycle/index.js";
-import { matchAutoMovieInspectionPath } from "./internal/matchAutoMovieInspectionPath.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../../dualQuaternionSkinning/index.js";
+import { AutoMovieRenderFormationCycle } from "../../formationCycle/index.js";
+import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
+import type { AutoMovieRenderInspectionMaterial } from "../AutoMovieRenderInspectionMaterial.js";
 
 /**
  * Shade each mesh a request's colour patterns match in that colour for one
@@ -19,16 +16,7 @@ import { matchAutoMovieInspectionPath } from "./internal/matchAutoMovieInspectio
  * other shade is a pass that encodes a quantity in colour, so a match under it
  * throws instead of hiding that quantity.
  */
-export function colorAutoMovieInspectionObjects(props: {
-  /** The drawn meshes with their paths. */
-  meshes: readonly { path: string; mesh: THREE.Mesh }[];
-
-  /** The shade the picture is drawn in. */
-  shade: AutoMovieInspectionShade;
-
-  /** The request's colours. */
-  color: readonly IAutoMovieInspectionColorAssignment[];
-}): () => void {
+export function colorAutoMovieInspectionObjectsImplementation(props: AutoMovieRenderInspectionMaterial.ColorObjects.IProps): () => void {
   const swaps: {
     mesh: THREE.Mesh;
     prior: THREE.Material | THREE.Material[];

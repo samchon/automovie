@@ -1,9 +1,9 @@
-import { autoMovieInspectionPathOf, AutoMovieRenderInspectionPath } from "@automovie/render";
+import { AutoMovieRenderInspectionPath } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `autoMovieInspectionPathOf` joins the names from a root to an object, and
+ * `AutoMovieRenderInspectionPath.pathOf` joins the names from a root to an object, and
  * `listAutoMovieInspectionPaths` lists every drawn object by that path.
  *
  * Scenarios:
@@ -30,10 +30,10 @@ export function test_render_scene_inspection_path_of(): void {
   hero.add(group);
   group.add(arm, wire);
 
-  TestValidator.equals("nested", autoMovieInspectionPathOf(root, arm), "hero/arm");
-  TestValidator.equals("root", autoMovieInspectionPathOf(root, root), "");
+  TestValidator.equals("nested", AutoMovieRenderInspectionPath.pathOf({ root, object: arm }), "hero/arm");
+  TestValidator.equals("root", AutoMovieRenderInspectionPath.pathOf({ root, object: root }), "");
   TestValidator.error("outside", (): void => {
-    autoMovieInspectionPathOf(root, new THREE.Object3D());
+    AutoMovieRenderInspectionPath.pathOf({ root, object: new THREE.Object3D() });
   });
   TestValidator.equals(
     "listed",

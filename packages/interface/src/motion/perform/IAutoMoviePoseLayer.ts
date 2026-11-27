@@ -19,7 +19,7 @@ export interface IAutoMoviePoseLayer {
   /**
    * When `true`, this layer's `root` transform is authoritative (the travelling
    * / locomotion layer owns the root). With no owning layer the root falls back
-   * to the last non-null one, matching {@link mergePoses}.
+   * to the last non-null one, matching `AutoMovieEngineMotionSampling.mergePoses`.
    */
   ownsRoot?: boolean;
 }

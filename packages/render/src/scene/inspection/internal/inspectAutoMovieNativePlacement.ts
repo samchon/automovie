@@ -5,7 +5,7 @@ import type {
 import type { Matrix4, Object3D } from "three";
 
 import { AUTOMOVIE_PLACED_FRAME_TOLERANCE } from "../AUTOMOVIE_PLACED_FRAME_TOLERANCE.js";
-import { autoMovieInspectionEntityPathOf } from "../autoMovieInspectionEntityPathOf.js";
+import { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
 import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
 
 type IFinding = IAutoMovieInspectionDiagnostics.IFinding;
@@ -40,7 +40,7 @@ type INativeField = keyof typeof NATIVE_ISSUES;
  * quaternion and scale. When the authority is valid, the displayed
  * `matrixWorld` the host settled is checked on its own, since a corrupt
  * ancestor can break it. Each finding names the node by
- * `autoMovieInspectionEntityPathOf`, so two same-named nodes never share an
+ * `AutoMovieRenderInspectionPath.entityPathOf`, so two same-named nodes never share an
  * identity, and the camera as `camera`.
  *
  * @param scene The settled scene; its visible nodes are inspected.
@@ -98,7 +98,7 @@ function inspectNode(
   if (fields.length === 0) return;
   const path: string = isCamera
     ? "camera"
-    : autoMovieInspectionEntityPathOf(scene, object);
+    : AutoMovieRenderInspectionPath.entityPathOf({ root: scene, object });
   for (const field of fields)
     findings.push({
       check: NATIVE_CHECK,

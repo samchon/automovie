@@ -1,4 +1,4 @@
-import { createCafeKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes/props";
 import { Quaternion, Vector3, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
@@ -115,7 +115,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
         at: { anchor: "station/ground/cafe" },
         use: (ctx: IAutoMovieEnvironmentModule.IContext) => {
           const entry = ctx.anchor("station/ground/inside").translation;
-          return createCafeKit({
+          return AutoMovieEnvironmentFurnishing.cafeKit({
             room: cafeRoom,
             tables: 1,
             keepClear: {

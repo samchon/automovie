@@ -6,12 +6,12 @@ import type {
 } from "@automovie/interface";
 import type { Matrix4, Object3D } from "three";
 
-import type { IAutoMoviePlacedObligation } from "./IAutoMoviePlacedObligation.js";
-import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
-import { inspectAutoMovieNativePlacement } from "./internal/inspectAutoMovieNativePlacement.js";
-import { measureAutoMoviePlacedObligation } from "./internal/measureAutoMoviePlacedObligation.js";
+import type { IAutoMoviePlacedObligation } from "../IAutoMoviePlacedObligation.js";
+import type { IObserveAutoMoviePlacedScene } from "../IObserveAutoMoviePlacedScene.js";
+import { inspectAutoMovieNativePlacement } from "./inspectAutoMovieNativePlacement.js";
+import { measureAutoMoviePlacedObligation } from "./measureAutoMoviePlacedObligation.js";
 
-type IReport = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
+type IReport = IObserveAutoMoviePlacedScene.IResult;
 type IFinding = IAutoMovieInspectionDiagnostics.IFinding;
 type ICoverage = IAutoMovieInspectionDiagnostics.ICoverage;
 type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
@@ -65,7 +65,7 @@ const SOURCE_CHECKS: readonly string[] = [
  * address a node by `autoMovieInspectionEntityPathOf`, which stays unique when
  * names repeat.
  */
-export function observeAutoMoviePlacedScene(
+export function observeAutoMoviePlacedSceneImplementation(
   props: IObserveAutoMoviePlacedScene.IProps,
 ): IReport {
   const { scene, camera, physicalFrame, checks, time } = props;

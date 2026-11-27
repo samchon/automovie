@@ -1,4 +1,4 @@
-import { createCafeKit, AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import type { IAutoMovieMotion } from "@automovie/interface";
 
 import { locationTrackedRideFixture } from "../internal/locationTrackedRideFixture";
@@ -30,7 +30,7 @@ export function bankedParkRide(): compileEnvironmentExample.IInput {
         }),
       },
       concession: {
-        use: createCafeKit({ room: [8, 6], tables: 1 }),
+        use: AutoMovieEnvironmentFurnishing.cafeKit({ room: [8, 6], tables: 1 }),
         at: { anchor: "terrain/amenities/kitchen" },
       },
     });

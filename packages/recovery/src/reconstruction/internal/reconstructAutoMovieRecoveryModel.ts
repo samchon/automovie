@@ -10,7 +10,7 @@ import type {
 
 import { describeRecoveryDomains } from "./describeRecoveryDomains";
 import { reconstructRecovery } from "./reconstructRecovery";
-import { restoreRecoveryCurveBasis } from "../../internal/restoreRecoveryCurveBasis";
+import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
 
 /**
  * Reconstruct saved cubic and domain coefficients without access to source
@@ -58,7 +58,7 @@ export function reconstructAutoMovieRecoveryModel(
       };
 
     const canonical: IAutoMovieRecoveryTensorFamiliesInput =
-      restoreRecoveryCurveBasis(input);
+      convertAutoMovieRecoveryCurves(input, "bezier");
     options.onProgress?.("reconstruction", 0, 1);
     if (cancelled())
       return {

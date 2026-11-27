@@ -1,4 +1,4 @@
-import { AutoMovieEngineViolationCollector, toValidation, violation } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, violation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieValidation,
@@ -20,7 +20,7 @@ import { TestValidator } from "@nestia/e2e";
  * 3. An error beside a warning fails and keeps both violations.
  * 4. A default `push` is an "error" and fails on its own.
  * 5. `violation` defaults to "error", stamps "warning" when asked and keeps the
- *    overshoot 3; an empty list is a clean success.
+ *    overshoot 3; an empty collector is a clean success.
  */
 export function test_engine_validation_collector(): void {
   const empty: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
@@ -78,5 +78,5 @@ export function test_engine_validation_collector(): void {
   );
   TestValidator.equals("builder warning", warned.severity, "warning");
   TestValidator.equals("builder overshoot", warned.overshoot, 3);
-  TestValidator.equals("empty list", toValidation([]).success, true);
+  TestValidator.equals("empty collector", new AutoMovieEngineViolationCollector().toValidation().success, true);
 }

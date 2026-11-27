@@ -17,7 +17,7 @@ import { pushViolation } from "./pushViolation";
 import { validateClipArtifact } from "./validateClipArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
-import { validateUniqueIds } from "../validateUniqueIds";
+import { validateUniqueIds } from "./validateUniqueIds";
 
 /** Append light-clip target, uniqueness and range findings for a shot. */
 export const appendLightMotionsArtifact: (

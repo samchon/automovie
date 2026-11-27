@@ -1,4 +1,4 @@
-import { createBedroomKit, createKitchenKit, createLivingRoomKit, createOfficeKit, AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import { createBedroomKit, createKitchenKit, createLivingRoomKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -168,7 +168,7 @@ export function test_environment_room_kits(): void {
     createLivingRoomKit({ room: LIVING }),
   );
   const office: IAutoMovieEnvironment = build(
-    createOfficeKit({ room: OFFICE, desks: 3 }),
+    AutoMovieEnvironmentFurnishing.officeKit({ room: OFFICE, desks: 3 }),
   );
 
   // The bedroom's bound comes from the drawn bed, read from a roomy build.
@@ -328,7 +328,7 @@ export function test_environment_room_kits(): void {
           (): IAutoMovieEnvironment =>
             build(createKitchenKit({ room: KITCHEN, cooks: 1 })),
           (): IAutoMovieEnvironment =>
-            build(createOfficeKit({ room: OFFICE, desks: 3 })),
+            build(AutoMovieEnvironmentFurnishing.officeKit({ room: OFFICE, desks: 3 })),
         ].every((make: () => IAutoMovieEnvironment): boolean => {
           const a: IAutoMovieEnvironment = make();
           const b: IAutoMovieEnvironment = make();

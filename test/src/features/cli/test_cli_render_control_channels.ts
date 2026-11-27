@@ -7,9 +7,6 @@ import {
   AUTOMOVIE_MP4_SRGB_COLOUR,
   AutoMovieRenderDelivery,
   admitAutoMovieControlPasses,
-
-
-  auditAutoMovieDeliveryContent,
   createAutoMovieLoudnessMeter,
   renderAutoMovieDrawnVideo,
 
@@ -91,7 +88,6 @@ export async function test_cli_render_control_channels(): Promise<void> {
     host: {
       render: {
         renderAutoMovieDrawnVideo,
-        auditAutoMovieDeliveryContent,
         createAutoMovieLoudnessMeter,
         AUTOMOVIE_MP4_SRGB_COLOUR,
         AutoMovieRenderDelivery,

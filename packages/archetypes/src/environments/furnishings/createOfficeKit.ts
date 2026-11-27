@@ -1,11 +1,11 @@
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
 } from "@automovie/interface";
 
+import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeBookcase } from "../../furniture/AutoMovieArchetypeBookcase";
 import { AutoMovieArchetypeDrawerUnit } from "../../furniture/AutoMovieArchetypeDrawerUnit";
@@ -36,7 +36,7 @@ import { furnishRoom } from "./furnishRoom";
  *   do not fit, naming the role or the `desks` count.
  */
 export function createOfficeKit(
-  params: createOfficeKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.OfficeKit.IParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -106,13 +106,4 @@ export function createOfficeKit(
       },
     });
   };
-}
-
-/** The office kit's parameters. */
-export namespace createOfficeKit {
-  /** The room layout and the positive integer count of desks. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** Positive integer count of desk groups. */
-    readonly desks: number;
-  }
 }

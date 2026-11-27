@@ -15,7 +15,6 @@ export namespace AutoMovieCliRender {
       render: Pick<
         typeof Render,
         | "renderAutoMovieDrawnVideo"
-        | "auditAutoMovieDeliveryContent"
         | "createAutoMovieLoudnessMeter"
         | "AUTOMOVIE_MP4_SRGB_COLOUR"
         | "AutoMovieRenderDelivery"

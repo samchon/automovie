@@ -7,7 +7,7 @@ import {
   IAutoMovieMotion,
 } from "@automovie/interface";
 
-import { actionRegion } from "../../perform/actionRegion";
+import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { bodyRegionBones } from "../../perform/internal/bodyRegionBones";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { performShotActionSpan } from "./performShotActionSpan";
@@ -75,7 +75,7 @@ export function gatePerformShotRegionOverlaps(
       new Set(
         list.map(
           (entry: { action: IAutoMovieActionCall }): AutoMovieBodyRegion =>
-            actionRegion(entry.action),
+            AutoMovieEngineKinematics.actionRegion(entry.action),
         ),
       ).size > 1;
     const carried: Map<IAutoMovieActionCall, ICarriedContent> = new Map();
@@ -84,7 +84,7 @@ export function gatePerformShotRegionOverlaps(
       if (cached !== undefined) return cached;
       const content: ICarriedContent = carriedContent(
         synthesize(action, actor),
-        actionRegion(action),
+        AutoMovieEngineKinematics.actionRegion(action),
         layered,
       );
       carried.set(action, content);
@@ -128,7 +128,7 @@ export function gatePerformShotRegionOverlaps(
           context.out.push(
             "range",
             `${context.base}[${b.index}].start`,
-            `${actor} has overlapping ${actionRegion(a.action)} and ${actionRegion(b.action)} actions that both author ${shared.join(", ")} after region masking; move one action, shorten it, or author disjoint content`,
+            `${actor} has overlapping ${AutoMovieEngineKinematics.actionRegion(a.action)} and ${AutoMovieEngineKinematics.actionRegion(b.action)} actions that both author ${shared.join(", ")} after region masking; move one action, shorten it, or author disjoint content`,
             b.action.start,
           );
       }

@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
-import { autoMovieInspectionEntityPathOf } from "../autoMovieInspectionEntityPathOf.js";
+import { AutoMovieRenderInspectionPath } from "../AutoMovieRenderInspectionPath.js";
 import { readAutoMovieCollisionCord } from "./readAutoMovieCollisionCord.js";
 import { readAutoMovieCollisionInstances } from "./readAutoMovieCollisionInstances.js";
 import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
@@ -63,11 +63,7 @@ export function collectAutoMovieCollisionParts(
         ? outer
         : {
             group: {
-              id: autoMovieInspectionEntityPathOf(
-                layer.root,
-                object,
-                frontiers,
-              ),
+              id: AutoMovieRenderInspectionPath.entityPathOf({ root: layer.root, object, frontiers }),
               kind: "rigid-assembly",
             },
             parts: members,
@@ -106,7 +102,11 @@ export function collectAutoMovieCollisionParts(
       layer.ownership?.get(mesh);
     const identity: string =
       ownership?.id ??
-      autoMovieInspectionEntityPathOf(layer.root, mesh, frontiers);
+      AutoMovieRenderInspectionPath.entityPathOf({
+        root: layer.root,
+        object: mesh,
+        frontiers,
+      });
     if (declared.has(identity))
       throw new Error(
         `Drawn mesh "${identity}" repeats a path its source already supplied`,

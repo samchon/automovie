@@ -22,11 +22,11 @@ import { appendPracticalSurfacesArtifact } from "./appendPracticalSurfacesArtifa
 import { appendShotMetadataArtifact } from "./appendShotMetadataArtifact";
 import { appendSurfaceGraphicsArtifact } from "./appendSurfaceGraphicsArtifact";
 import { pushViolation } from "./pushViolation";
-import { toValidation } from "../toValidation";
+import { toValidation } from "./toValidation";
 import { validateClipArtifact } from "./validateClipArtifact";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
-import { validateUniqueIds } from "../validateUniqueIds";
+import { validateUniqueIds } from "./validateUniqueIds";
 
 /**
  * Admit shot/scene/camera references, performances, motion clips, polygon body

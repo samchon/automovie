@@ -15,7 +15,7 @@ export { AutoMovieArchetypeRailCarriage } from "./AutoMovieArchetypeRailCarriage
 export * from "./createRailPlatform";
 export { AutoMovieArchetypeScenicShip } from "./AutoMovieArchetypeScenicShip";
 export { AutoMovieArchetypeSpacecraft } from "./AutoMovieArchetypeSpacecraft";
-export * from "./createTransitBus";
+export { AutoMovieArchetypeTransitBus } from "./AutoMovieArchetypeTransitBus";
 export { AutoMovieArchetypeWheelchair } from "./AutoMovieArchetypeWheelchair";
 export * from "./driveCar";
 

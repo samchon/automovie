@@ -6,6 +6,7 @@ import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
 import type { ISelectAutoMoviePlacedChecks } from "./ISelectAutoMoviePlacedChecks.js";
 import { selectAutoMoviePlacedChecks as selectAutoMoviePlacedChecksImplementation } from "./internal/selectAutoMoviePlacedChecks.js";
+import { observeAutoMoviePlacedSceneImplementation } from "./internal/observeAutoMoviePlacedSceneImplementation.js";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { focusAutoMovieInspection as focusAutoMovieInspectionImplementation } from "./internal/focusAutoMovieInspection.js";
 import { applyAutoMovieInspectionSectionImplementation } from "./internal/applyAutoMovieInspectionSectionImplementation.js";
@@ -98,7 +99,7 @@ export namespace AutoMovieRenderInspection {
   export namespace PlacedScene {
     /**
      * Select the production's declared checks active at one placed sample, for
-     * `observeAutoMoviePlacedScene`.
+     * `AutoMovieRenderInspection.PlacedScene.observe`.
      *
      * A support or grip contributes its phase or window containing the sample
      * second. Custody contributes the holder its schedule allows at that second and
@@ -120,6 +121,19 @@ export namespace AutoMovieRenderInspection {
       props: ISelectAutoMoviePlacedChecks.IProps,
     ): IObserveAutoMoviePlacedScene.ICheck[] {
       return selectAutoMoviePlacedChecksImplementation(props);
+    }
+    /**
+     * Observe displayed native placement and the source checks selected for a
+     * placed sample. It reads current world matrices and never seeks or chooses
+     * intended contact ownership itself.
+     *
+     * @param props The original scene, delivery camera, placed clock and checks.
+     * @returns Findings and coverage for this placed observation.
+     */
+    export function observe(
+      props: IObserveAutoMoviePlacedScene.IProps,
+    ): IObserveAutoMoviePlacedScene.IResult {
+      return observeAutoMoviePlacedSceneImplementation(props);
     }
   }
   /**
@@ -182,7 +196,7 @@ export namespace AutoMovieRenderInspection {
    *    of the whole scene, since a bone is not a drawn object and has no path to
    *    select.
    * 6. **Colours and marks.** Meshes a `color` pattern matches take its colour as
-   *    `colorAutoMovieInspectionObjects` draws it. Selected marks are drawn in
+   *    `AutoMovieRenderInspectionMaterial.colorObjects` draws it. Selected marks are drawn in
    *    their kind's colour, or the `color` a pattern gives the kind, or the flag
    *    colour when flagged, as lines `stroke` pixels wide and points three
    *    strokes across. Two kinds in one picture never share a colour, and no kind

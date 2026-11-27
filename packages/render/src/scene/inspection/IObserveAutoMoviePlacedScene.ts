@@ -14,6 +14,8 @@ import type { Camera, Object3D, Scene } from "three";
  * seeking or selecting an intended contact, owner or edit relation on its own.
  */
 export namespace IObserveAutoMoviePlacedScene {
+  /** Findings and coverage produced by one placed-scene observation. */
+  export type IResult = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
   /** The original placed scene and source-owned checks at the selected clock. */
   export interface IProps {
     /** Original scene before inspection overlays or visibility masks. */

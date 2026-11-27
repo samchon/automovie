@@ -1,6 +1,7 @@
 import { auditAutoMovieDecodedFrames as auditAutoMovieDecodedFramesImplementation } from "./internal/auditAutoMovieDecodedFrames.js";
+import { auditAutoMovieDeliveryContent as auditAutoMovieDeliveryContentImplementation } from "./internal/auditAutoMovieDeliveryContent.js";
 
-import { type IAutoMovieProductionAudioProbe, type IAutoMovieAssertProductionPngPictureProps, type IAutoMovieProductionPngProfile, type IAutoMovieResolveProductionPngProfileProps, type IAutoMovieAssertProductionVideoProfileProps, type IAutoMovieProductionVideoProfile, type IAutoMovieResolveProductionVideoProfileProps, type IAutoMovieDecodedFrameAudit } from "@automovie/interface";
+import { type IAutoMovieProductionAudioProbe, type IAutoMovieAssertProductionPngPictureProps, type IAutoMovieProductionPngProfile, type IAutoMovieResolveProductionPngProfileProps, type IAutoMovieAssertProductionVideoProfileProps, type IAutoMovieProductionVideoProfile, type IAutoMovieResolveProductionVideoProfileProps, type IAutoMovieDecodedFrameAudit, type IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 import { assertProductionAacProfile } from "./internal/assertProductionAacProfile.js";
 import { assertProductionVideoProfile } from "./internal/assertProductionVideoProfile.js";
@@ -8,7 +9,7 @@ import { resolveProductionVideoProfile } from "./internal/resolveProductionVideo
 import { assertProductionPngPicture } from "./internal/assertProductionPngPicture.js";
 import { resolveProductionPngProfile } from "./internal/resolveProductionPngProfile.js";
 
-/** Render-owned delivery profile operations. */
+/** Render-owned delivery profile and content-audit operations. */
 export class AutoMovieRenderDelivery {
   /**
    * Admit a decoder's framemd5 listing against a commissioned half-open frame
@@ -26,6 +27,13 @@ export class AutoMovieRenderDelivery {
    */
   public static auditDecodedFrames(text: string, expectedFrames: number, fps: number): IAutoMovieDecodedFrameAudit {
     return auditAutoMovieDecodedFramesImplementation(text, expectedFrames, fps);
+  }
+
+  /** Audit decoded delivery evidence against its commissioned content rules. */
+  public static auditContent(
+    props: IAutoMovieDeliveryContentAudit.IProps,
+  ): IAutoMovieDeliveryContentAudit.IResult {
+    return auditAutoMovieDeliveryContentImplementation(props);
   }
 
   private constructor() {}

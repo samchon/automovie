@@ -3,9 +3,9 @@ import * as THREE from "three";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import { AutoMovieRenderInspectionOverlay } from "../AutoMovieRenderInspectionOverlay.js";
 import type { IAutoMovieInspectionMarkSet } from "../IAutoMovieInspectionMarkSet.js";
 import type { IAutoMovieInspectionOverlay } from "../IAutoMovieInspectionOverlay.js";
-import { createAutoMovieInspectionDots } from "../createAutoMovieInspectionDots.js";
 import { createAutoMovieInspectionStrokes } from "./createAutoMovieInspectionStrokes.js";
 import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSource.js";
 
@@ -78,7 +78,7 @@ export function buildAutoMovieInspectionMarks(
       points:
         points === 0
           ? null
-          : createAutoMovieInspectionDots(dots, dotColors, options),
+          : AutoMovieRenderInspectionOverlay.createDots({ positions: dots, colors: dotColors, options }),
     };
     write(entry);
     if (entry.strokes !== null) group.add(entry.strokes);
