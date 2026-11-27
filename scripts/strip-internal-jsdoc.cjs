@@ -49,7 +49,13 @@ function commentText(doc, sourceFile) {
 function commentValue(value) {
   if (typeof value === "string") return value;
   if (!Array.isArray(value)) return "";
-  return value.map((item) => typeof item === "string" ? item : item.text ?? "").join("");
+  return value.map((item) => {
+    if (typeof item === "string") return item;
+    const name = item.kind === ts.SyntaxKind.JSDocLink
+      ? item.name?.getText?.() ?? item.name?.text ?? ""
+      : "";
+    return name + (item.text ?? "");
+  }).join("");
 }
 
 function cleanNarrative(value) {
@@ -84,9 +90,15 @@ function preservedComment(doc, sourceFile) {
   const description = cleanNarrative(doc.comment);
   if (description) narrative.push(description);
   for (const tag of doc.tags ?? []) {
-    if (!narrativeTags.has(tag.tagName.text)) continue;
+    const tagName = tag.tagName.text;
     const body = cleanNarrative(tag.comment);
-    if (body) narrative.push(body);
+    if (!body) continue;
+    if (narrativeTags.has(tagName)) narrative.push(body);
+    else if (tagName === "param") {
+      const name = tag.name?.getText?.(sourceFile) ?? tag.name?.text ?? "";
+      narrative.push(name ? `Parameter ${name}: ${body}` : `Parameter: ${body}`);
+    } else if (tagName === "return" || tagName === "returns")
+      narrative.push(`Returns: ${body}`);
   }
   const keep = provenanceLines(doc, sourceFile);
   const tags = doc.tags?.filter((tag) => tag.tagName.text === "internal").map((tag) => "@internal") ?? [];
@@ -95,6 +107,18 @@ function preservedComment(doc, sourceFile) {
   const ordinary = ordinaryBlock([...narrative, ...keep]);
   if (ordinary) comments.push(ordinary);
   return comments.join("\n");
+}
+
+function hasPreservedNarrativeTag(doc) {
+  return (doc.tags ?? []).some((tag) => {
+    const name = tag.tagName.text;
+    return (
+      narrativeTags.has(name) ||
+      name === "param" ||
+      name === "return" ||
+      name === "returns"
+    ) && cleanNarrative(tag.comment);
+  });
 }
 
 function contractDeclarationNames(index) {
@@ -128,8 +152,7 @@ function planFile(sourceFile, index) {
       const replacement = preservedComment(doc, sourceFile);
       edits.push({ start: doc.getStart(sourceFile), end: doc.end, text: replacement });
       const description = cleanNarrative(doc.comment);
-      const taggedNarrative = (doc.tags ?? []).some((tag) => narrativeTags.has(tag.tagName.text) && cleanNarrative(tag.comment));
-      if (description || taggedNarrative) preservedNarrative++;
+      if (description || hasPreservedNarrativeTag(doc)) preservedNarrative++;
       if (provenanceLines(doc, sourceFile).length) preservedProvenance++;
       if (doc.tags?.some((tag) => tag.tagName.text === "internal")) retainedInternal++;
       count++;
@@ -172,6 +195,8 @@ function selfTest() {
     " * @evidence internal",
     " */",
     "function explainableInternal(): void {}",
+    "/** @param width Refuse zero width before normalizing the line. @returns The value remains in metres. @evidence internal */",
+    "function taggedInternal(width: number): number { return width; }",
     "/** @internal @evidence internal */",
     "export class HiddenThing {}",
     "/** Copyright 2026 Example. @evidence source */",
@@ -186,8 +211,9 @@ function selfTest() {
   const output = require("./export-refactor-worktree.cjs").applyEdits(text, result.edits);
   if (!output.includes("Public API docs. @evidence public")) throw new Error("Public docs were not preserved.");
   if (!output.includes("Public member contract.")) throw new Error("Public member docs were not preserved.");
-  if (output.includes("A small internal wrapper.")) throw new Error("Redundant internal summary was retained.");
+  if (!output.includes("/*\n * A small internal wrapper.\n */") || output.includes("@evidence hidden")) throw new Error("Short internal rationale was not preserved as an ordinary comment.");
   if (!output.includes("/*\n * Preserve the prior key") || !output.includes("because a held interval") || !output.includes("downstream solver relies on that identity")) throw new Error("Internal rationale was not retained as an ordinary comment.");
+  if (!output.includes("Parameter width: Refuse zero width before normalizing the line.") || !output.includes("Returns: The value remains in metres.")) throw new Error("Private parameter/return rationale lost its identity or description.");
   if (!output.includes("https://example.test/source") || output.includes("@source")) throw new Error("Source link preservation failed.");
   if (!output.includes("/** @internal */")) throw new Error("@internal marker was not retained.");
   if (!output.includes("Copyright 2026 Example.") || output.includes("@evidence source") || output.includes("@evidence internal") || output.includes("@evidence hidden")) throw new Error("Provenance preservation failed.");
