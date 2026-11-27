@@ -1,4 +1,4 @@
-import { createEscalator } from "@automovie/archetypes/architecture";
+import { AutoMovieArchetypeEscalator } from "@automovie/archetypes/architecture";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -11,7 +11,7 @@ const STATION_ROUNDING: number = 128 * Number.EPSILON;
 export function test_archetypes_architecture_escalator_stations(): void {
   const rise: number = 7 - (5 * Math.sqrt(3)) / 2;
   const dimensions: Parameters<
-    typeof createEscalator.profile
+    typeof AutoMovieArchetypeEscalator.profile
   >[0]["dimensions"] = {
     rise,
     incline: 30,
@@ -22,7 +22,7 @@ export function test_archetypes_architecture_escalator_stations(): void {
     handrail: 1,
     width: 1,
   };
-  const band = createEscalator.profile({ dimensions });
+  const band = AutoMovieArchetypeEscalator.profile({ dimensions });
   const run: number = 1.6 + (5 * Math.PI) / 6 + 4;
   const upperComb: number = 4.1 + 2 * Math.sqrt(3);
   TestValidator.predicate(
@@ -43,12 +43,12 @@ export function test_archetypes_architecture_escalator_stations(): void {
     TestValidator.predicate(
       `tread position at ${distance} m from the lower comb`,
       vclose(
-        createEscalator.station(band, distance),
+        AutoMovieArchetypeEscalator.station(band, distance),
         { x: 0, y, z },
         STATION_ROUNDING,
       ),
     );
   TestValidator.error("the transitions cannot overlap", (): unknown =>
-    createEscalator.profile({ dimensions: { ...dimensions, rise: 0.5 } }),
+    AutoMovieArchetypeEscalator.profile({ dimensions: { ...dimensions, rise: 0.5 } }),
   );
 }

@@ -8,7 +8,6 @@ import {
   AutoMovieViewerInspector,
   type IAutoMovieInspectorScene,
   type IAutoMovieInspectorSceneHost,
-  readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
@@ -96,7 +95,7 @@ export async function test_viewer_inspector_mount_inspector_scene_transition(): 
   const mounted: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
     subject: { create: async (): Promise<IAutoMovieDrawScene> => subject },
     name: "film",
-    request: readAutoMovieInspectorAddress("at=1.25"),
+    request: AutoMovieViewerInspector.readAddress("at=1.25"),
     playhead,
     host,
     report: {

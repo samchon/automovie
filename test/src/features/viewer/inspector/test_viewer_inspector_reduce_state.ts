@@ -2,7 +2,7 @@ import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import {
   type IAutoMovieInspectorAction,
   type IAutoMovieInspectorState,
-  readAutoMovieInspectorAddress,
+  AutoMovieViewerInspector,
   reduceAutoMovieInspectorState,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
@@ -29,7 +29,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_viewer_inspector_reduce_state(): void {
   const start: IAutoMovieInspectorState = {
-    request: readAutoMovieInspectorAddress(
+    request: AutoMovieViewerInspector.readAddress(
       "parts=a&from=1&to=2&rate=10&passes=depth",
     ),
     error: null,
@@ -42,7 +42,7 @@ export function test_viewer_inspector_reduce_state(): void {
     actions.reduce(reduceAutoMovieInspectorState, start);
   const read: (text: string) => IAutoMovieCapturePlanRequest = (
     text: string,
-  ): IAutoMovieCapturePlanRequest => readAutoMovieInspectorAddress(text);
+  ): IAutoMovieCapturePlanRequest => AutoMovieViewerInspector.readAddress(text);
   const sampling: string = "from=1&to=2&rate=10";
 
   TestValidator.equals(

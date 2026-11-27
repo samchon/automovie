@@ -8,7 +8,6 @@ import {
   AutoMovieViewerInspector,
   type IAutoMovieInspectorScene,
   type IAutoMovieInspectorSceneHost,
-  readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -98,7 +97,7 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
   const mounted: IAutoMovieInspectorScene = AutoMovieViewerInspector.mountScene({
     subject: { create: async (): Promise<IAutoMovieDrawScene> => subject },
     name: "s",
-    request: readAutoMovieInspectorAddress("at=0"),
+    request: AutoMovieViewerInspector.readAddress("at=0"),
     playhead,
     host,
     report: {
@@ -138,7 +137,7 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
   );
 
   // 2. A hiding request is restored for every observation.
-  mounted.apply(readAutoMovieInspectorAddress("at=0.75&hide=prop"));
+  mounted.apply(AutoMovieViewerInspector.readAddress("at=0.75&hide=prop"));
   for (const seconds of [0.25, 0.5]) await visit(seconds);
   const hiding: typeof rendered = rendered.slice(3);
   TestValidator.predicate(
@@ -158,7 +157,7 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
   );
 
   // 3. Back to a request that changes nothing.
-  mounted.apply(readAutoMovieInspectorAddress("at=0.5"));
+  mounted.apply(AutoMovieViewerInspector.readAddress("at=0.5"));
   for (const seconds of [0.25, 0.75]) await visit(seconds);
   const back: typeof rendered = rendered.slice(5);
   TestValidator.predicate(

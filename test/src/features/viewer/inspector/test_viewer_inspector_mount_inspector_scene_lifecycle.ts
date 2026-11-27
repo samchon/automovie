@@ -6,7 +6,6 @@ import {
   AutoMovieInspectorPlayhead,
   AutoMovieViewerInspector,
   type IAutoMovieInspectorScene,
-  readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
@@ -46,7 +45,7 @@ import { InspectorMountRecording } from "../../internal/InspectorMountRecording"
 export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): Promise<void> {
   const host: InspectorMountRecording.Host = new InspectorMountRecording.Host();
   const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
-  const request: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress(
+  const request: IAutoMovieCapturePlanRequest = AutoMovieViewerInspector.readAddress(
     "marks=contact&at=0.25",
   );
 
@@ -154,7 +153,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
 
   // 4. Refused and accepted requests.
   const refused: IAutoMovieCapturePlanRequest =
-    readAutoMovieInspectorAddress("marks=nothing");
+    AutoMovieViewerInspector.readAddress("marks=nothing");
   mounted.apply(refused);
   TestValidator.equals(
     "a refused request is reported",
@@ -165,7 +164,7 @@ export async function test_viewer_inspector_mount_inspector_scene_lifecycle(): P
     "with the request still drawn",
     report.refusals[0]![0] === request,
   );
-  const marked: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress(
+  const marked: IAutoMovieCapturePlanRequest = AutoMovieViewerInspector.readAddress(
     "marks=contact*&at=1",
   );
   mounted.apply(marked);

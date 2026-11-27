@@ -13,7 +13,7 @@ Settle these by measurement before looking. Before measuring, write each one tha
 - open edges and edges that more than two triangles share;
 - reversed faces, triangles without area and a surface passing through itself.
 
-Check the form against the expectation with `checkAutoMovieFormExpectation` from `@automovie/engine`. The check also tries the form's box and convex hull, which a useful expectation rejects. When it reports either as loose, add the empty point or genus that tells the form from it, or list it in `matches` when the form is meant to equal it.
+Check the form against the expectation with `AutoMovieEngineGeometry.checkFormExpectation` from `@automovie/engine`. The check also tries the form's box and convex hull, which a useful expectation rejects. When it reports either as loose, add the empty point or genus that tells the form from it, or list it in `matches` when the form is meant to equal it.
 
 ## Coverage
 
