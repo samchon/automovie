@@ -1,4 +1,4 @@
-import { validateFilmContinuity } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieMotion,
   IAutoMovieScene,
@@ -54,11 +54,11 @@ const beatProps: (
   beat: string,
   stagedX: number,
   duration: number,
-) => Parameters<typeof validateFilmContinuity>[0]["beats"][number] = (
+) => Parameters<typeof AutoMovieEngineValidation.validateFilmContinuity>[0]["beats"][number] = (
   beat: string,
   stagedX: number,
   duration: number,
-): Parameters<typeof validateFilmContinuity>[0]["beats"][number] => {
+): Parameters<typeof AutoMovieEngineValidation.validateFilmContinuity>[0]["beats"][number] => {
   const scene: IAutoMovieScene = {
     id: "scene",
     name: null,
@@ -111,17 +111,17 @@ const beatProps: (
 export function test_engine_film_continuity_walk(): void {
   TestValidator.equals(
     "an empty film passes",
-    validateFilmContinuity({ beats: [] }),
+    AutoMovieEngineValidation.validateFilmContinuity({ beats: [] }),
     { success: true },
   );
   TestValidator.equals(
     "a single-beat film has no cut",
-    validateFilmContinuity({ beats: [beatProps("b1", 0, 0.5)] }),
+    AutoMovieEngineValidation.validateFilmContinuity({ beats: [beatProps("b1", 0, 0.5)] }),
     { success: true },
   );
 
-  const resumed: ReturnType<typeof validateFilmContinuity> =
-    validateFilmContinuity({
+  const resumed: ReturnType<typeof AutoMovieEngineValidation.validateFilmContinuity> =
+    AutoMovieEngineValidation.validateFilmContinuity({
       beats: [beatProps("b1", 0, 0.5), beatProps("b2", 1, 0.5)],
     });
   TestValidator.predicate(
@@ -129,8 +129,8 @@ export function test_engine_film_continuity_walk(): void {
     validationHasNoWarnings("resumed film cut", resumed),
   );
 
-  const drifted: ReturnType<typeof validateFilmContinuity> =
-    validateFilmContinuity({
+  const drifted: ReturnType<typeof AutoMovieEngineValidation.validateFilmContinuity> =
+    AutoMovieEngineValidation.validateFilmContinuity({
       beats: [beatProps("b1", 0, 0.5), beatProps("b2", 0, 0.5)],
     });
   TestValidator.predicate(

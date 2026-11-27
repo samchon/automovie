@@ -1,4 +1,4 @@
-import { validateTextureAssets, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieAssetProvenance,
   IAutoMovieMaterial,
@@ -111,7 +111,7 @@ export function test_engine_validation_material_overlay_textures(): void {
   ) => IAutoMovieValidation = (
     assets: IAutoMovieAssetProvenance[],
   ): IAutoMovieValidation =>
-    validateTextureAssets({
+    AutoMovieEngineValidation.validateTextureAssets({
       production: PRODUCTION,
       models: [model(skin("source-uv"))],
       scenes: [{ shot: "opening" }],

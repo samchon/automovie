@@ -17,12 +17,12 @@ import type {
 } from "@automovie/interface";
 
 import { Matrix4 } from "../../math/Matrix4";
-import { applyChannelLimit } from "../applyChannelLimit";
-import { bindProfile } from "../bindProfile";
-import { channelKey } from "../channelKey";
-import { childrenIndex } from "../childrenIndex";
+import { applyChannelLimit } from "./applyChannelLimit";
+import { bindProfile } from "./bindProfile";
+import { channelKey } from "./channelKey";
+import { childrenIndex } from "./childrenIndex";
 import { composeScene } from "./composeScene";
-import { readWorld } from "../readWorld";
+import { readWorld } from "./readWorld";
 import { resolveDrivers } from "./resolveDrivers";
 import { resolveWorldDrivers } from "./resolveWorldDrivers";
 import { sampleClip } from "./sampleClip";

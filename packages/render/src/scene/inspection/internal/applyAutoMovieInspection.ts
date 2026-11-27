@@ -30,7 +30,7 @@ import { AutoMovieRenderInspectionMarks } from "../AutoMovieRenderInspectionMark
 import { colorAutoMovieInspectionObjects } from "../colorAutoMovieInspectionObjects.js";
 import { AutoMovieRenderInspection } from "../AutoMovieRenderInspection.js";
 import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks.js";
-import { listAutoMovieInspectionPaths } from "../listAutoMovieInspectionPaths.js";
+import { listAutoMovieInspectionPaths } from "./listAutoMovieInspectionPaths.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
 import { measureAutoMovieInspectionMeshes } from "../measureAutoMovieInspectionMeshes.js";

@@ -8,7 +8,7 @@ import * as THREE from "three";
 
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../scene/inspection/AUTO_MOVIE_INSPECTION_PALETTE.js";
 import type { IAutoMovieInspectionPath } from "../../scene/inspection/IAutoMovieInspectionPath.js";
-import { listAutoMovieInspectionPaths } from "../../scene/inspection/listAutoMovieInspectionPaths.js";
+import { listAutoMovieInspectionPaths } from "../../scene/inspection/internal/listAutoMovieInspectionPaths.js";
 import type { IAutoMovieViewerViewpoint } from "../../scene/subjectViewpoint/IAutoMovieViewerViewpoint.js";
 import { autoMovieViewerNamedViewpoints } from "../../scene/subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";

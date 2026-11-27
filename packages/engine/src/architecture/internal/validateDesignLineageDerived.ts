@@ -12,7 +12,7 @@ import {
 import { appendGraphCycles } from "../../validation/appendGraphCycles";
 import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
 import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
-import { validateDeclaredReferences } from "../../validation/validateDeclaredReferences";
+import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 
 /**
  * Validate the derived artifacts of one design lineage: their identity, their

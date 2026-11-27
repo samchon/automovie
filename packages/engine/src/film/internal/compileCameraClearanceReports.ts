@@ -21,7 +21,7 @@ import {
 } from "@automovie/interface";
 
 import { sampleMotion } from "../../motion/sampleMotion";
-import { channelKey } from "../../resolve/channelKey";
+import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { validateModel } from "../../validation/internal/validateModel";
 import { cameraClearanceDeformationRadius } from "./cameraClearanceDeformationRadius";

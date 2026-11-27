@@ -1,4 +1,4 @@
-import { childrenIndex } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieNode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -31,7 +31,7 @@ const node: (id: string, parent: string | null) => IAutoMovieNode = (
  * 2. A root has no entry, and a childless node has no entry.
  */
 export function test_engine_resolve_children_index(): void {
-  const index: Map<string, string[]> = childrenIndex([
+  const index: Map<string, string[]> = AutoMovieEngineResolve.childrenIndex([
     node("root", null),
     node("b", "root"),
     node("a", "root"),

@@ -1,4 +1,4 @@
-import { affordanceLeadingTravel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordanceCoupling,
   IAutoMovieAffordanceTravelRange,
@@ -33,13 +33,13 @@ export function test_engine_validation_affordance_leading_travel(): void {
   TestValidator.equals(
     "the inverse of -2 times the leader holds only on the legal image",
     [-1, -2, -5, -8, -9].map((follower: number): number | null =>
-      affordanceLeadingTravel(gear, follower, domain),
+      AutoMovieEngineValidation.affordanceLeadingTravel(gear, follower, domain),
     ),
     [null, 1, 2.5, 4, null],
   );
   TestValidator.equals(
     "a constant ratio has no unique inverse",
-    affordanceLeadingTravel({ ...gear, ratio: 0 }, 0),
+    AutoMovieEngineValidation.affordanceLeadingTravel({ ...gear, ratio: 0 }, 0),
     null,
   );
 
@@ -62,14 +62,14 @@ export function test_engine_validation_affordance_leading_travel(): void {
   TestValidator.equals(
     "the rising cam inverts both unequal slopes and admits the table endpoints",
     [-1, 0, 1, 2, 5, 8, 9].map((follower: number): number | null =>
-      affordanceLeadingTravel(rising, follower),
+      AutoMovieEngineValidation.affordanceLeadingTravel(rising, follower),
     ),
     [null, 0, 1, 2, 4, 6, null],
   );
   TestValidator.equals(
     "the falling cam intersects its image with the allowed leader range",
     [8, 7, 6, 4.5, 3, 2].map((follower: number): number | null =>
-      affordanceLeadingTravel(falling, follower, domain),
+      AutoMovieEngineValidation.affordanceLeadingTravel(falling, follower, domain),
     ),
     [null, 1, 2, 3, 4, null],
   );
@@ -86,7 +86,7 @@ export function test_engine_validation_affordance_leading_travel(): void {
     "a finite output span returns its exact endpoints and interior quarters",
     [-maximum, -maximum / 2, 0, maximum / 2, maximum].map(
       (follower: number): number | null =>
-        affordanceLeadingTravel(wideOutput, follower),
+        AutoMovieEngineValidation.affordanceLeadingTravel(wideOutput, follower),
     ),
     [0, 0.25, 0.5, 0.75, 1],
   );
@@ -100,14 +100,14 @@ export function test_engine_validation_affordance_leading_travel(): void {
   TestValidator.equals(
     "a decreasing map returns the exact endpoints of a wide input span",
     [1, 0, -1].map((follower: number): number | null =>
-      affordanceLeadingTravel(wideInput, follower),
+      AutoMovieEngineValidation.affordanceLeadingTravel(wideInput, follower),
     ),
     [-maximum, 0, maximum],
   );
   const power: number = 2 ** 800;
   TestValidator.equals(
     "a finite midpoint survives an overflowing interpolation product",
-    affordanceLeadingTravel(
+    AutoMovieEngineValidation.affordanceLeadingTravel(
       {
         id: "wide-product",
         table: [
@@ -123,7 +123,7 @@ export function test_engine_validation_affordance_leading_travel(): void {
   const small: number = 2 ** -600;
   const subnormalProductSpan: number = 2 ** -530;
   const subnormalProductQuery: number = 3 * 2 ** -545;
-  const smallLeader: number | null = affordanceLeadingTravel(
+  const smallLeader: number | null = AutoMovieEngineValidation.affordanceLeadingTravel(
     {
       id: "small-product",
       table: [
@@ -133,7 +133,7 @@ export function test_engine_validation_affordance_leading_travel(): void {
     },
     small / 2,
   );
-  const roundedLeader: number | null = affordanceLeadingTravel(
+  const roundedLeader: number | null = AutoMovieEngineValidation.affordanceLeadingTravel(
     {
       id: "subnormal-product",
       table: [
@@ -143,7 +143,7 @@ export function test_engine_validation_affordance_leading_travel(): void {
     },
     subnormalProductQuery,
   );
-  const steepLeader: number | null = affordanceLeadingTravel(
+  const steepLeader: number | null = AutoMovieEngineValidation.affordanceLeadingTravel(
     {
       id: "small-fraction",
       table: [
@@ -175,7 +175,7 @@ export function test_engine_validation_affordance_leading_travel(): void {
     "finite forward images bound a wide output segment's legal interior domain",
     [-halfWidth, -halfWidth / 2, 0, halfWidth / 2, halfWidth].map(
       (follower: number): number | null =>
-        affordanceLeadingTravel(wideBounds, follower, {
+        AutoMovieEngineValidation.affordanceLeadingTravel(wideBounds, follower, {
           minimum: 0.25,
           maximum: 0.75,
         }),
@@ -192,7 +192,7 @@ export function test_engine_validation_affordance_leading_travel(): void {
   TestValidator.equals(
     "wide leader coordinates recover the exact interior domain ends",
     [0, 0.25, 0.5, 0.75, 1].map((follower: number): number | null =>
-      affordanceLeadingTravel(wideLeaderBounds, follower, {
+      AutoMovieEngineValidation.affordanceLeadingTravel(wideLeaderBounds, follower, {
         minimum: -halfWidth / 2,
         maximum: halfWidth / 2,
       }),
@@ -226,7 +226,7 @@ export function test_engine_validation_affordance_leading_travel(): void {
   TestValidator.equals(
     "non-invertible tables refuse even a request inside their overall range",
     invalid.map((table: (typeof invalid)[number]): number | null =>
-      affordanceLeadingTravel({ id: "cam", table }, 2),
+      AutoMovieEngineValidation.affordanceLeadingTravel({ id: "cam", table }, 2),
     ),
     [null, null, null, null, null, null],
   );

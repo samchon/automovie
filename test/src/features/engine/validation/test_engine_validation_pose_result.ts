@@ -1,4 +1,4 @@
-import { validatePoseResult } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMoviePose,
@@ -40,11 +40,11 @@ export function test_engine_validation_pose_result(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();
   TestValidator.equals(
     "valid",
-    validatePoseResult(createValidPose(), skeleton).success,
+    AutoMovieEngineValidation.validatePoseResult(createValidPose(), skeleton).success,
     true,
   );
 
-  const relabelled: IAutoMovieValidation = validatePoseResult(
+  const relabelled: IAutoMovieValidation = AutoMovieEngineValidation.validatePoseResult(
     { ...createValidPose(), skeleton: "skeleton-2" },
     skeleton,
   );
@@ -54,7 +54,7 @@ export function test_engine_validation_pose_result(): void {
     hasViolation(relabelled, "type", "$input.skeleton"),
   );
 
-  const unknown: IAutoMovieValidation = validatePoseResult(
+  const unknown: IAutoMovieValidation = AutoMovieEngineValidation.validatePoseResult(
     makePose([joint("jaw", { flexion: 10 })]),
     skeleton,
   );
@@ -64,7 +64,7 @@ export function test_engine_validation_pose_result(): void {
     hasViolation(unknown, "type", ".bone"),
   );
 
-  const duplicate: IAutoMovieValidation = validatePoseResult(
+  const duplicate: IAutoMovieValidation = AutoMovieEngineValidation.validatePoseResult(
     makePose([
       joint("leftLowerArm", { flexion: 30 }),
       joint("leftLowerArm", { flexion: 60 }),
@@ -77,7 +77,7 @@ export function test_engine_validation_pose_result(): void {
     hasViolation(duplicate, "type", ".bone"),
   );
 
-  const impossible: IAutoMovieValidation = validatePoseResult(
+  const impossible: IAutoMovieValidation = AutoMovieEngineValidation.validatePoseResult(
     makePose([joint("leftLowerArm", { flexion: 175 })]),
     skeleton,
   );
@@ -104,7 +104,7 @@ export function test_engine_validation_pose_result(): void {
   };
   TestValidator.equals(
     "override widens",
-    validatePoseResult(
+    AutoMovieEngineValidation.validatePoseResult(
       makePose([joint("leftLowerArm", { flexion: 175 })]),
       widened,
     ).success,
@@ -120,10 +120,10 @@ export function test_engine_validation_pose_result(): void {
     makePose([joint("leftLowerArm", { flexion: 30 })], transform);
   TestValidator.equals(
     "valid root",
-    validatePoseResult(rooted(root), skeleton).success,
+    AutoMovieEngineValidation.validatePoseResult(rooted(root), skeleton).success,
     true,
   );
-  const turned: IAutoMovieValidation = validatePoseResult(
+  const turned: IAutoMovieValidation = AutoMovieEngineValidation.validatePoseResult(
     rooted({ ...root, rotation: { ...root.rotation, w: 2 } }),
     skeleton,
   );
@@ -132,7 +132,7 @@ export function test_engine_validation_pose_result(): void {
     "rotation length",
     hasViolation(turned, "range", "$input.root.rotation"),
   );
-  const flat: IAutoMovieValidation = validatePoseResult(
+  const flat: IAutoMovieValidation = AutoMovieEngineValidation.validatePoseResult(
     rooted({ ...root, scale: { ...root.scale, y: 0 } }),
     skeleton,
   );

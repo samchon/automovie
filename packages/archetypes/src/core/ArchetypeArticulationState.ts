@@ -1,7 +1,4 @@
-import {
-  AffordanceArticulation,
-  affordanceTravelRange,
-} from "@automovie/engine";
+import { AffordanceArticulation, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieAffordanceArticulation,
@@ -39,7 +36,7 @@ export function ArchetypeArticulationState(
     if (!resolved.success) {
       const at: IAutoMovieAffordance | undefined = byId.get(resolved.id);
       if (resolved.kind === "range" && at !== undefined) {
-        const { minimum, maximum } = affordanceTravelRange(at);
+        const { minimum, maximum } = AutoMovieEngineValidation.affordanceTravelRange(at);
         throw new AutoMovieArchetypeRefusal({
           kind: "articulation",
           archetype,

@@ -1,4 +1,4 @@
-import { placementChildNode, AutoMovieEngineFilm, AutoMovieEngineResolve } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   type IAutoMovieForgedProp,
@@ -101,7 +101,7 @@ export function test_engine_film_forge_prop_articulation_mesh(): void {
     lowered
       .filter((node: IAutoMovieNode): boolean => node.mesh !== null)
       .map((node: IAutoMovieNode): (string | null)[] => [node.id, node.mesh]),
-    [[placementChildNode("frontDoor", "hinge"), "panel"]],
+    [[AutoMovieEngineResolve.placementChildNode("frontDoor", "hinge"), "panel"]],
   );
 
   const unknown: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(drives(1, "sash"));

@@ -1,4 +1,4 @@
-import { validateClipArtifact, AutoMovieEngineSequence } from "@automovie/engine";
+import { AutoMovieEngineSequence, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
@@ -42,7 +42,7 @@ export function test_engine_validation_motion_track_shape(): void {
   });
   const issues = (value: IAutoMovieClip): IAutoMovieConstraintViolation[] => {
     const errors: IAutoMovieConstraintViolation[] = [];
-    validateClipArtifact(value, "$input.clip", errors);
+    AutoMovieEngineValidation.validateClipArtifact(value, "$input.clip", errors);
     return errors;
   };
   const sample = (value: IAutoMovieClip) => AutoMovieEngineSequence.sampleClip(value, 0.5);

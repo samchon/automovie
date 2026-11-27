@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, validateSpace, AutoMovieEngineDrawing, AutoMovieEngineBuiltEnvironment, AutoMovieEngineFilm, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineDrawing, AutoMovieEngineBuiltEnvironment, AutoMovieEngineFilm, AutoMovieEngineGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   AutoMovieSurfaceKind,
   IAutoMovieBuiltEnvironment,
@@ -112,7 +112,7 @@ export const assertFootprintVoidGeometry: (
       ],
       [
         "theHoledPlateValidates",
-        (): boolean => validateSpace({ space: holedSpace }).success,
+        (): boolean => AutoMovieEngineValidation.validateSpace({ space: holedSpace }).success,
       ],
     ]),
     {
@@ -386,7 +386,7 @@ export const assertFootprintVoidGeometry: (
       [
         "validationRefusesIt",
         (): boolean =>
-          validateSpace({ space: spaceOf(crossing) }).success === false,
+          AutoMovieEngineValidation.validateSpace({ space: spaceOf(crossing) }).success === false,
       ],
     ]),
     {

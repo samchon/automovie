@@ -1,4 +1,4 @@
-import { validateSceneEnvironment } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieSceneEnvironment,
   IAutoMovieValidation,
@@ -28,10 +28,10 @@ export function test_engine_validation_scene_environment(): void {
   };
   TestValidator.equals(
     "valid lower boundaries are admitted",
-    validateSceneEnvironment({ environment: base }),
+    AutoMovieEngineValidation.validateSceneEnvironment({ environment: base }),
     { success: true },
   );
-  const failed: IAutoMovieValidation = validateSceneEnvironment({
+  const failed: IAutoMovieValidation = AutoMovieEngineValidation.validateSceneEnvironment({
     environment: {
       ...base,
       image: "studio.hdr",

@@ -1,4 +1,4 @@
-import { validateBalanceSupport, validateFootSkate, validateSelfIntersection, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import {
   type IAutoMovieBodyCollisionResult,
   type IAutoMovieCollisionActor,
@@ -91,7 +91,7 @@ const MOTION: IAutoMovieMotion = {
  */
 export function test_engine_validation_detached_bone_totality(): void {
   // footskate: a contact on the detached bone reports, does not crash.
-  const foot: IAutoMovieValidation = validateFootSkate({
+  const foot: IAutoMovieValidation = AutoMovieEngineValidation.validateFootSkate({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     contacts: [{ bone: "leftFoot", start: 0, end: 1 }],
@@ -117,7 +117,7 @@ export function test_engine_validation_detached_bone_totality(): void {
   );
 
   // balance: a detached centerBone reports, does not crash.
-  const center: IAutoMovieValidation = validateBalanceSupport({
+  const center: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     supports: [
@@ -149,7 +149,7 @@ export function test_engine_validation_detached_bone_totality(): void {
   );
 
   // balance: a detached support bone reports, does not crash.
-  const support: IAutoMovieValidation = validateBalanceSupport({
+  const support: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     supports: [
@@ -183,7 +183,7 @@ export function test_engine_validation_detached_bone_totality(): void {
 
   // self-intersection: a capsule endpoint on the detached bone reports at the
   // endpoint's own path, does not crash (#1056).
-  const capsule: IAutoMovieValidation = validateSelfIntersection({
+  const capsule: IAutoMovieValidation = AutoMovieEngineValidation.validateSelfIntersection({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     pairs: [
@@ -268,7 +268,7 @@ export function test_engine_validation_detached_bone_totality(): void {
 
   // A bone entirely absent from the skeleton still reports "must exist", NOT
   // the reachability message: the two failures stay distinct.
-  const absent: IAutoMovieValidation = validateFootSkate({
+  const absent: IAutoMovieValidation = AutoMovieEngineValidation.validateFootSkate({
     motion: MOTION,
     skeleton: DETACHED_SKELETON,
     contacts: [{ bone: "rightFoot", start: 0, end: 1 }],
@@ -311,7 +311,7 @@ export function test_engine_validation_detached_bone_totality(): void {
       },
     ],
   };
-  const wellFormed: IAutoMovieValidation = validateFootSkate({
+  const wellFormed: IAutoMovieValidation = AutoMovieEngineValidation.validateFootSkate({
     motion: { ...MOTION, skeleton: reachableSkeleton.id },
     skeleton: reachableSkeleton,
     contacts: [{ bone: "leftFoot", start: 0, end: 1 }],
@@ -321,7 +321,7 @@ export function test_engine_validation_detached_bone_totality(): void {
     wellFormed.success,
     true,
   );
-  const wellFormedBalance: IAutoMovieValidation = validateBalanceSupport({
+  const wellFormedBalance: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: { ...MOTION, skeleton: reachableSkeleton.id },
     skeleton: reachableSkeleton,
     supports: [

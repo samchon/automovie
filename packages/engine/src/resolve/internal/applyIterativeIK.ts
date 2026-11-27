@@ -9,10 +9,10 @@ import { Matrix4 } from "../../math/Matrix4";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { rotationBetween } from "../../math/rotationBetween";
-import { blendVec } from "../blendVec";
-import { readWorld } from "../readWorld";
-import { recompose } from "../recompose";
-import { validateInfluence } from "../validateInfluence";
+import { blendVec } from "./blendVec";
+import { readWorld } from "./readWorld";
+import { recompose } from "./recompose";
+import { validateInfluence } from "./validateInfluence";
 
 /**
  * Default finite iteration budget when the driver leaves iterations null. It

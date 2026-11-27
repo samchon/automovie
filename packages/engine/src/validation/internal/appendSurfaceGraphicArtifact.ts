@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { validateColor } from "../validateColor";
+import { validateColor } from "./validateColor";
 
 /**
  * Append the findings of one surface graphic at `path`: its emission, its

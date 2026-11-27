@@ -11,7 +11,7 @@ import type * as THREE from "three";
 import { resolveAutoMovieCapturePatterns } from "../../capture/internal/resolveAutoMovieCapturePatterns.js";
 import type { IAutoMovieInspectionHandle } from "../../scene/inspection/IAutoMovieInspectionHandle.js";
 import type { IAutoMovieInspectionPath } from "../../scene/inspection/IAutoMovieInspectionPath.js";
-import { listAutoMovieInspectionPaths } from "../../scene/inspection/listAutoMovieInspectionPaths.js";
+import { listAutoMovieInspectionPaths } from "../../scene/inspection/internal/listAutoMovieInspectionPaths.js";
 import type { resolveAutoMovieInspectionView } from "../../scene/inspection/resolveAutoMovieInspectionView.js";
 import { AutoMovieRenderSemanticMask } from "../../scene/semanticMask/index.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";

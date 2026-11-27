@@ -1,4 +1,4 @@
-import { plantStanceFeet, validateFootSkate, validateGroundContact, AutoMovieEngineMotionTrajectory, AutoMovieEngineSpace } from "@automovie/engine";
+import { plantStanceFeet, AutoMovieEngineMotionTrajectory, AutoMovieEngineSpace, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
@@ -150,7 +150,7 @@ export function test_motion_ground_stance_projection(): void {
       restFrames: REST_FRAMES,
     });
     const skate = (motion: IAutoMovieMotion) =>
-      validateFootSkate({
+      AutoMovieEngineValidation.validateFootSkate({
         motion,
         skeleton: legSkeleton,
         contacts: [{ bone: "leftFoot", start: 0, end: 1 }],
@@ -168,7 +168,7 @@ export function test_motion_ground_stance_projection(): void {
       "planted foot clears measured ground",
       validationHasNoWarnings(
         "planted ground contact",
-        validateGroundContact({
+        AutoMovieEngineValidation.validateGroundContact({
           motion: planted.motion,
           skeleton: legSkeleton,
           footBones: ["leftFoot"],

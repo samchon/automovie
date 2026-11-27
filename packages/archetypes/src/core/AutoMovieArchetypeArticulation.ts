@@ -1,9 +1,4 @@
-import {
-  AffordanceArticulation,
-  Vector3,
-  affordanceFollowedTravel,
-  affordanceTravelRange,
-} from "@automovie/engine";
+import { AffordanceArticulation, Vector3, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -83,7 +78,7 @@ export namespace AutoMovieArchetypeArticulation {
     minimum: number | null;
     maximum: number | null;
   } {
-    return affordanceTravelRange(affordance);
+    return AutoMovieEngineValidation.affordanceTravelRange(affordance);
   }
 
   /**
@@ -293,7 +288,7 @@ export namespace AutoMovieArchetypeArticulation {
         visiting.add(a.id);
         const lead: number = travelOf(leader);
         visiting.delete(a.id);
-        const followed: number = affordanceFollowedTravel(a.follows, lead);
+        const followed: number = AutoMovieEngineValidation.affordanceFollowedTravel(a.follows, lead);
         if (!within(a, followed))
           throw outside(
             a,

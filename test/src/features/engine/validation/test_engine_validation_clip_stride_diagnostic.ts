@@ -1,4 +1,4 @@
-import { validateClipArtifact, AutoMovieEngineSequence } from "@automovie/engine";
+import { AutoMovieEngineSequence, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieInterpolation,
   IAutoMovieChannel,
@@ -41,7 +41,7 @@ const faultOn: (value: IAutoMovieClip) => IAutoMovieConstraintViolation = (
   value: IAutoMovieClip,
 ): IAutoMovieConstraintViolation => {
   const violations: IAutoMovieConstraintViolation[] = [];
-  validateClipArtifact(value, "$input.clip", violations);
+  AutoMovieEngineValidation.validateClipArtifact(value, "$input.clip", violations);
   const found: IAutoMovieConstraintViolation | undefined = violations.find(
     (item: IAutoMovieConstraintViolation): boolean =>
       item.path === "$input.clip.tracks[0].values",

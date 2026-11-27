@@ -1,4 +1,4 @@
-import { orderValueDrivers } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieDrivenDriver } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,19 +29,19 @@ export function test_engine_resolve_order_value_drivers(): void {
   const bc: IAutoMovieDrivenDriver = driven("c", "b");
   TestValidator.predicate(
     "producers first",
-    orderValueDrivers([bc, ab])[0] === ab &&
-      orderValueDrivers([bc, ab])[1] === bc,
+    AutoMovieEngineResolve.orderValueDrivers([bc, ab])[0] === ab &&
+      AutoMovieEngineResolve.orderValueDrivers([bc, ab])[1] === bc,
   );
   const x: IAutoMovieDrivenDriver = driven("x", "p");
   const y: IAutoMovieDrivenDriver = driven("y", "q");
   TestValidator.predicate(
     "input order of independents",
-    orderValueDrivers([y, x])[0] === y && orderValueDrivers([y, x])[1] === x,
+    AutoMovieEngineResolve.orderValueDrivers([y, x])[0] === y && AutoMovieEngineResolve.orderValueDrivers([y, x])[1] === x,
   );
   TestValidator.predicate(
     "a cycle",
     throwsError(
-      () => orderValueDrivers([driven("a", "b"), driven("b", "a")]),
+      () => AutoMovieEngineResolve.orderValueDrivers([driven("a", "b"), driven("b", "a")]),
       "driver dependency cycle",
     ),
   );

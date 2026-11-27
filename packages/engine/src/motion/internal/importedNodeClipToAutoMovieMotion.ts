@@ -18,7 +18,7 @@ import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_A
 import { decomposeJointRotation } from "../../kinematics/internal/decomposeJointRotation";
 import { Quaternion } from "../../math/Quaternion";
 import { Transform } from "../../math/Transform";
-import { channelKey } from "../../resolve/channelKey";
+import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClip } from "../../resolve/internal/sampleClip";
 import { HUMANOID_REST_FRAME } from "../../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../../rom/getConstraint";

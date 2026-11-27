@@ -23,7 +23,7 @@ import { validateJointAxesBasis } from "../../kinematics/internal/validateJointA
 import { HUMANOID_REST_FRAME } from "../../rom/constants/HUMANOID_REST_FRAME";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { validateMotion } from "../../validation/validateMotion";
+import { validateMotion } from "../../validation/internal/validateMotion";
 import { validateTransformScalars } from "../../validation/internal/validateTransformScalars";
 import { preserveRetargetContacts } from "./preserveRetargetContacts";
 import { validateRetargetContacts } from "./validateRetargetContacts";

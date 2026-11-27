@@ -1,4 +1,4 @@
-import { parseLightPointer } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,12 +15,12 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_resolve_parse_light_pointer(): void {
   TestValidator.equals(
     "a canonical address",
-    parseLightPointer("/lights/lamp/intensity"),
+    AutoMovieEngineResolve.parseLightPointer("/lights/lamp/intensity"),
     { light: "lamp", property: "intensity" },
   );
   TestValidator.equals(
     "an escaped id",
-    parseLightPointer("/lights/a~1b~0c/range"),
+    AutoMovieEngineResolve.parseLightPointer("/lights/a~1b~0c/range"),
     { light: "a/b~c", property: "range" },
   );
   TestValidator.predicate(
@@ -32,6 +32,6 @@ export function test_engine_resolve_parse_light_pointer(): void {
       "/lights/lamp/temperature",
       "/lights//intensity",
       "/lights/a~2b/intensity",
-    ].every((pointer: string): boolean => parseLightPointer(pointer) === null),
+    ].every((pointer: string): boolean => AutoMovieEngineResolve.parseLightPointer(pointer) === null),
   );
 }

@@ -9,7 +9,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { profileSemanticKeys } from "../../resolve/profileSemanticKeys";
+import { profileSemanticKeys } from "../../resolve/internal/profileSemanticKeys";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateModel } from "../../validation/internal/validateModel";

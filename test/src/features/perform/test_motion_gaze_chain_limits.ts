@@ -1,4 +1,4 @@
-import { makeActorSynthesizer, validatePoseResult } from "@automovie/engine";
+import { makeActorSynthesizer, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieActionCall,
@@ -164,7 +164,7 @@ export function test_motion_gaze_chain_limits(): void {
       );
     TestValidator.equals(
       "admitted distribution",
-      violationCount(validatePoseResult(pose, rig)),
+      violationCount(AutoMovieEngineValidation.validatePoseResult(pose, rig)),
       0,
     );
   }
@@ -185,7 +185,7 @@ export function test_motion_gaze_chain_limits(): void {
     );
     TestValidator.equals(
       "twist inside each joint limit",
-      violationCount(validatePoseResult(pose, skeleton)),
+      violationCount(AutoMovieEngineValidation.validatePoseResult(pose, skeleton)),
       0,
     );
   }
@@ -202,7 +202,7 @@ export function test_motion_gaze_chain_limits(): void {
   );
   TestValidator.equals(
     "unattainable direction reports one violation",
-    violationCount(validatePoseResult(pose, restricted)),
+    violationCount(AutoMovieEngineValidation.validatePoseResult(pose, restricted)),
     1,
   );
   const detached: IAutoMovieSkeleton = {

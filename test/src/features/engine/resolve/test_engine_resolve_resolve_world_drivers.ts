@@ -1,4 +1,4 @@
-import { Matrix4, childrenIndex, AutoMovieEngineResolve } from "@automovie/engine";
+import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieDriver,
   IAutoMovieNode,
@@ -39,7 +39,7 @@ const prepare: () => {
         node.transform,
       ]),
     ),
-    children: childrenIndex(nodes),
+    children: AutoMovieEngineResolve.childrenIndex(nodes),
   };
 };
 

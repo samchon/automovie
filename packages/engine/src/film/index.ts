@@ -29,7 +29,6 @@ export { AutoMovieEngineFrameClock } from "./AutoMovieEngineFrameClock";
 
 export * from "./constants";
 
-export * from "./createPerformShotSubjectFramer";
 
 
 
@@ -112,15 +111,12 @@ export * from "./flame";
 
 
 
-export * from "./resolvedPerformShotPoint";
-
-
-export * from "./samplePracticalSurfaceMaterial";
 
 
 
 
-export * from "./sequenceEditorialMarkerTimeline";
+
+
 
 
 

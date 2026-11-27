@@ -1,4 +1,4 @@
-import { profileSemanticKeys } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +41,7 @@ const PROFILE: IAutoMovieProfile = {
  *    driven output adds "c" while its pointer source adds nothing.
  */
 export function test_engine_resolve_profile_semantic_keys(): void {
-  TestValidator.equals("ordered distinct nodes", profileSemanticKeys(PROFILE), [
+  TestValidator.equals("ordered distinct nodes", AutoMovieEngineResolve.profileSemanticKeys(PROFILE), [
     "a",
     "b",
     "c",

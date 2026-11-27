@@ -17,14 +17,14 @@ import {
   useState,
 } from "react";
 
-import { AutoMovieInspectorDiagnosticsPanel } from "./AutoMovieInspectorDiagnosticsPanel.js";
-import { AutoMovieInspectorMarksPanel } from "./AutoMovieInspectorMarksPanel.js";
+import { AutoMovieInspectorDiagnosticsPanel } from "./internal/panels/AutoMovieInspectorDiagnosticsPanel.js";
+import { AutoMovieInspectorMarksPanel } from "./internal/panels/AutoMovieInspectorMarksPanel.js";
 import { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
-import { AutoMovieInspectorRequestPanel } from "./AutoMovieInspectorRequestPanel.js";
-import { AutoMovieInspectorSelectionPanel } from "./AutoMovieInspectorSelectionPanel.js";
-import { AutoMovieInspectorShadePanel } from "./AutoMovieInspectorShadePanel.js";
-import { AutoMovieInspectorTimePanel } from "./AutoMovieInspectorTimePanel.js";
-import { AutoMovieInspectorViewPanel } from "./AutoMovieInspectorViewPanel.js";
+import { AutoMovieInspectorRequestPanel } from "./internal/panels/AutoMovieInspectorRequestPanel.js";
+import { AutoMovieInspectorSelectionPanel } from "./internal/panels/AutoMovieInspectorSelectionPanel.js";
+import { AutoMovieInspectorShadePanel } from "./internal/panels/AutoMovieInspectorShadePanel.js";
+import { AutoMovieInspectorTimePanel } from "./internal/panels/AutoMovieInspectorTimePanel.js";
+import { AutoMovieInspectorViewPanel } from "./internal/panels/AutoMovieInspectorViewPanel.js";
 import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";

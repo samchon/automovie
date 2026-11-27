@@ -1,4 +1,4 @@
-import { validateScriptTree } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieScriptNode,
@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { createScriptTreeFixture } from "../../internal/createScriptTreeFixture";
 
-type Input = Parameters<typeof validateScriptTree>[0];
+type Input = Parameters<typeof AutoMovieEngineValidation.validateScriptTree>[0];
 
 /**
  * `validateScriptTree` admits a screenplay refinement tree joined one-to-one to
@@ -48,7 +48,7 @@ export function test_engine_validation_validate_script_tree(): void {
       (node: IAutoMovieScriptNode) => IAutoMovieScriptNode
     >,
   ): IAutoMovieValidation =>
-    validateScriptTree({
+    AutoMovieEngineValidation.validateScriptTree({
       ...fixture,
       tree: fixture.tree.map(
         (node: IAutoMovieScriptNode): IAutoMovieScriptNode =>
@@ -63,12 +63,12 @@ export function test_engine_validation_validate_script_tree(): void {
         : node;
 
   // 1.
-  TestValidator.equals("five kinds", validateScriptTree(fixture).success, true);
+  TestValidator.equals("five kinds", AutoMovieEngineValidation.validateScriptTree(fixture).success, true);
   const root: IAutoMovieScriptNode = fixture.tree[0]!;
   const minimal: Input = { ...fixture, tree: [root], beats: [] };
   TestValidator.equals(
     "intent only",
-    validateScriptTree(minimal).success,
+    AutoMovieEngineValidation.validateScriptTree(minimal).success,
     true,
   );
   const deep: IAutoMovieScriptNode[] = [root];
@@ -99,7 +99,7 @@ export function test_engine_validation_validate_script_tree(): void {
     );
   TestValidator.equals(
     "deep chain",
-    validateScriptTree({ ...minimal, tree: deep }).success,
+    AutoMovieEngineValidation.validateScriptTree({ ...minimal, tree: deep }).success,
     true,
   );
 

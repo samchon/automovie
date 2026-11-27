@@ -10,8 +10,8 @@ import type {
 import { Matrix4 } from "../../math/Matrix4";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { readLocal } from "../readLocal";
-import { readWorld } from "../readWorld";
+import { readLocal } from "./readLocal";
+import { readWorld } from "./readWorld";
 
 /**
  * Advance non-root spring joints with Verlet inertia, gravity, stiffness and

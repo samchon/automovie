@@ -1,4 +1,4 @@
-import { validateProfileCapabilities, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieProfile,
@@ -44,7 +44,7 @@ const failsAt: (
   profiles: readonly IAutoMovieProfile[],
   fragment: string,
 ): boolean =>
-  violations(validateProfileCapabilities({ profiles })).some(
+  violations(AutoMovieEngineValidation.validateProfileCapabilities({ profiles })).some(
     (violation: IAutoMovieConstraintViolation): boolean =>
       violation.path.includes(fragment),
   );
@@ -73,7 +73,7 @@ export function test_engine_validation_profile_capabilities(): void {
       [
         "validateProfileCapabilitiesProfilesValid",
         (): boolean =>
-          validateProfileCapabilities({ profiles: [valid] }).success,
+          AutoMovieEngineValidation.validateProfileCapabilities({ profiles: [valid] }).success,
       ],
       [
         "validateModelModelCreateModel",

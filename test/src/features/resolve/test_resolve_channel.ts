@@ -1,4 +1,4 @@
-import { channelIsRotation, channelKey } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { IAutoMovieChannel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -40,34 +40,34 @@ export function test_resolve_channel(): void {
   // 1. keys
   TestValidator.equals(
     "node key",
-    channelKey(node("hips", "rotation")),
+    AutoMovieEngineResolve.channelKey(node("hips", "rotation")),
     "node:hips:rotation",
   );
   TestValidator.equals(
     "pointer key",
-    channelKey(pointer("/cameras/0/fovY", "scalar")),
+    AutoMovieEngineResolve.channelKey(pointer("/cameras/0/fovY", "scalar")),
     "ptr:/cameras/0/fovY",
   );
 
   // 2. rotation discrimination: both kinds, both outcomes
   TestValidator.equals(
     "node rotation is rotation",
-    channelIsRotation(node("hips", "rotation")),
+    AutoMovieEngineResolve.channelIsRotation(node("hips", "rotation")),
     true,
   );
   TestValidator.equals(
     "node translation is not rotation",
-    channelIsRotation(node("hips", "translation")),
+    AutoMovieEngineResolve.channelIsRotation(node("hips", "translation")),
     false,
   );
   TestValidator.equals(
     "pointer quaternion is rotation",
-    channelIsRotation(pointer("/nodes/0/rotation", "quaternion")),
+    AutoMovieEngineResolve.channelIsRotation(pointer("/nodes/0/rotation", "quaternion")),
     true,
   );
   TestValidator.equals(
     "pointer scalar is not rotation",
-    channelIsRotation(pointer("/materials/0/metallic", "scalar")),
+    AutoMovieEngineResolve.channelIsRotation(pointer("/materials/0/metallic", "scalar")),
     false,
   );
 }

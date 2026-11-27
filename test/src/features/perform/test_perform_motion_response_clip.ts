@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, makeActorSynthesizer, sampleMotion, validateMotion } from "@automovie/engine";
+import { AutoMovieEngineKinematics, makeActorSynthesizer, sampleMotion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieMotion,
@@ -76,7 +76,7 @@ export function test_perform_motion_response_clip(): void {
   for (const motion of [soft, strong])
     TestValidator.equals(
       "rig-valid response",
-      validateMotion({ motion, skeleton: rig }).success,
+      AutoMovieEngineValidation.validateMotion({ motion, skeleton: rig }).success,
       true,
     );
   const read = (node: string) =>

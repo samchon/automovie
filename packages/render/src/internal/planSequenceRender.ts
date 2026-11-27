@@ -1,4 +1,4 @@
-import { sequenceEditorialMarkerTimeline, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMoviePlanSequenceRenderProps,
   IAutoMoviePlaybackEditorialMarker,
@@ -50,7 +50,7 @@ export const planSequenceRender: (
   const outputPath: string = props.outputPath ?? `${stem}.mp4`;
   const inputPattern: string = `${frameDir}/${framePattern()}`;
   const editorialMarkers: IAutoMoviePlaybackEditorialMarker[] =
-    sequenceEditorialMarkerTimeline(props.sequence, playback);
+    AutoMovieEngineFilm.sequenceEditorialMarkerTimeline(props.sequence, playback);
   return {
     target: { kind: "sequence", id: props.sequence.id },
     ...(editorialMarkers.length === 0 ? {} : { editorialMarkers }),

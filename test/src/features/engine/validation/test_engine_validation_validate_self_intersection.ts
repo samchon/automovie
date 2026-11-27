@@ -1,4 +1,4 @@
-import { validateSelfIntersection } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
@@ -88,7 +88,7 @@ export function test_engine_validation_validate_self_intersection(): void {
       easing: "linear",
       bezier: null,
     });
-    return validateSelfIntersection({
+    return AutoMovieEngineValidation.validateSelfIntersection({
       motion: makeMotion([key(0), key(1)], 1),
       skeleton: target,
       pairs: [

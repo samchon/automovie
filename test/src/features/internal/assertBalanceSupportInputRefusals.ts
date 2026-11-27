@@ -1,4 +1,4 @@
-import { validateBalanceSupport } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieSkeleton,
@@ -17,7 +17,7 @@ export function assertBalanceSupportInputRefusals(
   defaultCenter: IAutoMovieSkeleton,
   motion: (target: IAutoMovieSkeleton) => IAutoMovieMotion,
 ): void {
-  const invalid: IAutoMovieValidation = validateBalanceSupport({
+  const invalid: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -78,7 +78,7 @@ export function assertBalanceSupportInputRefusals(
   );
   TestValidator.equals("invalid balance count", violationCount(invalid), 7);
 
-  const invalidCenterOnly: IAutoMovieValidation = validateBalanceSupport({
+  const invalidCenterOnly: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -107,7 +107,7 @@ export function assertBalanceSupportInputRefusals(
     1,
   );
 
-  const invalidEmptySupportOnly: IAutoMovieValidation = validateBalanceSupport({
+  const invalidEmptySupportOnly: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -136,7 +136,7 @@ export function assertBalanceSupportInputRefusals(
     1,
   );
 
-  const invalidSupportOnly: IAutoMovieValidation = validateBalanceSupport({
+  const invalidSupportOnly: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -165,7 +165,7 @@ export function assertBalanceSupportInputRefusals(
     1,
   );
 
-  const invalidMarginOnly: IAutoMovieValidation = validateBalanceSupport({
+  const invalidMarginOnly: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [
@@ -190,7 +190,7 @@ export function assertBalanceSupportInputRefusals(
     1,
   );
 
-  const zeroRate: IAutoMovieValidation = validateBalanceSupport({
+  const zeroRate: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: [{ supportBones: ["leftFoot"], start: 0, end: 1 }],

@@ -1,4 +1,4 @@
-import { validateShotArtifact } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
   IAutoMovieCameraClearanceReport,
@@ -21,14 +21,14 @@ export function assertFilmCameraClearanceArtifacts(
       (motion: IAutoMovieMotion): string => motion.id,
     ),
   );
-  const missingAcceptedReport: ReturnType<typeof validateShotArtifact> =
-    validateShotArtifact(
+  const missingAcceptedReport: ReturnType<typeof AutoMovieEngineValidation.validateShotArtifact> =
+    AutoMovieEngineValidation.validateShotArtifact(
       { ...performed.shot, cameraClearance: undefined },
       clearStage.scene,
       motionIds,
     );
-  const emptyAcceptedReports: ReturnType<typeof validateShotArtifact> =
-    validateShotArtifact(
+  const emptyAcceptedReports: ReturnType<typeof AutoMovieEngineValidation.validateShotArtifact> =
+    AutoMovieEngineValidation.validateShotArtifact(
       { ...performed.shot, cameraClearance: [] },
       clearStage.scene,
       motionIds,
@@ -37,8 +37,8 @@ export function assertFilmCameraClearanceArtifacts(
     ...clearStage.scene.cameras[0]!,
     clearance: undefined,
   };
-  const undeclaredReport: ReturnType<typeof validateShotArtifact> =
-    validateShotArtifact(
+  const undeclaredReport: ReturnType<typeof AutoMovieEngineValidation.validateShotArtifact> =
+    AutoMovieEngineValidation.validateShotArtifact(
       performed.shot,
       { ...clearStage.scene, cameras: [plainResolvedCamera] },
       motionIds,
@@ -46,7 +46,7 @@ export function assertFilmCameraClearanceArtifacts(
   TestValidator.predicate(
     "artifact validation requires one report for exactly each declared delivery",
     [missingAcceptedReport, emptyAcceptedReports, undeclaredReport].every(
-      (result: ReturnType<typeof validateShotArtifact>): boolean =>
+      (result: ReturnType<typeof AutoMovieEngineValidation.validateShotArtifact>): boolean =>
         result.success === false &&
         result.violations.some(
           (item: IAutoMovieConstraintViolation): boolean =>
@@ -54,8 +54,8 @@ export function assertFilmCameraClearanceArtifacts(
         ),
     ),
   );
-  const wrongIntervalCount: ReturnType<typeof validateShotArtifact> =
-    validateShotArtifact(
+  const wrongIntervalCount: ReturnType<typeof AutoMovieEngineValidation.validateShotArtifact> =
+    AutoMovieEngineValidation.validateShotArtifact(
       {
         ...performed.shot,
         cameraClearance: [
@@ -70,8 +70,8 @@ export function assertFilmCameraClearanceArtifacts(
       clearStage.scene,
       motionIds,
     );
-  const unsafeIntervalClock: ReturnType<typeof validateShotArtifact> =
-    validateShotArtifact(
+  const unsafeIntervalClock: ReturnType<typeof AutoMovieEngineValidation.validateShotArtifact> =
+    AutoMovieEngineValidation.validateShotArtifact(
       {
         ...performed.shot,
         cameraClearance: [
@@ -81,8 +81,8 @@ export function assertFilmCameraClearanceArtifacts(
       clearStage.scene,
       motionIds,
     );
-  const forgedHugeIntervals: ReturnType<typeof validateShotArtifact> =
-    validateShotArtifact(
+  const forgedHugeIntervals: ReturnType<typeof AutoMovieEngineValidation.validateShotArtifact> =
+    AutoMovieEngineValidation.validateShotArtifact(
       {
         ...performed.shot,
         cameraClearance: [
@@ -92,8 +92,8 @@ export function assertFilmCameraClearanceArtifacts(
       clearStage.scene,
       motionIds,
     );
-  const additionalBoundaryReport: ReturnType<typeof validateShotArtifact> =
-    validateShotArtifact(
+  const additionalBoundaryReport: ReturnType<typeof AutoMovieEngineValidation.validateShotArtifact> =
+    AutoMovieEngineValidation.validateShotArtifact(
       {
         ...performed.shot,
         cameraClearance: [
@@ -113,8 +113,8 @@ export function assertFilmCameraClearanceArtifacts(
       clearStage.scene,
       motionIds,
     );
-  const missingBaseInstant: ReturnType<typeof validateShotArtifact> =
-    validateShotArtifact(
+  const missingBaseInstant: ReturnType<typeof AutoMovieEngineValidation.validateShotArtifact> =
+    AutoMovieEngineValidation.validateShotArtifact(
       {
         ...performed.shot,
         cameraClearance: [

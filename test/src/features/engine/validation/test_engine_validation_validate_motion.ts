@@ -1,4 +1,4 @@
-import { validateMotion } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   AutoMovieViolationKind,
   IAutoMovieKeyframe,
@@ -40,7 +40,7 @@ export function test_engine_validation_validate_motion(): void {
   const motion: IAutoMovieMotion = createValidMotion();
   const skeleton = createSkeleton();
   const validate = (change: Partial<IAutoMovieMotion>): IAutoMovieValidation =>
-    validateMotion({ skeleton, motion: { ...motion, ...change } });
+    AutoMovieEngineValidation.validateMotion({ skeleton, motion: { ...motion, ...change } });
   const refused = (
     label: string,
     change: Partial<IAutoMovieMotion>,

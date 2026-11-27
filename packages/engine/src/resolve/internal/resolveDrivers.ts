@@ -8,11 +8,11 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { channelKey } from "../channelKey";
-import { evaluateDrivenCurve } from "../evaluateDrivenCurve";
+import { channelKey } from "./channelKey";
+import { evaluateDrivenCurve } from "./evaluateDrivenCurve";
 import { lerpChannelValues } from "./lerpChannelValues";
 import { slerpChannelValues } from "./slerpChannelValues";
-import { orderValueDrivers } from "../orderValueDrivers";
+import { orderValueDrivers } from "./orderValueDrivers";
 
 /**
  * Evaluate copy and driven channels in stable dependency order, mutating

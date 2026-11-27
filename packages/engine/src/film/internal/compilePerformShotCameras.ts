@@ -18,9 +18,9 @@ import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compileCameraCoverage } from "./compileCameraCoverage";
 import { compileCameraMove } from "./compileCameraMove";
 import { compilePerformShotFocusPull } from "./compilePerformShotFocusPull";
-import { createPerformShotSubjectFramer } from "../createPerformShotSubjectFramer";
+import { createPerformShotSubjectFramer } from "./createPerformShotSubjectFramer";
 import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
-import { resolvedPerformShotPoint } from "../resolvedPerformShotPoint";
+import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
 
 /**
  * Compile the camera fields of a performed shot: the live camera's move, its

@@ -10,7 +10,7 @@ import {
 } from "@automovie/interface";
 
 import { lowerSkeletonNodes } from "./lowerSkeletonNodes";
-import { placementNodePrefix } from "../placementNodePrefix";
+import { placementNodePrefix } from "./placementNodePrefix";
 
 /**
  * Lower scene rest placements, cameras/lights and registered

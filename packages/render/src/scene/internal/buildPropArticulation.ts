@@ -1,4 +1,4 @@
-import { placementChildNode } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMoviePropArticulation,
   IAutoMoviePropSpec,
@@ -110,7 +110,7 @@ export const buildPropArticulation: (
     >();
     for (const joint of articulation.nodes) {
       const object: THREE.Group<THREE.Object3DEventMap> = new THREE.Group();
-      object.name = placementChildNode(placement.id, joint.id);
+      object.name = AutoMovieEngineResolve.placementChildNode(placement.id, joint.id);
       applyTransform(object, joint.transform);
       local.set(joint.id, object);
       joints.set(object.name, object);
@@ -145,7 +145,7 @@ export const buildPropArticulation: (
         built.parts.get(joint.mesh);
       if (part === undefined)
         throw new Error(
-          `prop joint "${placementChildNode(placement.id, joint.id)}" drives part "${joint.mesh}", which its built model does not carry`,
+          `prop joint "${AutoMovieEngineResolve.placementChildNode(placement.id, joint.id)}" drives part "${joint.mesh}", which its built model does not carry`,
         );
       // `attach`, not `add`: a part's authored transform is MODEL-local, which
       // is the frame `propOccupancyBounds` measures its volume in and every

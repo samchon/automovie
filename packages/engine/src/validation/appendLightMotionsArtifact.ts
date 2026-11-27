@@ -10,11 +10,11 @@ import type {
 
 import { cubicHermiteValue } from "../math/internal/cubicHermiteValue";
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
-import { parseLightPointer } from "../resolve/parseLightPointer";
+import { parseLightPointer } from "../resolve/internal/parseLightPointer";
 import { channelValueWidth } from "./channelValueWidth";
 import { lightClipChannelGate } from "./lightClipChannelGate";
 import { pushViolation } from "./pushViolation";
-import { validateClipArtifact } from "./validateClipArtifact";
+import { validateClipArtifact } from "./internal/validateClipArtifact";
 import { validateRange } from "./internal/validateRange";
 import { validateUniqueBy } from "./internal/validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";

@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, AutoMovieEngineRandom, Quaternion, validateSpace, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineRandom, Quaternion, AutoMovieEngineMath, AutoMovieEngineValidation } from "@automovie/engine";
 
 import type {
   IAutoMovieEnvironmentContribution,
@@ -180,7 +180,7 @@ export function createTerrain(
         ...inlays.map((surface: IAutoMovieSurface): string => surface.id),
       ],
     };
-    const validation: IAutoMovieValidation = validateSpace({ space });
+    const validation: IAutoMovieValidation = AutoMovieEngineValidation.validateSpace({ space });
     if (validation.success === false) {
       const failure: IAutoMovieValidation.IFailure["violations"][number] =
         validation.violations[0]!;

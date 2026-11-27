@@ -1,4 +1,4 @@
-import { validateSpace } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation } from "../../internal/predicates";
@@ -23,10 +23,10 @@ export function test_engine_validation_validate_space(): void {
     validationSpaceFixtures();
 
   // 1.
-  TestValidator.equals("valid", validateSpace({ space: valid }).success, true);
+  TestValidator.equals("valid", AutoMovieEngineValidation.validateSpace({ space: valid }).success, true);
   TestValidator.equals(
     "concave",
-    validateSpace({
+    AutoMovieEngineValidation.validateSpace({
       space: withSurface({
         polygon: [v(0, 0), v(4, 0), v(4, 2), v(2, 2), v(2, 4), v(0, 4)],
       }),
@@ -35,7 +35,7 @@ export function test_engine_validation_validate_space(): void {
   );
   TestValidator.equals(
     "edge point",
-    validateSpace({
+    AutoMovieEngineValidation.validateSpace({
       space: withSurface({
         polygon: [v(0, 0), v(2, 0), v(4, 0), v(4, 4), v(0, 4)],
       }),
@@ -47,7 +47,7 @@ export function test_engine_validation_validate_space(): void {
   TestValidator.predicate(
     "duplicate id",
     hasViolation(
-      validateSpace({ space: withSurface({ id: "floor" }) }),
+      AutoMovieEngineValidation.validateSpace({ space: withSurface({ id: "floor" }) }),
       "type",
       "surfaces[1].id",
     ),
@@ -59,7 +59,7 @@ export function test_engine_validation_validate_space(): void {
     TestValidator.predicate(
       label,
       hasViolation(
-        validateSpace({ space: withSurface({ polygon }) }),
+        AutoMovieEngineValidation.validateSpace({ space: withSurface({ polygon }) }),
         "type",
         ".polygon",
       ),

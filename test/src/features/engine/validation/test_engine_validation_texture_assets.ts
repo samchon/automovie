@@ -1,4 +1,4 @@
-import { validateTextureAssets } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieAssetProvenance,
   IAutoMovieAssetUse,
@@ -123,10 +123,10 @@ const CLEAN_ASSETS: IAutoMovieAssetProvenance[] = [
 
 const closure: (
   props: ITextureAssetClosureOverrides,
-) => ReturnType<typeof validateTextureAssets> = (
+) => ReturnType<typeof AutoMovieEngineValidation.validateTextureAssets> = (
   props: ITextureAssetClosureOverrides,
-): ReturnType<typeof validateTextureAssets> =>
-  validateTextureAssets({
+): ReturnType<typeof AutoMovieEngineValidation.validateTextureAssets> =>
+  AutoMovieEngineValidation.validateTextureAssets({
     production: PRODUCTION,
     models: props.models ?? [TILED_FLOOR],
     scenes: props.scenes ?? [{ shot: "opening", environment: ENVIRONMENT }],

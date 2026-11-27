@@ -1,4 +1,4 @@
-import { applyLightOverride } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { IAutoMovieLight, IAutoMovieLightShadow } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,7 +58,7 @@ const KEY: IAutoMovieLight = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A shadow-casting key whose intensity a clip drives keeps `castShadow` and the).
  */
 export function test_resolve_light_shadow_fold(): void {
-  const dimmed: IAutoMovieLight = applyLightOverride(KEY, { intensity: 2 });
+  const dimmed: IAutoMovieLight = AutoMovieEngineResolve.applyLightOverride(KEY, { intensity: 2 });
   TestValidator.equals(
     "an animated key keeps casting exactly the shadow it was staged with",
     namedFacts([
@@ -89,7 +89,7 @@ export function test_resolve_light_shadow_fold(): void {
     intensity: 1,
     range: 6,
   };
-  const folded: IAutoMovieLight = applyLightOverride(legacy, { range: 9 });
+  const folded: IAutoMovieLight = AutoMovieEngineResolve.applyLightOverride(legacy, { range: 9 });
   TestValidator.equals(
     "a legacy light gains neither optional key",
     Object.keys(folded).sort(fieldOrder),
@@ -100,7 +100,7 @@ export function test_resolve_light_shadow_fold(): void {
     folded.type === "point" && nclose(folded.range, 9, 0),
   );
 
-  const empty: IAutoMovieLight = applyLightOverride(KEY, {});
+  const empty: IAutoMovieLight = AutoMovieEngineResolve.applyLightOverride(KEY, {});
   TestValidator.equals(
     "empty override retains staged discrete fields and keys",
     [

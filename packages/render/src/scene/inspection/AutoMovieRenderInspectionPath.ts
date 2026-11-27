@@ -1,3 +1,7 @@
+import type * as THREE from "three";
+import { type IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
+import { listAutoMovieInspectionPaths as listAutoMovieInspectionPathsImplementation } from "./internal/listAutoMovieInspectionPaths.js";
+
 import { matchAutoMovieInspectionPath as matchAutoMovieInspectionPathImplementation } from "./internal/matchAutoMovieInspectionPath.js";
 
 /** Public operations for Auto Movie Render Inspection Path. */
@@ -28,5 +32,23 @@ export namespace AutoMovieRenderInspectionPath {
    */
   export function matchPath(path: string, pattern: string): boolean {
     return matchAutoMovieInspectionPathImplementation(path, pattern);
+  }
+
+  /**
+   * List every object of a scene that three.js draws, each with its inspection
+   * path, in traversal order.
+   *
+   * Meshes, lines, points and sprites are listed whether or not they are visible,
+   * because a path names a part of the scene, not a state of it. Groups, bones,
+   * lights and cameras are not listed; their names appear as segments of the
+   * paths beneath them.
+   *
+   * ```ts
+   * for (const { path } of listAutoMovieInspectionPaths(scene))
+   *   console.log(path);
+   * ```
+   */
+  export function list(root: THREE.Object3D): IAutoMovieInspectionPath[] {
+    return listAutoMovieInspectionPathsImplementation(root);
   }
 }

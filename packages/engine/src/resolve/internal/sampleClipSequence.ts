@@ -3,7 +3,7 @@ import {
   type IAutoMovieSampledChannel,
 } from "@automovie/interface";
 
-import { channelKey } from "../channelKey";
+import { channelKey } from "./channelKey";
 import { sampleClip } from "./sampleClip";
 
 /**

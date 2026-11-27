@@ -7,9 +7,9 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { applyLightOverride } from "../applyLightOverride";
+import { applyLightOverride } from "./applyLightOverride";
 import { LIGHT_CHANNEL_PROPERTIES } from "../constants/LIGHT_CHANNEL_PROPERTIES";
-import { parseLightPointer } from "../parseLightPointer";
+import { parseLightPointer } from "./parseLightPointer";
 import { sampleClip } from "./sampleClip";
 
 /**

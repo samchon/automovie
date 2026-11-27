@@ -40,7 +40,7 @@ import { admitShotEditorialMarkers } from "../../validation/internal/admitShotEd
 import { appendLightMotionsArtifact } from "../../validation/appendLightMotionsArtifact";
 import { appendPolygonBodyCuesArtifact } from "../../validation/internal/appendPolygonBodyCuesArtifact";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
-import { validateShotArtifact } from "../../validation/validateShotArtifact";
+import { validateShotArtifact } from "../../validation/internal/validateShotArtifact";
 import { admitPerformShotSurfaces } from "./admitPerformShotSurfaces";
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compilePerformShotCameras } from "./compilePerformShotCameras";
@@ -48,7 +48,7 @@ import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
 import { compilePerformShotPracticalLights } from "./compilePerformShotPracticalLights";
 import { copyPolygonBodyCue } from "./copyPolygonBodyCue";
 import { coupleObjects } from "./coupleObjects";
-import { createPerformShotSubjectFramer } from "../createPerformShotSubjectFramer";
+import { createPerformShotSubjectFramer } from "./createPerformShotSubjectFramer";
 import { admitPerformShotFlames } from "../flame/internal/admitPerformShotFlames";
 import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
 import { gatePerformShotActions } from "./gatePerformShotActions";

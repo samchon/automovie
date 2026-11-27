@@ -1,4 +1,4 @@
-import { AutoMovieEngineViolationCollector, validateColor } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieConstraintViolation,
@@ -21,7 +21,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_validation_validate_color(): void {
   const findings = (color: IAutoMovieColor): string[][] => {
     const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
-    validateColor(color, "$c", collector);
+    AutoMovieEngineValidation.validateColor(color, "$c", collector);
     return collector.items.map(
       (item: IAutoMovieConstraintViolation): string[] => [item.kind, item.path],
     );

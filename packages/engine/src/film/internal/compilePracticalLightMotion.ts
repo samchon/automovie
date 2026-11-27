@@ -12,9 +12,9 @@ import type {
 
 import { aimRotation } from "../../kinematics/aimRotation";
 import { Quaternion } from "../../math/Quaternion";
-import { channelKey } from "../../resolve/channelKey";
+import { channelKey } from "../../resolve/internal/channelKey";
 import { LIGHT_CHANNEL_PROPERTIES } from "../../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
-import { formatLightPointer } from "../../resolve/formatLightPointer";
+import { formatLightPointer } from "../../resolve/internal/formatLightPointer";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { placeTransformedPoint } from "./placeTransformedPoint";
 

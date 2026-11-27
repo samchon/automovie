@@ -11,7 +11,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { channelKey } from "../../resolve/channelKey";
+import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 

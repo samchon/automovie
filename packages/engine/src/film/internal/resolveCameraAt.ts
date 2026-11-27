@@ -5,7 +5,7 @@ import {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import { channelKey } from "../../resolve/channelKey";
+import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClip } from "../../resolve/internal/sampleClip";
 
 /**

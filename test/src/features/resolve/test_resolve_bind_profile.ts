@@ -1,4 +1,4 @@
-import { bindProfile } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieAimDriver,
   type IAutoMovieBoundProfile,
@@ -169,7 +169,7 @@ const makeBinding: (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every driver type's node fields remap through boneMap + `"actor/"` prefix:).
  */
 export function test_resolve_bind_profile(): void {
-  const bound: IAutoMovieBoundProfile = bindProfile({
+  const bound: IAutoMovieBoundProfile = AutoMovieEngineResolve.bindProfile({
     profile: makeProfile(DRIVERS),
     binding: makeBinding(MAP),
     nodePrefix: "actor/",
@@ -259,7 +259,7 @@ export function test_resolve_bind_profile(): void {
     POINTER,
   );
 
-  const bare: IAutoMovieBoundProfile = bindProfile({
+  const bare: IAutoMovieBoundProfile = AutoMovieEngineResolve.bindProfile({
     profile: makeProfile([]),
     binding: makeBinding(MAP),
   });
@@ -272,11 +272,11 @@ export function test_resolve_bind_profile(): void {
       "inherited property is not an authored profile mapping",
       throwsError(
         (): IAutoMovieBoundProfile =>
-          bindProfile({ profile, binding: makeBinding({}) }),
+          AutoMovieEngineResolve.bindProfile({ profile, binding: makeBinding({}) }),
         `has no boneMap entry for "${key}"`,
       ),
     );
-    const own: ReturnType<typeof bindProfile> = bindProfile({
+    const own: ReturnType<typeof AutoMovieEngineResolve.bindProfile> = AutoMovieEngineResolve.bindProfile({
       profile,
       binding: makeBinding(Object.fromEntries([[key, "joint"]])),
       nodePrefix: "actor/",
@@ -301,7 +301,7 @@ export function test_resolve_bind_profile(): void {
     "unmapped key throws",
     throwsError(
       (): IAutoMovieBoundProfile =>
-        bindProfile({
+        AutoMovieEngineResolve.bindProfile({
           profile: makeProfile([]),
           binding: makeBinding({}),
         }),
@@ -312,7 +312,7 @@ export function test_resolve_bind_profile(): void {
     "binding/profile id mismatch throws",
     throwsError(
       (): IAutoMovieBoundProfile =>
-        bindProfile({
+        AutoMovieEngineResolve.bindProfile({
           profile: makeProfile([]),
           binding: { ...makeBinding(MAP), profile: "other" },
         }),

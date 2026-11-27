@@ -1,8 +1,4 @@
-import {
-  AutoMovieEngineViolationCollector,
-  collectDeclaredIds,
-  validateDeclaredReferences,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, collectDeclaredIds, AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -40,7 +36,7 @@ export function test_engine_validation_declared_ids(): void {
     },
   );
   const referred: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
-  validateDeclaredReferences(
+  AutoMovieEngineValidation.validateDeclaredReferences(
     ["a", "x", "a"],
     ids,
     "$input.links",

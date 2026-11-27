@@ -13,10 +13,10 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { rotationBetween } from "../../math/rotationBetween";
 import { applyIterativeIK } from "./applyIterativeIK";
-import { blendVec } from "../blendVec";
-import { readWorld } from "../readWorld";
-import { recompose } from "../recompose";
-import { validateInfluence } from "../validateInfluence";
+import { blendVec } from "./blendVec";
+import { readWorld } from "./readWorld";
+import { recompose } from "./recompose";
+import { validateInfluence } from "./validateInfluence";
 
 /**
  * Apply world-space aim, parent and analytic/iterative IK in producer order,

@@ -1,4 +1,4 @@
-import { affordanceFollowedTravel } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,9 +30,9 @@ export function test_engine_validation_affordance_followed_travel(): void {
   TestValidator.equals(
     "the followed travel",
     [
-      affordanceFollowedTravel(ratio, 4),
+      AutoMovieEngineValidation.affordanceFollowedTravel(ratio, 4),
       ...[-1, 1, 2, 5].map((leader: number): number =>
-        affordanceFollowedTravel(table, leader),
+        AutoMovieEngineValidation.affordanceFollowedTravel(table, leader),
       ),
     ],
     [2, 0, 10, 15, 20],
@@ -43,7 +43,7 @@ export function test_engine_validation_affordance_followed_travel(): void {
   TestValidator.predicate(
     "the half-travel identity survives a product below the least subnormal",
     nclose(
-      affordanceFollowedTravel(
+      AutoMovieEngineValidation.affordanceFollowedTravel(
         {
           id: "small",
           table: [
@@ -60,7 +60,7 @@ export function test_engine_validation_affordance_followed_travel(): void {
   TestValidator.predicate(
     "a slope of 2^20 amplifies one least subnormal before it rounds away",
     nclose(
-      affordanceFollowedTravel(
+      AutoMovieEngineValidation.affordanceFollowedTravel(
         {
           id: "steep",
           table: [
@@ -78,7 +78,7 @@ export function test_engine_validation_affordance_followed_travel(): void {
     "opposing extremes interpolate at the midpoint and third quarter",
     [0, high / 2].every((leading: number): boolean =>
       nclose(
-        affordanceFollowedTravel(
+        AutoMovieEngineValidation.affordanceFollowedTravel(
           {
             id: "wide",
             table: [

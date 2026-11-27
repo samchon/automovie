@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
-import { parseLightPointer } from "../resolve/parseLightPointer";
+import { parseLightPointer } from "../resolve/internal/parseLightPointer";
 import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { pushViolation } from "./pushViolation";
 

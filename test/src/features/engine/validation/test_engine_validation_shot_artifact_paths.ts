@@ -1,4 +1,4 @@
-import { validateShotArtifact } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
   IAutoMovieCameraIntent,
@@ -195,7 +195,7 @@ interface IShotCase {
 export function test_engine_validation_shot_artifact_paths(): void {
   TestValidator.predicate(
     "dense empty performance and motion arrays remain valid",
-    validateShotArtifact(
+    AutoMovieEngineValidation.validateShotArtifact(
       shot({ lightMotions: [] }),
       scene(),
       new Set<string>(["walk"]),
@@ -203,7 +203,7 @@ export function test_engine_validation_shot_artifact_paths(): void {
   );
   TestValidator.predicate(
     "dense event, intent and coverage metadata remain valid",
-    validateShotArtifact(
+    AutoMovieEngineValidation.validateShotArtifact(
       shot({
         lightMotions: [],
         events: [event()],
@@ -232,7 +232,7 @@ export function test_engine_validation_shot_artifact_paths(): void {
   };
   TestValidator.predicate(
     "dense endpoint-inclusive clearance metadata remain valid",
-    validateShotArtifact(
+    AutoMovieEngineValidation.validateShotArtifact(
       shot({
         lightMotions: [],
         cameraClearance: [
@@ -408,7 +408,7 @@ export function test_engine_validation_shot_artifact_paths(): void {
         entry.title,
         (): boolean => {
           const reported: string[] = pathsOf(
-            validateShotArtifact(entry.shot, scene(), new Set(["walk"])),
+            AutoMovieEngineValidation.validateShotArtifact(entry.shot, scene(), new Set(["walk"])),
           );
           // A prefix, because a uniqueness violation locates the entry it
           // found second (`$input.objectMotions[1].id`) while the field

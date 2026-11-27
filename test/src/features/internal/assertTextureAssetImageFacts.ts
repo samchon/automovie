@@ -1,4 +1,4 @@
-import type { validateTextureAssets } from "@automovie/engine";
+import type { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieTextureImageFacts } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -9,7 +9,7 @@ import { hasViolation, namedFacts } from "./predicates";
 export function assertTextureAssetImageFacts(
   closure: (
     props: ITextureAssetClosureOverrides,
-  ) => ReturnType<typeof validateTextureAssets>,
+  ) => ReturnType<typeof AutoMovieEngineValidation.validateTextureAssets>,
   facts: (asset: string) => IAutoMovieTextureImageFacts | undefined,
 ): void {
   TestValidator.equals(

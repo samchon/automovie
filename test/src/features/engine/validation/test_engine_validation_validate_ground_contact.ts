@@ -1,4 +1,4 @@
-import { validateGroundContact } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieKeyframe,
@@ -81,7 +81,7 @@ export function test_engine_validation_validate_ground_contact(): void {
   );
 
   // 1.
-  const dipped: IAutoMovieValidation = validateGroundContact({
+  const dipped: IAutoMovieValidation = AutoMovieEngineValidation.validateGroundContact({
     motion: dipping,
     skeleton,
     sampleRate: 4,
@@ -112,7 +112,7 @@ export function test_engine_validation_validate_ground_contact(): void {
     "intent",
     validationHasNoWarnings(
       "intent",
-      validateGroundContact({
+      AutoMovieEngineValidation.validateGroundContact({
         motion: dipping,
         skeleton,
         sampleRate: 4,
@@ -124,7 +124,7 @@ export function test_engine_validation_validate_ground_contact(): void {
   // 2.
   TestValidator.equals(
     "graze",
-    validateGroundContact({
+    AutoMovieEngineValidation.validateGroundContact({
       motion: makeMotion([key(0, 0), key(0.5, -0.02), key(1, 0)], 1),
       skeleton,
       footBones: ["leftFoot"],
@@ -134,7 +134,7 @@ export function test_engine_validation_validate_ground_contact(): void {
   );
 
   // 3.
-  const raised: IAutoMovieValidation = validateGroundContact({
+  const raised: IAutoMovieValidation = AutoMovieEngineValidation.validateGroundContact({
     motion: makeMotion([key(0, 0), key(1, 0)], 1),
     skeleton,
     footBones: ["leftFoot"],
@@ -153,7 +153,7 @@ export function test_engine_validation_validate_ground_contact(): void {
   );
 
   // 4.
-  const zero: IAutoMovieValidation = validateGroundContact({
+  const zero: IAutoMovieValidation = AutoMovieEngineValidation.validateGroundContact({
     motion: dipping,
     skeleton,
     sampleRate: 0,
@@ -167,7 +167,7 @@ export function test_engine_validation_validate_ground_contact(): void {
   for (const field of ["sampleRate", "tolerance"] as const) {
     for (const value of [NaN, Infinity]) {
       try {
-        const result: IAutoMovieValidation = validateGroundContact({
+        const result: IAutoMovieValidation = AutoMovieEngineValidation.validateGroundContact({
           motion: dipping,
           skeleton,
           sampleRate: 4,

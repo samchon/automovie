@@ -1,4 +1,4 @@
-import { Matrix4, recompose } from "@automovie/engine";
+import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,7 +29,7 @@ const move: (x: number, y: number, z: number) => IAutoMovieTransform = (
  */
 export function test_engine_resolve_recompose(): void {
   const world: Map<string, number[]> = new Map([["root", Matrix4.identity()]]);
-  recompose(
+  AutoMovieEngineResolve.recompose(
     "root",
     world,
     new Map([

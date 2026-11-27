@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { describeInvalidValue } from "../../../validation/describeInvalidValue";
-import { validateColor } from "../../../validation/validateColor";
+import { validateColor } from "../../../validation/internal/validateColor";
 
 /**
  * Validate the staged atmosphere, the only check a fog gets before `stageScene`

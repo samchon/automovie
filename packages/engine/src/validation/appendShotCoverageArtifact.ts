@@ -5,7 +5,7 @@ import type {
 
 import { appendCameraIntentArtifact } from "./appendCameraIntentArtifact";
 import { pushViolation } from "./pushViolation";
-import { validateClipArtifact } from "./validateClipArtifact";
+import { validateClipArtifact } from "./internal/validateClipArtifact";
 
 /** Inspect alternate-camera takes, their clips and camera intent metadata. */
 export function appendShotCoverageArtifact(

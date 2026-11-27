@@ -1,7 +1,4 @@
-import {
-  preparePhysicalGeometry,
-  validateClipArtifact,
-} from "@automovie/engine";
+import { preparePhysicalGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieInspectionDiagnostics,
@@ -70,7 +67,7 @@ export async function test_inspect_film_production(): Promise<void> {
   scene.add(deck, foot);
 
   const track: IAutoMovieConstraintViolation[] = [];
-  validateClipArtifact(
+  AutoMovieEngineValidation.validateClipArtifact(
     {
       id: "lantern-motion",
       name: null,

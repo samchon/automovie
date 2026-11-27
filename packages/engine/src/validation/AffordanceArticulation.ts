@@ -3,9 +3,9 @@ import type {
   IAutoMovieAffordanceArticulation,
 } from "@automovie/interface";
 
-import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
-import { affordanceLeadingTravel } from "./affordanceLeadingTravel";
-import { affordanceTravelRange } from "./affordanceTravelRange";
+import { affordanceFollowedTravel } from "./internal/affordanceFollowedTravel";
+import { affordanceLeadingTravel } from "./internal/affordanceLeadingTravel";
+import { affordanceTravelRange } from "./internal/affordanceTravelRange";
 
 /**
  * Coordinates of coupled articulations: one independent degree of freedom,

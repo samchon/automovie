@@ -1,4 +1,4 @@
-import { validateBalanceSupport } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieBalanceSupportWindow,
   IAutoMovieConstraintViolation,
@@ -129,7 +129,7 @@ const motion: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (
  */
 export function test_engine_validation_balance_support(): void {
   const outsideLine: IAutoMovieSkeleton = skeleton(0.5, 0);
-  const rejected: IAutoMovieValidation = validateBalanceSupport({
+  const rejected: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(outsideLine),
     skeleton: outsideLine,
     supports: [
@@ -173,7 +173,7 @@ export function test_engine_validation_balance_support(): void {
   );
 
   // physicsIntent (wire-fu / a deliberately off-balance pose) suppresses it.
-  const acknowledged: IAutoMovieValidation = validateBalanceSupport({
+  const acknowledged: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(outsideLine),
     skeleton: outsideLine,
     supports: [
@@ -195,7 +195,7 @@ export function test_engine_validation_balance_support(): void {
 
   TestValidator.equals(
     "margin accepts line support",
-    validateBalanceSupport({
+    AutoMovieEngineValidation.validateBalanceSupport({
       motion: motion(outsideLine),
       skeleton: outsideLine,
       supports: [
@@ -215,7 +215,7 @@ export function test_engine_validation_balance_support(): void {
   const oneFoot: IAutoMovieSkeleton = skeleton(-0.2, 0);
   TestValidator.equals(
     "one-foot support succeeds",
-    validateBalanceSupport({
+    AutoMovieEngineValidation.validateBalanceSupport({
       motion: motion(oneFoot),
       skeleton: oneFoot,
       supports: [
@@ -235,7 +235,7 @@ export function test_engine_validation_balance_support(): void {
   const defaultCenter: IAutoMovieSkeleton = skeleton(0, 0);
   TestValidator.equals(
     "whole-body COM over an upright rig stays within the foot segment",
-    validateBalanceSupport({
+    AutoMovieEngineValidation.validateBalanceSupport({
       motion: motion(defaultCenter),
       skeleton: defaultCenter,
       supports: [{ supportBones: ["leftFoot", "rightFoot"], start: 0, end: 1 }],
@@ -270,7 +270,7 @@ export function test_engine_validation_balance_support(): void {
       },
     ],
   };
-  const leanDefault: IAutoMovieValidation = validateBalanceSupport({
+  const leanDefault: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(leaningTrunk),
     skeleton: leaningTrunk,
     supports: [
@@ -292,7 +292,7 @@ export function test_engine_validation_balance_support(): void {
       "$input.supports[0].samples[0].centerOfMass.supportDistance",
     ),
   );
-  const leanHips: IAutoMovieValidation = validateBalanceSupport({
+  const leanHips: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(leaningTrunk),
     skeleton: leaningTrunk,
     supports: [
@@ -314,7 +314,7 @@ export function test_engine_validation_balance_support(): void {
   const insidePolygon: IAutoMovieSkeleton = skeleton(0, 0.2);
   TestValidator.equals(
     "polygon support succeeds",
-    validateBalanceSupport({
+    AutoMovieEngineValidation.validateBalanceSupport({
       motion: motion(insidePolygon),
       skeleton: insidePolygon,
       supports: [
@@ -334,7 +334,7 @@ export function test_engine_validation_balance_support(): void {
   const edgePolygon: IAutoMovieSkeleton = skeleton(0, 0);
   TestValidator.equals(
     "polygon edge support succeeds",
-    validateBalanceSupport({
+    AutoMovieEngineValidation.validateBalanceSupport({
       motion: motion(edgePolygon),
       skeleton: edgePolygon,
       supports: [
@@ -353,7 +353,7 @@ export function test_engine_validation_balance_support(): void {
 
   TestValidator.equals(
     "fractional sample window succeeds",
-    validateBalanceSupport({
+    AutoMovieEngineValidation.validateBalanceSupport({
       motion: motion(insidePolygon),
       skeleton: insidePolygon,
       supports: [
@@ -371,7 +371,7 @@ export function test_engine_validation_balance_support(): void {
   );
 
   const outsidePolygon: IAutoMovieSkeleton = skeleton(0.5, 0.2);
-  const polygonRejected: IAutoMovieValidation = validateBalanceSupport({
+  const polygonRejected: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(outsidePolygon),
     skeleton: outsidePolygon,
     supports: [
@@ -406,7 +406,7 @@ export function test_engine_validation_balance_support(): void {
     [1, 0],
     [1, 1],
   ];
-  const invalidWindows: IAutoMovieValidation = validateBalanceSupport({
+  const invalidWindows: IAutoMovieValidation = AutoMovieEngineValidation.validateBalanceSupport({
     motion: motion(defaultCenter),
     skeleton: defaultCenter,
     supports: windows.map(

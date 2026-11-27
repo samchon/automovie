@@ -1,7 +1,4 @@
-import {
-  autoMovieInspectionPathOf,
-  listAutoMovieInspectionPaths,
-} from "@automovie/render";
+import { autoMovieInspectionPathOf, AutoMovieRenderInspectionPath } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -40,7 +37,7 @@ export function test_render_scene_inspection_path_of(): void {
   });
   TestValidator.equals(
     "listed",
-    listAutoMovieInspectionPaths(root).map(
+    AutoMovieRenderInspectionPath.list(root).map(
       (entry: { path: string }): string => entry.path,
     ),
     ["hero", "hero/arm", "hero/wire", "dots", "sprite"],

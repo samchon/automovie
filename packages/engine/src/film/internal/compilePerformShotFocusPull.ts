@@ -14,7 +14,7 @@ import type {
 import { resolveTargetPoint } from "../../perform/resolveTargetPoint";
 import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
-import { channelKey } from "../../resolve/channelKey";
+import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { animatedBaseAt } from "./animatedBaseAt";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";

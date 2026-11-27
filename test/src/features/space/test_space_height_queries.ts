@@ -1,4 +1,4 @@
-import { validateSpace, AutoMovieEngineSpace } from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieSpace,
   IAutoMovieSurface,
@@ -179,7 +179,7 @@ export function test_space_height_queries(): void {
   );
   TestValidator.equals(
     "and validation refuses it rather than leaving it to the query",
-    validateSpace({ space: { ...space, surfaces: [bowtie] } }).success,
+    AutoMovieEngineValidation.validateSpace({ space: { ...space, surfaces: [bowtie] } }).success,
     false,
   );
 
@@ -227,7 +227,7 @@ export function test_space_height_queries(): void {
       [
         "andTheValidatorRefusesIt",
         (): boolean =>
-          validateSpace({ space: { ...space, surfaces: [short] } }).success ===
+          AutoMovieEngineValidation.validateSpace({ space: { ...space, surfaces: [short] } }).success ===
           false,
       ],
     ]),

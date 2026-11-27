@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
-import { validateColor } from "../../../validation/validateColor";
+import { validateColor } from "../../../validation/internal/validateColor";
 import { validateFogPlacement } from "./validateFogPlacement";
 
 /**

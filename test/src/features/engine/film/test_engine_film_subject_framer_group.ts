@@ -1,4 +1,4 @@
-import { createPerformShotSubjectFramer } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieCompiledFormation,
@@ -43,7 +43,7 @@ export function test_engine_film_subject_framer_group(): void {
     ],
   };
   const queried: string[] = [];
-  const context: Parameters<typeof createPerformShotSubjectFramer>[0] = {
+  const context: Parameters<typeof AutoMovieEngineFilm.createPerformShotSubjectFramer>[0] = {
     staged: { scene: { nodes: [] } },
     nodePositions: new Map<string, IAutoMovieVector3>([
       ["mover", { x: 0, y: 0, z: 0 }],
@@ -57,8 +57,8 @@ export function test_engine_film_subject_framer_group(): void {
       return null;
     },
   };
-  const framer: ReturnType<typeof createPerformShotSubjectFramer> =
-    createPerformShotSubjectFramer(context, {
+  const framer: ReturnType<typeof AutoMovieEngineFilm.createPerformShotSubjectFramer> =
+    AutoMovieEngineFilm.createPerformShotSubjectFramer(context, {
       models: undefined,
       formationMotions: [],
       motions: {},

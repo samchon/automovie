@@ -1,4 +1,4 @@
-import { bindProfile } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieBoundProfile,
   IAutoMovieProfile,
@@ -48,7 +48,7 @@ const PROFILE: IAutoMovieProfile = {
  * 2. A binding of another profile, and a key the bone map lacks, are refused.
  */
 export function test_engine_resolve_bind_profile(): void {
-  const bound: IAutoMovieBoundProfile = bindProfile({
+  const bound: IAutoMovieBoundProfile = AutoMovieEngineResolve.bindProfile({
     profile: PROFILE,
     binding: { profile: "generic", boneMap: { a: "x", b: "y" } },
     nodePrefix: "p/",
@@ -73,7 +73,7 @@ export function test_engine_resolve_bind_profile(): void {
     "refusals",
     throwsError(
       (): unknown =>
-        bindProfile({
+        AutoMovieEngineResolve.bindProfile({
           profile: PROFILE,
           binding: { profile: "other", boneMap: { a: "x", b: "y" } },
         }),
@@ -81,7 +81,7 @@ export function test_engine_resolve_bind_profile(): void {
     ) &&
       throwsError(
         (): unknown =>
-          bindProfile({
+          AutoMovieEngineResolve.bindProfile({
             profile: PROFILE,
             binding: { profile: "generic", boneMap: { a: "x" } },
           }),

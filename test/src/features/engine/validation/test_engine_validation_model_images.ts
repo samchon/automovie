@@ -1,4 +1,4 @@
-import { validateTextureAssets, AutoMovieEngineValidation } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieImage,
@@ -80,7 +80,7 @@ export function test_engine_validation_model_images(): void {
   const closure: (models: IAutoMovieModel[]) => IAutoMovieValidation = (
     models: IAutoMovieModel[],
   ): IAutoMovieValidation =>
-    validateTextureAssets({
+    AutoMovieEngineValidation.validateTextureAssets({
       production: "studio",
       models,
       scenes: [],

@@ -1,4 +1,4 @@
-import { profileSemanticKeys } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { IAutoMovieDriver, IAutoMovieProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,7 +36,7 @@ const profileWith: (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Limits contribute node-channel keys; pointer channels contribute nothing.).
  */
 export function test_resolve_profile_keys(): void {
-  const keys: string[] = profileSemanticKeys(
+  const keys: string[] = AutoMovieEngineResolve.profileSemanticKeys(
     profileWith(
       [
         {
@@ -123,7 +123,7 @@ export function test_resolve_profile_keys(): void {
     "m",
   ]);
 
-  const nulls: string[] = profileSemanticKeys(
+  const nulls: string[] = AutoMovieEngineResolve.profileSemanticKeys(
     profileWith([
       {
         type: "ik",

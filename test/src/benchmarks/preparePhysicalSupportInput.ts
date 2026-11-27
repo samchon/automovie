@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeBounds, validatePoseResult, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds, AutoMovieEnginePhysics, AutoMovieEngineValidation } from "@automovie/engine";
 import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
@@ -208,7 +208,7 @@ export namespace preparePhysicalSupportInput {
       seconds,
       settled,
       duration: film.duration,
-      clinical: validatePoseResult(
+      clinical: AutoMovieEngineValidation.validatePoseResult(
         film.performance.pose(profile.id, seconds),
         human.skeleton,
       ),

@@ -1,4 +1,4 @@
-import { AutoMovieEngineSubjects, Quaternion, Transform, validateSpace, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineSubjects, Quaternion, Transform, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieClip,
@@ -243,7 +243,7 @@ export function createEnvironment(
   requireUnique(spaces, (space: IAutoMovieSpace): string => space.id, "spaces");
   const space: IAutoMovieSpace | undefined =
     spaces.length !== 0 ? AutoMovieEngineBuiltEnvironmentWorkflow.mergeAutoMovieSpaces(recipe.id, spaces) : undefined;
-  if (space !== undefined) requireValid(validateSpace({ space }));
+  if (space !== undefined) requireValid(AutoMovieEngineValidation.validateSpace({ space }));
 
   const worldIds: ReadonlyArray<
     readonly [string, readonly { readonly id: string }[] | undefined]

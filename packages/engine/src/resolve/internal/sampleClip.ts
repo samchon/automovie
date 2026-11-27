@@ -12,8 +12,8 @@ import { cubicHermiteValue } from "../../math/internal/cubicHermiteValue";
 import { normalizeClipTime } from "../../math/internal/normalizeClipTime";
 import { clipDurationFault } from "../../validation/clipDurationFault";
 import { clipTrackShapeFaults } from "../../validation/clipTrackShapeFaults";
-import { channelIsRotation } from "../channelIsRotation";
-import { channelKey } from "../channelKey";
+import { channelIsRotation } from "./channelIsRotation";
+import { channelKey } from "./channelKey";
 import { lerpChannelValues } from "./lerpChannelValues";
 import { slerpChannelValues } from "./slerpChannelValues";
 

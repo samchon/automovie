@@ -5,7 +5,7 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { evaluateDrivenCurve } from "../resolve/evaluateDrivenCurve";
+import { evaluateDrivenCurve } from "../resolve/internal/evaluateDrivenCurve";
 
 /**
  * Resolve the weights of a mesh's pose-driven morph targets for one pose.

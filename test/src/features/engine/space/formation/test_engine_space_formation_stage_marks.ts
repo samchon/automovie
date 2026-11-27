@@ -1,4 +1,4 @@
-import { Transform, sampleFormationMotion, sampleFormationSlotMotion, validateAutoMovieFormationSlotMotions, AutoMovieEnginePopulationFormation } from "@automovie/engine";
+import { Transform, sampleFormationMotion, sampleFormationSlotMotion, AutoMovieEnginePopulationFormation, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieFormationDesign,
   IAutoMovieFormationSlotPlacement,
@@ -162,7 +162,7 @@ export function test_engine_space_formation_stage_marks(): void {
 
   TestValidator.equals(
     "ordinary shot cue admission",
-    validateAutoMovieFormationSlotMotions(
+    AutoMovieEngineValidation.validateAutoMovieFormationSlotMotions(
       {
         id: "field",
         durationSeconds: 8,

@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { heskestadFlameHeight } from "../../film/flame/internal/heskestadFlameHeight";
-import { validateColor } from "../validateColor";
+import { validateColor } from "./validateColor";
 
 /** A flame uses its registered model only to find the declared emitter. */
 type FlameEmitterModel = Pick<IAutoMovieModel, "id" | "affordances">;

@@ -6,7 +6,7 @@ import type {
   IAutoMovieViolationAppendItemsSink,
 } from "@automovie/interface";
 
-import { validateMotion } from "../../validation/validateMotion";
+import { validateMotion } from "../../validation/internal/validateMotion";
 
 /**
  * Report what the compiled performance would lose or break: every channel a

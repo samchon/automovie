@@ -15,14 +15,14 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { channelKey } from "../../resolve/channelKey";
-import { placementNodePrefix } from "../../resolve/placementNodePrefix";
+import { channelKey } from "../../resolve/internal/channelKey";
+import { placementNodePrefix } from "../../resolve/internal/placementNodePrefix";
 import { resolveFrame } from "../../resolve/internal/resolveFrame";
 import { sceneToNodes } from "../../resolve/internal/sceneToNodes";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { pushViolation } from "../../validation/pushViolation";
-import { validateClipArtifact } from "../../validation/validateClipArtifact";
-import { validateHonorableChannel } from "../../validation/validateHonorableChannel";
+import { validateClipArtifact } from "../../validation/internal/validateClipArtifact";
+import { validateHonorableChannel } from "../../validation/internal/validateHonorableChannel";
 import { authoredRotationCriticalTimes } from "./authoredRotationCriticalTimes";
 import { forgeProp } from "./forgeProp";
 

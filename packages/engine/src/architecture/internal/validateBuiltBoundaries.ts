@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
-import { validateDeclaredReferences } from "../../validation/validateDeclaredReferences";
+import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 import { appendBuiltRegionDefects } from "./appendBuiltRegionDefects";
 import { builtOutlineIsClosed } from "./builtOutlineIsClosed";
 

@@ -1,4 +1,8 @@
 import type { AutoMovieEngineFilmTypes } from "./AutoMovieEngineFilmTypes";
+import { createPerformShotSubjectFramer as createPerformShotSubjectFramerImplementation } from "./internal/createPerformShotSubjectFramer";
+import { resolvedPerformShotPoint as resolvedPerformShotPointImplementation } from "./internal/resolvedPerformShotPoint";
+import { samplePracticalSurfaceMaterial as samplePracticalSurfaceMaterialImplementation } from "./internal/samplePracticalSurfaceMaterial";
+import { sequenceEditorialMarkerTimeline as sequenceEditorialMarkerTimelineImplementation } from "./internal/sequenceEditorialMarkerTimeline";
 import { compileDefinedShot as compileDefinedShotImplementation } from "./internal/compileDefinedShot";
 import { resolvePerformShotTarget as resolvePerformShotTargetImplementation } from "./internal/resolvePerformShotTarget";
 import type {
@@ -149,6 +153,10 @@ import type {
   IAutoMovieCameraClearanceEvaluation,
   IAutoMovieStage,
   IAutoMovieCoupleObjects,
+  IAutoMovieActionTarget,
+  IAutoMovieCreatePerformShotSubjectFramer,
+  IAutoMovieFramedSubject,
+  IAutoMoviePlaybackEditorialMarker,
 } from "@automovie/interface";
 import { compileAttach as compileAttachImplementation } from "./internal/compileAttach";
 import { coupleObjects as coupleObjectsImplementation } from "./internal/coupleObjects";
@@ -3537,5 +3545,42 @@ export namespace AutoMovieEngineFilm {
     props: IAutoMovieResolvePerformShotTarget.IProps,
   ): IAutoMovieVector3 | null {
     return resolvePerformShotTargetImplementation(context, props);
+  }
+
+  /** Build the framing reader for one already-gated camera subject. */
+  export function createPerformShotSubjectFramer(
+    context: AutoMovieEngineFilmTypes.ICreatePerformShotSubjectFramerContext,
+    props: IAutoMovieCreatePerformShotSubjectFramer.IProps,
+  ): (on: IAutoMovieActionTarget, start?: number) => IAutoMovieFramedSubject {
+    return createPerformShotSubjectFramerImplementation(context, props);
+  }
+
+  /** Resolve an already-gated target at the shot's opening. */
+  export function resolvedPerformShotPoint(
+    context: AutoMovieEngineFilmTypes.IResolvedPerformShotPointContext,
+    target: IAutoMovieActionTarget,
+  ): IAutoMovieVector3 {
+    return resolvedPerformShotPointImplementation(context, target);
+  }
+
+  /** Sample a practical surface material at a shot-local instant. */
+  export function samplePracticalSurfaceMaterial(
+    shot: Pick<IAutoMovieShot, "duration" | "practicalSurfaces">,
+    node: string,
+    part: string,
+    time: number,
+  ): string | undefined {
+    return samplePracticalSurfaceMaterialImplementation(shot, node, part, time);
+  }
+
+  /** Project admitted shot markers through each play of a sequence. */
+  export function sequenceEditorialMarkerTimeline(
+    sequence: Pick<IAutoMovieSequence, "shots">,
+    { timeline, shotById }: {
+      timeline: Pick<IAutoMoviePreparePlaybackTimeline.IResult["timeline"], "entries">;
+      shotById: ReadonlyMap<string, { shot: Pick<IAutoMovieShot, "duration" | "editorialMarkers"> }>;
+    },
+  ): IAutoMoviePlaybackEditorialMarker[] {
+    return sequenceEditorialMarkerTimelineImplementation(sequence, { timeline, shotById });
   }
 }

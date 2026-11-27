@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, childrenIndex, AutoMovieEngineResolve } from "@automovie/engine";
+import { Matrix4, Quaternion, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieAimDriver,
   type IAutoMovieDriver,
@@ -191,7 +191,7 @@ export function test_resolve_world_drivers(): void {
     string,
     IAutoMovieTransform
   >([["c", trs(0, 2, 0)]]);
-  AutoMovieEngineResolve.resolveWorldDrivers([aim({})], world, localById, childrenIndex(nodes));
+  AutoMovieEngineResolve.resolveWorldDrivers([aim({})], world, localById, AutoMovieEngineResolve.childrenIndex(nodes));
   const childPos: IAutoMovieVector3 = Matrix4.position(world.get("c")!);
   TestValidator.predicate(
     "child recomposed off the rotated owner",
@@ -287,7 +287,7 @@ export function test_resolve_world_drivers(): void {
   );
 
   // childrenIndex: a root is skipped; a second child of one parent appends
-  const idx: Map<string, string[]> = childrenIndex([
+  const idx: Map<string, string[]> = AutoMovieEngineResolve.childrenIndex([
     { ...node("root"), parent: null },
     { ...node("a"), parent: "root" },
     { ...node("b"), parent: "root" },

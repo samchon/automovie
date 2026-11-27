@@ -1,4 +1,4 @@
-import { placementChildNode } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_resolve_placement_child_node(): void {
   TestValidator.equals(
     "placement slash child",
-    placementChildNode("orchard", "tree-3"),
+    AutoMovieEngineResolve.placementChildNode("orchard", "tree-3"),
     "orchard/tree-3",
   );
 }

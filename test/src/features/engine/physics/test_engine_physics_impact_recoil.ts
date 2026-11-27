@@ -1,4 +1,4 @@
-import { impactRecoil, validatePoseResult } from "@automovie/engine";
+import { impactRecoil, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieSkeleton,
@@ -120,7 +120,7 @@ export function test_engine_physics_impact_recoil(): void {
         15,
       ),
   );
-  TestValidator.equals("valid", validatePoseResult(pose, ranged), {
+  TestValidator.equals("valid", AutoMovieEngineValidation.validatePoseResult(pose, ranged), {
     success: true,
   });
 
@@ -148,7 +148,7 @@ export function test_engine_physics_impact_recoil(): void {
   );
   TestValidator.equals(
     "both valid",
-    [validatePoseResult(elbow, elbowRig), validatePoseResult(hip, hipRig)],
+    [AutoMovieEngineValidation.validatePoseResult(elbow, elbowRig), AutoMovieEngineValidation.validatePoseResult(hip, hipRig)],
     [{ success: true }, { success: true }],
   );
 
@@ -202,7 +202,7 @@ export function test_engine_physics_impact_recoil(): void {
   TestValidator.equals(
     "all valid",
     [twisted, zero, pushed, downstream].map((p) =>
-      validatePoseResult(p, stiff),
+      AutoMovieEngineValidation.validatePoseResult(p, stiff),
     ),
     [
       { success: true },

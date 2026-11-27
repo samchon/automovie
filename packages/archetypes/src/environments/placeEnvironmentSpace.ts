@@ -1,4 +1,4 @@
-import { Quaternion, validateSpace } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieHeightRule,
@@ -26,7 +26,7 @@ export function placeEnvironmentSpace(
   local: IAutoMovieSpace,
   frame: IAutoMovieTransform,
 ): IAutoMovieSpace {
-  const report: IAutoMovieValidation = validateSpace({ space: local });
+  const report: IAutoMovieValidation = AutoMovieEngineValidation.validateSpace({ space: local });
   if (!report.success) {
     const first: IAutoMovieConstraintViolation | undefined =
       report.violations.find(
