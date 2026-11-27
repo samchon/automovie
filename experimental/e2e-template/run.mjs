@@ -279,11 +279,11 @@ export function starter(): IFilm {
   fs.writeFileSync(
     path.join(directory, "src", "installedSdkSmoke.ts"),
     `import { AutoMovieArchetypeRing } from "@automovie/archetypes/gym";
-import { HumanChain } from "@automovie/motions";
+import { AutoMovieMotionHumanChain } from "@automovie/motions";
 
 // E2E-only: execute published SDK imports in the inspector's browser graph.
 if (AutoMovieArchetypeRing.create({ id: "browser-sdk" }).parts.length === 0 ||
-    !HumanChain.subject("browser-sdk").stand({ hold: 1 }).node)
+    !AutoMovieMotionHumanChain.subject("browser-sdk").stand({ hold: 1 }).node)
   throw new Error("Installed SDK returned an incomplete model or motion");
 document.documentElement.dataset.sdkSmoke = "ready";
 `,

@@ -12,11 +12,10 @@ import {
 import { AutoMovieArchetypeCargoPod } from "@automovie/archetypes/props";
 import { AutoMovieArchetypeRing } from "@automovie/archetypes/gym";
 import * as props from "@automovie/archetypes/props";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
-import { AutoMovieMotionHumanOperate, AutoMovieMotionHumanBody, HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
-import { HumanHand } from "@automovie/motions/internal";
+import { AutoMovieMotionHumanOperate, AutoMovieMotionHumanBody, AutoMovieMotionHumanChain, AutoMovieMotionHumanObject, AutoMovieMotionHumanPerformance } from "@automovie/motions";
 
 import type { IFilmProduction } from "../../../src/IFilmProduction";
 import { starter } from "../../../src/composition/films/starter";
@@ -55,7 +54,7 @@ export async function test_installed_sdk(): Promise<void> {
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
   );
   const centre = { x: -body.measure.shoulderHalfWidth, y: body.measure.shoulderHeight - 0.14, z: 0.48 };
-  const Chain = HumanChain.extend({ swipeTouchscreen: AutoMovieMotionHumanOperate.swipeTouchscreen });
+  const Chain = AutoMovieMotionHumanChain.extend({ swipeTouchscreen: AutoMovieMotionHumanOperate.swipeTouchscreen });
   // The contact matrix retains seed zero and seed 180, the largest measured gap in the native sweep.
   for (const seed of [0, 180]) {
     const phone = AutoMovieArchetypePhone.create({}, seed);
@@ -63,11 +62,11 @@ export async function test_installed_sdk(): Promise<void> {
     assert(shell?.kind === "box");
     assert.equal(phone.affordance("screen").kind, "surface");
     const glassOffset = Quaternion.rotateVector(rotation, { x: 0, y: shell.halfExtents.y, z: shell.halfExtents.z });
-    const film = new HumanPerformance({
+    const film = new AutoMovieMotionHumanPerformance({
       seed: "catalogue/phone-use",
       laws: [AutoMovieMotionHumanOperate.swipeTouchscreen],
       performers: [{ subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
-      props: [HumanObject.prop("phone", phone, { position: Vector3.subtract(centre, glassOffset), rotation, fixed: true })],
+      props: [AutoMovieMotionHumanObject.prop("phone", phone, { position: Vector3.subtract(centre, glassOffset), rotation, fixed: true })],
       composition: Chain.subject("a").stand({ hold: 0.6, sway: 0 })
         .swipeTouchscreen({ prop: "phone", screen: "screen", from: -0.25, to: 0.25 }).node,
     });
@@ -77,7 +76,12 @@ export async function test_installed_sdk(): Promise<void> {
     assert.ok(Math.abs((end - start) * stroke.plan.duration - 0.285) <= 0.005, \`Phone seed \${seed} stroke duration\`);
     for (const [share, fraction] of [[start, -0.25], [(start + end) / 2, 0], [end, 0.25]] as const) {
       const seconds = stroke.start + share * stroke.plan.duration;
-      const tip = HumanHand.frame(body, film.bones("a", seconds), "right", "indexTip", "point").point;
+      const surface = body.surfaces.regions.indexTipRight;
+      const bone = film.bones("a", seconds).get(surface.bone)!;
+      const tip = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
+        surface,
+        bone,
+      );
       const expected = Vector3.add(centre, Vector3.scale(
         { x: -Math.sqrt(3) / 2, y: -0.5, z: 0 }, fraction * 2 * shell.halfExtents.x * 0.94,
       ));
