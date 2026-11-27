@@ -28,8 +28,6 @@ Audit every 10 minutes unless the user sets another interval.
    - Give check status and any checkpoint.
    - Give the actual time and reason for delays.
 
-## Subagents
-
-Give each worker a separate scratch directory. When committing in a shared checkout, use `git commit --only <paths>`.
+## Continuing
 
 Follow [worker resumption](continuing.md) when a worker pauses.
