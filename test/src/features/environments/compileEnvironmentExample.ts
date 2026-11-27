@@ -1,4 +1,4 @@
-import { compileDefinedShot, makeActorSynthesizer, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm, makeActorSynthesizer } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActorContext,
@@ -126,7 +126,7 @@ export function compileEnvironmentExample(
     placements.set(piece.node, piece.position);
   const synthesize: ReturnType<typeof makeActorSynthesizer> =
     makeActorSynthesizer(contexts, placements);
-  const shot: IAutoMovieCompiledDefinedShot = compileDefinedShot({
+  const shot: IAutoMovieCompiledDefinedShot = AutoMovieEngineFilm.compileDefinedShot({
     shot: AutoMovieEngineFilm.defineShot(input.id, {
       scene: stage.scene.id,
       contract: {

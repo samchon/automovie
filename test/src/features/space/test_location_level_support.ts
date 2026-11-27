@@ -1,4 +1,4 @@
-import { compileDefinedShot, makeActorSynthesizer, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm, makeActorSynthesizer } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
@@ -88,7 +88,7 @@ function compileSupport(
     previous,
     seconds = 1,
   }: { previous?: IAutoMovieBeatEndState; seconds?: number } = {},
-): ReturnType<typeof compileDefinedShot> {
+): ReturnType<typeof AutoMovieEngineFilm.compileDefinedShot> {
   const rig: IAutoMovieSkeleton = createSkeleton();
   rig.bones.find(
     (bone: IAutoMovieSkeleton["bones"][number]): boolean =>
@@ -147,7 +147,7 @@ function compileSupport(
     },
     reviewFrames: [{ id: "middle", time: seconds / 2, passes: ["beauty"] }],
   };
-  return compileDefinedShot({
+  return AutoMovieEngineFilm.compileDefinedShot({
     shot: AutoMovieEngineFilm.defineShot("level-support", {
       scene: stage.scene.id,
       contract: shotContract,

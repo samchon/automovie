@@ -1,4 +1,4 @@
-import { Vector3, compileDefinedShot, makeActorSynthesizer, sampleMotion, AutoMovieEngineFilm } from "@automovie/engine";
+import { Vector3, makeActorSynthesizer, sampleMotion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
@@ -240,7 +240,7 @@ export function assertFilmVelocityAndOpeningContinuity(
     },
     build: (): IAutoMovieShotProgram => program,
   });
-  const compiled: ReturnType<typeof compileDefinedShot> = compileDefinedShot({
+  const compiled: ReturnType<typeof AutoMovieEngineFilm.compileDefinedShot> = AutoMovieEngineFilm.compileDefinedShot({
     shot,
     context: undefined,
     runtime: {

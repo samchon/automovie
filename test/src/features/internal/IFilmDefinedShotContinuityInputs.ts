@@ -1,4 +1,4 @@
-import type { compileDefinedShot } from "@automovie/engine";
+import type { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieGait,
   IAutoMovieSkeleton,
@@ -22,7 +22,7 @@ export interface IFilmDefinedShotContinuityInputs {
   /** Compile the same walking shot. */
   compileWalk(
     props: IFilmCompileWalkInput,
-  ): ReturnType<typeof compileDefinedShot>;
+  ): ReturnType<typeof AutoMovieEngineFilm.compileDefinedShot>;
 
   /** Construct an original rest transform. */
   restAt(x: number, y: number, z: number): IAutoMovieTransform;

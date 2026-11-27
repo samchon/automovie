@@ -434,6 +434,28 @@ export namespace AutoMovieRecoveryObservation {
   }
 
   /**
+   * Stream the selected chart batch's fit records after one common boundary
+   * network pass. A failed global network falls back to independent networks,
+   * retaining finite siblings without qualifying shared-boundary continuity.
+   */
+  export function* assembleChartBatch(
+    input: Parameters<IAutoMovieRecoveryChartBatch.Operation>[0],
+  ): ReturnType<IAutoMovieRecoveryChartBatch.Operation> {
+    yield* assembleChartBatchImplementation(input);
+  }
+
+  /**
+   * Stream a position row and its optional two physical-gradient rows. The
+   * signed derivative weights observe coefficients and use the leaf parameter
+   * scales and declared millimetre exchange length.
+   */
+  export function* streamChartFitRows(
+    sample: Parameters<IAutoMovieRecoveryChartFitRows.Operation>[0],
+  ): ReturnType<IAutoMovieRecoveryChartFitRows.Operation> {
+    yield* streamChartFitRowsImplementation(sample);
+  }
+
+  /**
    * Assemble fitted chart fields using one canonical boundary coefficient
    * registry. Equal declared boundary intervals share four exact coefficient IDs,
    * including reversal; coincident independent sheets retain distinct IDs.
@@ -444,20 +466,6 @@ export namespace AutoMovieRecoveryObservation {
    * endpoint has one evaluation owner; its binary64 restriction difference is
    * measured against the fitted field below.
    */
-  /** Stream chart batch fit records lazily. */
-  export function* assembleChartBatch(
-    input: Parameters<IAutoMovieRecoveryChartBatch.Operation>[0],
-  ): ReturnType<IAutoMovieRecoveryChartBatch.Operation> {
-    yield* assembleChartBatchImplementation(input);
-  }
-
-  /** Stream position and physical-gradient fit rows lazily. */
-  export function* streamChartFitRows(
-    sample: Parameters<IAutoMovieRecoveryChartFitRows.Operation>[0],
-  ): ReturnType<IAutoMovieRecoveryChartFitRows.Operation> {
-    yield* streamChartFitRowsImplementation(sample);
-  }
-  /** Yield the batches used to assemble an observation chart. */
   export function assembleRecoveryChart(charts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0]): ReturnType<IAutoMovieRecoveryChartAssembly.Operation> {
     return RecoveryChartAssemblyImplementation(charts);
   }
