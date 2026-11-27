@@ -5,7 +5,7 @@ description: Sets what makes an instruction for an agent work.
 
 # Prompting
 
-Apply [Writing](../documentation/writing.md) to entry files, skills and their resources. Write for a reader new to the project.
+Apply the [documentation skill](../documentation/SKILL.md) to entry files, skills and their resources. Write for a reader new to the project.
 
 Consult the [GPT-6.2 prompting guide](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6.2-astra#prompting-best-practices) for model-dependent changes. Keep model, effort and tools in run configuration.
 

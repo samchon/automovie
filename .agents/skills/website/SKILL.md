@@ -13,7 +13,7 @@ Lead with the screenplay, its staged performance and deterministic frame generat
 
 State only what the repository does. Take a command, a file path, an option, a diagnostic or a number from the source or a run. Show real output, or mark an excerpt as abridged and say whose numbers it shows. Leave out what a release does not ship, and describe people only as the polygon man.
 
-Write every page, label and doc under [Writing](../documentation/writing.md). A landing page may use short headlines, but each sentence still makes one plain claim.
+Write every page, label and doc using the [documentation skill](../documentation/SKILL.md). A landing page may use short headlines, but each sentence still makes one plain claim.
 
 ## Building a page
 
