@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../HumanFoot";
+import { HumanFoot } from "./HumanFoot";
 
 /**
  * Prepare a flat-toed foot's ankle-local sole points for changing placements.

@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /**
  * The rotation one hand keeps through a keyed contact sequence (`manipulate`):

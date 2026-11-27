@@ -6,12 +6,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
+import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { StrikingTarget } from "../../striking/StrikingTarget";
-import { ReactionSource } from "../ReactionSource";
+import { StrikingTarget } from "../../striking/internal/StrikingTarget";
+import { ReactionSource } from "./ReactionSource";
 import { staggerBounds } from "./staggerBounds";
 import { staggerLimit } from "./staggerLimit";
 import { staggerPendulumEntry } from "./staggerPendulumEntry";

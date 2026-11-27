@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAudit } from "../../audit/AutoMovieMotionHumanAudit";
+import { AutoMovieMotionHumanAudit } from "../../audit/internal/AutoMovieMotionHumanAudit";
 import { AutoMovieMotionHumanSignature } from "../../audit/AutoMovieMotionHumanSignature";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";

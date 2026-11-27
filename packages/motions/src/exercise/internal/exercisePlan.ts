@@ -14,20 +14,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { AutoMovieMotionHumanLegPhrase } from "../../compose/AutoMovieMotionHumanLegPhrase";
-import { AutoMovieMotionHumanPlaced } from "../../compose/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionHumanTrunk } from "../../compose/AutoMovieMotionHumanTrunk";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLegPhrase } from "../../compose/internal/AutoMovieMotionHumanLegPhrase";
+import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
+import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { exercise } from "./exercise";
 import { exerciseLunge } from "./exerciseLunge";
 

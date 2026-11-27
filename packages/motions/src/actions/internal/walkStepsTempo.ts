@@ -3,7 +3,7 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
-import { HumanSkill } from "../../skill/HumanSkill";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
 
 /** The alternatives of `WalkStepsTempoContext`'s site. */
 type WalkStepsTempoContext = "skill" | "subject" | "series";

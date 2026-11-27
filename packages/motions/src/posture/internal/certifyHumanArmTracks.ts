@@ -1,9 +1,9 @@
 import type { IAutoMovieMotionHumanArmTrajectory } from "@automovie/interface";
 
-import { HumanArmGeometry } from "../HumanArmGeometry";
-import { HumanArmTrajectoryKnots as Knots } from "../HumanArmTrajectoryKnots";
-import { HumanArmTrajectoryModel } from "../HumanArmTrajectoryModel";
-import { HumanArmTrajectoryPlayback } from "../HumanArmTrajectoryPlayback";
+import { HumanArmGeometry } from "./HumanArmGeometry";
+import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
+import { HumanArmTrajectoryModel } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 
 /**
  * Read independently prepared arms as one trajectory on its original frame

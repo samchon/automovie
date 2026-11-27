@@ -20,11 +20,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { workHeldPush } from "../../handling/internal/workHeldPush";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";

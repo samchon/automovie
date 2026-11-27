@@ -15,10 +15,10 @@ import type {
 } from "@automovie/interface";
 
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { AutoMovieMotionClock } from "../AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../AutoMovieMotionHumanArm";
-import { AutoMovieMotionInterval } from "../AutoMovieMotionInterval";
-import { composeAutoMovieMotionHumanAction } from "../composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
+import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHumanAction";
 import { courseArmGoalBase } from "./courseArmGoalBase";
 import { courseArmGoalShownRests } from "./courseArmGoalShownRests";
 

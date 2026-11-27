@@ -16,8 +16,8 @@ import type {
 import { AutoMovieHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
 import { colliderCaseInside } from "./internal/colliderCaseInside";
 import { colliderCaseNearest } from "./internal/colliderCaseNearest";
 

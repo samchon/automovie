@@ -1,9 +1,9 @@
-import { HumanBoltAction as HumanBoltActionSource } from "../lexicon/HumanBoltAction";
-import { HumanFirearm as HumanFirearmSource } from "../lexicon/HumanFirearm";
-import { HumanRevolver as HumanRevolverSource } from "../lexicon/HumanRevolver";
-import { HumanWeaponFirearm as HumanWeaponFirearmSource } from "../lexicon/HumanWeaponFirearm";
-import { HumanWeaponHeld as HumanWeaponHeldLaw } from "../lexicon/HumanWeaponHeld";
-import { HumanWeaponPresent as HumanWeaponPresentSource } from "../lexicon/HumanWeaponPresent";
+import { HumanBoltAction as HumanBoltActionSource } from "../lexicon/internal/HumanBoltAction";
+import { HumanFirearm as HumanFirearmSource } from "../lexicon/internal/HumanFirearm";
+import { HumanRevolver as HumanRevolverSource } from "../lexicon/internal/HumanRevolver";
+import { HumanWeaponFirearm as HumanWeaponFirearmSource } from "../lexicon/internal/HumanWeaponFirearm";
+import { HumanWeaponHeld as HumanWeaponHeldLaw } from "../lexicon/internal/HumanWeaponHeld";
+import { HumanWeaponPresent as HumanWeaponPresentSource } from "../lexicon/internal/HumanWeaponPresent";
 import { HUMAN_FIREARM_DRAW } from "./presets/HUMAN_FIREARM_DRAW";
 import { HUMAN_FIREARM_REACH_HOLSTER } from "./presets/HUMAN_FIREARM_REACH_HOLSTER";
 import { HUMAN_FIREARM_SURRENDER } from "./presets/HUMAN_FIREARM_SURRENDER";

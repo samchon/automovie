@@ -14,10 +14,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { rise } from "../../everyday/internal/rise";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";

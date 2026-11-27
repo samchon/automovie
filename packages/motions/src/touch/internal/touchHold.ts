@@ -21,15 +21,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/AutoMovieMotionHumanAuditTangleModel";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionHumanTouchForm } from "../../compose/AutoMovieMotionHumanTouchForm";
-import { AutoMovieMotionHumanTouchPath } from "../../compose/AutoMovieMotionHumanTouchPath";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { HumanPerception } from "../../law/HumanPerception";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchForm } from "../../compose/internal/AutoMovieMotionHumanTouchForm";
+import { AutoMovieMotionHumanTouchPath } from "../../compose/internal/AutoMovieMotionHumanTouchPath";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { HumanPerception } from "../../law/internal/HumanPerception";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { touchHoldRests } from "./touchHoldRests";
 import { touchLimb } from "./touchLimb";
 import { touchRegion } from "./touchRegion";

@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanConversation } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
-import { HumanConversation } from "../HumanConversation";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanConversation } from "./HumanConversation";
 
 /**
  * Plan a participant's gaze from authored turns in a group conversation.

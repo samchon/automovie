@@ -18,19 +18,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangle } from "../../audit/AutoMovieMotionHumanAuditTangle";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanAuditTangle } from "../../audit/internal/AutoMovieMotionHumanAuditTangle";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { seated } from "../../everyday/internal/seated";
 import { sit } from "../../everyday/internal/sit";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanArmGeometry } from "../../posture/HumanArmGeometry";
-import { HumanArmWristShell } from "../../posture/HumanArmWristShell";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanArmGeometry } from "../../posture/internal/HumanArmGeometry";
+import { HumanArmWristShell } from "../../posture/internal/HumanArmWristShell";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
 

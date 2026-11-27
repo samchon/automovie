@@ -7,11 +7,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanClearance } from "../../compose/AutoMovieMotionHumanClearance";
-import { HumanFoot } from "../../posture/HumanFoot";
-import type { HumanFootRotation } from "../../posture/HumanFootRotation";
-import type { HumanFrame } from "../../posture/HumanFrame";
-import type { HumanObstacle } from "../HumanObstacle";
+import { AutoMovieMotionHumanClearance } from "../../compose/internal/AutoMovieMotionHumanClearance";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import type { HumanFootRotation } from "../../posture/internal/HumanFootRotation";
+import type { HumanFrame } from "../../posture/internal/HumanFrame";
+import type { HumanObstacle } from "./HumanObstacle";
 import { stepOver } from "./stepOver";
 import type { stepOverPath } from "./stepOverPath";
 

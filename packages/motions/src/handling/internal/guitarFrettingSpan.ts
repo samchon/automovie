@@ -6,7 +6,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { HumanDigitFit } from "../../posture/HumanDigitFit";
+import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
 
 /**
  * Upper bound in metres on the left index and middle fingertip separation. The

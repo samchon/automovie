@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditContact } from "../../audit/AutoMovieMotionHumanAuditContact";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { AutoMovieMotionHumanAuditContact } from "../../audit/internal/AutoMovieMotionHumanAuditContact";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { walkFootStance } from "./walkFootStance";
 import { walkFootTakeoff } from "./walkFootTakeoff";
 

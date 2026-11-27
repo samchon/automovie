@@ -1,18 +1,18 @@
-import { HumanGrasp as HumanGraspSource } from "../handling/HumanGrasp";
-import { HumanGraspUse as HumanGraspUseSource } from "../handling/HumanGraspUse";
-import { HumanGrip as HumanGripSource } from "../handling/HumanGrip";
-import { HumanHeld as HumanHeldSource } from "../handling/HumanHeld";
-import { HumanHeldUse as HumanHeldUseSource } from "../handling/HumanHeldUse";
-import { HumanPocket as HumanPocketSource } from "../handling/HumanPocket";
-import { HumanPrehension as HumanPrehensionSource } from "../handling/HumanPrehension";
-import { HumanPreshape as HumanPreshapeSource } from "../handling/HumanPreshape";
+import { HumanGrasp as HumanGraspSource } from "../handling/internal/HumanGrasp";
+import { HumanGraspUse as HumanGraspUseSource } from "../handling/internal/HumanGraspUse";
+import { HumanGrip as HumanGripSource } from "../handling/internal/HumanGrip";
+import { HumanHeld as HumanHeldSource } from "../handling/internal/HumanHeld";
+import { HumanHeldUse as HumanHeldUseSource } from "../handling/internal/HumanHeldUse";
+import { HumanPocket as HumanPocketSource } from "../handling/internal/HumanPocket";
+import { HumanPrehension as HumanPrehensionSource } from "../handling/internal/HumanPrehension";
+import { HumanPreshape as HumanPreshapeSource } from "../handling/internal/HumanPreshape";
 import { carryHang as carryHangLaw } from "../handling/internal/carryHang";
 import { pickUp as pickUpLaw } from "../handling/internal/pickUp";
 import { pickUpMoving as pickUpMovingLaw } from "../handling/internal/pickUpMoving";
 import { putDown as putDownLaw } from "../handling/internal/putDown";
 import { putDownAperture as putDownApertureLaw } from "../handling/internal/putDownAperture";
 import { regrasp as regraspLaw } from "../handling/internal/regrasp";
-import { HumanRegrasp as HumanRegraspSource } from "../lexicon/HumanRegrasp";
+import { HumanRegrasp as HumanRegraspSource } from "../lexicon/internal/HumanRegrasp";
 
 /**
  * Taking, holding and releasing an object by hand: the grasp, the carry pose

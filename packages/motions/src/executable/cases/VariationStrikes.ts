@@ -2,12 +2,12 @@ import { Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@aut
 import type { AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanSkill, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../chain/HumanChain";
-import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanSkill } from "../../skill/HumanSkill";
-import { StrikingBody } from "../../striking/StrikingBody";
-import { StrikingRecord } from "../../striking/StrikingRecord";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanVariation } from "../../compose/internal/AutoMovieMotionHumanVariation";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
+import { StrikingRecord } from "../../striking/internal/StrikingRecord";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { StrikingEventVerdicts } from "./StrikingEventVerdicts";
 import { StrikingLimb } from "./StrikingLimb";
 import { VariationSeries } from "./VariationSeries";

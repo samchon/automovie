@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
 /**
  * The pelvis's floor place the body goes down over: the hips joint of the

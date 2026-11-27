@@ -10,12 +10,12 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { walkRoot } from "../../actions/internal/walkRoot";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFootRotation } from "../../posture/HumanFootRotation";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanObstacle } from "../HumanObstacle";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFootRotation } from "../../posture/internal/HumanFootRotation";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanObstacle } from "./HumanObstacle";
 import { stepOver } from "./stepOver";
 import { stepOverLanding } from "./stepOverLanding";
 import { stepOverPathSwing } from "./stepOverPathSwing";

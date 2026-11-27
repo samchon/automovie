@@ -24,12 +24,12 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
 import { supportKey } from "../../actions/internal/supportKey";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { WorkoutSupport } from "../../exercise/WorkoutSupport";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { WorkoutSupport } from "../../exercise/workout/WorkoutSupport";
 import { getUp } from "../../floor/internal/getUp";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /**
  * A squat vault over a box: the hands set on the near edge of the box's top,

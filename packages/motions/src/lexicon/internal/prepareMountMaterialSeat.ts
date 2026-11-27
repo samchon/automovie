@@ -3,11 +3,11 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, I
 
 import { seated } from "../../everyday/internal/seated";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import type { HumanMountOnFrame } from "../HumanMountOnFrame";
+import type { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { prepareMountSeat } from "./prepareMountSeat";
 
 /** The mount's body and named material at its entry on the film clock. */

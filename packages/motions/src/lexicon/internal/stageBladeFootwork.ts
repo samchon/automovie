@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
-import { HumanPostureRaw } from "../../posture/HumanPostureRaw";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
+import { HumanPostureRaw } from "../../posture/internal/HumanPostureRaw";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
-import { StrikingStance } from "../../striking/StrikingStance";
+import { StrikingStance } from "../../striking/internal/StrikingStance";
 import { stageBladeFootworkSchedule } from "./stageBladeFootworkSchedule";
 
 /**

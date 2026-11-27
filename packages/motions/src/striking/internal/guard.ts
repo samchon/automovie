@@ -16,13 +16,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../../compose/AutoMovieMotionPrepared";
+import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { StrikingFootPoint } from "../StrikingFootPoint";
-import { StrikingGuardYield } from "../StrikingGuardYield";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingTarget } from "../StrikingTarget";
+import { StrikingFootPoint } from "./StrikingFootPoint";
+import { StrikingGuardYield } from "./StrikingGuardYield";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
 /**

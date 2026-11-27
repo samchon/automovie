@@ -13,7 +13,7 @@ import { HumanChain } from "../../chain/HumanChain";
 import { catchObject } from "../../throwing/internal/catchObject";
 import { readThrowObjectLaunch } from "../../throwing/internal/readThrowObjectLaunch";
 import { throwObject } from "../../throwing/internal/throwObject";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { motionCaseSocket } from "./internal/motionCaseSocket";

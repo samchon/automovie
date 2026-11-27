@@ -5,7 +5,7 @@ import type {
 
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
-import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
+import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { floorEntry } from "./floorEntry";
 
 /**

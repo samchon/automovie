@@ -6,12 +6,12 @@ import type {
   IAutoMovieMotionHumanTouchForm,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanDrinkingArm } from "../AutoMovieMotionHumanDrinkingArm";
-import { AutoMovieMotionHumanHand } from "../AutoMovieMotionHumanHand";
-import { AutoMovieMotionHumanTouchContacts } from "../AutoMovieMotionHumanTouchContacts";
-import { AutoMovieMotionHumanTouchForm } from "../AutoMovieMotionHumanTouchForm";
-import { TOUCH_TIP } from "../TOUCH_TIP";
+import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
+import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
+import { AutoMovieMotionHumanTouchContacts } from "./AutoMovieMotionHumanTouchContacts";
+import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
+import { TOUCH_TIP } from "./TOUCH_TIP";
 import { touchEnvelope } from "./touchEnvelope";
 import { touchGoal } from "./touchGoal";
 

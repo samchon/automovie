@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanDining,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 
 /**
  * Open a refrigerator's fresh-food door by its handle, let go and look at one

@@ -6,11 +6,11 @@ import type {
   IAutoMovieMotionHumanHeadTilt,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHead } from "../../compose/AutoMovieMotionHumanHead";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { headTiltClock } from "./headTiltClock";
 
 /**

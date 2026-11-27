@@ -8,10 +8,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditContact } from "../../audit/AutoMovieMotionHumanAuditContact";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { AutoMovieMotionHumanAuditContact } from "../../audit/internal/AutoMovieMotionHumanAuditContact";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import type { walkReach } from "./walkReach";

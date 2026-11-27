@@ -1,4 +1,4 @@
-import { RUMMAGE as RUMMAGESource } from "../search/RUMMAGE";
+import { RUMMAGE as RUMMAGESource } from "../search/internal/RUMMAGE";
 import { searchBag as searchBagLaw } from "../search/internal/searchBag";
 
 /**

@@ -11,8 +11,8 @@ import type {
 import { HumanChain } from "../../chain/HumanChain";
 import { seated } from "../../everyday/internal/seated";
 import { typeText } from "../../everyday/internal/typeText";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayTypeCaseBoard } from "./internal/everydayTypeCaseBoard";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

@@ -14,11 +14,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmReach } from "../../compose/AutoMovieMotionHumanArmReach";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanArmReach } from "../../compose/internal/AutoMovieMotionHumanArmReach";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanGrasp } from "../HumanGrasp";
+import { HumanGrasp } from "./HumanGrasp";
 import { pickUp } from "./pickUp";
 import { putDown } from "./putDown";
 import { putDownTarget } from "./putDownTarget";

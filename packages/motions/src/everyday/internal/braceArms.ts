@@ -1,11 +1,11 @@
 import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanArmAngles, IAutoMovieMotionHumanArmTarget, IAutoMovieMotionHumanArmTrajectory, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBrace, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";

@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { HumanGaze } from "../../everyday/HumanGaze";
+import { HumanGaze } from "../../everyday/internal/HumanGaze";
 
 /**
  * The eyes and the head brought toward a target by a weight: the gaze

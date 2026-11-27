@@ -7,9 +7,9 @@ import type {
   IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
 
-import { HumanBodyFit } from "../../posture/HumanBodyFit";
-import { HumanBodyFitMerit } from "../../posture/HumanBodyFitMerit";
-import { HumanFitVariables } from "../../posture/HumanFitVariables";
+import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
+import { HumanBodyFitMerit } from "../../posture/internal/HumanBodyFitMerit";
+import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
 
 type Contact = IAutoMovieMotionHumanSupport.IContact;
 type Target = IAutoMovieMotionHumanBodyFitTypes.ITarget;

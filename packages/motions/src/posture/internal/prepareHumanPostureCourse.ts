@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanKnot } from "../HumanKnot";
+import type { HumanKnot } from "./HumanKnot";
 import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 
 /**

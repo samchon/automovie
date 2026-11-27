@@ -18,22 +18,22 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionPrepared } from "../../compose/AutoMovieMotionPrepared";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { CloseStrikeLegs } from "../CloseStrikeLegs";
-import { CloseStrikeNeck } from "../CloseStrikeNeck";
-import { CloseStrikeReach } from "../CloseStrikeReach";
-import { StrikingBody } from "../StrikingBody";
-import { StrikingSkill } from "../StrikingSkill";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingTarget } from "../StrikingTarget";
+import { CloseStrikeLegs } from "./CloseStrikeLegs";
+import { CloseStrikeNeck } from "./CloseStrikeNeck";
+import { CloseStrikeReach } from "./CloseStrikeReach";
+import { StrikingBody } from "./StrikingBody";
+import { StrikingSkill } from "./StrikingSkill";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingTarget } from "./StrikingTarget";
 
 /** The alternatives of `PlanBuildFrom`'s site. */
 type PlanBuildFrom = "point" | "rotation";

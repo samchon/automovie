@@ -22,17 +22,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBendTrack } from "../../compose/AutoMovieMotionHumanBendTrack";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBendTrack } from "../../compose/internal/AutoMovieMotionHumanBendTrack";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 import { poseBones } from "../../posture/internal/poseBones";
 

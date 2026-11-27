@@ -19,18 +19,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanGrasp } from "../../handling/HumanGrasp";
-import { HumanGraspRoll } from "../../handling/HumanGraspRoll";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanGrasp } from "../../handling/internal/HumanGrasp";
+import { HumanGraspRoll } from "../../handling/internal/HumanGraspRoll";
 import { heldDigits } from "../../handling/internal/heldDigits";
 import { writeWith } from "../../handling/internal/writeWith";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanArmTrajectoryTerms } from "../../posture/HumanArmTrajectoryTerms";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanAdaptiveKnots } from "../../posture/internal/prepareHumanAdaptiveKnots";
 import type { prepareHumanKnotCourse } from "../../posture/internal/prepareHumanKnotCourse";

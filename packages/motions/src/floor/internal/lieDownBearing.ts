@@ -5,10 +5,10 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 
 /**
  * The sole socket each foot bears on at the first phase's end: the lowest of

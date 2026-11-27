@@ -19,13 +19,13 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../../gait/internal/walk";
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanHandTarget } from "../../posture/HumanHandTarget";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { carryPlace } from "./carryPlace";

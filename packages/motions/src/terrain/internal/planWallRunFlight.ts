@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 
 /**
  * A wall run's catch flown: between the wall step's key and the hang's the

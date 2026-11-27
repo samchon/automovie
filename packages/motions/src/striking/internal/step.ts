@@ -13,12 +13,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
-import { StrikingGuard } from "../StrikingGuard";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingStepTransition } from "../StrikingStepTransition";
-import { StrikingTarget } from "../StrikingTarget";
+import { StrikingGuard } from "./StrikingGuard";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingStepTransition } from "./StrikingStepTransition";
+import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
 /** The record of `IPlanProgressResult`'s site. */

@@ -19,17 +19,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
+import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { StrikingHeld } from "../../striking/StrikingHeld";
-import { StrikingRoll } from "../../striking/StrikingRoll";
-import { HumanCarriedHand } from "../HumanCarriedHand";
-import { HumanGrip } from "../HumanGrip";
-import { HumanPrehension } from "../HumanPrehension";
+import { StrikingHeld } from "../../striking/internal/StrikingHeld";
+import { StrikingRoll } from "../../striking/internal/StrikingRoll";
+import { HumanCarriedHand } from "./HumanCarriedHand";
+import { HumanGrip } from "./HumanGrip";
+import { HumanPrehension } from "./HumanPrehension";
 import { pickUp } from "./pickUp";
 import { putDown } from "./putDown";
 import { putDownTarget } from "./putDownTarget";

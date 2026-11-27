@@ -8,8 +8,8 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
 import { bendFloorHand } from "./bendFloorHand";
 import { braceOnThigh } from "./braceOnThigh";
 import type { kneelPhaseTable } from "./kneelPhaseTable";

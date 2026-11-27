@@ -16,7 +16,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { touch } from "../../touch/internal/touch";
-import { PairWalk } from "../PairWalk";
+import { PairWalk } from "./PairWalk";
 
 /**
  * A hostage hold from behind (`IAutoMovieMotionHumanHostageHold`). The free arm

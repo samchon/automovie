@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFrame } from "../HumanFrame";
+import { HumanFrame } from "./HumanFrame";
 import { hipJoints } from "./hipJoints";
 
 /**

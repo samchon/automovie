@@ -1,4 +1,4 @@
-import type { HumanKnot } from "../HumanKnot";
+import type { HumanKnot } from "./HumanKnot";
 import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 
 /**

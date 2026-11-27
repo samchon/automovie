@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { operate } from "../../affordance/internal/operate";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { drawFromCarrierPulling } from "./drawFromCarrierPulling";
 

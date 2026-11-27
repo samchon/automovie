@@ -1,9 +1,9 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanPosture, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { StrikingBody } from "../StrikingBody";
-import { StrikingQuality } from "../StrikingQuality";
-import { StrikingStance } from "../StrikingStance";
+import { StrikingBody } from "./StrikingBody";
+import { StrikingQuality } from "./StrikingQuality";
+import { StrikingStance } from "./StrikingStance";
 
 /** The alternatives of `AtArmResult`'s site. */
 type AtArmResult = "leftArm" | "rightArm";

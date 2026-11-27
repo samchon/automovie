@@ -1,10 +1,10 @@
 // The everyday internals the test programme reads directly, re-exported by `../internal`.
 
-export * from "./HumanBalance";
+export * from "./internal/HumanBalance";
 export * from "./internal/typeText";
-export * from "./HumanTrunk";
-export * from "./HumanEffort";
-export * from "./HUMAN_EVERYDAY_LAWS";
+export * from "./internal/HumanTrunk";
+export * from "./internal/HumanEffort";
+export * from "./internal/HUMAN_EVERYDAY_LAWS";
 export * from "./internal/gestureSignal";
 export * from "./internal/conversationShare";
 export * from "./internal/blendGazeJoint";
@@ -41,10 +41,10 @@ export * from "./internal/swipeTouchscreenScreen";
 export * from "./internal/swipeTouchscreenStroke";
 export * from "./internal/typeTextPresses";
 export * from "./internal/gestureJoints";
-export * from "./HumanGaze";
-export * from "./HumanProxemics";
+export * from "./internal/HumanGaze";
+export * from "./internal/HumanProxemics";
 export * from "./internal/seatedFlatHand";
-export * from "./HumanBalanceExtrapolated";
+export * from "./internal/HumanBalanceExtrapolated";
 export * from "./internal/gestureAdmit";
 export * from "./internal/gestureStrokeTables";
 export * from "./internal/gesture";

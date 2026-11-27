@@ -3,9 +3,9 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import type { MartialArtStanceForms } from "../MartialArtStanceForms";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import type { MartialArtStanceForms } from "./MartialArtStanceForms";
 
 /**
  * A stance form's timetable: the lead step in (`ready`), the forward transfer

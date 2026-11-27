@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { handReach } from "../../everyday/internal/handReach";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
 /**

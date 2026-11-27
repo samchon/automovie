@@ -9,13 +9,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
-import { AutoMovieMotionHumanTouchStance } from "../../compose/AutoMovieMotionHumanTouchStance";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
 import { bend } from "../../everyday/internal/bend";
 import { bendLower } from "../../everyday/internal/bendLower";
 import { bendLowerFold } from "../../everyday/internal/bendLowerFold";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { pickUpPostureLeaned } from "./pickUpPostureLeaned";
 import { pickUpPostureShoulder } from "./pickUpPostureShoulder";
 

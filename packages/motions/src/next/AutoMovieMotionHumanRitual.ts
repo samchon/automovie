@@ -1,6 +1,6 @@
-import { GENUFLECT_HOLD as GENUFLECT_HOLDSource } from "../ritual/GENUFLECT_HOLD";
-import { SITE as SITESource } from "../ritual/SITE";
-import { TOUCH_HOLD as TOUCH_HOLDSource } from "../ritual/TOUCH_HOLD";
+import { GENUFLECT_HOLD as GENUFLECT_HOLDSource } from "../ritual/internal/GENUFLECT_HOLD";
+import { SITE as SITESource } from "../ritual/internal/SITE";
+import { TOUCH_HOLD as TOUCH_HOLDSource } from "../ritual/internal/TOUCH_HOLD";
 import { genuflect as genuflectLaw } from "../ritual/internal/genuflect";
 import { kneelingPrayer as kneelingPrayerLaw } from "../ritual/internal/kneelingPrayer";
 import { signOfCross as signOfCrossLaw } from "../ritual/internal/signOfCross";

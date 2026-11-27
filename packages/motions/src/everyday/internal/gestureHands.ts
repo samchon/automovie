@@ -17,14 +17,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmObservation } from "../../compose/AutoMovieMotionHumanArmObservation";
-import { AutoMovieMotionHumanArmPlanned } from "../../compose/AutoMovieMotionHumanArmPlanned";
-import { AutoMovieMotionHumanArmPlayed } from "../../compose/AutoMovieMotionHumanArmPlayed";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanHandShape } from "../../posture/HumanHandShape";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmObservation } from "../../compose/internal/AutoMovieMotionHumanArmObservation";
+import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
+import { AutoMovieMotionHumanArmPlayed } from "../../compose/internal/AutoMovieMotionHumanArmPlayed";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanHandShape } from "../../posture/internal/HumanHandShape";
 
 /** The alternatives of `FingersGoal`'s site. */
 type FingersGoal = "shape" | "curl";

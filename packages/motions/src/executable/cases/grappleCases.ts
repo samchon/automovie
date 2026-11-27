@@ -3,7 +3,7 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieComposition
 
 import { HumanChain } from "../../chain/HumanChain";
 import { clinch } from "../../grappling/internal/clinch";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 

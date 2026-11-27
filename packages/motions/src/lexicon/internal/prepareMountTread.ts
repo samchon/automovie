@@ -3,9 +3,9 @@ import { AutoMovieEngineKinematics, type AutoMovieEnginePhysicsContactTypes, typ
 
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMoviePhysicalShape, IAutoMoviePhysicalShapeBounds, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { mountCastObstruction } from "./mountCastObstruction";
 import type { prepareMountSeat } from "./prepareMountSeat";

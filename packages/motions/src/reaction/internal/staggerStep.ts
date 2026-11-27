@@ -5,9 +5,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { StaggerPendulum } from "../StaggerPendulum";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import type { staggerRecover } from "./staggerRecover";
 

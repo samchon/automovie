@@ -4,15 +4,15 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-import { HumanPerformanceGrips } from "../HumanPerformanceGrips";
-import { HumanPerformanceHits } from "../HumanPerformanceHits";
-import { HumanPerformanceHold } from "../HumanPerformanceHold";
-import { HumanPerformanceObject } from "../HumanPerformanceObject";
-import { HumanPerformanceRead } from "../HumanPerformanceRead";
-import { HumanPerformanceSoft } from "../HumanPerformanceSoft";
-import { HumanPreparedPlayback } from "../HumanPreparedPlayback";
-import { HumanPropFlight } from "../HumanPropFlight";
-import { HumanSegmentCarry } from "../HumanSegmentCarry";
+import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
+import { HumanPerformanceHits } from "./HumanPerformanceHits";
+import { HumanPerformanceHold } from "./HumanPerformanceHold";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
+import { HumanPropFlight } from "./HumanPropFlight";
+import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { prepareHumanGripHand } from "./prepareHumanGripHand";
 import { prepareHumanPerformanceOrder } from "./prepareHumanPerformanceOrder";
 import { prepareHumanSegment } from "./prepareHumanSegment";

@@ -7,10 +7,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../chain/HumanChain";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { climbStairs } from "../../terrain/internal/climbStairs";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { stairsCaseBoxes } from "./internal/stairsCaseBoxes";

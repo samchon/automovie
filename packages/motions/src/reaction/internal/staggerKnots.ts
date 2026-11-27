@@ -5,15 +5,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditContact } from "../../audit/AutoMovieMotionHumanAuditContact";
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { HumanBalance } from "../../everyday/HumanBalance";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanAuditContact } from "../../audit/internal/AutoMovieMotionHumanAuditContact";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
-import { StrikingStance } from "../../striking/StrikingStance";
-import { StrikingTarget } from "../../striking/StrikingTarget";
+import { StrikingStance } from "../../striking/internal/StrikingStance";
+import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 
 /** The record of `IBendingShiftMore2`'s site. */

@@ -5,10 +5,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { hipJoints } from "../../posture/internal/hipJoints";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";

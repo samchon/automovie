@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
-import { HumanMountRider } from "../HumanMountRider";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
+import { HumanMountRider } from "./HumanMountRider";
 
 /** Standard gravity, metres per second squared. */
 const GRAVITY: number = 9.80665;

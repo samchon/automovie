@@ -13,8 +13,8 @@ import {
 import path from "node:path";
 
 import { markMotionCaptureCase } from "../capture/internal/markMotionCaptureCase";
-import type { IMotionCaptureCase } from "./IMotionCaptureCase";
-import type { IMotionCaptureProps } from "./IMotionCaptureProps";
+import type { IMotionCaptureCase } from "./internal/IMotionCaptureCase";
+import type { IMotionCaptureProps } from "./internal/IMotionCaptureProps";
 import { buildMotionCaptureCases } from "./internal/buildMotionCaptureCases";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
 import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";

@@ -4,10 +4,10 @@ import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, 
 import { stand } from "../actions/internal/stand";
 import { standRelaxed } from "../actions/internal/standRelaxed";
 import { standUpright } from "../actions/internal/standUpright";
-import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanAuditTangleModel } from "../audit/internal/AutoMovieMotionHumanAuditTangleModel";
+import { AutoMovieMotionHumanBend } from "../compose/internal/AutoMovieMotionHumanBend";
 import { bendFloorThumb } from "../everyday/internal/bendFloorThumb";
-import { HumanColliderPlacement } from "../posture/HumanColliderPlacement";
+import { HumanColliderPlacement } from "../posture/internal/HumanColliderPlacement";
 import { humanLimbReads } from "../posture/internal/humanLimbReads";
 import { humanSettledJoints } from "../posture/internal/humanSettledJoints";
 

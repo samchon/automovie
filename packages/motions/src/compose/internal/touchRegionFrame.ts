@@ -2,7 +2,7 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanArmCarry, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTarget, IAutoMovieMotionTarget, IAutoMovieResolvedBone } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTarget } from "../AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
 /** The alternatives of `TouchRegionFrameResult`'s site. */
 type TouchRegionFrameResult = "point" | "normal";

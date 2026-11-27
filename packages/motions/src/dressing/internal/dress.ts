@@ -23,24 +23,24 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { prepareHumanElbowPath } from "../../compose/internal/prepareHumanElbowPath";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanGrip } from "../../handling/HumanGrip";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanHandTarget } from "../../posture/HumanHandTarget";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanGrip } from "../../handling/internal/HumanGrip";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanWorn } from "../HumanWorn";
+import { HumanWorn } from "./HumanWorn";
 import { dressTurn } from "./dressTurn";
 
 /**

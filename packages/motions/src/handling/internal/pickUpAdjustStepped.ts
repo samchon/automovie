@@ -10,7 +10,7 @@ import type {
 
 import { walk } from "../../gait/internal/walk";
 import { walkReach } from "../../actions/internal/walkReach";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { bendLower } from "../../everyday/internal/bendLower";
 import { pickUpAdjust } from "./pickUpAdjust";
 import { pickUpAdjustShoulder } from "./pickUpAdjustShoulder";

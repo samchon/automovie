@@ -23,17 +23,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBendTrack } from "../../compose/AutoMovieMotionHumanBendTrack";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBendTrack } from "../../compose/internal/AutoMovieMotionHumanBendTrack";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 import { poseBones } from "../../posture/internal/poseBones";
 import { precisionThrow } from "./precisionThrow";

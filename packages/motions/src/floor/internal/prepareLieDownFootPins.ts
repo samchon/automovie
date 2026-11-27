@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 
 /** Posed bones of the ankles, knees and actual sole sockets. */
 type Bones = Parameters<typeof HumanFoot.sockets>[1];

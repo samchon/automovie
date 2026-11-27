@@ -1,8 +1,8 @@
 import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieHumanDigitGoal, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanPosturePreparation } from "../../posture/HumanPosturePreparation";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanPosturePreparation } from "../../posture/internal/HumanPosturePreparation";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
 /** The alternatives of `Heading2`'s site. */
 type Heading2 = "yaw" | "pitch" | "roll";

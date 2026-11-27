@@ -1,9 +1,9 @@
 import { Quaternion, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanSignature, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanColliders } from "../posture/HumanColliders";
-import { HumanFoot } from "../posture/HumanFoot";
-import { HumanSignatureGait } from "./HumanSignatureGait";
+import { HumanColliders } from "../posture/internal/HumanColliders";
+import { HumanFoot } from "../posture/internal/HumanFoot";
+import { HumanSignatureGait } from "./internal/HumanSignatureGait";
 
 /**
  * The kinematic readings of an act's signature: what human-movement studies

@@ -17,8 +17,8 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { lieDown } from "../../floor/internal/lieDown";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import { stuntFallPose } from "./stuntFallPose";

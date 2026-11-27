@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
 import { touchRegionFrame } from "../../compose/internal/touchRegionFrame";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";

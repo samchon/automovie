@@ -20,16 +20,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanReach } from "../../compose/AutoMovieMotionHumanReach";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionHumanTouchLaid } from "../../compose/AutoMovieMotionHumanTouchLaid";
-import { AutoMovieMotionMeeting } from "../../compose/AutoMovieMotionMeeting";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanReach } from "../../compose/internal/AutoMovieMotionHumanReach";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
+import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { touchPrimitive } from "../../compose/internal/touchPrimitive";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { kissBody } from "./kissBody";

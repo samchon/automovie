@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanSegment } from "../HumanSegment";
-import { HumanSegmentLegs } from "../HumanSegmentLegs";
-import { HumanSegmentPose } from "../HumanSegmentPose";
-import { HumanSegmentStop } from "../HumanSegmentStop";
+import { HumanSegment } from "./HumanSegment";
+import { HumanSegmentLegs } from "./HumanSegmentLegs";
+import { HumanSegmentPose } from "./HumanSegmentPose";
+import { HumanSegmentStop } from "./HumanSegmentStop";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentAnchors } from "./readHumanSegmentAnchors";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";

@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { HumanPhysics } from "../../law/HumanPhysics";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { crawl } from "./crawl";
 import { crawlDown } from "./crawlDown";
 import { floorEntry } from "./floorEntry";

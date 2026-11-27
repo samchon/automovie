@@ -10,11 +10,11 @@ import type {
   IAutoMovieMotionHumanDanceCourse,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { DanceFootwork } from "../DanceFootwork";
+import { DanceFootwork } from "./DanceFootwork";
 import { balletJete } from "./balletJete";
 import { balletPirouette } from "./balletPirouette";
 import { balletPositions } from "./balletPositions";

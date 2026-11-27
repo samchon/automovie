@@ -16,14 +16,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTrunk } from "../../compose/AutoMovieMotionHumanTrunk";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
+import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { diveAnkleMid } from "./diveAnkleMid";
 import { diveContacts } from "./diveContacts";
 import { diveCrouched } from "./diveCrouched";

@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
-import { StrikingHeld } from "../../striking/StrikingHeld";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { throwObjectLaunch } from "../internal/throwObjectLaunch";
 
 /** The alternatives of `SpinContext`'s site. */

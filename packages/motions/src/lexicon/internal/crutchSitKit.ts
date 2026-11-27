@@ -19,8 +19,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanHand } from "../../posture/HumanHand";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { crutchSitPath } from "./crutchSitPath";
 
 /**

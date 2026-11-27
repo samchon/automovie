@@ -1,12 +1,12 @@
 import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanContactWindow } from "../../law/HumanContactWindow";
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanBodyFit } from "../../posture/HumanBodyFit";
-import { HumanFitVariables } from "../../posture/HumanFitVariables";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanSupportPatch } from "../../posture/HumanSupportPatch";
+import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
+import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanSupportPatch } from "../../posture/internal/HumanSupportPatch";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

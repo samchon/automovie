@@ -15,12 +15,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { DanceFootwork } from "../DanceFootwork";
-import { ExerciseKey } from "../ExerciseKey";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { DanceFootwork } from "./DanceFootwork";
+import { ExerciseKey } from "./ExerciseKey";
 import { balletPositions } from "./balletPositions";
 import { dance } from "./dance";
 import { danceGrooveEnvelope } from "./danceGrooveEnvelope";

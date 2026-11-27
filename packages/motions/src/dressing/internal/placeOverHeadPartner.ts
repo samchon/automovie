@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanPartnerClear } from "../../compose/AutoMovieMotionHumanPartnerClear";
+import { AutoMovieMotionHumanPartnerClear } from "../../compose/internal/AutoMovieMotionHumanPartnerClear";
 import { touchHoldRests } from "../../touch/internal/touchHoldRests";
 
 /** The alternatives of `PlaceOverHeadPartnerShouldersRegion`'s site. */

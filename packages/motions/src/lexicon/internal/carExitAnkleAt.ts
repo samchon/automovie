@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
+import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 
 /**
  * Samples the car exit's ankle path. The ankle lifts inside, crosses above the

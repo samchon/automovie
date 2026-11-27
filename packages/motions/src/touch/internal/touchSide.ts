@@ -15,8 +15,8 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanTouchLaid } from "../../compose/AutoMovieMotionHumanTouchLaid";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
 import { poseBones } from "../../posture/internal/poseBones";
 import { touchHold } from "./touchHold";
 import { touchRegion } from "./touchRegion";

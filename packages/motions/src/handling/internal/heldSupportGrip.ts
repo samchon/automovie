@@ -13,11 +13,11 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/AutoMovieMotionHumanAuditTangleModel";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanGrasp } from "../HumanGrasp";
-import { HumanGraspUse } from "../HumanGraspUse";
+import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspUse } from "./HumanGraspUse";
 
 /**
  * The search a held support's grip runs: grip stations along the support's

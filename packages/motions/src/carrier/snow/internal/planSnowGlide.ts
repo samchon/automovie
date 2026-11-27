@@ -21,13 +21,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../../compose/AutoMovieMotionHumanArm";
-import { composeAutoMovieMotionHumanAction } from "../../../compose/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../../../law/HumanBound";
+import { AutoMovieMotionClock } from "../../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../../compose/internal/AutoMovieMotionHumanArm";
+import { composeAutoMovieMotionHumanAction } from "../../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../../../law/internal/HumanBound";
 import { HumanRefusal } from "../../../law/HumanRefusal";
-import { HumanMountRider } from "../../../lexicon/HumanMountRider";
-import { HumanSurfaceGlide } from "../../HumanSurfaceGlide";
+import { HumanMountRider } from "../../../lexicon/internal/HumanMountRider";
+import { HumanSurfaceGlide } from "../../internal/HumanSurfaceGlide";
 import { pivotSurfaceFoot } from "../../internal/pivotSurfaceFoot";
 import { admitSnowGlide } from "./admitSnowGlide";
 

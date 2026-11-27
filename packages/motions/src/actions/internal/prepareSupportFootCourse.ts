@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { supportCourse } from "./supportCourse";
 
 /**

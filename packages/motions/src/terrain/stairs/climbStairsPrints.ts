@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { HumanFoot } from "../../posture/HumanFoot";
-import type { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import type { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /** The alternatives of `SoleOfPoint`'s site. */
 type SoleOfPoint = "heel" | "ball" | "toe";

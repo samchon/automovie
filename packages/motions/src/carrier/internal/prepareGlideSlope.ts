@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
+import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 
 /** World up for the heading and reference slope. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

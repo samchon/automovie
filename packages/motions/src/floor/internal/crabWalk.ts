@@ -16,8 +16,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanHand } from "../../posture/HumanHand";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { crabWalkBounds } from "./crabWalkBounds";
 import { crabWalkClock } from "./crabWalkClock";

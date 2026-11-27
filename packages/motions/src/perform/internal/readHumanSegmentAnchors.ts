@@ -6,10 +6,10 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmPlanned } from "../../compose/AutoMovieMotionHumanArmPlanned";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
-import { HumanMinimumJerkSpline } from "../../posture/HumanMinimumJerkSpline";
-import type { HumanSegmentPose } from "../HumanSegmentPose";
+import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
+import { HumanMinimumJerkSpline } from "../../posture/internal/HumanMinimumJerkSpline";
+import type { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 

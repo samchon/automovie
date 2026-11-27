@@ -2,9 +2,9 @@ import { AutoMovieGravity, Quaternion, Vector3, AutoMovieEngineKinematics } from
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanRopeSkipPresentation, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /** Match the displayed-action seam precision in HumanSegmentPose. */
 const SEAM_SECONDS: number = 1e-12;

@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanObstacle } from "../../perform/HumanObstacle";
+import { HumanObstacle } from "../../perform/internal/HumanObstacle";
 
 /** The record of `IWalkClearContext`'s site. */
 type IWalkClearContext = {

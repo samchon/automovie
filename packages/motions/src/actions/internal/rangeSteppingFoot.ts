@@ -7,9 +7,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { hipJoints } from "../../posture/internal/hipJoints";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { walkLeg } from "./walkLeg";
 

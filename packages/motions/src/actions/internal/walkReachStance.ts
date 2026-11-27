@@ -15,8 +15,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFootRotation } from "../../posture/HumanFootRotation";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFootRotation } from "../../posture/internal/HumanFootRotation";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkLegRise } from "./walkLegRise";

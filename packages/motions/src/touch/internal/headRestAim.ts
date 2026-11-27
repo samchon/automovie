@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHead } from "../../compose/AutoMovieMotionHumanHead";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { kiss } from "./kiss";
 import { kissPose } from "./kissPose";

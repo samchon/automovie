@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTrunk } from "../../compose/AutoMovieMotionHumanTrunk";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { pickUpAdjustShoulder } from "./pickUpAdjustShoulder";
 import { pickUpAdjustStepped } from "./pickUpAdjustStepped";

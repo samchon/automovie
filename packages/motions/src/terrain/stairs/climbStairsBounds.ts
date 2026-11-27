@@ -1,4 +1,4 @@
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 
 /**
  * The bounds a stair climb is laid by: its blend, its ascent lean, the sole's

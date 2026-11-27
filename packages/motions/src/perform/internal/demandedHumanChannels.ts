@@ -3,7 +3,7 @@ import type {
   AutoMovieMotionHumanChannel,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
 
 /**
  * The posture channels the frames of some bones depend on: the root and the

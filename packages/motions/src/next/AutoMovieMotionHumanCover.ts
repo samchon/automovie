@@ -1,4 +1,4 @@
-import { HumanCover as HumanCoverLaw } from "../lexicon/HumanCover";
+import { HumanCover as HumanCoverLaw } from "../lexicon/internal/HumanCover";
 
 /**
  * Moving against a cover: peeking, sidling, a window and a breach, with the

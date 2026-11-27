@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 
 import { walkReach } from "../../actions/internal/walkReach";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { staggerBounds } from "./staggerBounds";
 
 /** The record of `IStaggerLeanTrunk`'s site. */

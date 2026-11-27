@@ -20,21 +20,21 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { AutoMovieMotionHumanPlaced } from "../../compose/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanPerformanceTempo } from "../../perform/HumanPerformanceTempo";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
+import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovieMotionHumanTargetGrid";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanPerformanceTempo } from "../../perform/internal/HumanPerformanceTempo";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { prepareHumanKnotCourse } from "../../posture/internal/prepareHumanKnotCourse";
-import { MartialArtStancePhrase } from "../MartialArtStancePhrase";
+import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
 import { prepareChokuZukiPath } from "./prepareChokuZukiPath";
 
 /**

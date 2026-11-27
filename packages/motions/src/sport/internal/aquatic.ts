@@ -6,20 +6,20 @@ import type {
   IAutoMovieMotionHumanAquatic,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
-import { AquaticDistress } from "../AquaticDistress";
-import { AquaticDive } from "../AquaticDive";
-import { AquaticEdgeExit } from "../AquaticEdgeExit";
-import { AquaticExit } from "../AquaticExit";
-import { AquaticFin } from "../AquaticFin";
-import { AquaticLiftOut } from "../AquaticLiftOut";
-import { AquaticPaddle } from "../AquaticPaddle";
-import { AquaticPolo } from "../AquaticPolo";
-import { AquaticPool } from "../AquaticPool";
-import { AquaticRescue } from "../AquaticRescue";
-import { AquaticSail } from "../AquaticSail";
-import { AquaticScull } from "../AquaticScull";
-import { AquaticTeam } from "../AquaticTeam";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { AquaticDistress } from "./AquaticDistress";
+import { AquaticDive } from "./AquaticDive";
+import { AquaticEdgeExit } from "./AquaticEdgeExit";
+import { AquaticExit } from "./AquaticExit";
+import { AquaticFin } from "./AquaticFin";
+import { AquaticLiftOut } from "./AquaticLiftOut";
+import { AquaticPaddle } from "./AquaticPaddle";
+import { AquaticPolo } from "./AquaticPolo";
+import { AquaticPool } from "./AquaticPool";
+import { AquaticRescue } from "./AquaticRescue";
+import { AquaticSail } from "./AquaticSail";
+import { AquaticScull } from "./AquaticScull";
+import { AquaticTeam } from "./AquaticTeam";
 
 /**
  * Sequences in a pool or on a small craft. The planner owns the actor's clock;

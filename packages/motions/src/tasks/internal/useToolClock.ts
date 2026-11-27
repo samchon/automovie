@@ -5,9 +5,9 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import type { HumanToolWork } from "../HumanToolWork";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import type { HumanToolWork } from "./HumanToolWork";
 import { useTool } from "./useTool";
 
 /**

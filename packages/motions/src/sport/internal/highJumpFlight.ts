@@ -6,12 +6,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ExerciseKey } from "../../exercise/ExerciseKey";
+import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
-import { GymnasticsFlight } from "../GymnasticsFlight";
-import type { IPreparedGymnasticsFrame } from "../IPreparedGymnasticsFrame";
+import { GymnasticsFlight } from "./GymnasticsFlight";
+import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 import type { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
 /** The takeoff, key poses and world-space inputs for a high jump's flight. */

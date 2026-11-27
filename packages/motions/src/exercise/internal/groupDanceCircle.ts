@@ -14,8 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { ExerciseKey } from "../ExerciseKey";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { ExerciseKey } from "./ExerciseKey";
 
 /**
  * A circle dance: the members stand evenly round a centre facing it, hands

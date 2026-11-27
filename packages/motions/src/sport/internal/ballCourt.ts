@@ -15,15 +15,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanPlaced } from "../../compose/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionHumanTrunk } from "../../compose/AutoMovieMotionHumanTrunk";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
+import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { lookPrimitive } from "../../compose/internal/lookPrimitive";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { throwObjectLaunch } from "../../throwing/internal/throwObjectLaunch";
 import { ballCourtClock } from "./ballCourtClock";
 import { ballCourtHand } from "./ballCourtHand";

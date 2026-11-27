@@ -9,11 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmMirror } from "../../posture/HumanArmMirror";
-import { HumanBodyFit } from "../../posture/HumanBodyFit";
-import { HumanBodyFitMerit } from "../../posture/HumanBodyFitMerit";
-import { HumanFitVariables } from "../../posture/HumanFitVariables";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanArmMirror } from "../../posture/internal/HumanArmMirror";
+import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
+import { HumanBodyFitMerit } from "../../posture/internal/HumanBodyFitMerit";
+import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 type Target = IAutoMovieMotionHumanBodyFitTypes.ITarget;
 type Contact = IAutoMovieMotionHumanSupport.IContact;

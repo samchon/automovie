@@ -26,20 +26,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTouchLaid } from "../../compose/AutoMovieMotionHumanTouchLaid";
-import { AutoMovieMotionHumanTouchUpright } from "../../compose/AutoMovieMotionHumanTouchUpright";
-import { AutoMovieMotionMeeting } from "../../compose/AutoMovieMotionMeeting";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
+import { AutoMovieMotionHumanTouchUpright } from "../../compose/internal/AutoMovieMotionHumanTouchUpright";
+import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { touchPrimitive } from "../../compose/internal/touchPrimitive";
-import { HumanHeld } from "../../handling/HumanHeld";
+import { HumanHeld } from "../../handling/internal/HumanHeld";
 import { handshake } from "../../handling/internal/handshake";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanSeatedReach } from "../HumanSeatedReach";
+import { HumanSeatedReach } from "./HumanSeatedReach";
 import { highFiveContact } from "./highFiveContact";
 import { touchReach } from "./touchReach";
 

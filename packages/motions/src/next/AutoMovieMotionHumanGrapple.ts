@@ -1,7 +1,7 @@
-import { HumanForceExchange as HumanForceExchangeLaw } from "../grappling/HumanForceExchange";
-import { HumanForceResponse as HumanForceResponseLaw } from "../grappling/HumanForceResponse";
-import { HumanForceThrow as HumanForceThrowLaw } from "../grappling/HumanForceThrow";
-import { HumanForceTrunk as HumanForceTrunkLaw } from "../grappling/HumanForceTrunk";
+import { HumanForceExchange as HumanForceExchangeLaw } from "../grappling/internal/HumanForceExchange";
+import { HumanForceResponse as HumanForceResponseLaw } from "../grappling/internal/HumanForceResponse";
+import { HumanForceThrow as HumanForceThrowLaw } from "../grappling/internal/HumanForceThrow";
+import { HumanForceTrunk as HumanForceTrunkLaw } from "../grappling/internal/HumanForceTrunk";
 import { clinch as clinchLaw } from "../grappling/internal/clinch";
 import { grapple as grappleLaw } from "../grappling/internal/grapple";
 import { kuzushi as kuzushiLaw } from "../grappling/internal/kuzushi";

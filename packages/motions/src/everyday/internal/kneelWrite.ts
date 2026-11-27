@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { kneelKeys } from "./kneelKeys";
 import { kneelLiftedFoot } from "./kneelLiftedFoot";

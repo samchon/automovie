@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTouchStance } from "../../compose/AutoMovieMotionHumanTouchStance";
+import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
 import { pickUpAdjust } from "./pickUpAdjust";
 import { pickUpLift } from "./pickUpLift";
 import { pickUpPosture } from "./pickUpPosture";

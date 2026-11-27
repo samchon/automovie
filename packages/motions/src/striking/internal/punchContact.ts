@@ -1,15 +1,15 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieBodyMeasure, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch, IAutoMovieMotionHumanStrikingAim, IAutoMovieMotionHumanStrikingReach, IAutoMovieMotionTarget, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
-import { StrikingAim } from "../StrikingAim";
-import { StrikingBody } from "../StrikingBody";
-import { StrikingQuality } from "../StrikingQuality";
-import { StrikingReach } from "../StrikingReach";
-import { StrikingRoom } from "../StrikingRoom";
-import { StrikingSkill } from "../StrikingSkill";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingTarget } from "../StrikingTarget";
+import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
+import { StrikingAim } from "./StrikingAim";
+import { StrikingBody } from "./StrikingBody";
+import { StrikingQuality } from "./StrikingQuality";
+import { StrikingReach } from "./StrikingReach";
+import { StrikingRoom } from "./StrikingRoom";
+import { StrikingSkill } from "./StrikingSkill";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingTarget } from "./StrikingTarget";
 import { punchFootwork } from "./punchFootwork";
 import type { punchGeometry } from "./punchGeometry";
 import type { punchLaunch } from "./punchLaunch";

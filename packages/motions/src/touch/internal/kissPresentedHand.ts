@@ -8,11 +8,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { HumanGaze } from "../../everyday/HumanGaze";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanGaze } from "../../everyday/internal/HumanGaze";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { kissCanLower } from "./kissCanLower";
 import { kissHandClearance } from "./kissHandClearance";

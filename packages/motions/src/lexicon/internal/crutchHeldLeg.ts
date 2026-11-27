@@ -15,14 +15,14 @@ import type {
 } from "@automovie/interface";
 
 import { walkFoot } from "../../actions/internal/walkFoot";
-import { AutoMovieMotionHumanAuditTangleModel as Tangle } from "../../audit/AutoMovieMotionHumanAuditTangleModel";
+import { AutoMovieMotionHumanAuditTangleModel as Tangle } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { HumanArmRefine } from "../../posture/HumanArmRefine";
-import { HumanAuditModel } from "../../posture/HumanAuditModel";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
-import { HumanSequentialConvex as SCO } from "../../posture/HumanSequentialConvex";
-import { HumanSequentialConvexFunctions as F } from "../../posture/HumanSequentialConvexFunctions";
+import { HumanArmRefine } from "../../posture/internal/HumanArmRefine";
+import { HumanAuditModel } from "../../posture/internal/HumanAuditModel";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
+import { HumanSequentialConvex as SCO } from "../../posture/internal/HumanSequentialConvex";
+import { HumanSequentialConvexFunctions as F } from "../../posture/internal/HumanSequentialConvexFunctions";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crutchHeldLegSweptDepth } from "./crutchHeldLegSweptDepth";

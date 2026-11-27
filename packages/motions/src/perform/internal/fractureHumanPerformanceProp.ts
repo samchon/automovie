@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanPerformance } from "../HumanPerformance";
-import { HumanPropFracture } from "../HumanPropFracture";
+import { HumanPropFracture } from "./HumanPropFracture";
 
 /**
  * Stage a model's replacement at a recorded hit on a placed prop

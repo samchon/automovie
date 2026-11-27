@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
 /**
  * Aim the hip-to-mouth vector at the horizontal projection of the skin. A roll

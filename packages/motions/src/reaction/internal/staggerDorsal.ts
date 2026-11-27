@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { walkLeg } from "../../actions/internal/walkLeg";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { staggerNearest } from "./staggerNearest";
 
 /**

@@ -22,18 +22,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanSeatedReach } from "../../touch/HumanSeatedReach";
-import { HumanGrip } from "../HumanGrip";
-import { HumanHandover } from "../HumanHandover";
-import { HumanHandoverMeeting } from "../HumanHandoverMeeting";
-import { HumanHandoverUpright } from "../HumanHandoverUpright";
-import { HumanPrehension } from "../HumanPrehension";
-import { HumanPreshape } from "../HumanPreshape";
+import { HumanSeatedReach } from "../../touch/internal/HumanSeatedReach";
+import { HumanGrip } from "./HumanGrip";
+import { HumanHandover } from "./HumanHandover";
+import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
+import { HumanHandoverUpright } from "./HumanHandoverUpright";
+import { HumanPrehension } from "./HumanPrehension";
+import { HumanPreshape } from "./HumanPreshape";
 import { handshake } from "./handshake";
 
 /**

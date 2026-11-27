@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /**
  * The armed partner of a disarm (`IAutoMovieMotionHumanDisarm.IYield`). The

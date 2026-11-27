@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanRise,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHead } from "../../compose/AutoMovieMotionHumanHead";
+import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { kissBody } from "./kissBody";
 
 /** The alternatives of `KissPoseHeldBone2`'s site. */

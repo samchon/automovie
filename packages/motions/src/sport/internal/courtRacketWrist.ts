@@ -11,11 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanHand } from "../../posture/HumanHand";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
-import { StrikingHeld } from "../../striking/StrikingHeld";
+import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 
 /** The racket face at contact and the grip-preserving goal on a wrist path. */
 interface IRacketWrist {

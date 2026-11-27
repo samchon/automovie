@@ -19,11 +19,11 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
 import { supportCourse } from "../../actions/internal/supportCourse";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crossingClearance } from "./crossingClearance";

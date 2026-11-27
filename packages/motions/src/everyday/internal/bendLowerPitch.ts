@@ -10,9 +10,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { HumanTrunk } from "../HumanTrunk";
+import { HumanTrunk } from "./HumanTrunk";
 import { bendLower } from "./bendLower";
 
 /**

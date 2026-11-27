@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /**
  * The rotation that takes a held infant's `+Y` to its body's line and its `+Z`

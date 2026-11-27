@@ -15,20 +15,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmAngles } from "../../compose/AutoMovieMotionHumanArmAngles";
-import { AutoMovieMotionHumanArmBase } from "../../compose/AutoMovieMotionHumanArmBase";
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionHumanArmObservation } from "../../compose/AutoMovieMotionHumanArmObservation";
+import { AutoMovieMotionHumanArmAngles } from "../../compose/internal/AutoMovieMotionHumanArmAngles";
+import { AutoMovieMotionHumanArmBase } from "../../compose/internal/AutoMovieMotionHumanArmBase";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArmObservation } from "../../compose/internal/AutoMovieMotionHumanArmObservation";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanSegment } from "../../perform/HumanSegment";
-import { HumanSegmentPose } from "../../perform/HumanSegmentPose";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanSegment } from "../../perform/internal/HumanSegment";
+import { HumanSegmentPose } from "../../perform/internal/HumanSegmentPose";
 import { prepareHumanSegmentPose } from "../../perform/internal/prepareHumanSegmentPose";
-import { HumanArmClearance } from "../../posture/HumanArmClearance";
-import { HumanArmMirror } from "../../posture/HumanArmMirror";
-import { HumanArmTrajectory } from "../../posture/HumanArmTrajectory";
-import { HumanArmTrajectoryMirror } from "../../posture/HumanArmTrajectoryMirror";
-import { HumanArmTrajectoryTerms } from "../../posture/HumanArmTrajectoryTerms";
+import { HumanArmClearance } from "../../posture/internal/HumanArmClearance";
+import { HumanArmMirror } from "../../posture/internal/HumanArmMirror";
+import { HumanArmTrajectory } from "../../posture/internal/HumanArmTrajectory";
+import { HumanArmTrajectoryMirror } from "../../posture/internal/HumanArmTrajectoryMirror";
+import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { inspectHumanArmFaceCourse } from "../../posture/internal/inspectHumanArmFaceCourse";
 
 /** The record of `IPrepareToolPlaybackProps`'s site. */

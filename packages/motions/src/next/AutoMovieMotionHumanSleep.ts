@@ -1,6 +1,6 @@
 import { lieTogether as lieTogetherLaw } from "../floor/internal/lieTogether";
 import { pullCover as pullCoverLaw } from "../floor/internal/pullCover";
-import { sleep as sleepLaw } from "../floor/sleep";
+import { sleep as sleepLaw } from "../floor/internal/sleep";
 
 /**
  * Sleeping: over a long lie the performer turns over seeded times into

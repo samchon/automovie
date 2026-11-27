@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPhysics } from "../../law/HumanPhysics";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanBalance } from "../HumanBalance";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanBalance } from "./HumanBalance";
 import { bendLower } from "./bendLower";
 import { bendLowerPitch } from "./bendLowerPitch";
 

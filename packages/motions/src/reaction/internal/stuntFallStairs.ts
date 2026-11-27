@@ -20,7 +20,7 @@ import type {
 
 import { lieDown } from "../../floor/internal/lieDown";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
+import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { stuntFallPose } from "./stuntFallPose";

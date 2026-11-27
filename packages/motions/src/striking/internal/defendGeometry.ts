@@ -1,11 +1,11 @@
 import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanDefend, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPlacedAction, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import { StrikingBody } from "../StrikingBody";
-import { StrikingGuardBones } from "../StrikingGuardBones";
-import { StrikingQuality } from "../StrikingQuality";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingTarget } from "../StrikingTarget";
+import { StrikingBody } from "./StrikingBody";
+import { StrikingGuardBones } from "./StrikingGuardBones";
+import { StrikingQuality } from "./StrikingQuality";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingTarget } from "./StrikingTarget";
 import type { defendFootwork } from "./defendFootwork";
 import { defendGoals } from "./defendGoals";
 

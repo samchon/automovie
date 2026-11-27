@@ -22,16 +22,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { lieTogetherCurl } from "./lieTogetherCurl";
 import { lieTogetherDrape } from "./lieTogetherDrape";
 import { lieTogetherFrame } from "./lieTogetherFrame";

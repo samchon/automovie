@@ -2,10 +2,10 @@ import { composeHumanStraightenTie as composeHumanStraightenTieLaw } from "../dr
 import { dress as dressLaw } from "../dressing/internal/dress";
 import { tipHat as tipHatLaw } from "../dressing/internal/tipHat";
 import { wardrobe as wardrobeLaw } from "../dressing/internal/wardrobe";
-import { HumanSheath as HumanSheathSource } from "../handling/HumanSheath";
+import { HumanSheath as HumanSheathSource } from "../handling/internal/HumanSheath";
 import { drawFromCarrier as drawFromCarrierLaw } from "../handling/internal/drawFromCarrier";
-import { HumanCarrierCustody as HumanCarrierCustodySource } from "../lexicon/HumanCarrierCustody";
-import { HumanDressRows as HumanDressRowsSource } from "../lexicon/HumanDressRows";
+import { HumanCarrierCustody as HumanCarrierCustodySource } from "../lexicon/internal/HumanCarrierCustody";
+import { HumanDressRows as HumanDressRowsSource } from "../lexicon/internal/HumanDressRows";
 
 /**
  * Putting on, taking off and fastening clothing.

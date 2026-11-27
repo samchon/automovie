@@ -14,7 +14,7 @@ import type {
   IAutoMovieSwivelNear,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 
 /**
  * Prepare a limb's unchanged source pose, clinical mappings, reference and

@@ -20,10 +20,10 @@ import { walkClear } from "../../actions/internal/walkClear";
 import { walkDelayed } from "../../actions/internal/walkDelayed";
 import { walkStation } from "../../gait/internal/walkStation";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanEffort } from "../HumanEffort";
-import { HumanProxemics } from "../HumanProxemics";
-import { HumanTrunk } from "../HumanTrunk";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanEffort } from "./HumanEffort";
+import { HumanProxemics } from "./HumanProxemics";
+import { HumanTrunk } from "./HumanTrunk";
 import { approachAbeam } from "./approachAbeam";
 
 /** The record of `IToStop`'s site. */

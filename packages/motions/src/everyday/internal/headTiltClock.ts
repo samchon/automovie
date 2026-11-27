@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanHeadTilt,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { HumanBound } from "../../law/internal/HumanBound";
 
 /**
  * A head tilt's clock: the phrase, 0.9 seconds when unstated and at least 0.6,

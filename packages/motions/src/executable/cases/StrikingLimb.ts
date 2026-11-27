@@ -1,9 +1,9 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanColliders } from "../../posture/HumanColliders";
-import { StrikingRecord } from "../../striking/StrikingRecord";
-import { StrikingWeapon } from "../../striking/StrikingWeapon";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { StrikingRecord } from "../../striking/internal/StrikingRecord";
+import { StrikingWeapon } from "../../striking/internal/StrikingWeapon";
 
 /**
  * A striking limb as the capture audits it, measured on the displayed bones and

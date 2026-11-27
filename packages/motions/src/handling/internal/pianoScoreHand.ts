@@ -1,6 +1,6 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
-import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
+import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { type resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 
 /** A hand placement shared by every key in a voicing. */

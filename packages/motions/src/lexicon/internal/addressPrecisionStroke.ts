@@ -1,8 +1,8 @@
 import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanPlaced } from "../../compose/AutoMovieMotionHumanPlaced";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 

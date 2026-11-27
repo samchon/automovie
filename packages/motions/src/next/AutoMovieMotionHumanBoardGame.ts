@@ -1,4 +1,4 @@
-import { HumanTabletop as HumanTabletopSource } from "../lexicon/HumanTabletop";
+import { HumanTabletop as HumanTabletopSource } from "../lexicon/internal/HumanTabletop";
 
 /**
  * Tabletop handling composed from pickups and placements: a chess move with its

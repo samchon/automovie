@@ -1,5 +1,5 @@
-import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
-import type { HumanKnot } from "../HumanKnot";
+import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
+import type { HumanKnot } from "./HumanKnot";
 import { prepareHumanAdaptiveKnots } from "./prepareHumanAdaptiveKnots";
 import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 

@@ -19,23 +19,23 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArmPhrase } from "../../compose/AutoMovieMotionHumanArmPhrase";
-import { AutoMovieMotionHumanArmReach } from "../../compose/AutoMovieMotionHumanArmReach";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
+import { AutoMovieMotionHumanArmReach } from "../../compose/internal/AutoMovieMotionHumanArmReach";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { handToFaceMirrored } from "../../daily/internal/handToFaceMirrored";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanHandDirection } from "../../posture/HumanHandDirection";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanHandDirection } from "../../posture/internal/HumanHandDirection";
 import { poseBones } from "../../posture/internal/poseBones";
-import type { IArmPhraseArm } from "../IArmPhraseArm";
+import type { IArmPhraseArm } from "./IArmPhraseArm";
 import { armPhraseFacing } from "./armPhraseFacing";
 
 /** The record of `IPlanArmsNamed`'s site. */

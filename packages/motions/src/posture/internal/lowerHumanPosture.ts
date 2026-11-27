@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditLimits } from "../../audit/AutoMovieMotionHumanAuditLimits";
+import { AutoMovieMotionHumanAuditLimits } from "../../audit/internal/AutoMovieMotionHumanAuditLimits";
 import { hipJoints } from "./hipJoints";
-import { humanPostureHeading } from "../humanPostureHeading";
+import { humanPostureHeading } from "./humanPostureHeading";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /** An absent plant, distinct from an invalid point on a present plant. */

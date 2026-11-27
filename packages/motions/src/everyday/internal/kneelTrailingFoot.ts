@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { kneelKeys } from "./kneelKeys";
 
 /**

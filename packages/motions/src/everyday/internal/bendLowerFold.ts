@@ -5,8 +5,8 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangle } from "../../audit/AutoMovieMotionHumanAuditTangle";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
+import { AutoMovieMotionHumanAuditTangle } from "../../audit/internal/AutoMovieMotionHumanAuditTangle";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { bendLower } from "./bendLower";

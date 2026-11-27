@@ -8,10 +8,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanDrinkingPool } from "../../compose/AutoMovieMotionHumanDrinkingPool";
-import { AutoMovieMotionHumanTouchDrink } from "../../compose/AutoMovieMotionHumanTouchDrink";
-import { AutoMovieMotionHumanTouchStance } from "../../compose/AutoMovieMotionHumanTouchStance";
-import { AutoMovieMotionHumanTouchUpright } from "../../compose/AutoMovieMotionHumanTouchUpright";
+import { AutoMovieMotionHumanDrinkingPool } from "../../compose/internal/AutoMovieMotionHumanDrinkingPool";
+import { AutoMovieMotionHumanTouchDrink } from "../../compose/internal/AutoMovieMotionHumanTouchDrink";
+import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
+import { AutoMovieMotionHumanTouchUpright } from "../../compose/internal/AutoMovieMotionHumanTouchUpright";
 
 /** The alternatives of `OfPlace`'s site. */
 type OfPlace = "point" | "normal";

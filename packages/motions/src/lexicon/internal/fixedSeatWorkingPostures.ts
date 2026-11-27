@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { seated } from "../../everyday/internal/seated";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { fixedSeatFootSwing } from "./fixedSeatFootSwing";

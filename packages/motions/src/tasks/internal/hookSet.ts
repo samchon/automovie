@@ -8,8 +8,8 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { wardrobeHands } from "../../dressing/internal/wardrobeHands";
 import { hookSetTip } from "./hookSetTip";
 

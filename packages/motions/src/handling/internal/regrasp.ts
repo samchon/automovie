@@ -26,9 +26,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanGrasp } from "../HumanGrasp";
+import { HumanGrasp } from "./HumanGrasp";
 
 /**
  * A held object moved within or with the hand that holds it, without being put

@@ -14,8 +14,8 @@ import type {
 
 import { jump } from "../../actions/internal/jump";
 import { stepOver } from "../../everyday/internal/stepOver";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { crossingClearance } from "./crossingClearance";
 import { crossingSurface } from "./crossingSurface";

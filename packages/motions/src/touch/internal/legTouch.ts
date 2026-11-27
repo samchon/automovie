@@ -20,18 +20,18 @@ import type {
 } from "@automovie/interface";
 
 import { prepareSupportCorrection } from "../../actions/internal/prepareSupportCorrection";
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
-import { HumanBalance } from "../../everyday/HumanBalance";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { prepareGroundedBalance } from "../../everyday/internal/prepareGroundedBalance";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanPhysics } from "../../law/HumanPhysics";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanArmTrajectoryTerms } from "../../posture/HumanArmTrajectoryTerms";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";

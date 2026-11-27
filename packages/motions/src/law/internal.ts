@@ -1,8 +1,8 @@
 // The law internals the test programme reads directly, re-exported by `../internal`.
 
-export * from "./HumanBase";
-export * from "./HumanBound";
-export * from "./HumanPhysics";
-export * from "./HumanContactWindow";
-export * from "./HumanPerception";
+export * from "./internal/HumanBase";
+export * from "./internal/HumanBound";
+export * from "./internal/HumanPhysics";
+export * from "./internal/HumanContactWindow";
+export * from "./internal/HumanPerception";
 export * from "./HumanRefusal";

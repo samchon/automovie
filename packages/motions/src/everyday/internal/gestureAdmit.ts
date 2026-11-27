@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanGestureStroke,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { gesture } from "./gesture";
 import { gestureStrokeTables } from "./gestureStrokeTables";

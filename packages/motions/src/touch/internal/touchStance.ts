@@ -8,8 +8,8 @@ import type {
   IAutoMovieMotionHumanTouchStance,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanTouchStance } from "../../compose/AutoMovieMotionHumanTouchStance";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
 import { pickUpAdjust } from "../../handling/internal/pickUpAdjust";
 import type { pickUpPosture } from "../../handling/internal/pickUpPosture";
 import { HumanRefusal } from "../../law/HumanRefusal";

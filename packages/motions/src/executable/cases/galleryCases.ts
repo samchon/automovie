@@ -6,8 +6,8 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
 import { galleryCaseFist } from "./internal/galleryCaseFist";
 import { galleryCaseZero } from "./internal/galleryCaseZero";
 

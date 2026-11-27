@@ -9,8 +9,8 @@ import type {
 
 import { HumanChain } from "../../chain/HumanChain";
 import { operate } from "../../affordance/internal/operate";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { motionCaseSocket } from "./internal/motionCaseSocket";

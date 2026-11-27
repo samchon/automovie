@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /**
  * Where a presented hand's palm goes: where the arm reaches with the upper arm

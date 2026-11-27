@@ -1,5 +1,5 @@
-import { AutoMovieMotionHumanOperateHelpers } from "./AutoMovieMotionHumanOperateHelpers";
-import { AutoMovieMotionHumanOperateLaws } from "./AutoMovieMotionHumanOperateLaws";
+import { AutoMovieMotionHumanOperateHelpers } from "./internal/AutoMovieMotionHumanOperateHelpers";
+import { AutoMovieMotionHumanOperateLaws } from "./internal/AutoMovieMotionHumanOperateLaws";
 
 /**
  * Working an object or a device by hand: a control, a pour, a tool, writing or

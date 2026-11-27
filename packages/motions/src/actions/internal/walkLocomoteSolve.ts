@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import { walkFoot } from "./walkFoot";
 import { walkLocomoteGround } from "./walkLocomoteGround";

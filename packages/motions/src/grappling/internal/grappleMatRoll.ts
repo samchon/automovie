@@ -7,7 +7,7 @@ import type {
 
 import { floorEntry } from "../../floor/internal/floorEntry";
 import { knockdown } from "../../reaction/internal/knockdown";
-import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
+import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 
 /**
  * Continue a grounded shoulder exchange into a mat roll as soon as the

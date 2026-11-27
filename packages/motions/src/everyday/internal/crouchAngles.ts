@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanCrouch } from "@automovie/interface";
 
-import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
+import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
 /**

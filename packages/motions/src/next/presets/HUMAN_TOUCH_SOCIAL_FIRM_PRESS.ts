@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanTouch } from "@automovie/interface";
 
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 
 /**
  * The values the `firmPress` row of `HumanSocial` fixes on `touch`, spread into

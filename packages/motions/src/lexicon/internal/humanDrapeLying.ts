@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 
 /**
  * A drape's own staging in the carrier contact's frame: the body lies face down

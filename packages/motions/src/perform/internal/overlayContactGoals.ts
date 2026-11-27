@@ -11,7 +11,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
 import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
 

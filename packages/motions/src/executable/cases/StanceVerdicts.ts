@@ -2,8 +2,8 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditBalance } from "../../audit/AutoMovieMotionHumanAuditBalance";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { AutoMovieMotionHumanAuditBalance } from "../../audit/internal/AutoMovieMotionHumanAuditBalance";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 
 /** The record of `IWorstOutsideWorst`'s site. */
 type IWorstOutsideWorst = { value: number; at: number };

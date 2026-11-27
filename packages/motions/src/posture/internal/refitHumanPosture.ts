@@ -10,9 +10,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanLimbFit } from "../HumanLimbFit";
-import { HumanLimbPair } from "../HumanLimbPair";
-import type { HumanLimbView } from "../HumanLimbView";
+import { HumanLimbFit } from "./HumanLimbFit";
+import { HumanLimbPair } from "./HumanLimbPair";
+import type { HumanLimbView } from "./HumanLimbView";
 import { applyHumanLimbFit } from "./applyHumanLimbFit";
 import { orderHumanLimbs } from "./orderHumanLimbs";
 import { poseBones } from "./poseBones";

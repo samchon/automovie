@@ -1,7 +1,7 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
 /** The record of `IPrepareKneelClock`'s site. */
 type IPrepareKneelClock = { name: string };

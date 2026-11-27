@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
 /**
  * The pelvis's path.

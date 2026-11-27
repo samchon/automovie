@@ -1,11 +1,11 @@
 import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieAffordance, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanAidWalk, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanMountRider, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalShape, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { HumanMountRider } from "../HumanMountRider";
-import type { HumanRideHands } from "../HumanRideHands";
+import { HumanMountRider } from "./HumanMountRider";
+import type { HumanRideHands } from "./HumanRideHands";
 
 /** Palm-to-rod stage admission in world metres. */
 const GRIP_GAP: number = 0.01;

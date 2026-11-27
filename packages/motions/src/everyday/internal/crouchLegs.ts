@@ -9,14 +9,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { HumanTrunk } from "../HumanTrunk";
+import { HumanTrunk } from "./HumanTrunk";
 
 /**
  * A crouch's legs at a share of the descent (`crouch.plan`): the shank's and

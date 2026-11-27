@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanInstance,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { prepareInstancePosture } from "./prepareInstancePosture";
 

@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionMeetingTiming,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionMeeting } from "../../compose/AutoMovieMotionMeeting";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
 
 /**
  * A phrase with the kiss's two contact events: `contact` at its `ready` and

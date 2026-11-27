@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { HumanArmSwing } from "../../posture/HumanArmSwing";
+import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 
 /** The two arms. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

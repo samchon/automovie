@@ -1,7 +1,7 @@
 import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanStrikingRecord, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { StrikingLimb } from "./StrikingLimb";
 import { StrikingVerdictsGap } from "./StrikingVerdictsGap";
 

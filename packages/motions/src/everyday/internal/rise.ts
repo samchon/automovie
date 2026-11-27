@@ -23,17 +23,17 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { standUpright } from "../../actions/internal/standUpright";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanMountOff } from "../../lexicon/HumanMountOff";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanMountOff } from "../../lexicon/internal/HumanMountOff";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
-import { HumanBalance } from "../HumanBalance";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
+import { HumanBalance } from "./HumanBalance";
 import { prepareBearingTrunkBalance } from "./prepareBearingTrunkBalance";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
 import { prepareRiseFeet } from "./prepareRiseFeet";

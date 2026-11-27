@@ -13,10 +13,10 @@ import type {
 } from "@automovie/interface";
 
 import { jump } from "../../actions/internal/jump";
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { AthleticsRunUp } from "../AthleticsRunUp";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { AthleticsRunUp } from "./AthleticsRunUp";
 
 /**
  * A long jump out of a run: the run is cut at the take-off foot's footfall on

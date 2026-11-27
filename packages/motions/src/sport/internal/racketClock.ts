@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 
 /**
  * A solo racket or golf position's timetable: into the position in 0.6 s, the

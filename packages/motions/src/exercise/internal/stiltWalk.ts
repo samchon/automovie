@@ -19,11 +19,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { DanceFootwork } from "../DanceFootwork";
-import { ExerciseKey } from "../ExerciseKey";
+import { DanceFootwork } from "./DanceFootwork";
+import { ExerciseKey } from "./ExerciseKey";
 
 /**
  * A walk on stilts. Each foot stands strapped on its stilt's platform and

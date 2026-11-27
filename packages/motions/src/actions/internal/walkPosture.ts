@@ -11,11 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { prepareWalkSwingSeams } from "./prepareWalkSwingSeams";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";

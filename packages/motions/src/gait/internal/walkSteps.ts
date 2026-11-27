@@ -9,11 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { WalkPace } from "../../actions/WalkPace";
-import { WalkPath } from "../../actions/WalkPath";
-import { WalkTurn } from "../../actions/WalkTurn";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { WalkPace } from "../../actions/internal/WalkPace";
+import { WalkPath } from "../../actions/internal/WalkPath";
+import { WalkTurn } from "../../actions/internal/WalkTurn";
 import { runStance } from "../../actions/internal/runStance";
 import { stand } from "../../actions/internal/stand";
 import { walkFoot } from "../../actions/internal/walkFoot";

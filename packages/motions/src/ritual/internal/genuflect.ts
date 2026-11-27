@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanRitual,
 } from "@automovie/interface";
 
-import { GENUFLECT_HOLD } from "../GENUFLECT_HOLD";
+import { GENUFLECT_HOLD } from "./GENUFLECT_HOLD";
 import { signOfCross } from "./signOfCross";
 
 /**

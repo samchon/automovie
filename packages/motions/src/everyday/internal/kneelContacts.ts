@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { kneelKeys } from "./kneelKeys";
 import { prepareKneelFoot } from "./prepareKneelFoot";
 

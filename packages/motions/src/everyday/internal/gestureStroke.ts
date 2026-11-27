@@ -9,12 +9,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
-import { HumanTrunk } from "../HumanTrunk";
+import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovieMotionHumanTargetGrid";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
+import { HumanTrunk } from "./HumanTrunk";
 import { gestureJoints } from "./gestureJoints";
 import { gestureSignal } from "./gestureSignal";
 import { gestureStrokeTables } from "./gestureStrokeTables";

@@ -6,7 +6,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
 
 /** The foot point a stance rocker turns about. */

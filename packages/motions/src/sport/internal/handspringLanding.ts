@@ -13,10 +13,10 @@ import type {
 
 import { jump } from "../../actions/internal/jump";
 import { stand } from "../../actions/internal/stand";
-import { ExerciseKey } from "../../exercise/ExerciseKey";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 
 /**
  * The observed entry, flight and planted recovery inputs for a floor handspring

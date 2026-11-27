@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBall } from "../../ballStrike/HumanBall";
+import { HumanBall } from "../../ballStrike/internal/HumanBall";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { catchObject } from "./catchObject";
 import { readThrowObjectLaunch } from "./readThrowObjectLaunch";
 import { throwObject } from "./throwObject";

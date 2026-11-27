@@ -16,13 +16,13 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanSignature } from "../../audit/AutoMovieMotionHumanSignature";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmJointCourse } from "../../compose/AutoMovieMotionHumanArmJointCourse";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanHandTarget } from "../../posture/HumanHandTarget";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

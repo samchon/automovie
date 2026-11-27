@@ -4,7 +4,7 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidSocket, IAutoMovieMotionHuman
 import { HumanChain } from "../../chain/HumanChain";
 import { carry } from "../../carrying/internal/carry";
 import { carryPlace } from "../../carrying/internal/carryPlace";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 

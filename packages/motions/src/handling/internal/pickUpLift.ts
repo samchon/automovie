@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { bendLower } from "../../everyday/internal/bendLower";
 import { bendLowerSolve } from "../../everyday/internal/bendLowerSolve";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanArmTrajectoryTerms } from "../../posture/HumanArmTrajectoryTerms";
+import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

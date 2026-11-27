@@ -13,8 +13,8 @@ import type {
 
 import { support } from "../../actions/internal/support";
 import { getUp } from "../../floor/internal/getUp";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { ropeLine } from "./ropeLine";
 

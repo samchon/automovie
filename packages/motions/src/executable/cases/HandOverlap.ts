@@ -8,7 +8,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanColliders } from "../../posture/HumanColliders";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 
 /**
  * How deep two people's right hands enter each other, the rule the handshake

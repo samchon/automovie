@@ -11,8 +11,8 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { handReach } from "./handReach";
 import { palmSagitta } from "./palmSagitta";
 

@@ -17,12 +17,12 @@ import type {
 } from "@automovie/interface";
 
 import { walkLeg } from "../../actions/internal/walkLeg";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { DanceFootwork } from "../DanceFootwork";
-import { ExerciseKey } from "../ExerciseKey";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { DanceFootwork } from "./DanceFootwork";
+import { ExerciseKey } from "./ExerciseKey";
 import { dance } from "./dance";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 import { tapDanceFlights } from "./tapDanceFlights";

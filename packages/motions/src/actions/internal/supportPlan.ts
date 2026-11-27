@@ -11,8 +11,8 @@ import type {
   IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
 
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanArmSwing } from "../../posture/HumanArmSwing";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { knockdown } from "../../reaction/internal/knockdown";

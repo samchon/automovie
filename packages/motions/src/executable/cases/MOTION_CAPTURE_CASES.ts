@@ -1,5 +1,5 @@
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
 import { affectionCases } from "./affectionCases";
 import { affordanceCases } from "./affordanceCases";
 import { athleticsCases } from "./athleticsCases";

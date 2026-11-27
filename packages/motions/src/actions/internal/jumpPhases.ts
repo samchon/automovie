@@ -14,9 +14,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";

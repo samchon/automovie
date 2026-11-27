@@ -11,10 +11,10 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import { HumanFreeCurveFit } from "../HumanFreeCurveFit";
-import { HumanFreeCurveIntervals } from "../HumanFreeCurveIntervals";
-import { HumanPosturePreparation } from "../HumanPosturePreparation";
-import { HumanPostureRaw } from "../HumanPostureRaw";
+import { HumanFreeCurveFit } from "./HumanFreeCurveFit";
+import { HumanFreeCurveIntervals } from "./HumanFreeCurveIntervals";
+import { HumanPosturePreparation } from "./HumanPosturePreparation";
+import { HumanPostureRaw } from "./HumanPostureRaw";
 import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";

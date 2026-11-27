@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { WalkPace } from "../WalkPace";
-import type { WalkPath } from "../WalkPath";
+import type { WalkPace } from "./WalkPace";
+import type { WalkPath } from "./WalkPath";
 import type { runStance } from "./runStance";
 import { walkRoot } from "./walkRoot";
 import { walkStepFoot } from "./walkStepFoot";

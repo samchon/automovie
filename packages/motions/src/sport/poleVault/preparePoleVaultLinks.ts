@@ -8,7 +8,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanObject } from "../../perform/HumanObject";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 
 /**
  * Bind the material link beneath every actual shaft grip, including when a grip

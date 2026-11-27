@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanPlaced } from "../../compose/AutoMovieMotionHumanPlaced";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /** The record of `IArmsProps`'s site. */
 type IArmsProps = {

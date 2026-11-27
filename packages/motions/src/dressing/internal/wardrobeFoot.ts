@@ -14,12 +14,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { wardrobeFootRaisedLeg } from "./wardrobeFootRaisedLeg";

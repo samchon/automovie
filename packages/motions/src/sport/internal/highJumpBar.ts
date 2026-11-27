@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import type { AthleticsRunUp } from "../AthleticsRunUp";
+import type { AthleticsRunUp } from "./AthleticsRunUp";
 
 /** The alternatives of `OfContext`'s site. */
 type OfContext = "prop" | "start";

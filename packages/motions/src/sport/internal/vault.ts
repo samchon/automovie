@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { WorkoutSupport } from "../../exercise/WorkoutSupport";
+import { WorkoutSupport } from "../../exercise/workout/WorkoutSupport";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { handspring } from "./handspring";
 

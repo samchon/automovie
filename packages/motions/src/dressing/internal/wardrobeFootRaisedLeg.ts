@@ -13,7 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { wardrobeHands } from "./wardrobeHands";
 
 /** One bone's clinical flexion, abduction and twist, degrees. */

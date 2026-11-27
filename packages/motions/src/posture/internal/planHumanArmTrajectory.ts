@@ -5,23 +5,23 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanArmGeometry as G } from "../HumanArmGeometry";
-import { HumanArmRefine } from "../HumanArmRefine";
-import { HumanArmSeed } from "../HumanArmSeed";
-import { HumanArmTrajectory } from "../HumanArmTrajectory";
-import { HumanArmTrajectoryAdmission as Admission } from "../HumanArmTrajectoryAdmission";
-import { HumanArmTrajectoryContactCircle } from "../HumanArmTrajectoryContactCircle";
-import { HumanArmTrajectoryContext } from "../HumanArmTrajectoryContext";
-import { HumanArmTrajectoryKnots as Knots } from "../HumanArmTrajectoryKnots";
-import { HumanArmTrajectoryMirror as Mirror } from "../HumanArmTrajectoryMirror";
-import { HumanArmTrajectoryModel as M } from "../HumanArmTrajectoryModel";
-import { HumanArmTrajectoryPace as Pace } from "../HumanArmTrajectoryPace";
-import { HumanArmTrajectoryPaced } from "../HumanArmTrajectoryPaced";
-import { HumanArmTrajectoryPairs as P } from "../HumanArmTrajectoryPairs";
-import { HumanArmTrajectoryPlayback } from "../HumanArmTrajectoryPlayback";
-import { HumanArmTrajectoryRetime as Retime } from "../HumanArmTrajectoryRetime";
-import { HumanArmTrajectoryStretch as Stretch } from "../HumanArmTrajectoryStretch";
-import { HumanArmTrajectoryTerms as T } from "../HumanArmTrajectoryTerms";
+import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import { HumanArmRefine } from "./HumanArmRefine";
+import { HumanArmSeed } from "./HumanArmSeed";
+import { HumanArmTrajectory } from "./HumanArmTrajectory";
+import { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
+import { HumanArmTrajectoryContactCircle } from "./HumanArmTrajectoryContactCircle";
+import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
+import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
+import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
+import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
+import { HumanArmTrajectoryPaced } from "./HumanArmTrajectoryPaced";
+import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
+import { HumanArmTrajectoryRetime as Retime } from "./HumanArmTrajectoryRetime";
+import { HumanArmTrajectoryStretch as Stretch } from "./HumanArmTrajectoryStretch";
+import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
 /**

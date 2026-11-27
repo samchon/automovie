@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateReach } from "./manipulateReach";
 import { manipulateShape } from "./manipulateShape";

@@ -2,7 +2,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import type { IMotionCaptureCase } from "./IMotionCaptureCase";
+import type { IMotionCaptureCase } from "./internal/IMotionCaptureCase";
 import { buildMotionCaptureCases } from "./internal/buildMotionCaptureCases";
 import { planMotionCaptureProps } from "./internal/planMotionCaptureProps";
 

@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { WalkPace } from "../WalkPace";
+import { WalkPace } from "./WalkPace";
 import type { walkStepFoot } from "./walkStepFoot";
 
 /**

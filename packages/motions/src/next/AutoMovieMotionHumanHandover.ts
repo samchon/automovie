@@ -1,4 +1,4 @@
-import { HumanHandover as HumanHandoverSource } from "../handling/HumanHandover";
+import { HumanHandover as HumanHandoverSource } from "../handling/internal/HumanHandover";
 import { handOver as handOverLaw } from "../handling/internal/handOver";
 import { handshake as handshakeLaw } from "../handling/internal/handshake";
 import { receive as receiveLaw } from "../handling/internal/receive";

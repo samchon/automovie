@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /**
  * The race line a bicycle transfer meets (World Triathlon Competition Rules

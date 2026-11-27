@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { walkLeg } from "../../actions/internal/walkLeg";
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";

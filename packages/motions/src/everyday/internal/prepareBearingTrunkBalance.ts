@@ -5,9 +5,9 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { HumanContactWindow } from "../../law/HumanContactWindow";
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanSupportPatch } from "../../posture/HumanSupportPatch";
+import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanSupportPatch } from "../../posture/internal/HumanSupportPatch";
 import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
 
 /**

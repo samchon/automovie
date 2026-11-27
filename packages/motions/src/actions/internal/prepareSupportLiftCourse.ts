@@ -1,4 +1,4 @@
-import { HumanArmTrajectoryTerms } from "../../posture/HumanArmTrajectoryTerms";
+import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 
 /**

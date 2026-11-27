@@ -6,7 +6,7 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { HumanLimbFit } from "../HumanLimbFit";
+import { HumanLimbFit } from "./HumanLimbFit";
 
 /**
  * A limb's reference solution read off a pose: the clinical angles of its

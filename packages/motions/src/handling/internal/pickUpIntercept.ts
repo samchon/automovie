@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanGrasp } from "../HumanGrasp";
+import { HumanGrasp } from "./HumanGrasp";
 
 /** The provisional maximum supported conveyor speed, in m/s. */
 const maximumSpeed: number = 0.25;

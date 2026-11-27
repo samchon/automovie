@@ -13,10 +13,10 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { walk } from "../../gait/internal/walk";
 import { walkFoot } from "../../actions/internal/walkFoot";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { unloadedFoot } from "../../carrier/internal/unloadedFoot";
 import { hipJoints } from "../../posture/internal/hipJoints";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { seated } from "./seated";
 import { sitPlace } from "./sitPlace";

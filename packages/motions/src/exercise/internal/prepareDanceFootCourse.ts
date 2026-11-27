@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanFoot } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 
 /** A fixed floor offset in metres: x to the performer's left, z forward. */
 interface IOffset {

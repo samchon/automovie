@@ -1,6 +1,6 @@
-import { HumanArchery as HumanArcherySource } from "../lexicon/HumanArchery";
-import { HumanLasso as HumanLassoSource } from "../lexicon/HumanLasso";
-import { HumanThrownWeapon as HumanThrownWeaponSource } from "../lexicon/HumanThrownWeapon";
+import { HumanArchery as HumanArcherySource } from "../lexicon/internal/HumanArchery";
+import { HumanLasso as HumanLassoSource } from "../lexicon/internal/HumanLasso";
+import { HumanThrownWeapon as HumanThrownWeaponSource } from "../lexicon/internal/HumanThrownWeapon";
 import { HUMAN_ARCHERY_PRESENT_BOW } from "./presets/HUMAN_ARCHERY_PRESENT_BOW";
 import { HUMAN_ARCHERY_THROW_JAVELIN } from "./presets/HUMAN_ARCHERY_THROW_JAVELIN";
 import { HUMAN_ARCHERY_THROW_KNIFE } from "./presets/HUMAN_ARCHERY_THROW_KNIFE";

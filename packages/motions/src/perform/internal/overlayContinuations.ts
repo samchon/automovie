@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { orderHumanLimbs } from "../../posture/internal/orderHumanLimbs";
-import { HumanSegmentPose } from "../HumanSegmentPose";
+import { HumanSegmentPose } from "./HumanSegmentPose";
 
 /**
  * The matching nearby fits for an overlay leaf tag, or the final contacts

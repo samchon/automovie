@@ -4,7 +4,7 @@ import { dance as danceLaw } from "../exercise/internal/dance";
 import { groupDance as groupDanceLaw } from "../exercise/internal/groupDance";
 import { streetDance as streetDanceLaw } from "../exercise/internal/streetDance";
 import { tapDance as tapDanceLaw } from "../exercise/internal/tapDance";
-import { HumanDanceStyles as HumanDanceStylesSource } from "../lexicon/HumanDanceStyles";
+import { HumanDanceStyles as HumanDanceStylesSource } from "../lexicon/internal/HumanDanceStyles";
 import { composeHumanSlowDanceSway as composeHumanSlowDanceSwayLaw } from "../touch/internal/composeHumanSlowDanceSway";
 
 /**

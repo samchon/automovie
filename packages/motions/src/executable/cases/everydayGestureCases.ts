@@ -3,8 +3,8 @@ import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanGestureStroke, IA
 
 import { HumanChain } from "../../chain/HumanChain";
 import { gestureStrokeTables } from "../../everyday/internal/gestureStrokeTables";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayGestureVerdicts } from "./everydayGestureVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

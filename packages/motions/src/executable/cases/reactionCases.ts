@@ -9,14 +9,14 @@ import type {
 
 import { HumanChain } from "../../chain/HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
+import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { flinch } from "../../reaction/internal/flinch";
-import { StrikingBody } from "../../striking/StrikingBody";
-import { StrikingQuality } from "../../striking/StrikingQuality";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
+import { StrikingQuality } from "../../striking/internal/StrikingQuality";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

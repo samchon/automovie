@@ -3,9 +3,9 @@ import type {
   IAutoMovieMotionHumanSabre,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanSabreForm } from "../HumanSabreForm";
+import { HumanSabreForm } from "./HumanSabreForm";
 
 /**
  * Admit a mounted sabre's carry and charge: the carry has some length and the

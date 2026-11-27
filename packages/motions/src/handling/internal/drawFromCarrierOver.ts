@@ -16,9 +16,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanGrip } from "../HumanGrip";
+import { HumanGrip } from "./HumanGrip";
 import { drawFromCarrierPulling } from "./drawFromCarrierPulling";
 
 /**

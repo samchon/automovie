@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanMinimumJerkSpline } from "../../posture/HumanMinimumJerkSpline";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanMinimumJerkSpline } from "../../posture/internal/HumanMinimumJerkSpline";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 import { useTool } from "./useTool";
 import { useToolCycle } from "./useToolCycle";

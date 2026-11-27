@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { jump } from "../../actions/internal/jump";
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 
 /**
  * A salto: a jump whose flight turns the whole body head over heels about its

@@ -9,13 +9,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanFootRelax } from "../../compose/AutoMovieMotionHumanFootRelax";
+import { AutoMovieMotionHumanFootRelax } from "../../compose/internal/AutoMovieMotionHumanFootRelax";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { StrikingArrest } from "../StrikingArrest";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingTarget } from "../StrikingTarget";
-import { StrikingTwist } from "../StrikingTwist";
+import { StrikingArrest } from "./StrikingArrest";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingTarget } from "./StrikingTarget";
+import { StrikingTwist } from "./StrikingTwist";
 import type { punchGeometry } from "./punchGeometry";
 import { strikingStepSupport } from "./strikingStepSupport";
 

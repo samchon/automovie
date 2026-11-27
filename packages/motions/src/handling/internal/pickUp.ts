@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanPickUp,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { pickUpPosture } from "./pickUpPosture";
 import { planPickUpGrasp } from "./planPickUpGrasp";
 

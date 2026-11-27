@@ -21,17 +21,17 @@ import type {
 } from "@automovie/interface";
 
 import type { walkPoleFrame } from "../../actions/internal/walkPoleFrame";
-import { WorkoutSupport } from "../../exercise/WorkoutSupport";
+import { WorkoutSupport } from "../../exercise/workout/WorkoutSupport";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import type { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { GymnasticsFlight } from "../GymnasticsFlight";
-import { GymnasticsMat } from "../GymnasticsMat";
-import { GymnasticsTakeoff } from "../GymnasticsTakeoff";
+import { GymnasticsFlight } from "../internal/GymnasticsFlight";
+import { GymnasticsMat } from "../internal/GymnasticsMat";
+import { GymnasticsTakeoff } from "../internal/GymnasticsTakeoff";
 import type { poleVaultBend } from "./poleVaultBend";
 import type { poleVaultSwing } from "./poleVaultSwing";
 import { prepareGymnasticsPlacement } from "../internal/prepareGymnasticsPlacement";

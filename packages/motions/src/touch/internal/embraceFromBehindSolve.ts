@@ -12,13 +12,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
-import { AutoMovieMotionHumanHead } from "../../compose/AutoMovieMotionHumanHead";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanAuditModel } from "../../posture/HumanAuditModel";
-import { HumanSequentialConvex } from "../../posture/HumanSequentialConvex";
-import { HumanSequentialConvexFunctions } from "../../posture/HumanSequentialConvexFunctions";
+import { HumanAuditModel } from "../../posture/internal/HumanAuditModel";
+import { HumanSequentialConvex } from "../../posture/internal/HumanSequentialConvex";
+import { HumanSequentialConvexFunctions } from "../../posture/internal/HumanSequentialConvexFunctions";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

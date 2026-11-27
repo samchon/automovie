@@ -8,7 +8,7 @@ import type {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { HumanArmObstacleBones } from "../HumanArmObstacleBones";
+import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 
 /** The alternatives of `HumanLimbReadsReadObstacles`'s site. */
 type HumanLimbReadsReadObstacles =

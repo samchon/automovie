@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { StrikingRoll } from "../../striking/StrikingRoll";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
 /**
  * The pose a put down that lays its prop at an authored resting attitude (a

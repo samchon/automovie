@@ -19,18 +19,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHead } from "../../compose/AutoMovieMotionHumanHead";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanJoints } from "../../compose/AutoMovieMotionHumanJoints";
-import { AutoMovieMotionHumanRise } from "../../compose/AutoMovieMotionHumanRise";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { AutoMovieMotionMeeting } from "../../compose/AutoMovieMotionMeeting";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
+import { AutoMovieMotionHumanRise } from "../../compose/internal/AutoMovieMotionHumanRise";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMeeting";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { kissBody } from "./kissBody";

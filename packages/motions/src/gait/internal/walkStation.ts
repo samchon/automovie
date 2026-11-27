@@ -11,10 +11,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFormation } from "../../ensemble/HumanFormation";
+import { HumanFormation } from "../../ensemble/internal/HumanFormation";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { WalkPath } from "../../actions/WalkPath";
+import { WalkPath } from "../../actions/internal/WalkPath";
 import { walkPaced } from "../../actions/internal/walkPaced";
 
 /**

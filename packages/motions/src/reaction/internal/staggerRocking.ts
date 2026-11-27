@@ -11,10 +11,10 @@ import type {
 } from "@automovie/interface";
 
 import { walkReach } from "../../actions/internal/walkReach";
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { StrikingTarget } from "../../striking/StrikingTarget";
-import type { StaggerFeet } from "../StaggerFeet";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { StrikingTarget } from "../../striking/internal/StrikingTarget";
+import type { StaggerFeet } from "./StaggerFeet";
 import { staggerKnots } from "./staggerKnots";
 import type { staggerRecover } from "./staggerRecover";
 

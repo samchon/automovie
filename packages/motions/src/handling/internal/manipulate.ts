@@ -17,7 +17,7 @@ import type {
 
 import { typeText } from "../../everyday/internal/typeText";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanSkill } from "../../skill/HumanSkill";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateFingering } from "./manipulateFingering";
 import { manipulatePlan } from "./manipulatePlan";

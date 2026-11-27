@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPosture } from "../HumanPosture";
+import { HumanPosture } from "./HumanPosture";
 
 /**
  * A posture part of the way from one to another: the weight of an additive

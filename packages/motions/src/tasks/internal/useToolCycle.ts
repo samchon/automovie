@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanToolWork } from "../HumanToolWork";
+import { HumanToolWork } from "./HumanToolWork";
 import { useTool } from "./useTool";
 
 /** The record of `IPlanCycleResult`'s site. */

@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { crawlFeet } from "./crawlFeet";
 
 /**

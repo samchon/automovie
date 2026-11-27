@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /**
  * Belly-to-earth terminal speed, metres per second (provisional: about 120 mph,

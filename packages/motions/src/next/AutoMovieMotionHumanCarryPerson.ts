@@ -1,13 +1,13 @@
-import { HumanAssistedTransfer as HumanAssistedTransferSource } from "../lexicon/HumanAssistedTransfer";
-import { HumanCarried as HumanCarriedLaw } from "../lexicon/HumanCarried";
-import { HumanCarriedCoupling as HumanCarriedCouplingSource } from "../lexicon/HumanCarriedCoupling";
-import { HumanCarriedCouplingFit as HumanCarriedCouplingFitSource } from "../lexicon/HumanCarriedCouplingFit";
-import { HumanCarriedCouplingLoad as HumanCarriedCouplingLoadSource } from "../lexicon/HumanCarriedCouplingLoad";
-import { HumanCarriedCouplingPose as HumanCarriedCouplingPoseSource } from "../lexicon/HumanCarriedCouplingPose";
-import { HumanCarriedLean as HumanCarriedLeanSource } from "../lexicon/HumanCarriedLean";
-import { HumanCarriedLift as HumanCarriedLiftLaw } from "../lexicon/HumanCarriedLift";
-import { HumanCoupled as HumanCoupledSource } from "../lexicon/HumanCoupled";
-import { HumanHoldMesh as HumanHoldMeshSource } from "../lexicon/HumanHoldMesh";
+import { HumanAssistedTransfer as HumanAssistedTransferSource } from "../lexicon/internal/HumanAssistedTransfer";
+import { HumanCarried as HumanCarriedLaw } from "../lexicon/internal/HumanCarried";
+import { HumanCarriedCoupling as HumanCarriedCouplingSource } from "../lexicon/internal/HumanCarriedCoupling";
+import { HumanCarriedCouplingFit as HumanCarriedCouplingFitSource } from "../lexicon/internal/HumanCarriedCouplingFit";
+import { HumanCarriedCouplingLoad as HumanCarriedCouplingLoadSource } from "../lexicon/internal/HumanCarriedCouplingLoad";
+import { HumanCarriedCouplingPose as HumanCarriedCouplingPoseSource } from "../lexicon/internal/HumanCarriedCouplingPose";
+import { HumanCarriedLean as HumanCarriedLeanSource } from "../lexicon/internal/HumanCarriedLean";
+import { HumanCarriedLift as HumanCarriedLiftLaw } from "../lexicon/internal/HumanCarriedLift";
+import { HumanCoupled as HumanCoupledSource } from "../lexicon/internal/HumanCoupled";
+import { HumanHoldMesh as HumanHoldMeshSource } from "../lexicon/internal/HumanHoldMesh";
 
 /**
  * Carrying a person: the carry and its lift. An infant held is

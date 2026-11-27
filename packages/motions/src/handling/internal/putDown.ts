@@ -6,10 +6,10 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { StrikingRoll } from "../../striking/StrikingRoll";
+import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 import { putDownPlan } from "./putDownPlan";
 import { putDownRestingDemand } from "./putDownRestingDemand";
 import { putDownTarget } from "./putDownTarget";

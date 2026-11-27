@@ -14,8 +14,8 @@ import type {
   IAutoMovieMotionHumanSlipRing,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanPartnerClear } from "../../compose/AutoMovieMotionHumanPartnerClear";
-import { HumanTrunkLean } from "../../handling/HumanTrunkLean";
+import { AutoMovieMotionHumanPartnerClear } from "../../compose/internal/AutoMovieMotionHumanPartnerClear";
+import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 
 /**
  * A ring dresser's leaned and cleared plan (`slipRing`): a presented hand

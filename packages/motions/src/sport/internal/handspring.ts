@@ -20,16 +20,16 @@ import type {
 
 import { jump } from "../../actions/internal/jump";
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { ExerciseKey } from "../../exercise/ExerciseKey";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
-import { StrikingBody } from "../../striking/StrikingBody";
-import { GymnasticsFlight } from "../GymnasticsFlight";
-import { GymnasticsWheel } from "../GymnasticsWheel";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
+import { GymnasticsFlight } from "./GymnasticsFlight";
+import { GymnasticsWheel } from "./GymnasticsWheel";
 import { handspringKeys } from "./handspringKeys";
 import { handspringLanding } from "./handspringLanding";
 import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";

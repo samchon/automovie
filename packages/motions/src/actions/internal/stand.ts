@@ -15,9 +15,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { prepareStand } from "./prepareStand";
 import { prepareStandingLegs } from "./prepareStandingLegs";
 import { standFeet } from "./standFeet";

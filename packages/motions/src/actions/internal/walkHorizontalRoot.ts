@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanWalkSteps,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { walkReach } from "./walkReach";
 import type { walkStation } from "../../gait/internal/walkStation";
 

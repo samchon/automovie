@@ -17,15 +17,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
-import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/AutoMovieMotionHumanAuditTangleModel";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanHand } from "../../compose/AutoMovieMotionHumanHand";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { assembleHumanPosture } from "../../posture/internal/assembleHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanWornItem } from "../HumanWornItem";
+import { HumanWornItem } from "./HumanWornItem";
 import type { placeOverHeadPath } from "./placeOverHeadPath";
 
 /** Clearance of both grip shapes against the recipient's upper body. */

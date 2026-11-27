@@ -17,15 +17,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanHand } from "../../compose/AutoMovieMotionHumanHand";
-import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionPrepared } from "../../compose/AutoMovieMotionPrepared";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
+import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanPerception } from "../../law/HumanPerception";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanPerception } from "../../law/internal/HumanPerception";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { touchHold } from "../../touch/internal/touchHold";

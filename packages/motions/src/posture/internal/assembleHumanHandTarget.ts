@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanBendPreparation } from "../../compose/AutoMovieMotionHumanBendPreparation";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanBendPreparation } from "../../compose/internal/AutoMovieMotionHumanBendPreparation";
 
 /** Existing surface-offset emitter retained only by the prepared hand owner. */
 type ITargetEmitter = ReturnType<

@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
 /** The record of `IClimbStairsFeetResult2`'s site. */
 type IClimbStairsFeetResult2 = {

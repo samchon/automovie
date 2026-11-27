@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanColliders,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangleModel as Tangle } from "../../audit/AutoMovieMotionHumanAuditTangleModel";
+import { AutoMovieMotionHumanAuditTangleModel as Tangle } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
 
 /**
  * Measure one pair of seated-body segments beyond their built-in overlap. Use

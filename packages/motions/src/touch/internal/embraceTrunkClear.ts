@@ -7,9 +7,9 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "../../audit/AutoMovieMotionHumanAuditTangleMargin";
-import { AutoMovieMotionHumanAuditTangleModel as M } from "../../audit/AutoMovieMotionHumanAuditTangleModel";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "../../audit/internal/AutoMovieMotionHumanAuditTangleMargin";
+import { AutoMovieMotionHumanAuditTangleModel as M } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 

@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLieDown,
 } from "@automovie/interface";
 
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /**
  * The tree climb's beat, limb groups and the holds and stances its route is

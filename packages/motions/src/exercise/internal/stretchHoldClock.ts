@@ -6,9 +6,9 @@ import type {
   IAutoMovieMotionHumanStretch,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { stretchHoldInputs } from "./stretchHoldInputs";
 
 /**

@@ -20,12 +20,12 @@ import type {
 } from "@automovie/interface";
 
 import { walkPoleFrame } from "../../actions/internal/walkPoleFrame";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { HumanPostureRaw } from "../../posture/HumanPostureRaw";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { HumanPostureRaw } from "../../posture/internal/HumanPostureRaw";
 import type { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { GymnasticsFlight } from "../GymnasticsFlight";
+import { GymnasticsFlight } from "../internal/GymnasticsFlight";
 import { poleVaultBend } from "./poleVaultBend";
 import { poleVaultSwing } from "./poleVaultSwing";
 import { preparePoleVaultLinks } from "./preparePoleVaultLinks";

@@ -20,7 +20,7 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
-import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
+import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { ropeLine } from "./ropeLine";
 import { ropeSwingCourse } from "./ropeSwingCourse";
 

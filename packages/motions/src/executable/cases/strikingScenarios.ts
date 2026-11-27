@@ -8,7 +8,7 @@ import type {
 
 import { HumanChain } from "../../chain/HumanChain";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { StrikingLimb } from "./StrikingLimb";
 import type { StrikingVerdicts } from "./StrikingVerdicts";
 

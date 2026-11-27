@@ -10,9 +10,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /** The authored trunk channels a hold place reads when given. */
 type CarryPostureItem = "pitch" | "roll" | "joints";

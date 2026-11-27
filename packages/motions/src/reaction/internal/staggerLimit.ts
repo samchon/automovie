@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { StaggerPendulum } from "../StaggerPendulum";
+import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerCapture } from "./staggerCapture";
 import { staggerPendulumEntry } from "./staggerPendulumEntry";

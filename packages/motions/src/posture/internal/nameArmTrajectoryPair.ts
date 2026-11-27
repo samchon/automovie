@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanArmGeometry } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "../HumanArmGeometry";
-import type { HumanArmTrajectoryModel as M } from "../HumanArmTrajectoryModel";
+import { HumanArmGeometry as G } from "./HumanArmGeometry";
+import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /** The digits' part of a bone name. */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/;

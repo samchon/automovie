@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanMountPush } from "../../lexicon/HumanMountPush";
+import { HumanMountPush } from "../../lexicon/internal/HumanMountPush";
 
 /**
  * A leg goal whose foot bears nothing, turned toes down about its ankle as far

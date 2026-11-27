@@ -20,10 +20,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { HumanLoad } from "../../perform/HumanLoad";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { HumanLoad } from "../../perform/internal/HumanLoad";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { environmentRailCatch } from "./environmentRailCatch";
 import { environmentRecoveryCue } from "./environmentRecoveryCue";

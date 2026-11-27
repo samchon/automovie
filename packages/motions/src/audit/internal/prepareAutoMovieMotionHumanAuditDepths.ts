@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanColliders } from "../../posture/HumanColliders";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 
 /**
  * Prepare one placed collider segment as the segment other segments' probes are

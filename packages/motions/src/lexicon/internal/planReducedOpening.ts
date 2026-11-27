@@ -23,11 +23,11 @@ import type {
 import { walk } from "../../gait/internal/walk";
 import { AutoMovieMotionHumanSignature } from "../../audit/AutoMovieMotionHumanSignature";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanSegmentPlant } from "../../perform/HumanSegmentPlant";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanSegmentPlant } from "../../perform/internal/HumanSegmentPlant";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

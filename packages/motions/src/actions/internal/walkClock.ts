@@ -7,9 +7,9 @@ import type {
   IAutoMovieMotionHumanWalkSteps,
 } from "@automovie/interface";
 
-import { HUMAN_ATTRIBUTE_EFFECTS } from "../../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
-import { HumanAttribute } from "../../ensemble/HumanAttribute";
-import { HumanSkill } from "../../skill/HumanSkill";
+import { HUMAN_ATTRIBUTE_EFFECTS } from "../../ensemble/internal/HUMAN_ATTRIBUTE_EFFECTS";
+import { HumanAttribute } from "../../ensemble/internal/HumanAttribute";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { walkCadence } from "../../gait/internal/walkCadence";
 import { walkStation } from "../../gait/internal/walkStation";
 import { walkSteps } from "../../gait/internal/walkSteps";

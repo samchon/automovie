@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { typeText } from "../../everyday/internal/typeText";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /**
  * Resting digit angles and the individual tips requiring clearance from the

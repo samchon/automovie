@@ -1,8 +1,8 @@
 import type { IAutoMovieMotionHumanResolve } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBody } from "../body/AutoMovieMotionHumanBody";
-import { AutoMovieMotionHumanResolve } from "../compose/AutoMovieMotionHumanResolve";
-import { MotionBodies } from "./MotionBodies";
+import { AutoMovieMotionHumanResolve } from "../compose/internal/AutoMovieMotionHumanResolve";
+import { MotionBodies } from "./internal/MotionBodies";
 import type { humanPolygonMan } from "./internal/humanPolygonMan";
 
 /**

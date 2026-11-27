@@ -7,7 +7,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { prepareSupportContactForm } from "./prepareSupportContactForm";

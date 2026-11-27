@@ -20,16 +20,16 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { supportBalance } from "../../actions/internal/supportBalance";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { prepareBearingTrunkBalance } from "../../everyday/internal/prepareBearingTrunkBalance";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { crawlContacts } from "./crawlContacts";
 import { crawlCorrected } from "./crawlCorrected";
 import { crawlCourse } from "./crawlCourse";

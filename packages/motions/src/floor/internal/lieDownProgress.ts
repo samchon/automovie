@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionClockPhase,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
 /**
  * Each route phase's prepared progress on the clock

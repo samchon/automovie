@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 
 /**
  * Read the support that survives a cut before choosing the next swing. Keep the

@@ -16,10 +16,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import type { AutoMovieMotionHumanTouchContacts } from "../../compose/AutoMovieMotionHumanTouchContacts";
-import { AutoMovieMotionHumanTouchLaid } from "../../compose/AutoMovieMotionHumanTouchLaid";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import type { AutoMovieMotionHumanTouchContacts } from "../../compose/internal/AutoMovieMotionHumanTouchContacts";
+import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
 import { touchPrimitive } from "../../compose/internal/touchPrimitive";
 import type { touchCrossedSupport } from "./touchCrossedSupport";
 import { touchHold } from "./touchHold";

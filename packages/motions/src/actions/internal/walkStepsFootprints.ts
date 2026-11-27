@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import type { WalkPath } from "../WalkPath";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import type { WalkPath } from "./WalkPath";
 import { stand } from "./stand";
 import { walkHeading } from "./walkHeading";
 import { walkStepFoot } from "./walkStepFoot";

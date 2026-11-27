@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 
 /**
  * A kneel's foot turned toes down by a share of any excess of its ankle's

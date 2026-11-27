@@ -1,5 +1,5 @@
-import { AutoMovieMotionHumanGaitLaws } from "./AutoMovieMotionHumanGaitLaws";
-import { AutoMovieMotionHumanGaitRows } from "./AutoMovieMotionHumanGaitRows";
+import { AutoMovieMotionHumanGaitLaws } from "./internal/AutoMovieMotionHumanGaitLaws";
+import { AutoMovieMotionHumanGaitRows } from "./internal/AutoMovieMotionHumanGaitRows";
 
 /**
  * The gaits: walking and running to a floor point, travel relative to a person,

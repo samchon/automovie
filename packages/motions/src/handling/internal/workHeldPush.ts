@@ -19,14 +19,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanGrasp } from "../HumanGrasp";
-import { HumanGraspRoll } from "../HumanGraspRoll";
+import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspRoll } from "./HumanGraspRoll";
 import { heldDigits } from "./heldDigits";
 import { pickUp } from "./pickUp";
 

@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 
 /**
  * How far above the crown the loop's plane passes, metres (provisional: clear

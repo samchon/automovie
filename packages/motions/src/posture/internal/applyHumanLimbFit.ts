@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanLimbView } from "../HumanLimbView";
+import type { HumanLimbView } from "./HumanLimbView";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { solveHumanLimbFit } from "./solveHumanLimbFit";
 

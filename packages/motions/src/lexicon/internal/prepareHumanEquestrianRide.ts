@@ -10,9 +10,9 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { humanEquestrianRhythm } from "./humanEquestrianRhythm";
 
 /** The ride law's context after the seated entry has been admitted. */

@@ -15,15 +15,15 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { standUpright } from "../../actions/internal/standUpright";
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanJoints } from "../../compose/AutoMovieMotionHumanJoints";
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanRoot } from "../../compose/AutoMovieMotionHumanRoot";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanJoints } from "../../compose/internal/AutoMovieMotionHumanJoints";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { ReactionFeet } from "../ReactionFeet";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { ReactionFeet } from "./ReactionFeet";
 import { wireFlightTouches } from "./wireFlightTouches";
 
 /**

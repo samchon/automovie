@@ -13,9 +13,9 @@ import type {
 } from "@automovie/interface";
 
 import { support } from "../../actions/internal/support";
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { grappleArms } from "./grappleArms";
 import { grappleFront } from "./grappleFront";

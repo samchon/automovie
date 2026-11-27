@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 

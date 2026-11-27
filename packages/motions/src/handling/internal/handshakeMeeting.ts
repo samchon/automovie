@@ -17,11 +17,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanSeatedReach } from "../../touch/HumanSeatedReach";
-import { HumanPrehension } from "../HumanPrehension";
+import { HumanSeatedReach } from "../../touch/internal/HumanSeatedReach";
+import { HumanPrehension } from "./HumanPrehension";
 import { handshakeOffer } from "./handshakeOffer";
 
 /** The record of `ILeanedPhases`'s site. */

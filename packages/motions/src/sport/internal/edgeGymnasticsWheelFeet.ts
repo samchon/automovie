@@ -9,8 +9,8 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 

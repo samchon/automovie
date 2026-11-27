@@ -32,6 +32,6 @@ export * from "./internal/crawlDownTiming";
 export * from "./internal/floorSeat";
 export * from "./internal/crawlFeet";
 export * from "./internal/crawlFrame";
-export * from "./sleep";
+export * from "./internal/sleep";
 export * from "./internal/dive";
 export * from "./internal/roll";

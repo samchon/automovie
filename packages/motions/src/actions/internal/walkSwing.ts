@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
-import { WALK_TICK } from "../WALK_TICK";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { WALK_TICK } from "./WALK_TICK";
 import { walkFoot } from "./walkFoot";
 import { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkSteps } from "../../gait/internal/walkSteps";

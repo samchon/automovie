@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { humanPostureHeading } from "../humanPostureHeading";
+import { humanPostureHeading } from "./humanPostureHeading";
 
 /**
  * A posture's root and world limb goals after its whole-body `rotation` : the

@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import type { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanArmSwing } from "../../posture/HumanArmSwing";
+import type { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";

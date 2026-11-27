@@ -13,10 +13,10 @@ import type {
   IAutoMovieMotionPropHold,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanPartnerClear } from "../../compose/AutoMovieMotionHumanPartnerClear";
+import { AutoMovieMotionHumanPartnerClear } from "../../compose/internal/AutoMovieMotionHumanPartnerClear";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { armPhrase } from "../../everyday/internal/armPhrase";
-import { HumanTrunkLean } from "../../handling/HumanTrunkLean";
+import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
 
 /**

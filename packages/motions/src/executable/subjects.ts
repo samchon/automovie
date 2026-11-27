@@ -8,8 +8,8 @@ import * as THREE from "three";
 
 import { applyMotionCaptureGhost } from "./internal/applyMotionCaptureGhost";
 import { markMotionCaptureCase } from "../capture/internal/markMotionCaptureCase";
-import type { IMotionCaptureProps } from "./IMotionCaptureProps";
-import { MotionCaptureFigure } from "./MotionCaptureFigure";
+import type { IMotionCaptureProps } from "./internal/IMotionCaptureProps";
+import { MotionCaptureFigure } from "./internal/MotionCaptureFigure";
 
 /**
  * Steps per second of the key that matches an asked second to a sampled

@@ -18,16 +18,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmJointCourse } from "../../compose/AutoMovieMotionHumanArmJointCourse";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { HumanGrip } from "../HumanGrip";
+import { HumanGrip } from "./HumanGrip";
 
 /**
  * Loads carried at the sides with the arms hanging, performed over a walk

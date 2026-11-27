@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 
 /**
  * A pick up's grasp target moved to the place along its grip's band the

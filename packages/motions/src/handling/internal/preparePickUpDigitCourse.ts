@@ -18,7 +18,7 @@ import type {
 } from "@automovie/interface";
 
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanGrip } from "../HumanGrip";
+import { HumanGrip } from "./HumanGrip";
 import { pickUpDigitProjection } from "./pickUpDigitProjection";
 
 const KNOTS = 56;

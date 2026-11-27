@@ -7,8 +7,8 @@ import type {
 import { run } from "../../gait/internal/run";
 import { walk } from "../../gait/internal/walk";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { locomotionCase } from "./locomotionCase";
 

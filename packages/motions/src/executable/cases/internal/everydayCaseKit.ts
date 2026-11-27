@@ -12,7 +12,7 @@ import type {
 import { AutoMovieMotionHumanBody } from "../../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../../perform/HumanPerformance";
 import { poseBones } from "../../../posture/internal/poseBones";
-import type { IMotionCaptureCase } from "../../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../../internal/IMotionCaptureCase";
 import type { humanPolygonMan } from "../../internal/humanPolygonMan";
 
 /** The part of a segment its events are read from. */

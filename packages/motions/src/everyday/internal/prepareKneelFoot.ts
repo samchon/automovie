@@ -5,8 +5,8 @@ import type {
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { kneelKeys } from "./kneelKeys";
 
 /** The record of `IPrepareKneelFootResult2`'s site. */

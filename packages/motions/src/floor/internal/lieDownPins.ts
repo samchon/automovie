@@ -5,7 +5,7 @@ import type {
 
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { floorEntry } from "./floorEntry";
 import { prepareLieDownFootPins } from "./prepareLieDownFootPins";
 

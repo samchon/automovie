@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-import { HumanSegmentSelection } from "../HumanSegmentSelection";
+import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
 /**
  * Read the raw active posture of an already resolved person, before layers: the

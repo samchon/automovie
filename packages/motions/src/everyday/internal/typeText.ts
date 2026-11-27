@@ -19,16 +19,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { AutoMovieMotionHumanArmChain } from "../../compose/AutoMovieMotionHumanArmChain";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { AutoMovieMotionHumanArmChain } from "../../compose/internal/AutoMovieMotionHumanArmChain";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanSkill } from "../../skill/HumanSkill";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { typeTextPresses } from "./typeTextPresses";
 
 /** The record of `IPlanResult`'s site. */

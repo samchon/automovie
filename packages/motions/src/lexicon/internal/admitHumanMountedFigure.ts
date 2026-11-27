@@ -5,9 +5,9 @@ import type {
   IAutoMovieMotionHumanPropReader,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanMountedSeats } from "../HumanMountedSeats";
+import { HumanMountedSeats } from "./HumanMountedSeats";
 
 /**
  * Admit one figure of a mounted performance (`HumanMounted`): its transfer and

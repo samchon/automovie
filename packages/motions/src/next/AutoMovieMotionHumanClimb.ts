@@ -1,7 +1,7 @@
 import { climbLadder as climbLadderLaw } from "../climbing/internal/climbLadder";
 import { wallClimbSupport as wallClimbSupportLaw } from "../climbing/internal/wallClimbSupport";
-import { HumanRope as HumanRopeLaw } from "../lexicon/HumanRope";
-import { HumanTreeClimb as HumanTreeClimbLaw } from "../lexicon/HumanTreeClimb";
+import { HumanRope as HumanRopeLaw } from "../lexicon/internal/HumanRope";
+import { HumanTreeClimb as HumanTreeClimbLaw } from "../lexicon/internal/HumanTreeClimb";
 import { climbStairs as climbStairsLaw } from "../terrain/internal/climbStairs";
 
 /**

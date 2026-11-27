@@ -8,7 +8,7 @@ import { logRoll as logRollLaw } from "../floor/internal/logRoll";
 import { lyingTurn as lyingTurnLaw } from "../floor/internal/lyingTurn";
 import { roll as rollLaw } from "../floor/internal/roll";
 import { turnOver as turnOverLaw } from "../floor/internal/turnOver";
-import { HumanFloorRoll as HumanFloorRollSource } from "../lexicon/HumanFloorRoll";
+import { HumanFloorRoll as HumanFloorRollSource } from "../lexicon/internal/HumanFloorRoll";
 import { HUMAN_FLOOR_LIE_STILL } from "./presets/HUMAN_FLOOR_LIE_STILL";
 import { HUMAN_FLOOR_SIT_CROSS_LEGGED } from "./presets/HUMAN_FLOOR_SIT_CROSS_LEGGED";
 import { HUMAN_FLOOR_SIT_ON_FLOOR } from "./presets/HUMAN_FLOOR_SIT_ON_FLOOR";

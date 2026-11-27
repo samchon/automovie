@@ -19,14 +19,14 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { ExerciseKey } from "../../exercise/ExerciseKey";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
-import { GymnasticsWheel } from "../GymnasticsWheel";
-import { GymnasticsWheelPlants } from "../GymnasticsWheelPlants";
+import { GymnasticsWheel } from "./GymnasticsWheel";
+import { GymnasticsWheelPlants } from "./GymnasticsWheelPlants";
 import { cartwheel } from "./cartwheel";
 import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
 

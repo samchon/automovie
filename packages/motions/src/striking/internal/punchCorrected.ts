@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
+import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import type { punchContact } from "./punchContact";
 import type { punchReach } from "./punchReach";
 

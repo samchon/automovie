@@ -16,23 +16,23 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionPrepared } from "../../compose/AutoMovieMotionPrepared";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
-import { CloseStrikeLegs } from "../CloseStrikeLegs";
-import { FootStrikeForms } from "../FootStrikeForms";
-import { FootStrikeLeg } from "../FootStrikeLeg";
-import { FootStrikeTilt } from "../FootStrikeTilt";
-import { KickForm } from "../KickForm";
-import { StrikingBody } from "../StrikingBody";
-import { StrikingSkill } from "../StrikingSkill";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingTarget } from "../StrikingTarget";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
+import { CloseStrikeLegs } from "./CloseStrikeLegs";
+import { FootStrikeForms } from "./FootStrikeForms";
+import { FootStrikeLeg } from "./FootStrikeLeg";
+import { FootStrikeTilt } from "./FootStrikeTilt";
+import { KickForm } from "./KickForm";
+import { StrikingBody } from "./StrikingBody";
+import { StrikingSkill } from "./StrikingSkill";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingTarget } from "./StrikingTarget";
 import { footStrikeChamber } from "./footStrikeChamber";
 import { footStrikeContacts } from "./footStrikeContacts";
 

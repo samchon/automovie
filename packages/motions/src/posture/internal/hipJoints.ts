@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBoneGroups } from "../HumanBoneGroups";
+import { HumanBoneGroups } from "./HumanBoneGroups";
 import { poseBones } from "./poseBones";
 
 /**

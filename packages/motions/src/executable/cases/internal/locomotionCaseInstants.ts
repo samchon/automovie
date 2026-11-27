@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 
-import type { IMotionCaptureCase } from "../../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../../internal/IMotionCaptureCase";
 
 /** The part of a walking segment its instants are read from. */
 interface ILocomotionSegment {

@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanLexiconBladeParams,
 } from "@automovie/interface";
 
-import { HumanBlade } from "../HumanBlade";
+import { HumanBlade } from "./HumanBlade";
 
 /**
  * Compose a blocked opening and an optional reply for a staged blade exchange.

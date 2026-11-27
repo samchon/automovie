@@ -9,9 +9,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditLimits } from "../../audit/AutoMovieMotionHumanAuditLimits";
-import { HumanArmClearance } from "../../posture/HumanArmClearance";
-import { HumanArmObstacleBones } from "../../posture/HumanArmObstacleBones";
+import { AutoMovieMotionHumanAuditLimits } from "../../audit/internal/AutoMovieMotionHumanAuditLimits";
+import { HumanArmClearance } from "../../posture/internal/HumanArmClearance";
+import { HumanArmObstacleBones } from "../../posture/internal/HumanArmObstacleBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

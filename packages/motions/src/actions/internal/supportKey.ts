@@ -10,11 +10,11 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanBodyFit } from "../../posture/HumanBodyFit";
-import { HumanBodyFitMerit } from "../../posture/HumanBodyFitMerit";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanFitPairs } from "../../posture/HumanFitPairs";
-import { HumanFitVariables } from "../../posture/HumanFitVariables";
+import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
+import { HumanBodyFitMerit } from "../../posture/internal/HumanBodyFitMerit";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanFitPairs } from "../../posture/internal/HumanFitPairs";
+import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

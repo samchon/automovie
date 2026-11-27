@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-import { HumanArmSwing } from "../../posture/HumanArmSwing";
+import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 
 /** The record of `IOfBoundsE2`'s site. */
 type IOfBoundsE2 = { seconds: number };

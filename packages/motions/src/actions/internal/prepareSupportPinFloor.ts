@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanColliders } from "../../posture/HumanColliders";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { supportContact } from "./supportContact";
 
 /** The blended posture's achieved pin and its clear floor height. */

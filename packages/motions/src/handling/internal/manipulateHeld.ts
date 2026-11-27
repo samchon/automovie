@@ -21,14 +21,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanSegment } from "../../perform/HumanSegment";
-import { HumanDigitFit } from "../../posture/HumanDigitFit";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanSegment } from "../../perform/internal/HumanSegment";
+import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
-import { HumanSkill } from "../../skill/HumanSkill";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
 
 /**
  * Midpoint of the outward and inward tap means, seconds. Trudeau et al. (2012),

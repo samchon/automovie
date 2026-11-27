@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanExerciseKey,
 } from "@automovie/interface";
 
-import { ExerciseKey } from "../../exercise/ExerciseKey";
+import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 
 /**
  * The handspring's two body-dependent key shapes, shared by its wheel and

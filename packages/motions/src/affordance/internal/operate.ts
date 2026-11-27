@@ -22,20 +22,20 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmPhrase } from "../../compose/AutoMovieMotionHumanArmPhrase";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLeanInto } from "../../compose/AutoMovieMotionHumanLeanInto";
-import { AutoMovieMotionHumanReach } from "../../compose/AutoMovieMotionHumanReach";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanPhysics } from "../../law/HumanPhysics";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPhrase } from "../../compose/internal/AutoMovieMotionHumanArmPhrase";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanLeanInto } from "../../compose/internal/AutoMovieMotionHumanLeanInto";
+import { AutoMovieMotionHumanReach } from "../../compose/internal/AutoMovieMotionHumanReach";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { operateCorrection } from "./operateCorrection";
 import { operateDrive } from "./operateDrive";

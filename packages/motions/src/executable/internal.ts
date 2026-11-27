@@ -1,8 +1,8 @@
 // The workspace test programme reads these capture executable internals.
 
 export * from "./cases/FootSlip";
-export * from "./IMotionCaptureCase";
-export * from "./IMotionCaptureProps";
+export * from "./internal/IMotionCaptureCase";
+export * from "./internal/IMotionCaptureProps";
 export * from "./internal/planMotionCaptureProps";
 export * from "./cases/internal/affectionCasePerformers";
 export * from "./cases/internal/ballStrikeCaseBall";

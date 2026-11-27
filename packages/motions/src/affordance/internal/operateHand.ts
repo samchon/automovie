@@ -12,8 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHandTarget } from "../../posture/HumanHandTarget";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { operateInsert } from "./operateInsert";
 import { operateState } from "./operateState";
 

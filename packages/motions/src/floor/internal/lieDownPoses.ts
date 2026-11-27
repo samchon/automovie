@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanLieDown,
 } from "@automovie/interface";
 
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /** Joint angles of one symmetric floor posture, in clinical degrees. */
 interface IShape {

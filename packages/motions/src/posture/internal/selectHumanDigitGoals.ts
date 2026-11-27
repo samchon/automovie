@@ -8,8 +8,8 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { HumanDigitFit } from "../HumanDigitFit";
-import { HumanPosture } from "../HumanPosture";
+import { HumanDigitFit } from "./HumanDigitFit";
+import { HumanPosture } from "./HumanPosture";
 
 /**
  * Select independent world digit goals that can change requested bone frames.

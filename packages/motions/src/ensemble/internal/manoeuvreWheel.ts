@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFormation } from "../HumanFormation";
+import { HumanFormation } from "./HumanFormation";
 
 /**
  * A wheel on a fixed pivot: the formation turned rigidly about its pivot flank,

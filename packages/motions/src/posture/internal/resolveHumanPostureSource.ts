@@ -6,8 +6,8 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { HumanDigitFit } from "../HumanDigitFit";
-import type { HumanLimbPair } from "../HumanLimbPair";
+import { HumanDigitFit } from "./HumanDigitFit";
+import type { HumanLimbPair } from "./HumanLimbPair";
 import { assembleHumanPosture } from "./assembleHumanPosture";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";

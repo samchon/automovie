@@ -4,7 +4,7 @@ import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanTiming } 
 
 import { walk } from "../../gait/internal/walk";
 import { walkFoot } from "../../actions/internal/walkFoot";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
 
 /** The alternatives of `STEPLENGTHEntryItem`'s site. */
 type STEPLENGTHEntryItem = "forward" | "side" | "backward";

@@ -9,11 +9,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /**
  * A ring dresser's steadying palm (`slipRing`): laid on the partner's own

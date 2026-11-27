@@ -1,20 +1,20 @@
 import { AutoMovieGravity, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanForceResponse, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSustainedForce, IAutoMovieResolveBalanceOutcome, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanForce } from "../../perform/HumanForce";
-import { HumanArmTrajectoryTerms } from "../../posture/HumanArmTrajectoryTerms";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanForce } from "../../perform/internal/HumanForce";
+import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
-import { HumanForceDrawn } from "../HumanForceDrawn";
-import { HumanForceExchange } from "../HumanForceExchange";
-import { HumanForceThrow } from "../HumanForceThrow";
+import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
+import { HumanForceDrawn } from "./HumanForceDrawn";
+import { HumanForceExchange } from "./HumanForceExchange";
+import { HumanForceThrow } from "./HumanForceThrow";
 
 /** The alternatives of `HumanForceRespondPlantPart`'s site. */
 type HumanForceRespondPlantPart = "leftFoot" | "rightFoot";

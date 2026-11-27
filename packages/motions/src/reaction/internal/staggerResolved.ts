@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBalance } from "../../everyday/HumanBalance";
-import { HumanArmSwing } from "../../posture/HumanArmSwing";
-import { HumanLimbIncumbent } from "../../posture/HumanLimbIncumbent";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
+import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
+import { HumanLimbIncumbent } from "../../posture/internal/HumanLimbIncumbent";
 import { deriveHumanPosture } from "../../posture/internal/deriveHumanPosture";
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 

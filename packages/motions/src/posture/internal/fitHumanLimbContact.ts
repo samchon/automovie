@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../HumanFoot";
+import { HumanFoot } from "./HumanFoot";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
 
 /**

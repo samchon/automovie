@@ -9,7 +9,7 @@ import type {
 
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { HumanTrunk } from "../HumanTrunk";
+import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
 import { seatedLumbarTransfer } from "./seatedLumbarTransfer";
 

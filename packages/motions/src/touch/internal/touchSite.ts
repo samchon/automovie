@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanVariationDraw } from "../../compose/AutoMovieMotionHumanVariationDraw";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionHumanVariationDraw } from "../../compose/internal/AutoMovieMotionHumanVariationDraw";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
 /**

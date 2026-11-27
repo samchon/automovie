@@ -2,12 +2,12 @@ import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engin
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../chain/HumanChain";
-import { AutoMovieMotionHumanAuditSkin } from "../../audit/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMotionHumanAuditSkin";
 import { dress } from "../../dressing/internal/dress";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanHand } from "../../posture/HumanHand";
-import { StrikingRoll } from "../../striking/StrikingRoll";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { StrikingRoll } from "../../striking/internal/StrikingRoll";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { dressCaseWearable } from "./internal/dressCaseWearable";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

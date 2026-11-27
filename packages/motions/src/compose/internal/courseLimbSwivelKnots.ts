@@ -5,7 +5,7 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import { HumanMinimumJerkSpline } from "../../posture/HumanMinimumJerkSpline";
+import { HumanMinimumJerkSpline } from "../../posture/internal/HumanMinimumJerkSpline";
 
 /**
  * The knots of a swivel course (`courseLimbSwivels.swivels`): the limbs'

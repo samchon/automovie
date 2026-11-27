@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 
 /** The record of `ISupportFlight`'s site. */
 type ISupportFlight = {

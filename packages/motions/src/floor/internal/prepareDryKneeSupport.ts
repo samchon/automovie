@@ -12,8 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";

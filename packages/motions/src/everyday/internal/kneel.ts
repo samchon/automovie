@@ -18,13 +18,13 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { prepareDryKneeSupport } from "../../floor/internal/prepareDryKneeSupport";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanPhysics } from "../../law/HumanPhysics";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { kneelContacts } from "./kneelContacts";
 import { kneelHands } from "./kneelHands";

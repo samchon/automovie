@@ -1,15 +1,15 @@
-import { HumanLeadHorse as HumanLeadHorseLaw } from "../lexicon/HumanLeadHorse";
-import { HumanLunge as HumanLungeLaw } from "../lexicon/HumanLunge";
-import { HumanLungeChange as HumanLungeChangeSource } from "../lexicon/HumanLungeChange";
-import { HumanLungeHands as HumanLungeHandsSource } from "../lexicon/HumanLungeHands";
-import { HumanLungePivot as HumanLungePivotSource } from "../lexicon/HumanLungePivot";
-import { HumanMountReach as HumanMountReachSource } from "../lexicon/HumanMountReach";
-import { HumanMountRider as HumanMountRiderSource } from "../lexicon/HumanMountRider";
-import { HumanMounted as HumanMountedLaw } from "../lexicon/HumanMounted";
-import { HumanMountedPresentation as HumanMountedPresentationSource } from "../lexicon/HumanMountedPresentation";
-import { HumanRide as HumanRideLaw } from "../lexicon/HumanRide";
-import { HumanTendHorse as HumanTendHorseLaw } from "../lexicon/HumanTendHorse";
-import { HumanUnseat as HumanUnseatLaw } from "../lexicon/HumanUnseat";
+import { HumanLeadHorse as HumanLeadHorseLaw } from "../lexicon/internal/HumanLeadHorse";
+import { HumanLunge as HumanLungeLaw } from "../lexicon/internal/HumanLunge";
+import { HumanLungeChange as HumanLungeChangeSource } from "../lexicon/internal/HumanLungeChange";
+import { HumanLungeHands as HumanLungeHandsSource } from "../lexicon/internal/HumanLungeHands";
+import { HumanLungePivot as HumanLungePivotSource } from "../lexicon/internal/HumanLungePivot";
+import { HumanMountReach as HumanMountReachSource } from "../lexicon/internal/HumanMountReach";
+import { HumanMountRider as HumanMountRiderSource } from "../lexicon/internal/HumanMountRider";
+import { HumanMounted as HumanMountedLaw } from "../lexicon/internal/HumanMounted";
+import { HumanMountedPresentation as HumanMountedPresentationSource } from "../lexicon/internal/HumanMountedPresentation";
+import { HumanRide as HumanRideLaw } from "../lexicon/internal/HumanRide";
+import { HumanTendHorse as HumanTendHorseLaw } from "../lexicon/internal/HumanTendHorse";
+import { HumanUnseat as HumanUnseatLaw } from "../lexicon/internal/HumanUnseat";
 
 /**
  * Living mounts: riding a horse, handling it from the ground and leaving its

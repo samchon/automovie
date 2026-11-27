@@ -14,14 +14,14 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanArmSwing } from "../../posture/HumanArmSwing";
+import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { HumanSkill } from "../../skill/HumanSkill";
-import { HumanGaze } from "../HumanGaze";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
+import { HumanGaze } from "./HumanGaze";
 
 /**
  * Standing and turning the eyes, head and trunk to a target, either at once or,

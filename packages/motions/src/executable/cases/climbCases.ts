@@ -4,9 +4,9 @@ import type { AutoMovieHumanSide, IAutoMovieMotionHumanClimbLadder, IAutoMovieMo
 
 import { HumanChain } from "../../chain/HumanChain";
 import { climbLadder } from "../../climbing/internal/climbLadder";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { climbCaseLadder } from "./internal/climbCaseLadder";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

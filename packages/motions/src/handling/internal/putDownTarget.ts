@@ -14,10 +14,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { StrikingRoll } from "../../striking/StrikingRoll";
+import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
 /** The supplier of the body's pose at the entry. */
 type OfPose = () => IAutoMoviePose;

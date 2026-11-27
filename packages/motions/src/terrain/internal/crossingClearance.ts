@@ -18,8 +18,8 @@ import type {
 
 import { AutoMovieMotionHumanSignature } from "../../audit/AutoMovieMotionHumanSignature";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanSegmentPlant } from "../../perform/HumanSegmentPlant";
-import { HumanColliderPlacement } from "../../posture/HumanColliderPlacement";
+import { HumanSegmentPlant } from "../../perform/internal/HumanSegmentPlant";
+import { HumanColliderPlacement } from "../../posture/internal/HumanColliderPlacement";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

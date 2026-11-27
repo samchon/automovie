@@ -6,8 +6,8 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 
 /**
  * The lie's base window from the settled instant: the seat bearing for a seated

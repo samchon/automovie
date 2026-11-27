@@ -10,12 +10,12 @@ import type {
 
 import { HumanChain } from "../../chain/HumanChain";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
-import { HumanBalance } from "../../everyday/HumanBalance";
-import { HumanProxemics } from "../../everyday/HumanProxemics";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
+import { HumanProxemics } from "../../everyday/internal/HumanProxemics";
 import { rest } from "../../everyday/internal/rest";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayGestureCases } from "./everydayGestureCases";

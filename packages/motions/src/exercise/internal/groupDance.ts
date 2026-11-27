@@ -8,9 +8,9 @@ import type {
   IAutoMovieMotionHumanGroupDance,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanBound } from "../../law/HumanBound";
-import { DanceFootwork } from "../DanceFootwork";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { DanceFootwork } from "./DanceFootwork";
 import { dance } from "./dance";
 import { groupDanceCircle } from "./groupDanceCircle";
 import { groupDanceConga } from "./groupDanceConga";

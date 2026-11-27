@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { minimizeHumanBrent } from "../../posture/internal/minimizeHumanBrent";
 import type { staggerRecover } from "./staggerRecover";
 

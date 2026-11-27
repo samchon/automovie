@@ -1,7 +1,7 @@
 import type { IAutoMovieMotionHumanFormation } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFormation } from "../HumanFormation";
+import { HumanFormation } from "./HumanFormation";
 
 /**
  * Compose density-sensitive walking slots around the centre of a pedestrian

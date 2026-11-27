@@ -1,4 +1,4 @@
-import { HumanEdgeRescue as HumanEdgeRescueLaw } from "../lexicon/HumanEdgeRescue";
+import { HumanEdgeRescue as HumanEdgeRescueLaw } from "../lexicon/internal/HumanEdgeRescue";
 
 /**
  * A rescue from an edge. A rescuer and a faller each play a role, planned

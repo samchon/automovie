@@ -2,7 +2,7 @@
 
 export * from "./internal/wallClimbSupport";
 export * from "./internal/climbLadderContacts";
-export * from "./HumanLadder";
+export * from "./internal/HumanLadder";
 export * from "./treeClimb/treeClimbDrop";
 export * from "./internal/climbLadderBeats";
 export * from "./internal/ladderAccessRails";

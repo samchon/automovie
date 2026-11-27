@@ -10,10 +10,10 @@ import type {
 } from "@automovie/interface";
 
 import type { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionHumanArmChain } from "../../compose/AutoMovieMotionHumanArmChain";
+import { AutoMovieMotionHumanArmChain } from "../../compose/internal/AutoMovieMotionHumanArmChain";
 import { courseHumanLegs } from "../../compose/internal/courseHumanLegs";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
-import { HumanTrunk } from "../HumanTrunk";
+import { HumanTrunk } from "./HumanTrunk";
 import type { prepareRiseFeet } from "./prepareRiseFeet";
 import { prepareRisePalmRoll } from "./prepareRisePalmRoll";
 import type { prepareSeatedRoot } from "./prepareSeatedRoot";

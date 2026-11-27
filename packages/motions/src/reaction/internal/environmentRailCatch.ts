@@ -18,10 +18,10 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { getUp } from "../../floor/internal/getUp";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 
 /**

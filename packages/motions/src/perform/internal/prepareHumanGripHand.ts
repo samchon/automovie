@@ -6,10 +6,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmTrajectoryTerms } from "../../posture/HumanArmTrajectoryTerms";
+import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { prepareHumanAdaptiveKnots } from "../../posture/internal/prepareHumanAdaptiveKnots";
 import type { prepareHumanKnotCourse } from "../../posture/internal/prepareHumanKnotCourse";
-import { HumanPerformanceRead } from "../HumanPerformanceRead";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
  * A hand span's hand course: the holder's displayed grip socket frame over the

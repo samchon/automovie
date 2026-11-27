@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { StrikingVerdicts } from "./StrikingVerdicts";
 
 /** The record of `IDefenceParams`'s site. */

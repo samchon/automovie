@@ -18,11 +18,11 @@ import type {
 
 import { sit } from "../../everyday/internal/sit";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
+import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { admitLapSupport } from "./admitLapSupport";
 import { requireOtherPerformer } from "./requireOtherPerformer";
 

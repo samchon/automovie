@@ -1,5 +1,5 @@
-import { HumanReaction as HumanReactionSource } from "../reaction/HumanReaction";
-import { ReactionSource as ReactionSourceSource } from "../reaction/ReactionSource";
+import { HumanReaction as HumanReactionSource } from "../reaction/internal/HumanReaction";
+import { ReactionSource as ReactionSourceSource } from "../reaction/internal/ReactionSource";
 import { flinch as flinchLaw } from "../reaction/internal/flinch";
 import { give as giveLaw } from "../reaction/internal/give";
 

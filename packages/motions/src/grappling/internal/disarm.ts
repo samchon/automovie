@@ -18,10 +18,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHand } from "../../compose/AutoMovieMotionHumanHand";
+import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
 import { handOver } from "../../handling/internal/handOver";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { touch } from "../../touch/internal/touch";
 
 /**

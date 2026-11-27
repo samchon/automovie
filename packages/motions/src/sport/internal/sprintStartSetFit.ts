@@ -14,9 +14,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanBodyFit } from "../../posture/HumanBodyFit";
-import { HumanFitVariables } from "../../posture/HumanFitVariables";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
+import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";

@@ -1,9 +1,9 @@
 import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanJacobian } from "../../posture/HumanJacobian";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanJacobian } from "../../posture/internal/HumanJacobian";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

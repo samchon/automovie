@@ -5,12 +5,12 @@ import { jump } from "../../actions/internal/jump";
 import { jumpAirborne } from "../../actions/internal/jumpAirborne";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
-import { HumanPerformanceFlight } from "../HumanPerformanceFlight";
-import { HumanPerformanceFlightFailure } from "../HumanPerformanceFlightFailure";
-import { HumanPerformanceFlightRotation } from "../HumanPerformanceFlightRotation";
-import { HumanPerformanceRead } from "../HumanPerformanceRead";
-import { HumanPoseKnots } from "../HumanPoseKnots";
-import { HumanSegmentShown } from "../HumanSegmentShown";
+import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
+import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
+import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPoseKnots } from "./HumanPoseKnots";
+import { HumanSegmentShown } from "./HumanSegmentShown";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { prepareRigidFlightMass } from "./prepareRigidFlightMass";
 

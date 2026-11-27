@@ -14,6 +14,6 @@ export * from "./internal/perturb";
 export * from "./internal/wireArrest";
 export * from "./internal/wireFlight";
 export * from "./internal/wireFlightTouches";
-export * from "./ReactionFeet";
+export * from "./internal/ReactionFeet";
 export * from "./internal/staggerBounds";
 export * from "./internal/environmentRecoveryCue";

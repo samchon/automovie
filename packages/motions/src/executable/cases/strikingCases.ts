@@ -10,10 +10,10 @@ import type {
 
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
-import { DefenceOutcome } from "../../striking/DefenceOutcome";
-import { StrikingRecord } from "../../striking/StrikingRecord";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { MotionBodies } from "../MotionBodies";
+import { DefenceOutcome } from "../../striking/internal/DefenceOutcome";
+import { StrikingRecord } from "../../striking/internal/StrikingRecord";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
+import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { StrikingEventVerdicts } from "./StrikingEventVerdicts";
 import { StrikingLimb } from "./StrikingLimb";

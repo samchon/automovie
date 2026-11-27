@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 

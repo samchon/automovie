@@ -5,8 +5,8 @@ import type {
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 
-import { StrikingStance } from "../StrikingStance";
-import { StrikingTarget } from "../StrikingTarget";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingTarget } from "./StrikingTarget";
 import type { defendGeometry } from "./defendGeometry";
 import { strikingStepSupport } from "./strikingStepSupport";
 

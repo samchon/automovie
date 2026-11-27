@@ -1,5 +1,5 @@
-import { AutoMovieMotionHumanTouchLaws } from "./AutoMovieMotionHumanTouchLaws";
-import { AutoMovieMotionHumanTouchRows } from "./AutoMovieMotionHumanTouchRows";
+import { AutoMovieMotionHumanTouchLaws } from "./internal/AutoMovieMotionHumanTouchLaws";
+import { AutoMovieMotionHumanTouchRows } from "./internal/AutoMovieMotionHumanTouchRows";
 
 /**
  * Touching a partner: a touch, a high five, a kiss and a leg touch.

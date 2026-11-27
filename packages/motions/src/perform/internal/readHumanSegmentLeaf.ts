@@ -14,13 +14,13 @@ import type {
 } from "@automovie/interface";
 
 import { courseLimbSwivels } from "../../compose/internal/courseLimbSwivels";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import type { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
-import { HumanPreparedPlayback } from "../HumanPreparedPlayback";
-import { HumanSegmentCarry } from "../HumanSegmentCarry";
-import { HumanSegmentLayer } from "../HumanSegmentLayer";
-import { HumanSegmentOverlay } from "../HumanSegmentOverlay";
-import type { HumanSegmentPose } from "../HumanSegmentPose";
+import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
+import { HumanSegmentCarry } from "./HumanSegmentCarry";
+import { HumanSegmentLayer } from "./HumanSegmentLayer";
+import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
+import type { HumanSegmentPose } from "./HumanSegmentPose";
 import { demandedHumanChannels } from "./demandedHumanChannels";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentAnchors } from "./readHumanSegmentAnchors";

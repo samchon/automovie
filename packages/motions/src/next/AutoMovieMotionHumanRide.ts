@@ -1,13 +1,13 @@
-import { HumanBicycleEffort as HumanBicycleEffortLaw } from "../lexicon/HumanBicycleEffort";
-import { HumanBikeGuide as HumanBikeGuideLaw } from "../lexicon/HumanBikeGuide";
-import { HumanBikeTransfer as HumanBikeTransferLaw } from "../lexicon/HumanBikeTransfer";
-import { HumanBoard as HumanBoardLaw } from "../lexicon/HumanBoard";
-import { HumanHandrimStroke as HumanHandrimStrokeLaw } from "../lexicon/HumanHandrimStroke";
-import { HumanRide as HumanRideLaw } from "../lexicon/HumanRide";
-import { HumanSurface as HumanSurfaceSource } from "../lexicon/HumanSurface";
-import { HumanTravelCar as HumanTravelCarLaw } from "../lexicon/HumanTravelCar";
-import { HumanTravelCarExit as HumanTravelCarExitLaw } from "../lexicon/HumanTravelCarExit";
-import { HumanTravelLeaf as HumanTravelLeafLaw } from "../lexicon/HumanTravelLeaf";
+import { HumanBicycleEffort as HumanBicycleEffortLaw } from "../lexicon/internal/HumanBicycleEffort";
+import { HumanBikeGuide as HumanBikeGuideLaw } from "../lexicon/internal/HumanBikeGuide";
+import { HumanBikeTransfer as HumanBikeTransferLaw } from "../lexicon/internal/HumanBikeTransfer";
+import { HumanBoard as HumanBoardLaw } from "../lexicon/internal/HumanBoard";
+import { HumanHandrimStroke as HumanHandrimStrokeLaw } from "../lexicon/internal/HumanHandrimStroke";
+import { HumanRide as HumanRideLaw } from "../lexicon/internal/HumanRide";
+import { HumanSurface as HumanSurfaceSource } from "../lexicon/internal/HumanSurface";
+import { HumanTravelCar as HumanTravelCarLaw } from "../lexicon/internal/HumanTravelCar";
+import { HumanTravelCarExit as HumanTravelCarExitLaw } from "../lexicon/internal/HumanTravelCarExit";
+import { HumanTravelLeaf as HumanTravelLeafLaw } from "../lexicon/internal/HumanTravelLeaf";
 import { spacecraftGlide as spacecraftGlideLaw } from "../spacecraft/internal/spacecraftGlide";
 
 /**

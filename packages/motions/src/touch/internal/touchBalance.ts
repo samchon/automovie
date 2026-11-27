@@ -9,12 +9,12 @@ import type {
   IAutoMovieMotionHumanTouchStance,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionHumanRoot } from "../../compose/AutoMovieMotionHumanRoot";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanRoot } from "../../compose/internal/AutoMovieMotionHumanRoot";
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
-import { HumanBalance } from "../../everyday/HumanBalance";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { prepareHumanTrunkBalance } from "../../everyday/internal/prepareHumanTrunkBalance";
-import { HumanPhysics } from "../../law/HumanPhysics";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 
 /**

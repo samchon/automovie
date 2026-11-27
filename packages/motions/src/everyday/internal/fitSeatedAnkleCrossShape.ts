@@ -10,7 +10,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanColliders } from "../../posture/HumanColliders";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 
 /**
  * The seated ankle cross's placed shapes: the legs' colliders as placed, their

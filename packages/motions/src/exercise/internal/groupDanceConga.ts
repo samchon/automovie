@@ -16,10 +16,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { ExerciseKey } from "../ExerciseKey";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { ExerciseKey } from "./ExerciseKey";
 
 /**
  * A conga line: each member steps forward on three counts, `STEP` foot lengths

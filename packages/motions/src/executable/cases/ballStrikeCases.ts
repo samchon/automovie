@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../chain/HumanChain";
-import { HumanFoot } from "../../posture/HumanFoot";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { ballStrikeCaseBall } from "./internal/ballStrikeCaseBall";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

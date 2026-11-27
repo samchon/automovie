@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { stand } from "./stand";

@@ -13,13 +13,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanWater } from "../../perform/HumanWater";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanWater } from "../../perform/internal/HumanWater";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { SwimStroke } from "../SwimStroke";
+import { SwimStroke } from "./SwimStroke";
 import { swimImmersedCoast } from "./swimImmersedCoast";
 
 /**

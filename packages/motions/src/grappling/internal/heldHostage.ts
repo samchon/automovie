@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { PairWalk } from "../PairWalk";
+import { PairWalk } from "./PairWalk";
 
 /**
  * The hostage of a hold (`IAutoMovieMotionHumanHostageHold.IHeld`): the body

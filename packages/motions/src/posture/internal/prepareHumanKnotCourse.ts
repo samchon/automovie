@@ -1,9 +1,9 @@
 import { AutoMovieEngineKeyframeSearch } from "@automovie/engine";
 
-import { HumanKnot } from "../HumanKnot";
-import { HumanKnotTiming } from "../HumanKnotTiming";
-import { HumanMinimumJerkSpline } from "../HumanMinimumJerkSpline";
-import { HumanQuinticSegment } from "../HumanQuinticSegment";
+import { HumanKnot } from "./HumanKnot";
+import { HumanKnotTiming } from "./HumanKnotTiming";
+import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
+import { HumanQuinticSegment } from "./HumanQuinticSegment";
 
 /**
  * Prepare a movement curve through knots and return its pure reader.

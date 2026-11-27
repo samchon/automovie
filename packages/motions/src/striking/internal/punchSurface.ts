@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { StrikingBody } from "../StrikingBody";
+import { StrikingBody } from "./StrikingBody";
 
 /**
  * How a punch technique meets its target: the unit direction the striking

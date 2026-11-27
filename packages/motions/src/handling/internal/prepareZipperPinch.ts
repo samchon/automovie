@@ -15,9 +15,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanDigitFit } from "../../posture/HumanDigitFit";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanHandShape } from "../../posture/HumanHandShape";
+import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanHandShape } from "../../posture/internal/HumanHandShape";
 import { poseBones } from "../../posture/internal/poseBones";
 
 /**

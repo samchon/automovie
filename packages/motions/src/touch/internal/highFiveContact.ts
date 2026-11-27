@@ -17,13 +17,13 @@ import type {
 } from "@automovie/interface";
 
 import { operate } from "../../affordance/internal/operate";
-import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
-import { AutoMovieMotionHumanTouchLaid } from "../../compose/AutoMovieMotionHumanTouchLaid";
+import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovieMotionHumanTargetGrid";
+import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
 import { handshake } from "../../handling/internal/handshake";
-import { HumanPerception } from "../../law/HumanPerception";
+import { HumanPerception } from "../../law/internal/HumanPerception";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanSeatedReach } from "../HumanSeatedReach";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanSeatedReach } from "./HumanSeatedReach";
 
 /** The alternatives of `BlockingContext`'s site. */
 type BlockingContext = "performer" | "start";

@@ -9,9 +9,9 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionInterval } from "../../compose/AutoMovieMotionInterval";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { affectHeldHands } from "./affectHeldHands";
 
 /**

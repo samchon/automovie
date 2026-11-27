@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /**
  * The extent of a crossing's named top surface in the crossing's own frame: `x`

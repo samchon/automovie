@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanHand } from "../../compose/AutoMovieMotionHumanHand";
+import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
 
 /**
  * A seated hand laid flat by a share: the flat shape with its thumb's

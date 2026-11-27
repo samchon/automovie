@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 
 /**
  * The handshake's standing shoulder and sternum offsets from one actual trunk.

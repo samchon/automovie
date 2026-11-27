@@ -14,13 +14,13 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import { prepareSeatedMaterial } from "./prepareSeatedMaterial";
 import { prepareSeatedPalms } from "./prepareSeatedPalms";

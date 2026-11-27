@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanMountRider } from "../HumanMountRider";
-import type { HumanRideHands } from "../HumanRideHands";
+import { HumanMountRider } from "./HumanMountRider";
+import type { HumanRideHands } from "./HumanRideHands";
 
 /**
  * Close each holding hand's fingers once on the support's own colliders where

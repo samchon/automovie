@@ -12,8 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanMountRider } from "../HumanMountRider";
-import type { HumanRideHands } from "../HumanRideHands";
+import { HumanMountRider } from "./HumanMountRider";
+import type { HumanRideHands } from "./HumanRideHands";
 
 /**
  * How deep a hand's palm skin lies below its palm socket at the station a

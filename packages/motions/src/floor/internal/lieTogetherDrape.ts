@@ -14,13 +14,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanAuditModel } from "../../posture/HumanAuditModel";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanHand } from "../../posture/HumanHand";
-import { StrikingBody } from "../../striking/StrikingBody";
+import { HumanAuditModel } from "../../posture/internal/HumanAuditModel";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { touchHoldRests } from "../../touch/internal/touchHoldRests";
 
 /**

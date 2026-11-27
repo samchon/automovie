@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { seated } from "../../everyday/internal/seated";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";

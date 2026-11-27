@@ -5,10 +5,10 @@ import type {
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
-import { HUMAN_ATTRIBUTE_EFFECTS } from "../../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
-import { HumanAttribute } from "../../ensemble/HumanAttribute";
+import { HUMAN_ATTRIBUTE_EFFECTS } from "../../ensemble/internal/HUMAN_ATTRIBUTE_EFFECTS";
+import { HumanAttribute } from "../../ensemble/internal/HumanAttribute";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanSkill } from "../../skill/HumanSkill";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { walkTempo } from "../../actions/internal/walkTempo";
 
 /**

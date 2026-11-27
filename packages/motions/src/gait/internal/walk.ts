@@ -8,8 +8,8 @@ import type {
   IAutoMovieMotionHumanWalkParams,
 } from "@automovie/interface";
 
-import { HumanSupportCarry } from "../../carrier/HumanSupportCarry";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
+import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { walkCuts } from "../../actions/internal/walkCuts";
 import { walkLevelSupport } from "../../actions/internal/walkLevelSupport";
 import { walkLocomote } from "../../actions/internal/walkLocomote";

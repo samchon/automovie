@@ -2,7 +2,7 @@
 
 export * from "./internal/touchEffectors";
 export * from "./internal/touchSite";
-export * from "./HumanSeatedReach";
+export * from "./internal/HumanSeatedReach";
 export * from "./internal/headRest";
 export * from "./internal/embraceFromBehind";
 export * from "./internal/backToBack";

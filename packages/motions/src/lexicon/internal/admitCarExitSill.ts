@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import type { HumanMount } from "../HumanMount";
+import type { HumanMount } from "./HumanMount";
 
 /**
  * Admit a rear car exit's feet through the doorway: each ankle crosses the sill

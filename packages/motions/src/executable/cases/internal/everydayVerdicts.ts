@@ -1,8 +1,8 @@
 import { DEFAULT_HUMANOID_ROM, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieResolveCenterOfMass, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanFoot } from "../../../posture/HumanFoot";
-import type { IMotionCaptureCase } from "../../IMotionCaptureCase";
+import { HumanFoot } from "../../../posture/internal/HumanFoot";
+import type { IMotionCaptureCase } from "../../internal/IMotionCaptureCase";
 import { FootSlip } from "../FootSlip";
 
 /** The alternatives of `WithinUnit`'s site. */

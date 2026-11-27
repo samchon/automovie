@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { support } from "../../actions/internal/support";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { ropeLine } from "./ropeLine";
 import { ropeSupport } from "./ropeSupport";

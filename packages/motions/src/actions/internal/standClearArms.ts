@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { HumanDigitFit } from "../../posture/HumanDigitFit";
+import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";

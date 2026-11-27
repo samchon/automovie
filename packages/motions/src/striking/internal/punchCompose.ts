@@ -11,7 +11,7 @@ import type {
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
-import { StrikingStance } from "../StrikingStance";
+import { StrikingStance } from "./StrikingStance";
 import { punchFootwork } from "./punchFootwork";
 import { punchGeometry } from "./punchGeometry";
 

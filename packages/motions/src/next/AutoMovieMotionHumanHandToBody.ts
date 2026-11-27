@@ -4,8 +4,8 @@ import { handToFaceArm as handToFaceArmLaw } from "../daily/internal/handToFaceA
 import { handToFaceSheet as handToFaceSheetLaw } from "../daily/internal/handToFaceSheet";
 import { wipeTears as wipeTearsLaw } from "../daily/internal/wipeTears";
 import { headTilt as headTiltLaw } from "../everyday/internal/headTilt";
-import { HumanHandToFaceRows as HumanHandToFaceRowsSource } from "../lexicon/HumanHandToFaceRows";
-import { HumanSelfActionRows as HumanSelfActionRowsSource } from "../lexicon/HumanSelfActionRows";
+import { HumanHandToFaceRows as HumanHandToFaceRowsSource } from "../lexicon/internal/HumanHandToFaceRows";
+import { HumanSelfActionRows as HumanSelfActionRowsSource } from "../lexicon/internal/HumanSelfActionRows";
 import { tuckHair as tuckHairLaw } from "../lexicon/internal/tuckHair";
 import { selfAction as selfActionLaw } from "../touch/internal/selfAction";
 import { HUMAN_HAND_TO_BODY_COVER_FACE } from "./presets/HUMAN_HAND_TO_BODY_COVER_FACE";

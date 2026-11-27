@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanExerciseKey,
 } from "@automovie/interface";
 
-import { ExerciseKey } from "../ExerciseKey";
+import { ExerciseKey } from "./ExerciseKey";
 
 /**
  * A karate block's chamber: the fists at the hips, the blocking arm folded

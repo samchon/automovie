@@ -11,18 +11,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
-import { HumanArmTrajectoryTerms } from "../../posture/HumanArmTrajectoryTerms";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanHandTarget } from "../../posture/HumanHandTarget";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
+import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import type { ILadderAccessGrip } from "../ILadderAccessGrip";
+import type { ILadderAccessGrip } from "./ILadderAccessGrip";
 import { climbLadderHands } from "./climbLadderHands";
 
 /**

@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBall } from "../../ballStrike/HumanBall";
+import { HumanBall } from "../../ballStrike/internal/HumanBall";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { catchObject } from "./catchObject";
 

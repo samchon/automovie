@@ -6,11 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBalance } from "../../everyday/HumanBalance";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { StrikingTarget } from "../../striking/StrikingTarget";
-import type { StaggerPendulum } from "../StaggerPendulum";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { StrikingTarget } from "../../striking/internal/StrikingTarget";
+import type { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 

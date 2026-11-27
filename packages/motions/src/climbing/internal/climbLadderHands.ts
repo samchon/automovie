@@ -8,10 +8,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanHand } from "../../posture/HumanHand";
-import { HumanHandTarget } from "../../posture/HumanHandTarget";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 
 /**
  * Place each grip using a pole carried by the climber's trunk through the

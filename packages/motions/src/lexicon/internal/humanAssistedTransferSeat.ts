@@ -16,7 +16,7 @@ import type {
 import { supportContact } from "../../actions/internal/supportContact";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanObject } from "../../perform/HumanObject";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /**
  * The staged seats of an assisted transfer: resolving a named seat on the

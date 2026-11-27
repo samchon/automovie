@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
 /**
  * A hose team member's stand against the stream: the hands and the lean set

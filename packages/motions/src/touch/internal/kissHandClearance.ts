@@ -11,8 +11,8 @@ import type {
 } from "@automovie/interface";
 
 import { prepareAutoMovieMotionHumanAuditDepths } from "../../audit/internal/prepareAutoMovieMotionHumanAuditDepths";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 
 /**
  * Prepare the displayed hand and measure its penetration into the moving head

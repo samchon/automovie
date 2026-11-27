@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanFollow,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
 
 /**
  * The channels of a plan a reading of its own limb goals asks for at a second:

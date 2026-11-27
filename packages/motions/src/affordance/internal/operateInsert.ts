@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanHand } from "../../posture/HumanHand";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
-import { StrikingHeld } from "../../striking/StrikingHeld";
-import { StrikingRollHand } from "../../striking/StrikingRollHand";
+import { StrikingHeld } from "../../striking/internal/StrikingHeld";
+import { StrikingRollHand } from "../../striking/internal/StrikingRollHand";
 
 /** The record of `IPrepareMovingPlaced`'s site. */
 type IPrepareMovingPlaced = {

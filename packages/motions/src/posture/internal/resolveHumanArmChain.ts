@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmGeometry as G } from "../HumanArmGeometry";
+import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
 /**
  * Parent-first arm-chain forward kinematics for one set of coordinates.

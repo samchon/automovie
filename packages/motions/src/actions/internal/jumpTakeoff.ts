@@ -6,7 +6,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { poseBones } from "../../posture/internal/poseBones";
 
 /**

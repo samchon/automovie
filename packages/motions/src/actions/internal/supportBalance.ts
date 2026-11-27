@@ -6,11 +6,11 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
-import { HumanBalance } from "../../everyday/HumanBalance";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { prepareBearingTrunkBalance } from "../../everyday/internal/prepareBearingTrunkBalance";
-import { HumanPhysics } from "../../law/HumanPhysics";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { prepareSupportCorrection } from "./prepareSupportCorrection";
 
 /**

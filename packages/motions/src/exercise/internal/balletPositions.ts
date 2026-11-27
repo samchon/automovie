@@ -12,10 +12,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
-import { ExerciseKey } from "../ExerciseKey";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
+import { ExerciseKey } from "./ExerciseKey";
 
 /**
  * Ballet's five positions of the feet and what the legs do in them. Each foot

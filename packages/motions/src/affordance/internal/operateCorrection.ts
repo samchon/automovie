@@ -8,12 +8,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
-import { HumanBalance } from "../../everyday/HumanBalance";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { prepareHumanTrunkBalance } from "../../everyday/internal/prepareHumanTrunkBalance";
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /**
  * An operated mechanism's balance correction, written with the reach's lean: a

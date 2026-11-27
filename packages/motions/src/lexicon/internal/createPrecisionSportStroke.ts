@@ -17,18 +17,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBall } from "../../ballStrike/HumanBall";
-import { AutoMovieMotionHumanArmTarget } from "../../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
+import { HumanBall } from "../../ballStrike/internal/HumanBall";
+import { AutoMovieMotionHumanArmTarget } from "../../compose/internal/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { StrikingBlade } from "../../striking/StrikingBlade";
-import { StrikingHeld } from "../../striking/StrikingHeld";
-import { PrecisionStrokeForms } from "../PrecisionStrokeForms";
-import { PrecisionStrokeKeys } from "../PrecisionStrokeKeys";
+import { StrikingBlade } from "../../striking/internal/StrikingBlade";
+import { StrikingHeld } from "../../striking/internal/StrikingHeld";
+import { PrecisionStrokeForms } from "./PrecisionStrokeForms";
+import { PrecisionStrokeKeys } from "./PrecisionStrokeKeys";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
 import { precisionStrokeTool } from "./precisionStrokeTool";

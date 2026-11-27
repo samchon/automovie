@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import type { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanPosturePreparation } from "../../posture/HumanPosturePreparation";
+import type { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanPosturePreparation } from "../../posture/internal/HumanPosturePreparation";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpAirborneTurning } from "./jumpAirborneTurning";

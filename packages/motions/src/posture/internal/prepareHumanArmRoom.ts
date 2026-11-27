@@ -11,9 +11,9 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangle } from "../../audit/AutoMovieMotionHumanAuditTangle";
-import { HumanArmClearance } from "../HumanArmClearance";
-import { HumanColliders } from "../HumanColliders";
+import { AutoMovieMotionHumanAuditTangle } from "../../audit/internal/AutoMovieMotionHumanAuditTangle";
+import { HumanArmClearance } from "./HumanArmClearance";
+import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
 /**

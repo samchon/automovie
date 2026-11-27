@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditContact } from "../../audit/AutoMovieMotionHumanAuditContact";
-import { AutoMovieMotionHumanClearance } from "../../compose/AutoMovieMotionHumanClearance";
-import type { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanAuditContact } from "../../audit/internal/AutoMovieMotionHumanAuditContact";
+import { AutoMovieMotionHumanClearance } from "../../compose/internal/AutoMovieMotionHumanClearance";
+import type { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /**
  * Prepare a stair climb's swings (`climbStairs`): each swinging foot takes the

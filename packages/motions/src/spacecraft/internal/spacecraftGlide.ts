@@ -14,10 +14,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
-import { spacecraftGlideClock } from "../spacecraftGlideClock";
+import { spacecraftGlideClock } from "./spacecraftGlideClock";
 
 /** Alignment tolerance for directions represented by unit quaternions. */
 const ALIGNMENT: number = 1e-6;

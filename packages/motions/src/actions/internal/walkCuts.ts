@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanInterruptRow,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 
 /**
  * Seconds over which a cut into a walk inertializes the outgoing pose (a

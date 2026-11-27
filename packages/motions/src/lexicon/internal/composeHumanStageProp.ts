@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanStageProp,
 } from "@automovie/interface";
 
-import { HumanStageProp } from "../HumanStageProp";
+import { HumanStageProp } from "./HumanStageProp";
 
 /**
  * Append a visual prop beat and, when authored, a second performer's response.

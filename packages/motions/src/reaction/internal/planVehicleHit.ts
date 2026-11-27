@@ -3,10 +3,10 @@ import type { IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPla
 
 import { lieDown } from "../../floor/internal/lieDown";
 import { createHumanPostureRotation } from "../../posture/internal/createHumanPostureRotation";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
-import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
+import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { stuntFallPose } from "./stuntFallPose";
 import { vehicleFront } from "./vehicleFront";
 

@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPerformanceLayers } from "../HumanPerformanceLayers";
+import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 
 /**
  * Give each anchored layer its instants before anything is placed: a layer

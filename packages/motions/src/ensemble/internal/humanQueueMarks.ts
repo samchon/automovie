@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanCrowd } from "../HumanCrowd";
+import { HumanCrowd } from "./HumanCrowd";
 
 /** World-metre tolerance for floating-point projection onto the queue line. */
 const LINE_TOLERANCE: number = 1e-8;

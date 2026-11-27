@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanWorkoutKind,
 } from "@automovie/interface";
 
-import { ExerciseKey } from "../ExerciseKey";
+import { ExerciseKey } from "../internal/ExerciseKey";
 
 /**
  * Build the spans.

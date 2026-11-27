@@ -1,6 +1,6 @@
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
-import type { MartialArtStanceForms } from "../MartialArtStanceForms";
+import type { MartialArtStanceForms } from "./MartialArtStanceForms";
 
 /**
  * A stance form's pelvis turn from the entry heading, degrees: the opening

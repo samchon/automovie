@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanPlayback,
 } from "@automovie/interface";
 
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 
 /**
  * Connect the gait's finite evaluation window after its clock and world frame

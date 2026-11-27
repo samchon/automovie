@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import type { HumanPhysics } from "../../law/HumanPhysics";
+import type { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 
 /**

@@ -7,7 +7,7 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
+import { HumanBound } from "../../law/internal/HumanBound";
 
 /**
  * Breathing as an additive layer: the chest, the upper chest and the lumbar

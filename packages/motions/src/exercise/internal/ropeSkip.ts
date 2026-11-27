@@ -11,9 +11,9 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { ropeSkipHop } from "./ropeSkipHop";
 
 /** The two sides that share each support and flight phase. */

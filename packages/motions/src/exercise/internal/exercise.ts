@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanExercise,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { exercisePlan } from "./exercisePlan";
 
 /** The record of `IDropM`'s site. */

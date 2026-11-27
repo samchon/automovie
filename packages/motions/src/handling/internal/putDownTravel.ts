@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPrehension } from "../HumanPrehension";
+import { HumanPrehension } from "./HumanPrehension";
 
 /** Time the loaded placement and the reverse of the empty-hand exit. */
 export function putDownTravel(

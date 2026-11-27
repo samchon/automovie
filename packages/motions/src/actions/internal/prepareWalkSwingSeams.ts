@@ -12,7 +12,7 @@ import type {
 
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { WALK_TICK } from "../WALK_TICK";
+import { WALK_TICK } from "./WALK_TICK";
 import type { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
 

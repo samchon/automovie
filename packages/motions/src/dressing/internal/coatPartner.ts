@@ -16,13 +16,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanPartnerClear } from "../../compose/AutoMovieMotionHumanPartnerClear";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanPartnerClear } from "../../compose/internal/AutoMovieMotionHumanPartnerClear";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { wardrobeHands } from "./wardrobeHands";
 
 /**

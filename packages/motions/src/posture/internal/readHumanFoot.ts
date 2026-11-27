@@ -2,7 +2,7 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanFoot } from "../HumanFoot";
+import { HumanFoot } from "./HumanFoot";
 
 /** Borrowed geometry readers for one unchanged displayed body evaluation. */
 interface IReading {

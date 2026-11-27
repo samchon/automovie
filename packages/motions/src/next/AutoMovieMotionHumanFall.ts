@@ -1,8 +1,8 @@
-import { HumanEnvironmentRecovery as HumanEnvironmentRecoverySource } from "../lexicon/HumanEnvironmentRecovery";
-import { HumanFloorFall as HumanFloorFallSource } from "../lexicon/HumanFloorFall";
-import { HumanStuntFall as HumanStuntFallSource } from "../lexicon/HumanStuntFall";
-import { HumanVehicleHit as HumanVehicleHitLaw } from "../lexicon/HumanVehicleHit";
-import { CollapseFold as CollapseFoldSource } from "../reaction/CollapseFold";
+import { HumanEnvironmentRecovery as HumanEnvironmentRecoverySource } from "../lexicon/internal/HumanEnvironmentRecovery";
+import { HumanFloorFall as HumanFloorFallSource } from "../lexicon/internal/HumanFloorFall";
+import { HumanStuntFall as HumanStuntFallSource } from "../lexicon/internal/HumanStuntFall";
+import { HumanVehicleHit as HumanVehicleHitLaw } from "../lexicon/internal/HumanVehicleHit";
+import { CollapseFold as CollapseFoldSource } from "../reaction/internal/CollapseFold";
 import { collapse as collapseLaw } from "../reaction/internal/collapse";
 import { knockdown as knockdownLaw } from "../reaction/internal/knockdown";
 import { perturb as perturbLaw } from "../reaction/internal/perturb";

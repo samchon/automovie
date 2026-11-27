@@ -12,8 +12,8 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../../gait/internal/walk";
-import { HumanSupportCarry } from "../../carrier/HumanSupportCarry";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /**
  * One step of a long insertion's stance along the bore's line: the walk law's

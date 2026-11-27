@@ -9,8 +9,8 @@ import type {
 } from "@automovie/interface";
 
 import { hipJoints } from "../../posture/internal/hipJoints";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
-import { HumanMount } from "../HumanMount";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
+import { HumanMount } from "./HumanMount";
 
 /**
  * A leg that has lost its stirrup on a seat sat astride: the thigh dropped and

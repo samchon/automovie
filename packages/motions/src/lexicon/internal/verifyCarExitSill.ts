@@ -9,7 +9,7 @@ import type {
 
 import { AutoMovieMotionHumanSignature } from "../../audit/AutoMovieMotionHumanSignature";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
+import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { crossingClearance } from "../../terrain/internal/crossingClearance";
 
 /** Position tolerance below the sill's top, metres. */

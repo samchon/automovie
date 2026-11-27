@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
-import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHumanTargetGrid";
-import { HumanFrame } from "../../posture/HumanFrame";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovieMotionHumanTargetGrid";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 
 /** The alternatives of `AtPosture`'s site. */
 type AtPosture = "root" | "yaw";

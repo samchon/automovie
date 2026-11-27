@@ -15,10 +15,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportCarry } from "../../carrier/HumanSupportCarry";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
+import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { seated } from "./seated";

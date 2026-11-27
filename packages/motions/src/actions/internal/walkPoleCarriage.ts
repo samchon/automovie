@@ -13,10 +13,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanGrip } from "../../handling/HumanGrip";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanGrip } from "../../handling/internal/HumanGrip";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { walkFoot } from "./walkFoot";
 import { walkPoleFrame } from "./walkPoleFrame";
 

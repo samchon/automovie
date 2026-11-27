@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPosturePreparation } from "../../posture/HumanPosturePreparation";
+import { HumanPosturePreparation } from "../../posture/internal/HumanPosturePreparation";
 import { createHumanPostureRotation } from "../../posture/internal/createHumanPostureRotation";
 import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 

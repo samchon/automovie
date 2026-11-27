@@ -1,7 +1,7 @@
 import { kickBall as kickBallLaw } from "../ballStrike/internal/kickBall";
 import { juggle as juggleLaw } from "../exercise/internal/juggle";
-import { HumanSportThrow as HumanSportThrowSource } from "../lexicon/HumanSportThrow";
-import { HumanBallPlay as HumanBallPlaySource } from "../sport/HumanBallPlay";
+import { HumanSportThrow as HumanSportThrowSource } from "../lexicon/internal/HumanSportThrow";
+import { HumanBallPlay as HumanBallPlaySource } from "../sport/internal/HumanBallPlay";
 import { ballSport as ballSportLaw } from "../sport/internal/ballSport";
 import { fieldThrow as fieldThrowLaw } from "../sport/internal/fieldThrow";
 import { stickBall as stickBallLaw } from "../sport/internal/stickBall";

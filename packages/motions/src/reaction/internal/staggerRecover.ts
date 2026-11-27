@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { StaggerPendulum } from "../StaggerPendulum";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerAdmission } from "./staggerAdmission";
 import { staggerBounds } from "./staggerBounds";
 import { staggerCapture } from "./staggerCapture";

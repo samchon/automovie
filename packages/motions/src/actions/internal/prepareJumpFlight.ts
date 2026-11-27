@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPosturePreparation } from "../../posture/HumanPosturePreparation";
+import { HumanPosturePreparation } from "../../posture/internal/HumanPosturePreparation";
 import { prepareHumanFreeCurve } from "../../posture/internal/prepareHumanFreeCurve";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";

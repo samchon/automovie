@@ -13,13 +13,13 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { standUpright } from "../../actions/internal/standUpright";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { HumanTrunk } from "../HumanTrunk";
+import { HumanTrunk } from "./HumanTrunk";
 import { braceArms } from "./braceArms";
 import { braceBody } from "./braceBody";
 import { gestureHands } from "./gestureHands";

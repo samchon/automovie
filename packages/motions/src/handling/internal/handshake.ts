@@ -21,17 +21,17 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { HumanClasp } from "../HumanClasp";
-import { HumanGrasp } from "../HumanGrasp";
-import { HumanGrip } from "../HumanGrip";
-import { HumanPrehension } from "../HumanPrehension";
+import { HumanClasp } from "./HumanClasp";
+import { HumanGrasp } from "./HumanGrasp";
+import { HumanGrip } from "./HumanGrip";
+import { HumanPrehension } from "./HumanPrehension";
 import { handshakeMeeting } from "./handshakeMeeting";
 import { handshakeOffer } from "./handshakeOffer";
 import { handshakePlayback } from "./handshakePlayback";

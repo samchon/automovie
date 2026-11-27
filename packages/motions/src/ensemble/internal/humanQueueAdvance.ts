@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanQueueAdvance,
 } from "@automovie/interface";
 
-import { HumanEnsemble } from "../HumanEnsemble";
+import { HumanEnsemble } from "./HumanEnsemble";
 import { humanQueueMarks } from "./humanQueueMarks";
 
 /**

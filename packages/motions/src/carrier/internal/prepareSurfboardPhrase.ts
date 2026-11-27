@@ -2,11 +2,11 @@ import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engin
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSurface, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { lieDown } from "../../floor/internal/lieDown";
-import { HumanBound } from "../../law/HumanBound";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { HumanSurfaceBoard } from "../HumanSurfaceBoard";
+import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
 import { prepareSurfboardPosture } from "./prepareSurfboardPosture";
 
 /** The two sides are fitted independently. */

@@ -14,13 +14,13 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVerdicts } from "../../audit/AutoMovieMotionHumanVerdicts";
-import { AutoMovieMotionHumanArmPlanned } from "../../compose/AutoMovieMotionHumanArmPlanned";
-import { AutoMovieMotionHumanPlaced } from "../../compose/AutoMovieMotionHumanPlaced";
-import { AutoMovieMotionHumanTrunk } from "../../compose/AutoMovieMotionHumanTrunk";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
+import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
+import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
+import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { exercise } from "../../exercise/internal/exercise";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { AutoMovieMotionHumanBaseball as baseball } from "../AutoMovieMotionHumanBaseball";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { AutoMovieMotionHumanBaseball as baseball } from "./AutoMovieMotionHumanBaseball";
 
 /**
  * A fielder's ground ball: the crouch to the ball and both hands placed, the

@@ -28,20 +28,20 @@ import type {
 } from "@automovie/interface";
 
 import { poseBones } from "../posture/internal/poseBones";
-import { HumanBallPlay } from "../sport/HumanBallPlay";
-import { HumanPerformanceAim } from "./HumanPerformanceAim";
-import { HumanPerformanceFlightMode } from "./HumanPerformanceFlightMode";
-import { HumanPerformanceHits } from "./HumanPerformanceHits";
-import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
-import { HumanPerformanceObject } from "./HumanPerformanceObject";
-import { HumanPerformanceRead } from "./HumanPerformanceRead";
-import { HumanPerformanceSimulation } from "./HumanPerformanceSimulation";
-import { HumanPerformanceSite } from "./HumanPerformanceSite";
-import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
-import { HumanPerformanceState } from "./HumanPerformanceState";
-import { HumanPerformanceTether } from "./HumanPerformanceTether";
-import { HumanPropFlight } from "./HumanPropFlight";
-import { HumanSegment } from "./HumanSegment";
+import { HumanBallPlay } from "../sport/internal/HumanBallPlay";
+import { HumanPerformanceAim } from "./internal/HumanPerformanceAim";
+import { HumanPerformanceFlightMode } from "./internal/HumanPerformanceFlightMode";
+import { HumanPerformanceHits } from "./internal/HumanPerformanceHits";
+import { HumanPerformanceLayers } from "./internal/HumanPerformanceLayers";
+import { HumanPerformanceObject } from "./internal/HumanPerformanceObject";
+import { HumanPerformanceRead } from "./internal/HumanPerformanceRead";
+import { HumanPerformanceSimulation } from "./internal/HumanPerformanceSimulation";
+import { HumanPerformanceSite } from "./internal/HumanPerformanceSite";
+import { HumanPerformanceSoft } from "./internal/HumanPerformanceSoft";
+import { HumanPerformanceState } from "./internal/HumanPerformanceState";
+import { HumanPerformanceTether } from "./internal/HumanPerformanceTether";
+import { HumanPropFlight } from "./internal/HumanPropFlight";
+import { HumanSegment } from "./internal/HumanSegment";
 import { fractureHumanPerformanceProp } from "./internal/fractureHumanPerformanceProp";
 
 /** The record of `IAimResult`'s site. */

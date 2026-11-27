@@ -10,7 +10,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { ExerciseKey } from "../ExerciseKey";
+import { ExerciseKey } from "./ExerciseKey";
 
 /** The record of `IPrepareWorkoutKeyFramesResult2`'s site. */
 type IPrepareWorkoutKeyFramesResult2 = {

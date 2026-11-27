@@ -7,7 +7,7 @@
     ".": "./src/index.ts",
     "./internal": "./src/internal.ts",
     "./executable/internal": "./src/executable/internal.ts",
-    "./testing/spacecraftGlideClock": "./src/testing/spacecraftGlideClock.ts",
+    "./testing/spacecraftGlideClock": "./src/testing/internal/spacecraftGlideClock.ts",
     "./package.json": "./package.json"
   },
   "files": [

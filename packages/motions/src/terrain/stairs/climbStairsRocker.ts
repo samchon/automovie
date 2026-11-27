@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { walkLeg } from "../../actions/internal/walkLeg";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 
 /** One stair foot's placed rotation and toe flexion relative to its asked sole. */
 interface IAutoMovieClimbStairsRocker {

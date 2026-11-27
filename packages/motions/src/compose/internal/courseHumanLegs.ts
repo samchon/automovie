@@ -7,7 +7,7 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { courseLimbSwivels } from "./courseLimbSwivels";
 
 /**

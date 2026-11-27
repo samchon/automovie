@@ -13,14 +13,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanFreedomChoice } from "../../posture/HumanFreedomChoice";
-import { HumanHand } from "../../posture/HumanHand";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanFreedomChoice } from "../../posture/internal/HumanFreedomChoice";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { HumanWorn } from "../HumanWorn";
+import { HumanWorn } from "./HumanWorn";
 
 /** The record of `IDressTurnProps`'s site. */
 type IDressTurnProps = {

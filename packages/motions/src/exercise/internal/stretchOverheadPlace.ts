@@ -7,8 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanPlaced } from "../../compose/AutoMovieMotionHumanPlaced";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /** A placed arm reads its world point and facing from the current posture. */
 type Place = IAutoMovieMotionHumanPlaced.IArm["place"];

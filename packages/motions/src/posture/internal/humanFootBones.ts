@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../HumanFoot";
+import { HumanFoot } from "./HumanFoot";
 
 /**
  * Collect the actual bones used by displayed foot sockets and sole outlines.

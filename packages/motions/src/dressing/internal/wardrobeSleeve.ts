@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { wardrobeHands } from "./wardrobeHands";
 import type { wardrobeModes } from "./wardrobeModes";
 

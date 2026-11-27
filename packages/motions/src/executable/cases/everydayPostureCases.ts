@@ -3,9 +3,9 @@ import type { IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAut
 
 import { HumanChain } from "../../chain/HumanChain";
 import { seated } from "../../everyday/internal/seated";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanHand } from "../../posture/HumanHand";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayPostureCaseObstacle } from "./internal/everydayPostureCaseObstacle";
 import { everydayVerdicts } from "./internal/everydayVerdicts";

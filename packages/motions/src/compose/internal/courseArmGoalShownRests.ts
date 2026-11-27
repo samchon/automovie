@@ -11,11 +11,11 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import { HumanArmClearance } from "../../posture/HumanArmClearance";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanArmClearance } from "../../posture/internal/HumanArmClearance";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { AutoMovieMotionHumanArm } from "../AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmCourse } from "../AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { courseArmGoal } from "./courseArmGoal";
 import { courseLimbSwivels } from "./courseLimbSwivels";
 

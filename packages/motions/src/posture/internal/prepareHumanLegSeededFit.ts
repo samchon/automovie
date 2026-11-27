@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanLegChain } from "../HumanLegChain";
+import { HumanLegChain } from "./HumanLegChain";
 import { applyHumanLimbFit } from "./applyHumanLimbFit";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";

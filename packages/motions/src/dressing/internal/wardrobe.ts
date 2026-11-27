@@ -13,11 +13,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../../compose/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { wardrobeFoot } from "./wardrobeFoot";
 import { wardrobeHands } from "./wardrobeHands";
 import type { wardrobeModes } from "./wardrobeModes";

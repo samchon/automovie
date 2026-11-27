@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../HumanFoot";
+import { HumanFoot } from "./HumanFoot";
 
 /** The alternatives of `PrepareHumanFootHeightPoint`'s site. */
 type PrepareHumanFootHeightPoint = "heel" | "ball" | "toe" | "sole" | "mtp";

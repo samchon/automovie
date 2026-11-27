@@ -14,8 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTouchStance } from "../../compose/AutoMovieMotionHumanTouchStance";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
 import { bendLower } from "./bendLower";
 import { bendLowerSolve } from "./bendLowerSolve";
 import { planBendStrategy } from "./planBendStrategy";

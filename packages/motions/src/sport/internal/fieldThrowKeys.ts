@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanJoints,
 } from "@automovie/interface";
 
-import { ExerciseKey } from "../../exercise/ExerciseKey";
+import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 
 /**
  * Build an event's keys on a body.

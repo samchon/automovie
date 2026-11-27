@@ -1,5 +1,5 @@
-import { AutoMovieMotionHumanWorkoutLaws } from "./AutoMovieMotionHumanWorkoutLaws";
-import { AutoMovieMotionHumanWorkoutRows } from "./AutoMovieMotionHumanWorkoutRows";
+import { AutoMovieMotionHumanWorkoutLaws } from "./internal/AutoMovieMotionHumanWorkoutLaws";
+import { AutoMovieMotionHumanWorkoutRows } from "./internal/AutoMovieMotionHumanWorkoutRows";
 
 /**
  * Repeated exercises and stretches: a repetition clock built from `tempo` (3.3

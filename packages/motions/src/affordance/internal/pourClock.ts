@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPour,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
 /** A pour stage's start event and authored length, seconds. */

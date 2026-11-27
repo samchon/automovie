@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFootRotation } from "../HumanFootRotation";
+import { HumanFootRotation } from "./HumanFootRotation";
 import { humanFootOffset } from "./humanFootOffset";
 
 /** The alternatives of `PrepareHumanFootPivotPivot`'s site. */

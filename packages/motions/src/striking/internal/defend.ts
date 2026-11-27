@@ -15,12 +15,12 @@ import type {
   IAutoMovieMotionHumanPunch,
 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../../compose/AutoMovieMotionPrepared";
+import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { DefenceOutcome } from "../DefenceOutcome";
-import { StrikingSkill } from "../StrikingSkill";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingTarget } from "../StrikingTarget";
+import { DefenceOutcome } from "./DefenceOutcome";
+import { StrikingSkill } from "./StrikingSkill";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingTarget } from "./StrikingTarget";
 import { defendFootwork } from "./defendFootwork";
 import { defendGeometry } from "./defendGeometry";
 import { strikingReadBack } from "./strikingReadBack";

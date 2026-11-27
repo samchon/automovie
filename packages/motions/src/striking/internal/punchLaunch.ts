@@ -10,11 +10,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { poseBones } from "../../posture/internal/poseBones";
-import { StrikingBody } from "../StrikingBody";
-import { StrikingSkill } from "../StrikingSkill";
-import { StrikingTwist } from "../StrikingTwist";
+import { StrikingBody } from "./StrikingBody";
+import { StrikingSkill } from "./StrikingSkill";
+import { StrikingTwist } from "./StrikingTwist";
 import { punchContact } from "./punchContact";
 import { punchFootwork } from "./punchFootwork";
 import type { punchGeometry } from "./punchGeometry";

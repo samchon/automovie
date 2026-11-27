@@ -1,4 +1,4 @@
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import { MOTION_CAPTURE_CASES } from "../cases/MOTION_CAPTURE_CASES";
 
 /**

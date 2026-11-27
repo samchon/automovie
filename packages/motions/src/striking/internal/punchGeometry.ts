@@ -24,15 +24,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { StrikingRoom } from "../StrikingRoom";
-import { StrikingSkill } from "../StrikingSkill";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingStroke } from "../StrikingStroke";
+import { StrikingRoom } from "./StrikingRoom";
+import { StrikingSkill } from "./StrikingSkill";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingStroke } from "./StrikingStroke";
 import { punchAnchored } from "./punchAnchored";
 import { punchCompose } from "./punchCompose";
 import { punchContact } from "./punchContact";

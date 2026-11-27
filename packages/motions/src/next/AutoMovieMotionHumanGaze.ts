@@ -1,7 +1,7 @@
-import { GAZE_RECRUITS } from "../compose/GAZE_RECRUITS";
+import { GAZE_RECRUITS } from "../compose/internal/GAZE_RECRUITS";
 import { glance as glanceLaw } from "../compose/internal/glance";
 import { lookPrimitive as lookPrimitiveLaw } from "../compose/internal/lookPrimitive";
-import { HumanGaze as HumanGazeSource } from "../everyday/HumanGaze";
+import { HumanGaze as HumanGazeSource } from "../everyday/internal/HumanGaze";
 import { look as lookLaw } from "../everyday/internal/look";
 
 /**

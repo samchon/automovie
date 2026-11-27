@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanTrunk } from "../../everyday/HumanTrunk";
+import type { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import type { pickUpPosture } from "./pickUpPosture";
 
 /** Same-person exact FK loan borrowed by an actual adjusted stance invocation. */

@@ -13,13 +13,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanHand } from "../../posture/HumanHand";
-import { StrikingRoll } from "../../striking/StrikingRoll";
-import { HumanGrasp } from "../HumanGrasp";
-import { HumanGraspDemand } from "../HumanGraspDemand";
-import { HumanGraspSearch } from "../HumanGraspSearch";
-import { HumanGraspUse } from "../HumanGraspUse";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { StrikingRoll } from "../../striking/internal/StrikingRoll";
+import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspDemand } from "./HumanGraspDemand";
+import { HumanGraspSearch } from "./HumanGraspSearch";
+import { HumanGraspUse } from "./HumanGraspUse";
 import { pickUpPosture } from "./pickUpPosture";
 
 /** The digit tips a grip keeps above the floor. */

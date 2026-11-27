@@ -16,10 +16,10 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionHumanTouchStance } from "../../compose/AutoMovieMotionHumanTouchStance";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { HumanArmTrajectoryPace } from "../../posture/HumanArmTrajectoryPace";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { HumanArmTrajectoryPace } from "../../posture/internal/HumanArmTrajectoryPace";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 

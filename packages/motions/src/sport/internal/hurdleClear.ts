@@ -14,17 +14,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
-import { HumanObstacle } from "../../everyday/HumanObstacle";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
+import { HumanObstacle } from "../../everyday/internal/HumanObstacle";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { crossingClearance } from "../../terrain/internal/crossingClearance";
-import { AthleticsRunUp } from "../AthleticsRunUp";
-import { AthleticsSwing } from "../AthleticsSwing";
+import { AthleticsRunUp } from "./AthleticsRunUp";
+import { AthleticsSwing } from "./AthleticsSwing";
 
 /**
  * A hurdle clearance out of a run. The run is cut at the take-off foot's

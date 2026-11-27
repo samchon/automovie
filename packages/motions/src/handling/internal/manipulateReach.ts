@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { typeText } from "../../everyday/internal/typeText";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanHand } from "../../posture/internal/HumanHand";
 
 /**
  * Where the wrist stands for one press of a keyed contact sequence

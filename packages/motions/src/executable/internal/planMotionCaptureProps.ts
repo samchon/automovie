@@ -1,8 +1,8 @@
 import type { IAutoMoviePose } from "@automovie/interface";
 
 import { planMotionCaptureInstants } from "../../capture/internal/planMotionCaptureInstants";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import type { IMotionCaptureProps } from "../IMotionCaptureProps";
+import type { IMotionCaptureCase } from "./IMotionCaptureCase";
+import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 
 /**
  * Frames per second of a case's grid: 32, a power of two, so every frame second

@@ -1,9 +1,9 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformance, IAutoMovieMotionHumanSegment, IAutoMovieMotionHumanTouchEffector, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTouchEffector } from "../../compose/AutoMovieMotionHumanTouchEffector";
-import { HumanColliders } from "../../posture/HumanColliders";
-import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMovieMotionHumanTouchEffector";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 
 /** The part of a segment its events are read from. */

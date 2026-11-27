@@ -17,12 +17,12 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmPlanned } from "../../compose/AutoMovieMotionHumanArmPlanned";
-import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/AutoMovieMotionHumanChannel";
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovieMotionHumanArmPlanned";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/internal/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import type { gestureAdmit } from "./gestureAdmit";
 import { gestureHands } from "./gestureHands";

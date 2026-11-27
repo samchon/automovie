@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanTrunk } from "../../compose/AutoMovieMotionHumanTrunk";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /** The alternatives of `StanceContext`'s site. */
 type StanceContext = "body" | "carrier" | "entry";

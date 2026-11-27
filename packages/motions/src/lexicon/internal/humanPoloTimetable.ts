@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanPolo,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
-import { HumanPoloForm } from "../HumanPoloForm";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanPoloForm } from "./HumanPoloForm";
 
 /**
  * A polo stroke's timetable around its authored contact

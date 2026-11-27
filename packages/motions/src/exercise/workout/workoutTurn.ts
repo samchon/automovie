@@ -4,9 +4,9 @@ import type {
   IAutoMovieMotionHumanWorkoutKind,
 } from "@automovie/interface";
 
-import { ExerciseKey } from "../ExerciseKey";
-import { WorkoutKind } from "../WorkoutKind";
-import { WorkoutStance } from "../WorkoutStance";
+import { ExerciseKey } from "../internal/ExerciseKey";
+import { WorkoutKind } from "./WorkoutKind";
+import { WorkoutStance } from "./WorkoutStance";
 
 /**
  * A full turn on the left foot's ball with the arms as given at its half: a

@@ -1,4 +1,4 @@
-import { HumanConversation as HumanConversationSource } from "../everyday/HumanConversation";
+import { HumanConversation as HumanConversationSource } from "../everyday/internal/HumanConversation";
 import { conversationGaze as conversationGazeLaw } from "../everyday/internal/conversationGaze";
 import { conversationGroupGaze as conversationGroupGazeLaw } from "../everyday/internal/conversationGroupGaze";
 import { conversationShare as conversationShareLaw } from "../everyday/internal/conversationShare";

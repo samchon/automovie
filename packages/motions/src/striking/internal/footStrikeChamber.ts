@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { FootStrikeForms } from "../FootStrikeForms";
+import { FootStrikeForms } from "./FootStrikeForms";
 
 /**
  * A foot strike's authored chamber ankle: the knee folded before the hip, above

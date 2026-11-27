@@ -10,10 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import type { prepareSeatedPalms } from "./prepareSeatedPalms";

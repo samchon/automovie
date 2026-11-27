@@ -1,26 +1,26 @@
 import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, AutoMovieMotionHumanChannel, IAutoMovieHumanLimbGoal, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanKnee, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionWeaponContact, IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../../compose/AutoMovieMotionPrepared";
-import { HumanPerception } from "../../law/HumanPerception";
+import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { HumanPerception } from "../../law/internal/HumanPerception";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { KickCarriage } from "../KickCarriage";
-import { KneeForm } from "../KneeForm";
-import { KneeGeometry } from "../KneeGeometry";
-import { KneeReach } from "../KneeReach";
-import { StrikingBody } from "../StrikingBody";
-import { StrikingRide } from "../StrikingRide";
-import { StrikingSkill } from "../StrikingSkill";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingStopRide } from "../StrikingStopRide";
-import { StrikingStroke } from "../StrikingStroke";
-import { StrikingTarget } from "../StrikingTarget";
-import { StrikingWeapon } from "../StrikingWeapon";
-import { StrikingWeaponTable } from "../StrikingWeaponTable";
+import { KickCarriage } from "./KickCarriage";
+import { KneeForm } from "./KneeForm";
+import { KneeGeometry } from "./KneeGeometry";
+import { KneeReach } from "./KneeReach";
+import { StrikingBody } from "./StrikingBody";
+import { StrikingRide } from "./StrikingRide";
+import { StrikingSkill } from "./StrikingSkill";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingStopRide } from "./StrikingStopRide";
+import { StrikingStroke } from "./StrikingStroke";
+import { StrikingTarget } from "./StrikingTarget";
+import { StrikingWeapon } from "./StrikingWeapon";
+import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
 /** The alternatives of `PlanLeg`'s site. */
 type PlanLeg = "leftLeg" | "rightLeg";

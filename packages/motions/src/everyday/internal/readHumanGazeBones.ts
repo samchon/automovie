@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { HumanTrunk } from "../HumanTrunk";
+import { HumanTrunk } from "./HumanTrunk";
 
 /**
  * Read actual gaze frames through the body's demand of the mode's names.

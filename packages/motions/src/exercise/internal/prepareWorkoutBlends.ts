@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanExerciseKey } from "@automovie/interface";
 
-import { ExerciseKey } from "../ExerciseKey";
+import { ExerciseKey } from "./ExerciseKey";
 
 /** One existing workout interval's immutable authored endpoint keys. */
 interface IPair {

@@ -13,8 +13,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { HumanObjectCord } from "./HumanObjectCord";
+import { humanPostureHeading } from "../posture/internal/humanPostureHeading";
+import { HumanObjectCord } from "./internal/HumanObjectCord";
 
 /**
  * Attach actions to an object: an object says where a person meets it through

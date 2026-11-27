@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanHand } from "../../posture/HumanHand";
-import type { HumanRideHands } from "../HumanRideHands";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import type { HumanRideHands } from "./HumanRideHands";
 
 /**
  * Read the support's points a ride's hands are told to hold (`HumanRideHands`):

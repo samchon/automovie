@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
 /**
  * A stick stroke's timetable: the hands take the stick over `taken` seconds

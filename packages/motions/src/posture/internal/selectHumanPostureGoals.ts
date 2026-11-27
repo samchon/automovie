@@ -6,8 +6,8 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { HumanLimbFit } from "../HumanLimbFit";
-import { HumanPosture } from "../HumanPosture";
+import { HumanLimbFit } from "./HumanLimbFit";
+import { HumanPosture } from "./HumanPosture";
 
 /**
  * Select world limb fits needed by explicit bone observations. All directly

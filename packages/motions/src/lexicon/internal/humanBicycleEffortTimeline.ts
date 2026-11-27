@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanBicycleEffort,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
-import { HumanRide } from "../HumanRide";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanRide } from "./HumanRide";
 
 /**
  * A bicycle effort's timeline: the rider rises off the seat no sooner than the

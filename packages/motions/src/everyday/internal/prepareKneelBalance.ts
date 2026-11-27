@@ -7,9 +7,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanCourse } from "../../compose/AutoMovieMotionHumanCourse";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanBalance } from "../HumanBalance";
+import { AutoMovieMotionHumanCourse } from "../../compose/internal/AutoMovieMotionHumanCourse";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanBalance } from "./HumanBalance";
 import type { kneelKeys } from "./kneelKeys";
 
 /** A root offset in metres along the kneeling step. */

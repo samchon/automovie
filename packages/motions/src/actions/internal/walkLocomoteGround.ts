@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { WALK_TICK } from "../WALK_TICK";
+import { WALK_TICK } from "./WALK_TICK";
 import { runStance } from "./runStance";
 import { walkDescent } from "./walkDescent";
 import { walkFoot } from "./walkFoot";

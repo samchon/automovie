@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanHandTarget } from "../../posture/HumanHandTarget";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 
 /**
  * The body and ball geometry shared by the candidate rolls of one catching

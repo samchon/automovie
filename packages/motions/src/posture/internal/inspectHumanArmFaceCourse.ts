@@ -1,11 +1,11 @@
 import { AutoMovieMotionBound, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanArmGeometry } from "../HumanArmGeometry";
-import type { HumanArmTrajectory } from "../HumanArmTrajectory";
-import type { HumanArmTrajectoryKnots } from "../HumanArmTrajectoryKnots";
-import { HumanArmTrajectoryPairs } from "../HumanArmTrajectoryPairs";
-import { HumanArmTrajectoryTerms } from "../HumanArmTrajectoryTerms";
+import { HumanArmGeometry } from "./HumanArmGeometry";
+import type { HumanArmTrajectory } from "./HumanArmTrajectory";
+import type { HumanArmTrajectoryKnots } from "./HumanArmTrajectoryKnots";
+import { HumanArmTrajectoryPairs } from "./HumanArmTrajectoryPairs";
+import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 
 interface IFaceCourse {
   course: HumanArmTrajectory.IAdmitted;

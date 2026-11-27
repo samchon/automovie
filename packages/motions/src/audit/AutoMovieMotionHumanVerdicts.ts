@@ -14,18 +14,18 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanBound } from "../law/HumanBound";
-import { HumanPropFrame } from "../perform/HumanPropFrame";
-import { AutoMovieMotionHumanAudit } from "./AutoMovieMotionHumanAudit";
-import { AutoMovieMotionHumanAuditContact } from "./AutoMovieMotionHumanAuditContact";
-import { AutoMovieMotionHumanAuditPartner } from "./AutoMovieMotionHumanAuditPartner";
-import { AutoMovieMotionHumanAuditRange } from "./AutoMovieMotionHumanAuditRange";
-import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
-import { AutoMovieMotionHumanAuditSpin } from "./AutoMovieMotionHumanAuditSpin";
-import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
-import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
+import { HumanBound } from "../law/internal/HumanBound";
+import { HumanPropFrame } from "../perform/internal/HumanPropFrame";
+import { AutoMovieMotionHumanAudit } from "./internal/AutoMovieMotionHumanAudit";
+import { AutoMovieMotionHumanAuditContact } from "./internal/AutoMovieMotionHumanAuditContact";
+import { AutoMovieMotionHumanAuditPartner } from "./internal/AutoMovieMotionHumanAuditPartner";
+import { AutoMovieMotionHumanAuditRange } from "./internal/AutoMovieMotionHumanAuditRange";
+import { AutoMovieMotionHumanAuditSkin } from "./internal/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanAuditSpin } from "./internal/AutoMovieMotionHumanAuditSpin";
+import { AutoMovieMotionHumanAuditStatics } from "./internal/AutoMovieMotionHumanAuditStatics";
+import { AutoMovieMotionHumanAuditTiming } from "./internal/AutoMovieMotionHumanAuditTiming";
 import type { HumanVerdictsInput } from "./HumanVerdictsInput";
-import { HumanVerdictsSpan } from "./HumanVerdictsSpan";
+import { HumanVerdictsSpan } from "./internal/HumanVerdictsSpan";
 import { solvedHumanAuditSpans } from "./internal/solvedHumanAuditSpans";
 
 /** The alternatives of `OfPlaceResult`'s site. */

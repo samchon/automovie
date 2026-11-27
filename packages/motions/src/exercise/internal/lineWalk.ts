@@ -22,19 +22,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanFootRelax } from "../../compose/AutoMovieMotionHumanFootRelax";
-import { AutoMovieMotionHumanFootSwing } from "../../compose/AutoMovieMotionHumanFootSwing";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { AutoMovieMotionHumanToesOnFloor } from "../../compose/AutoMovieMotionHumanToesOnFloor";
-import { composeAutoMovieMotionHumanAction } from "../../compose/composeAutoMovieMotionHumanAction";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanFootRelax } from "../../compose/internal/AutoMovieMotionHumanFootRelax";
+import { AutoMovieMotionHumanFootSwing } from "../../compose/internal/AutoMovieMotionHumanFootSwing";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanToesOnFloor } from "../../compose/internal/AutoMovieMotionHumanToesOnFloor";
+import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
-import { ExerciseKey } from "../ExerciseKey";
-import type { ILineWalkFall } from "../ILineWalkFall";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
+import { ExerciseKey } from "./ExerciseKey";
+import type { ILineWalkFall } from "./ILineWalkFall";
 import { lineWalkFootprints } from "./lineWalkFootprints";
 import { lineWalkPole } from "./lineWalkPole";
 

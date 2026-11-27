@@ -1,8 +1,8 @@
-import { HumanFloatBeside as HumanFloatBesideSource } from "../lexicon/HumanFloatBeside";
-import { AquaticDistress as AquaticDistressSource } from "../sport/AquaticDistress";
-import { SwimStroke as SwimStrokeSource } from "../sport/SwimStroke";
+import { HumanFloatBeside as HumanFloatBesideSource } from "../lexicon/internal/HumanFloatBeside";
+import { AquaticDistress as AquaticDistressSource } from "../sport/internal/AquaticDistress";
+import { SwimStroke as SwimStrokeSource } from "../sport/internal/SwimStroke";
 import { aquatic as aquaticLaw } from "../sport/internal/aquatic";
-import { swim as swimLaw } from "../sport/swim";
+import { swim as swimLaw } from "../sport/internal/swim";
 import { swimImmersed as swimImmersedLaw } from "../sport/internal/swimImmersed";
 
 /**

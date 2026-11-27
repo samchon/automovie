@@ -13,10 +13,10 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanHand } from "../../posture/HumanHand";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
-import { HumanSurfaceBoard } from "../HumanSurfaceBoard";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
+import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
 import type { prepareSurfboardPhrase } from "./prepareSurfboardPhrase";
 
 /**

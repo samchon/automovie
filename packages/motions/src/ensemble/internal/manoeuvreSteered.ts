@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../../gait/internal/walk";
-import { HumanCrowd } from "../HumanCrowd";
-import { HumanManoeuvre } from "../HumanManoeuvre";
+import { HumanCrowd } from "./HumanCrowd";
+import { HumanManoeuvre } from "./HumanManoeuvre";
 
 /**
  * Each member's way to its new slot through the crowd's steering pass

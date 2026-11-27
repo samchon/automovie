@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanCollapse,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { knockdown } from "./knockdown";
 

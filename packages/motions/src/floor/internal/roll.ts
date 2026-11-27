@@ -13,9 +13,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";

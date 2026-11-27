@@ -10,11 +10,11 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "../../audit/AutoMovieMotionHumanAuditTangleMargin";
-import { AutoMovieMotionHumanAuditTangleModel as Model } from "../../audit/AutoMovieMotionHumanAuditTangleModel";
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { HumanAuditModel } from "../../posture/HumanAuditModel";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "../../audit/internal/AutoMovieMotionHumanAuditTangleMargin";
+import { AutoMovieMotionHumanAuditTangleModel as Model } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { HumanAuditModel } from "../../posture/internal/HumanAuditModel";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 

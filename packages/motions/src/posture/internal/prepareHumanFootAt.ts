@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../HumanFoot";
+import { HumanFoot } from "./HumanFoot";
 
 /** The alternatives of `PrepareHumanFootAtPivot`'s site. */
 type PrepareHumanFootAtPivot = "heel" | "ball" | "toe" | "sole" | "mtp";

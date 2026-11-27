@@ -13,9 +13,9 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { HumanSkill } from "../../skill/HumanSkill";
-import { HumanPerformanceAim } from "../HumanPerformanceAim";
-import { HumanPerformanceRead } from "../HumanPerformanceRead";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
+import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /** The alternatives of `HumanPerformanceStateLayer`'s site. */
 type HumanPerformanceStateLayer =

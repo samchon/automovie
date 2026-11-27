@@ -2,18 +2,18 @@ import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEnginePhysics,
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { sitPlace } from "../../everyday/internal/sitPlace";
-import { HumanPropFrame } from "../../perform/HumanPropFrame";
-import { HumanBodyFit } from "../../posture/HumanBodyFit";
-import { HumanBodyFitMerit } from "../../posture/HumanBodyFitMerit";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanFitBalance } from "../../posture/HumanFitBalance";
-import { HumanFitExterior } from "../../posture/HumanFitExterior";
-import { HumanFitVariables } from "../../posture/HumanFitVariables";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
+import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
+import { HumanBodyFitMerit } from "../../posture/internal/HumanBodyFitMerit";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanFitBalance } from "../../posture/internal/HumanFitBalance";
+import { HumanFitExterior } from "../../posture/internal/HumanFitExterior";
+import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { HumanMountPush } from "../HumanMountPush";
+import { HumanMountPush } from "./HumanMountPush";
 import type { prepareMountMaterialSeat } from "./prepareMountMaterialSeat";
 import { prepareMountSeat } from "./prepareMountSeat";
 import { prepareMountTread } from "./prepareMountTread";

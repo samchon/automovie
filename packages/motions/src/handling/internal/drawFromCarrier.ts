@@ -20,15 +20,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import { AutoMovieMotionHumanInterrupt } from "../../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanLimbFit } from "../../posture/HumanLimbFit";
+import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
-import { StrikingBlade } from "../../striking/StrikingBlade";
-import { HumanGrip } from "../HumanGrip";
-import { HumanPrehension } from "../HumanPrehension";
+import { StrikingBlade } from "../../striking/internal/StrikingBlade";
+import { HumanGrip } from "./HumanGrip";
+import { HumanPrehension } from "./HumanPrehension";
 import { drawFromCarrierJudge } from "./drawFromCarrierJudge";
 import { drawFromCarrierOver } from "./drawFromCarrierOver";
 import { drawFromCarrierPivot } from "./drawFromCarrierPivot";

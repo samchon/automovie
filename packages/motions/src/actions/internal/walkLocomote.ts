@@ -10,11 +10,11 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanArmSwing } from "../../posture/HumanArmSwing";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
-import { HumanSkill } from "../../skill/HumanSkill";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { walk } from "../../gait/internal/walk";
 import { walkCarriage } from "./walkCarriage";
 import { walkClear } from "./walkClear";

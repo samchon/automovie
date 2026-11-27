@@ -1,4 +1,4 @@
-import { HumanHorrorGait as HumanHorrorGaitSource } from "../lexicon/HumanHorrorGait";
+import { HumanHorrorGait as HumanHorrorGaitSource } from "../lexicon/internal/HumanHorrorGait";
 
 /**
  * The gaits of a horror creature, stage readings of a walk with its own Froude

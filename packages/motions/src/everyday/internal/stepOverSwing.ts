@@ -12,9 +12,9 @@ import type {
 } from "@automovie/interface";
 
 import { walkLeg } from "../../actions/internal/walkLeg";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { hipJoints } from "../../posture/internal/hipJoints";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import type { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";

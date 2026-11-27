@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { MartialArtStanceForms } from "../MartialArtStanceForms";
+import type { MartialArtStanceForms } from "./MartialArtStanceForms";
 
 /**
  * A held guard fist's site from its shoulder joint, in the trunk's heading

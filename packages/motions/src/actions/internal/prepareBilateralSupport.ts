@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmMirror } from "../../posture/HumanArmMirror";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanArmMirror } from "../../posture/internal/HumanArmMirror";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 

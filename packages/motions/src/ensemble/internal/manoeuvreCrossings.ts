@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanCrowd } from "../HumanCrowd";
-import { HumanFormation } from "../HumanFormation";
+import { HumanCrowd } from "./HumanCrowd";
+import { HumanFormation } from "./HumanFormation";
 
 /**
  * Refuse a manoeuvre whose ways cross: each member read on its way at its

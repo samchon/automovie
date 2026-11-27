@@ -16,8 +16,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportCarry } from "../../carrier/HumanSupportCarry";
-import { PreparedHumanIntervals } from "../../perform/PreparedHumanIntervals";
+import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
+import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
 /** Each world goal that can follow the stair body or a held foot. */

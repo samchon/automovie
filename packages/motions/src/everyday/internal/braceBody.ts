@@ -9,15 +9,15 @@ import type {
 import { rangeSteppingFoot } from "../../actions/internal/rangeSteppingFoot";
 import type { stand } from "../../actions/internal/stand";
 import { walkLeg } from "../../actions/internal/walkLeg";
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionHumanHand } from "../../compose/AutoMovieMotionHumanHand";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
-import type { HumanPhysics } from "../../law/HumanPhysics";
+import type { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
-import { HumanBalance } from "../HumanBalance";
-import { HumanTrunk } from "../HumanTrunk";
+import { HumanBalance } from "./HumanBalance";
+import { HumanTrunk } from "./HumanTrunk";
 import type { prepareGroundedBalance } from "./prepareGroundedBalance";
 
 /**

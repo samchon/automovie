@@ -12,8 +12,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
-import type { HumanPrehension } from "../HumanPrehension";
+import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
+import type { HumanPrehension } from "./HumanPrehension";
 
 /** The physical clasp, its three transport windows and the base the hand rides. */
 interface ITrack {

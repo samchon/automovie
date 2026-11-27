@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanMount } from "../../lexicon/HumanMount";
+import { HumanMount } from "../../lexicon/internal/HumanMount";
 
 /**
  * Read the grounded supports for crossing an ankle from a chair. A moving or

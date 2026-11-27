@@ -11,9 +11,9 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { HumanSegmentOverlay } from "../HumanSegmentOverlay";
+import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 
 /**
  * Whether a leg goal is free: given, neither planted nor in contact, so the leg

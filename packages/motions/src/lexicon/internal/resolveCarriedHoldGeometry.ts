@@ -1,9 +1,9 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionCoupling, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanCarried, IAutoMovieMotionHumanCarriedCouplingPose, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
 /** A bearing contact when that hand is occupied. */
 type MaybeContact = IAutoMovieMotionCoupling.IContact | undefined;

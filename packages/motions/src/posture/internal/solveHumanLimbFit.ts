@@ -12,12 +12,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanArmMirror } from "../HumanArmMirror";
-import { HumanLimbFit } from "../HumanLimbFit";
-import { HumanLimbFitFrame } from "../HumanLimbFitFrame";
-import { HumanLimbIncumbent } from "../HumanLimbIncumbent";
-import { HumanLimbMirror } from "../HumanLimbMirror";
-import { HumanLimbView } from "../HumanLimbView";
+import { HumanArmMirror } from "./HumanArmMirror";
+import { HumanLimbFit } from "./HumanLimbFit";
+import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
+import { HumanLimbIncumbent } from "./HumanLimbIncumbent";
+import { HumanLimbMirror } from "./HumanLimbMirror";
+import { HumanLimbView } from "./HumanLimbView";
 import { mirrorHumanLimbSource } from "./mirrorHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 

@@ -12,9 +12,9 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanDigitFit } from "../../posture/HumanDigitFit";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";

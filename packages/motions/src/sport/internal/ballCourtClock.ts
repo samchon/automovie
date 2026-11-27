@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
+import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 
 /**
  * A court phrase's timetable: its own preparation and attack, a 0.22 s

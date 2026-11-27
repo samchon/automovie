@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/AutoMovieMotionHumanAuditTangleModel";
-import { HumanColliders } from "../../posture/HumanColliders";
+import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
 
 /**
  * The legs' geometry the clearance reads (`walkLegClearance`): one body's

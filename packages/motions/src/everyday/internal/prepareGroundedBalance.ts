@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPhysics } from "../../law/HumanPhysics";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanBalance } from "../HumanBalance";
+import { HumanPhysics } from "../../law/internal/HumanPhysics";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanBalance } from "./HumanBalance";
 import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
 
 /**

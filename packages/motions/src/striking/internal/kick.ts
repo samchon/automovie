@@ -15,20 +15,20 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../../compose/AutoMovieMotionPrepared";
-import { HumanSkill } from "../../skill/HumanSkill";
-import { KickClear } from "../KickClear";
-import { KickGeometry } from "../KickGeometry";
-import { KickLaunch } from "../KickLaunch";
-import { KickRedirect } from "../KickRedirect";
-import { StrikingQuality } from "../StrikingQuality";
-import { StrikingRide } from "../StrikingRide";
-import { StrikingSkill } from "../StrikingSkill";
-import { StrikingStance } from "../StrikingStance";
-import { StrikingStopRide } from "../StrikingStopRide";
-import { StrikingTarget } from "../StrikingTarget";
-import { StrikingWeapon } from "../StrikingWeapon";
-import { StrikingWeaponTable } from "../StrikingWeaponTable";
+import { AutoMovieMotionPrepared } from "../../compose/internal/AutoMovieMotionPrepared";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
+import { KickClear } from "./KickClear";
+import { KickGeometry } from "./KickGeometry";
+import { KickLaunch } from "./KickLaunch";
+import { KickRedirect } from "./KickRedirect";
+import { StrikingQuality } from "./StrikingQuality";
+import { StrikingRide } from "./StrikingRide";
+import { StrikingSkill } from "./StrikingSkill";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingStopRide } from "./StrikingStopRide";
+import { StrikingTarget } from "./StrikingTarget";
+import { StrikingWeapon } from "./StrikingWeapon";
+import { StrikingWeaponTable } from "./StrikingWeaponTable";
 import { strikingReadBack } from "./strikingReadBack";
 
 /** The alternatives of `PlanLimb`'s site. */

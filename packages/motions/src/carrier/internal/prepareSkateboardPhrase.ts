@@ -15,11 +15,11 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
-import { HumanSupportCarry } from "../HumanSupportCarry";
-import { HumanSurfaceBoard } from "../HumanSurfaceBoard";
+import { HumanSupportCarry } from "./HumanSupportCarry";
+import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
 
 /** The four lower tyre sites in a level board frame. */
 const WHEELS: readonly string[] = [

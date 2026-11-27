@@ -23,7 +23,7 @@ import type {
 
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { HumanMountRider } from "../HumanMountRider";
+import { HumanMountRider } from "./HumanMountRider";
 
 type Points = Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
 type Joints = IAutoMovieMotionHumanPosture["joints"];

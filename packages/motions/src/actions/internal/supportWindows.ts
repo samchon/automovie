@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-import { HumanContactWindow } from "../../law/HumanContactWindow";
+import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
 import { supportContact } from "./supportContact";
 
 /** Only the subject and target parameters identify a support frame. */

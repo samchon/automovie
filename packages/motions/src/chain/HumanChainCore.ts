@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanChainCore,
 } from "@automovie/interface";
 
-import { HumanHitTrack } from "../perform/HumanHitTrack";
+import { HumanHitTrack } from "../perform/internal/HumanHitTrack";
 
 /**
  * The part of a person's chain that knows no action: whose chain it is, how an

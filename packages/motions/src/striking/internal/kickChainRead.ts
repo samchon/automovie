@@ -11,15 +11,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
-import { KickChain } from "../KickChain";
-import { KickForm } from "../KickForm";
-import { StrikingBody } from "../StrikingBody";
-import { StrikingWeapon } from "../StrikingWeapon";
+import { KickChain } from "./KickChain";
+import { KickForm } from "./KickForm";
+import { StrikingBody } from "./StrikingBody";
+import { StrikingWeapon } from "./StrikingWeapon";
 
 /**
  * Fit the leg once and read the fitted bones back (`KickChain.prepareFit`'s

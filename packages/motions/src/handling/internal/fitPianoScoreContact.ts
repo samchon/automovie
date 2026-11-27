@@ -13,8 +13,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanDigitFit } from "../../posture/HumanDigitFit";
-import { HumanHand } from "../../posture/HumanHand";
+import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
+import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import type { resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 

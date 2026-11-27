@@ -14,17 +14,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmJointCourse } from "../../compose/AutoMovieMotionHumanArmJointCourse";
-import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanForceTrunk } from "../../grappling/HumanForceTrunk";
-import { HumanBound } from "../../law/HumanBound";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../../compose/internal/AutoMovieMotionHumanArmJointCourse";
+import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMotionHumanTiming";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanForceTrunk } from "../../grappling/internal/HumanForceTrunk";
+import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
-import { HumanTrunkTurn } from "../../posture/HumanTrunkTurn";
+import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
+import { HumanTrunkTurn } from "../../posture/internal/HumanTrunkTurn";
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";

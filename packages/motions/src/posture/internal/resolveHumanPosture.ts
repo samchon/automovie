@@ -10,7 +10,7 @@ import type {
   IAutoMovieSwivelNear,
 } from "@automovie/interface";
 
-import { HumanLimbFit } from "../HumanLimbFit";
+import { HumanLimbFit } from "./HumanLimbFit";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { refitHumanPosture } from "./refitHumanPosture";

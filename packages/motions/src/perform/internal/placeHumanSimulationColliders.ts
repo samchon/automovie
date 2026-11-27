@@ -17,7 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanPerformanceRead } from "../HumanPerformanceRead";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
  * The scene's solids a simulated window can strike, as kinematic bodies of the

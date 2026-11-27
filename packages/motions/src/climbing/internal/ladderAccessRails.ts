@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanFrame } from "../../posture/HumanFrame";
+import type { HumanFrame } from "../../posture/internal/HumanFrame";
 
 /**
  * The least vertical component of a side rail's unit axis (provisional: within

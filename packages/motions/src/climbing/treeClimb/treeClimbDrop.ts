@@ -18,10 +18,10 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../../actions/internal/stand";
-import { HumanPreparedPlayback } from "../../perform/HumanPreparedPlayback";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
-import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
+import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 
 /** Seconds the landing takes to absorb into the stand (provisional). */
 const ABSORB: number = 0.4;

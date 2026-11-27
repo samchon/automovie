@@ -8,15 +8,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
-import { HumanBalance } from "../../everyday/HumanBalance";
+import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionHumanArm";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { kneelKeys } from "../../everyday/internal/kneelKeys";
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
-import type { ICrawlDownProps } from "../ICrawlDownProps";
+import type { ICrawlDownProps } from "./ICrawlDownProps";
 import { crawlDownTiming } from "./crawlDownTiming";
 import { crawlFeet } from "./crawlFeet";
 import { crawlFrame } from "./crawlFrame";

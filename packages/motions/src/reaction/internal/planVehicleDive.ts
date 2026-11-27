@@ -17,8 +17,8 @@ import type {
 
 import { dive } from "../../floor/internal/dive";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanColliders } from "../../posture/HumanColliders";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanColliders } from "../../posture/internal/HumanColliders";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { vehicleFront } from "./vehicleFront";

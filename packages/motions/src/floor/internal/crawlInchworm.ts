@@ -15,9 +15,9 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { crawlChain } from "./crawlChain";

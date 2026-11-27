@@ -8,9 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLean } from "../../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanLeg } from "../../compose/AutoMovieMotionHumanLeg";
-import { AutoMovieMotionHumanRise } from "../../compose/AutoMovieMotionHumanRise";
+import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
+import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanRise } from "../../compose/internal/AutoMovieMotionHumanRise";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 
 /** The alternatives of `KissBodySolved`'s site. */

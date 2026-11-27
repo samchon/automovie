@@ -1,6 +1,6 @@
-import { HumanStageFight as HumanStageFightSource } from "../lexicon/HumanStageFight";
-import { HumanStagePiste as HumanStagePisteSource } from "../lexicon/HumanStagePiste";
-import { HumanStageProp as HumanStagePropSource } from "../lexicon/HumanStageProp";
+import { HumanStageFight as HumanStageFightSource } from "../lexicon/internal/HumanStageFight";
+import { HumanStagePiste as HumanStagePisteSource } from "../lexicon/internal/HumanStagePiste";
+import { HumanStageProp as HumanStagePropSource } from "../lexicon/internal/HumanStageProp";
 import { composeHumanBladeExchange as composeHumanBladeExchangeLaw } from "../lexicon/internal/composeHumanBladeExchange";
 import { composeHumanStageProp as composeHumanStagePropLaw } from "../lexicon/internal/composeHumanStageProp";
 import { readHumanBladeExchangeCues as readHumanBladeExchangeCuesLaw } from "../lexicon/internal/readHumanBladeExchangeCues";

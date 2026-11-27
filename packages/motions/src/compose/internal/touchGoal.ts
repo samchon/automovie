@@ -10,13 +10,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBound } from "../../law/HumanBound";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { AutoMovieMotionClock } from "../AutoMovieMotionClock";
-import { AutoMovieMotionHumanTouchEffector } from "../AutoMovieMotionHumanTouchEffector";
-import { AutoMovieMotionHumanTouchForm } from "../AutoMovieMotionHumanTouchForm";
-import { AutoMovieMotionHumanTouchLaid } from "../AutoMovieMotionHumanTouchLaid";
-import { AutoMovieMotionHumanTouchUpright } from "../AutoMovieMotionHumanTouchUpright";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
+import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
+import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
+import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
+import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 
 /**
  * The goal a touch's arm is carried toward at each second: the effector laid on

@@ -13,12 +13,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportCarry } from "../../carrier/HumanSupportCarry";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { HumanBound } from "../../law/HumanBound";
-import { HumanArmSwing } from "../../posture/HumanArmSwing";
-import { HumanFrame } from "../../posture/HumanFrame";
-import { HumanSkill } from "../../skill/HumanSkill";
+import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { HumanBound } from "../../law/internal/HumanBound";
+import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
+import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { stand } from "./stand";
 import { standClearArms } from "./standClearArms";
 import { standFeet } from "./standFeet";

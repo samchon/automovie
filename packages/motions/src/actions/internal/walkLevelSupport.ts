@@ -11,9 +11,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSupportCarry } from "../../carrier/HumanSupportCarry";
-import { HumanSupportFrame } from "../../carrier/HumanSupportFrame";
-import { HumanFoot } from "../../posture/HumanFoot";
+import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
+import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
 
 /**
  * Plan a walk that starts bearing on a fixed level prop as the floor gait at

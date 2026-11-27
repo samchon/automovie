@@ -23,11 +23,11 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { support } from "../../actions/internal/support";
-import { AutoMovieMotionManner } from "../../compose/AutoMovieMotionManner";
+import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanBoneGroups } from "../../posture/HumanBoneGroups";
-import { HumanHand } from "../../posture/HumanHand";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
+import { HumanHand } from "../../posture/internal/HumanHand";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";

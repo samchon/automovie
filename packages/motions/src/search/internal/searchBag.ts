@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanSearch,
 } from "@automovie/interface";
 
-import { RUMMAGE } from "../RUMMAGE";
+import { RUMMAGE } from "./RUMMAGE";
 
 /**
  * Rummage in the bag, then take the item out by its grip.

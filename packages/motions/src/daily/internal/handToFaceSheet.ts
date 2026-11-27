@@ -9,8 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanTrunk } from "../../everyday/HumanTrunk";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 
 // Moving readers held the phone 33.3 cm from their eyes at customary speed.
 const WALK_DISTANCE: number = 0.333;

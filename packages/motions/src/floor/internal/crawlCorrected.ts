@@ -4,11 +4,11 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../../compose/AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieMotionHumanArmCourse";
 import { prepareHumanPostureCorrection } from "../../compose/internal/prepareHumanPostureCorrection";
-import { HumanBalance } from "../../everyday/HumanBalance";
+import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import type { prepareBearingTrunkBalance } from "../../everyday/internal/prepareBearingTrunkBalance";
-import type { HumanPhysics } from "../../law/HumanPhysics";
+import type { HumanPhysics } from "../../law/internal/HumanPhysics";
 
 /**
  * The crawl's whole primitive with its trunk correction solved at its knots on

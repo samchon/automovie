@@ -11,14 +11,14 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 import { HumanRefusal } from "../../law/HumanRefusal";
-import { HumanArmTrajectoryTerms } from "../../posture/HumanArmTrajectoryTerms";
-import { humanPostureHeading } from "../../posture/humanPostureHeading";
+import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
+import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { knockdown } from "../../reaction/internal/knockdown";
-import { GymnasticsFlight } from "../../sport/GymnasticsFlight";
+import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { floorArmRoom } from "./floorArmRoom";
 
 /** The alternatives of `HipsPosture`'s site. */

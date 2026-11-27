@@ -5,8 +5,8 @@ import type {
   IAutoMovieMotionHumanStepOver,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../../posture/HumanFoot";
-import { HumanFrame } from "../../posture/HumanFrame";
+import { HumanFoot } from "../../posture/internal/HumanFoot";
+import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { crossingSurface } from "../../terrain/internal/crossingSurface";
 
 /**

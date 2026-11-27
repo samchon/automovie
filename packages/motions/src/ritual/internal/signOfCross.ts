@@ -3,8 +3,8 @@ import type {
   IAutoMovieMotionHumanRitual,
 } from "@automovie/interface";
 
-import { SITE } from "../SITE";
-import { TOUCH_HOLD } from "../TOUCH_HOLD";
+import { SITE } from "./SITE";
+import { TOUCH_HOLD } from "./TOUCH_HOLD";
 
 /**
  * Append the sign of the cross: forehead, sternum, then both shoulders in the
