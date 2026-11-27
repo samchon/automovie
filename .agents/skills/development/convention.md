@@ -31,7 +31,9 @@ export namespace SomeComponent {
 
 ## Folders
 
-Use `src/<topic>/` for public API files and `src/<topic>/<subfolder>/` for internal implementation, including private functions. Group shared types and values under their owning topic.
+Put public API files in `src/<topic>/`. Put implementations in their owning
+subfolder. A species folder such as `src/animals/dog/` already provides that
+boundary. Group shared types and constants under their owning topic.
 
 Outside barrels, export one symbol named after its file. Export internal declarations only for cross-module imports and keep them out of public entry points.
 
@@ -48,3 +50,5 @@ Use named object types and prefix public object contracts with `I`. Give each ob
 ## JSDoc
 
 Document public exports and members with JSDoc. Apply the [writing rules](../documentation/SKILL.md) to all JSDoc.
+
+Cite upstream sources in the JSDoc of the implementation that uses them.
