@@ -1,9 +1,25 @@
-import { type Box3, type Mesh, type Object3D, type Camera } from "three";
+import { type Box3, type Mesh, type Object3D, type Camera, type Plane, type Matrix4 } from "three";
 import { boundAutoMovieCameraSubject as boundAutoMovieCameraSubjectImplementation } from "./internal/boundAutoMovieCameraSubject.js";
 import { listAutoMovieCameraSubjectMeshes as listAutoMovieCameraSubjectMeshesImplementation } from "./internal/listAutoMovieCameraSubjectMeshes.js";
+import { measureAutoMovieCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./internal/measureAutoMovieCameraFrameEdgeSurface.js";
 
 /** Public operations for Auto Movie Render Inspection Camera. */
 export namespace AutoMovieRenderInspectionCamera {
+  /** Inputs for one required subject's camera frame-edge surface check. */
+  export interface IFrameEdgeSurfaceProps {
+    /** Admitted meshes with current world matrices and poses. */
+    meshes: readonly Mesh[];
+    /** Four normalized inward side planes of the delivery frustum. */
+    sides: readonly Plane[];
+    /** Normalized inward near plane of the delivery frustum. */
+    near: Plane;
+    /** World-to-clip matrix with crop and aspect included. */
+    projection: Matrix4;
+    /** Largest number of drawn triangles this call may examine. */
+    triangleBudget: number;
+  }
+  /** Outcome of one camera frame-edge surface check. */
+  export type IFrameEdgeSurfaceResult = measureFrameEdgeSurfaceImplementation.IResult;
   /**
    * Enclose the current world geometry of a required subject's admitted meshes.
    *
@@ -40,5 +56,18 @@ export namespace AutoMovieRenderInspectionCamera {
    */
   export function listSubjectMeshes(target: Object3D, camera: Camera): Mesh[] | undefined {
     return listAutoMovieCameraSubjectMeshesImplementation(target, camera);
+  }
+  /**
+   * Check a required subject's drawn surface against the sides of the delivered
+   * frame, under the caller's triangle budget.
+   *
+   * @param props Admitted meshes, the delivery frustum planes and projection,
+   *   and the triangle budget.
+   * @returns The cut, clear, over-budget or unmeasured outcome.
+   */
+  export function measureFrameEdgeSurface(
+    props: IFrameEdgeSurfaceProps,
+  ): IFrameEdgeSurfaceResult {
+    return measureFrameEdgeSurfaceImplementation(props);
   }
 }

@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
+import type { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
@@ -43,7 +43,7 @@ export function readAutoMovieCollisionMesh(
   if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)) {
     const bounds: IAutoMovieSubjectBox | null =
       readAutoMovieDisplayedBox.skinEnvelope(mesh);
-    const read: collectAutoMovieCollisionParts.IPartSurface["read"] | null =
+    const read: AutoMovieRenderInspectionGeometry.IPartSurface["read"] | null =
       topology === null ? null : readSkin(mesh, topology, budget);
     if (bounds === null || read === null)
       return unsupported("no-displayed-geometry");
@@ -102,7 +102,7 @@ export namespace readAutoMovieCollisionMesh {
    */
   export type IAdd = (
     part: Collision.IPart,
-    surface?: collectAutoMovieCollisionParts.IPartSurface,
+    surface?: AutoMovieRenderInspectionGeometry.IPartSurface,
     reason?: string,
   ) => void;
 }
@@ -115,7 +115,7 @@ function readSkin(
   mesh: AutoMovieSkinnedMesh,
   topology: readAutoMovieCollisionTopology.ITopology,
   budget: { posedVertices: number; parts?: number },
-): collectAutoMovieCollisionParts.IPartSurface["read"] | null {
+): AutoMovieRenderInspectionGeometry.IPartSurface["read"] | null {
   const e: number[] = mesh.matrixWorld.elements;
   const error: number =
     mesh.tolerance() *

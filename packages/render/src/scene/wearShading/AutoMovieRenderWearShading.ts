@@ -7,7 +7,9 @@ import { applyMaterialWear as applyMaterialWearImplementation } from "./internal
 export namespace AutoMovieRenderWearShading {
   /** Worn geometry and its edge-distance data texture; caller owns both. */
   export interface IAppliedMaterialWear {
+    /** Non-indexed copy of the input geometry with attributes for edge wear. */
     geometry: THREE.BufferGeometry;
+    /** Edge distances sampled by the wear shader. */
     texture: THREE.DataTexture;
   }
 

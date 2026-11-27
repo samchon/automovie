@@ -1,3 +1,4 @@
+import type { AutoMovieArchetypeStageFittedCarrier } from "../AutoMovieArchetypeStageFittedCarrier";
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
@@ -7,8 +8,8 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
-} from "../core";
-import { AutoMovieArchetypeStageTwoHandedSwordProp } from "./AutoMovieArchetypeStageTwoHandedSwordProp";
+} from "../../core/index";
+import "../AutoMovieArchetypeStageTwoHandedSwordProp";
 
 /** Authored clearance around the rounded foam display profile, in metres. */
 const GAP: number = 0.006;
@@ -33,15 +34,15 @@ const MASS: number = 0.25;
  *   identity cannot be fitted.
  */
 export function createStageFittedCarrier(
-  params: createStageFittedCarrier.IParams,
+  params: AutoMovieArchetypeStageFittedCarrier.IParams,
 ): AutoMovieArchetype<
-  createStageFittedCarrier.Affordance,
-  createStageFittedCarrier.Dimension
+  AutoMovieArchetypeStageFittedCarrier.Affordance,
+  AutoMovieArchetypeStageFittedCarrier.Dimension
 > {
   const {
     display,
     id = "stageFittedCarrier",
-  }: createStageFittedCarrier.IParams = params;
+  }: AutoMovieArchetypeStageFittedCarrier.IParams = params;
   if (
     display.archetype !== "stageBladeProp" ||
     display.name !== "padded longsword stage prop" ||
@@ -55,7 +56,7 @@ export function createStageFittedCarrier(
   const mouthY: number = WALL + tip - guardTop;
   const seatedY: number = mouthY + guardTop + GAP;
   const openingY: number = mouthY + tip + GAP;
-  const draw: AutoMovieArchetypeDrawSession<createStageFittedCarrier.Dimension> =
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStageFittedCarrier.Dimension> =
     new AutoMovieArchetypeDrawSession(
       "stageFittedCarrier",
       { length: "m", opening: "m" },
@@ -64,8 +65,8 @@ export function createStageFittedCarrier(
   draw.derive("length", mouthY);
   draw.derive("opening", inner);
   const builder: AutoMovieArchetypeBuilder<
-    createStageFittedCarrier.Affordance,
-    createStageFittedCarrier.Dimension
+    AutoMovieArchetypeStageFittedCarrier.Affordance,
+    AutoMovieArchetypeStageFittedCarrier.Dimension
   > = new AutoMovieArchetypeBuilder({
     id,
     name: "fitted padded display carrier",
@@ -136,35 +137,7 @@ export function createStageFittedCarrier(
   return builder.build(MASS);
 }
 
-/** The padded display input and fitted carrier contacts. */
-export namespace createStageFittedCarrier {
-  /** The wear hook, the physical mouth and the two pose frames. */
-  export type Affordance = "belt" | "mouth" | "opening" | "seated";
 
-  /** The outer length along +Y and square clear channel width, metres. */
-  export type Dimension = "length" | "opening";
-
-  /** The separately modelled padded display and carrier identity. */
-  export interface IParams {
-    /** The generated digital display that fits this carrier. */
-    display: ReturnType<typeof AutoMovieArchetypeStageTwoHandedSwordProp.create>;
-    /** The carrier model's own id, distinct from the display's id. */
-    id?: string;
-  }
-
-  /**
-   * A gallery reference with one independent canonical padded display.
-   *
-   * @returns A fresh display input for standalone carrier inspection.
-   */
-  export function REFERENCE(): Readonly<IParams> {
-    return {
-      display: AutoMovieArchetypeStageTwoHandedSwordProp.create({
-        id: "fitted-carrier-reference-display",
-      }),
-    };
-  }
-}
 
 /** The axis-aligned envelope read from the generated padded foam parts. */
 interface IEnvelope {
@@ -178,7 +151,7 @@ interface IEnvelope {
 
 /** Read the admitted padded silhouette's centred cap, shaft and crossguard. */
 function envelope(
-  display: createStageFittedCarrier.IParams["display"],
+  display: AutoMovieArchetypeStageFittedCarrier.IParams["display"],
 ): IEnvelope {
   const part = (id: string): IAutoMovieModelPart | undefined =>
     display.parts.find(

@@ -2,7 +2,7 @@ import type {
   IAutoMovieInspectionDrawable,
   IAutoMovieMark,
 } from "@automovie/interface";
-import { measureAutoMovieInspectionPaths } from "@automovie/render";
+import { AutoMovieRenderInspectionGeometry } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import {
   BoxGeometry,
@@ -45,7 +45,7 @@ export function test_render_scene_measure_inspection_paths(): void {
     anchor: null,
   };
   const measured: IAutoMovieInspectionDrawable[] =
-    measureAutoMovieInspectionPaths({
+    AutoMovieRenderInspectionGeometry.measurePaths({
       objects: [
         { path: "body", object: node },
         { path: "skipped", object: node },

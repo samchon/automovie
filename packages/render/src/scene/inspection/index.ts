@@ -11,7 +11,7 @@ export * from "./autoMovieInspectionPathOf.js";
 
 
 export * from "./chooseAutoMovieInspectionMarks.js";
-export * from "./collectAutoMovieCollisionParts.js";
+export { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 export * from "./colorAutoMovieInspectionObjects.js";
 
 
@@ -40,13 +40,13 @@ export * from "./listAutoMovieInspectionPaths.js";
 
 
 export * from "./measureAutoMovieCameraFrameEdge.js";
-export * from "./measureAutoMovieCameraFrameEdgeSurface.js";
+
 export * from "./measureAutoMovieCameraNearClip.js";
-export * from "./measureAutoMovieInspectionBounds.js";
+
 export * from "./measureAutoMovieInspectionDefects.js";
-export * from "./measureAutoMovieInspectionEdges.js";
+
 export * from "./measureAutoMovieInspectionMeshes.js";
-export * from "./measureAutoMovieInspectionPaths.js";
+
 
 export * from "./observeAutoMovieCameraInspection.js";
 export * from "./observeAutoMovieCollisionMotion.js";
@@ -55,13 +55,13 @@ export * from "./observeAutoMoviePlacedScene.js";
 export * from "./observeAutoMovieSceneCollision.js";
 
 
-export * from "./placeAutoMovieInspectionLabels.js";
-export * from "./planAutoMovieInspectionTrailTimes.js";
+
+
 
 
 
 export * from "./resolveAutoMovieInspectionView.js";
-export * from "./sampleAutoMovieInspectionTrails.js";
+
 export * from "./selectAutoMoviePlacedChecks.js";
 
 export { AutoMovieRenderInspection } from "./AutoMovieRenderInspection.js";

@@ -32,11 +32,11 @@ import { focusAutoMovieInspection } from "../focusAutoMovieInspection.js";
 import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks.js";
 import { listAutoMovieInspectionPaths } from "../listAutoMovieInspectionPaths.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
-import { measureAutoMovieInspectionBounds } from "../measureAutoMovieInspectionBounds.js";
+import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
 import { measureAutoMovieInspectionMeshes } from "../measureAutoMovieInspectionMeshes.js";
-import { measureAutoMovieInspectionPaths } from "../measureAutoMovieInspectionPaths.js";
+
 import { mergeAutoMovieInspectionLegends } from "./mergeAutoMovieInspectionLegends.js";
-import { placeAutoMovieInspectionLabels } from "../placeAutoMovieInspectionLabels.js";
+import { placeAutoMovieInspectionLabels } from "./placeAutoMovieInspectionLabels.js";
 import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionColors.js";
 
 /** Every mesh defect kind the palette colours, in the palette's order. */
@@ -424,7 +424,7 @@ export function applyAutoMovieInspection(
         dropped: IAutoMovieInspectionLabel[];
       } =>
         placeAutoMovieInspectionLabels({
-          boxes: measureAutoMovieInspectionPaths({
+          boxes: AutoMovieRenderInspectionGeometry.measurePaths({
             objects: shownObjects,
             marks: placed(),
             choose: (path: string): boolean =>
@@ -450,7 +450,7 @@ export function applyAutoMovieInspection(
         focus?: IAutoMovieInspectionFocus | null,
       ): IAutoMovieViewerSubjectBounds | null =>
         focus === undefined || focus === null
-          ? measureAutoMovieInspectionBounds(scene)
+          ? AutoMovieRenderInspectionGeometry.measureBounds(scene)
           : focusAutoMovieInspection({
               focus,
               objects: shownObjects,

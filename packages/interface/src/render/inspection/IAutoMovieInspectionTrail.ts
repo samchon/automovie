@@ -1,6 +1,6 @@
 /**
  * Where one scene object's origin was at each sampled second, as
- * `sampleAutoMovieInspectionTrails` reads it.
+ * `AutoMovieRenderInspection.sampleTrails` reads it.
  */
 export interface IAutoMovieInspectionTrail {
   /** The object's inspection path. */

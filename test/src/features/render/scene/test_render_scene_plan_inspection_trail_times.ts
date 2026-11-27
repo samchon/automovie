@@ -1,8 +1,8 @@
-import { planAutoMovieInspectionTrailTimes } from "@automovie/render";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieInspectionTrailTimes` lists the trail samples around a second.
+ * `AutoMovieRenderInspection.planTrailTimes` lists the trail samples around a second.
  *
  * Scenarios:
  *
@@ -19,7 +19,7 @@ export function test_render_scene_plan_inspection_trail_times(): void {
     reach: number = 1,
     ticks: number = 2,
   ): number[] =>
-    planAutoMovieInspectionTrailTimes({
+    AutoMovieRenderInspection.planTrailTimes({
       request: { reach, ticks },
       seconds,
       durationSeconds,

@@ -1,8 +1,8 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
-import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
+import { AUTO_MOVIE_INSPECTION_KINDS } from "../AUTO_MOVIE_INSPECTION_KINDS.js";
+import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasured.js";
 
 /** The three sides of one triangle, each as its two corner indices. */
 function sides(a: number, b: number, c: number): [number, number][] {

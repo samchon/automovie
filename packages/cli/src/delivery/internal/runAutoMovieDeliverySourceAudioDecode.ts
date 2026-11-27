@@ -1,7 +1,7 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 import { decodeAutoMovieDeliveryAudio } from "./decodeAutoMovieDeliveryAudio";
-import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
+import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 
 /**
  * Audits a soundtrack exactly as the delivery encoder feeds it: resampled to 48

@@ -29,7 +29,8 @@ export function test_archetype_cue(): void {
     if (!(Math.abs(got - wanted) <= MM))
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
-  const cue: ReturnType<typeof AutoMovieArchetypeCue> = AutoMovieArchetypeCue.create({}, 4);
+  const cue: ReturnType<typeof AutoMovieArchetypeCue.create> =
+    AutoMovieArchetypeCue.create({}, 4);
   near(
     "the cue's length",
     archetypeExtent(cue, "x").size,
@@ -50,7 +51,8 @@ export function test_archetype_cue(): void {
       {
         name: "cue butt and tip",
         measure: (seed: number): readonly number[] => {
-          const drawn: ReturnType<typeof AutoMovieArchetypeCue> = AutoMovieArchetypeCue.create({}, seed);
+          const drawn: ReturnType<typeof AutoMovieArchetypeCue.create> =
+            AutoMovieArchetypeCue.create({}, seed);
           const butt: number = archetypeExtent(drawn, "y", ["butt"]).size;
           const front: number = archetypeExtent(drawn, "y", [
             "shaft-front",

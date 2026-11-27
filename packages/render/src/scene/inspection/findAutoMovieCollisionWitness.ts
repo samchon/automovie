@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
+import type { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 
 /** Four pi steradians, the solid angle of a whole sphere. */
 const FOUR_PI: number = 4 * Math.PI;
@@ -34,7 +34,7 @@ export function findAutoMovieCollisionWitness(
     [pair.first, pair.second],
     [pair.second, pair.first],
   ] as const) {
-    const source: collectAutoMovieCollisionParts.IPartSurface | undefined =
+    const source: AutoMovieRenderInspectionGeometry.IPartSurface | undefined =
       surfaces.get(mover);
     const solid: findAutoMovieCollisionWitness.ISolid | null | "budget" =
       solidOf(holder);
@@ -46,7 +46,7 @@ export function findAutoMovieCollisionWitness(
       limited = true;
       continue;
     }
-    const posed: collectAutoMovieCollisionParts.ISurface | null | "budget" =
+    const posed: AutoMovieRenderInspectionGeometry.ISurface | null | "budget" =
       source.read();
     if (posed === "budget") {
       limited = true;
@@ -83,7 +83,7 @@ export namespace findAutoMovieCollisionWitness {
     /** The candidate pair. */
     readonly pair: Pick<Collision.IFinding, "first" | "second">;
     /** Lazy drawn surfaces by part. */
-    readonly surfaces: collectAutoMovieCollisionParts.IResult["surfaces"];
+    readonly surfaces: AutoMovieRenderInspectionGeometry.IResult["surfaces"];
     /** Memoized solid of a part. */
     readonly solidOf: (id: string) => ISolid | null | "budget";
     /**
@@ -155,7 +155,7 @@ export namespace findAutoMovieCollisionWitness {
    */
   export function solid(
     part: Collision.IPart | undefined,
-    surface: collectAutoMovieCollisionParts.IPartSurface | undefined,
+    surface: AutoMovieRenderInspectionGeometry.IPartSurface | undefined,
   ): ISolid | null | "budget" {
     const geometry: Collision.IPart["geometry"] | undefined = part?.geometry;
     if (geometry?.kind === "shape" && geometry.basis === "displayed") {
@@ -176,7 +176,7 @@ export namespace findAutoMovieCollisionWitness {
       };
     }
     if (surface === undefined || surface.owns !== undefined) return null;
-    const posed: collectAutoMovieCollisionParts.ISurface | null | "budget" =
+    const posed: AutoMovieRenderInspectionGeometry.ISurface | null | "budget" =
       surface.read();
     if (posed === null || posed === "budget") return posed;
     if (!posed.closed) return null;
@@ -198,8 +198,8 @@ export namespace findAutoMovieCollisionWitness {
 function searchDirection(direction: {
   mover: string;
   holder: string;
-  source: collectAutoMovieCollisionParts.IPartSurface;
-  posed: collectAutoMovieCollisionParts.ISurface;
+  source: AutoMovieRenderInspectionGeometry.IPartSurface;
+  posed: AutoMovieRenderInspectionGeometry.ISurface;
   solid: findAutoMovieCollisionWitness.ISolid;
   allowance: findAutoMovieCollisionWitness.IProps["allowance"];
   budget: findAutoMovieCollisionWitness.IProps["budget"];
@@ -297,7 +297,7 @@ function tolerance(error: number, ...points: THREE.Vector3[]): number {
 
 /** Distinct undirected edges of the drawn triangles of a posed surface. */
 function drawnEdges(
-  surface: collectAutoMovieCollisionParts.ISurface,
+  surface: AutoMovieRenderInspectionGeometry.ISurface,
 ): readonly (readonly [number, number])[] {
   const seen: Set<string> = new Set();
   const edges: [number, number][] = [];
@@ -352,7 +352,7 @@ function convexDeepest(
  * between consecutive crossings is tested for containment and depth.
  */
 function closedDeepest(
-  surface: collectAutoMovieCollisionParts.ISurface,
+  surface: AutoMovieRenderInspectionGeometry.ISurface,
   a: THREE.Vector3,
   b: THREE.Vector3,
 ):
@@ -409,7 +409,7 @@ function closedDeepest(
  * triangle gives the magnitude and the joint label.
  */
 function closedDistance(
-  surface: collectAutoMovieCollisionParts.ISurface,
+  surface: AutoMovieRenderInspectionGeometry.ISurface,
   point: THREE.Vector3,
 ): findAutoMovieCollisionWitness.IDepth {
   const a: THREE.Vector3 = new THREE.Vector3();

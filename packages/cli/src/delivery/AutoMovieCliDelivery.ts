@@ -9,7 +9,7 @@ import type { IAutoMovieCliDeliveryReferenceDecode } from "./IAutoMovieCliDelive
 import { readAutoMovieDeliveryProbe } from "./internal/readAutoMovieDeliveryProbe";
 import { runAutoMovieDeliveryDecode } from "./internal/runAutoMovieDeliveryDecode";
 import { runAutoMovieDeliveryReferenceDecode } from "./internal/runAutoMovieDeliveryReferenceDecode";
-import { runAutoMovieFfmpeg } from "../runAutoMovieFfmpeg";
+import { runAutoMovieFfmpeg } from "../ffmpeg/internal/runAutoMovieFfmpeg";
 
 /** Node CLI delivery file probes and FFmpeg decode evidence. */
 export namespace AutoMovieCliDelivery {

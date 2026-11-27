@@ -1,5 +1,5 @@
-import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
-import type { IAutoMovieFfmpegSources } from "./IAutoMovieFfmpegSources";
+import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath";
+import type { IAutoMovieFfmpegSources } from "../../IAutoMovieFfmpegSources";
 
 /**
  * Find the FFmpeg executable a capture of a video file runs: `FFMPEG_PATH` when

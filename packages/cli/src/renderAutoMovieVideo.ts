@@ -19,7 +19,7 @@ import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
 import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
 import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
 import { readAutoMovieRevision } from "./production/internal/readAutoMovieRevision";
-import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
+import { runAutoMovieFfmpeg } from "./ffmpeg/internal/runAutoMovieFfmpeg";
 
 /**
  * Renders one subject and publishes an approved film beside its shared report.

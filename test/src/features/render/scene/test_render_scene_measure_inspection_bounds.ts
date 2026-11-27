@@ -1,9 +1,9 @@
-import { measureAutoMovieInspectionBounds } from "@automovie/render";
+import { AutoMovieRenderInspectionGeometry } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `measureAutoMovieInspectionBounds` bounds what an object draws, in world
+ * `AutoMovieRenderInspectionGeometry.measureBounds` bounds what an object draws, in world
  * space.
  *
  * Scenarios:
@@ -21,7 +21,7 @@ export function test_render_scene_measure_inspection_bounds(): void {
   cube.position.set(3, 0, 0);
   cube.scale.y = 2;
   root.add(cube);
-  TestValidator.equals("cube", measureAutoMovieInspectionBounds(root), {
+  TestValidator.equals("cube", AutoMovieRenderInspectionGeometry.measureBounds(root), {
     min: { x: 2.5, y: -1, z: -0.5 },
     max: { x: 3.5, y: 1, z: 0.5 },
   });
@@ -38,9 +38,9 @@ export function test_render_scene_measure_inspection_bounds(): void {
   far.visible = false;
   const group: THREE.Group = new THREE.Group();
   group.add(points, far);
-  TestValidator.equals("points", measureAutoMovieInspectionBounds(group), {
+  TestValidator.equals("points", AutoMovieRenderInspectionGeometry.measureBounds(group), {
     min: { x: 10, y: 0, z: 0 },
     max: { x: 11, y: 2, z: 3 },
   });
-  TestValidator.equals("nothing", measureAutoMovieInspectionBounds(new THREE.Group()), null);
+  TestValidator.equals("nothing", AutoMovieRenderInspectionGeometry.measureBounds(new THREE.Group()), null);
 }

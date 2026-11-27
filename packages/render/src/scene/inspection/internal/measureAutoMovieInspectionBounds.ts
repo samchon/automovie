@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
-import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
+import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import type { IAutoMovieViewerSubjectBounds } from "../../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 
 /**
  * Measure the world-space box of what a scene draws now, so a view can be

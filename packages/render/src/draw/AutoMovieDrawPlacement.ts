@@ -1,3 +1,4 @@
+import { AutoMovieRenderInspection } from "../scene/inspection/AutoMovieRenderInspection.js";
 import type {
   IAutoMovieDialogueMouthTrack,
   IAutoMovieDrawCall,
@@ -11,9 +12,6 @@ import type {
 
 import type { IAutoMovieSectionRenderer } from "../scene/IAutoMovieSectionRenderer.js";
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
-import { markAutoMovieInspectionTrails } from "../scene/inspection/internal/markAutoMovieInspectionTrails.js";
-import { planAutoMovieInspectionTrailTimes } from "../scene/inspection/planAutoMovieInspectionTrailTimes.js";
-import { sampleAutoMovieInspectionTrails } from "../scene/inspection/sampleAutoMovieInspectionTrails.js";
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AutoMovieDialogueMouthRecorder } from "./AutoMovieDialogueMouthRecorder.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
@@ -35,7 +33,7 @@ import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection
  *
  * `inspect` ends the current inspection before placement, so a subject may
  * replace its objects during a seek, samples each `trail` pattern of the
- * request over `planAutoMovieInspectionTrailTimes`, places the drawn second,
+ * request over `AutoMovieRenderInspection.planTrailTimes`, places the drawn second,
  * calls the caller's observation of the settled scene and binds a fresh
  * inspection to the resulting objects with their current marks and sampled
  * trails. `frame` places and inspects each framing second of a fitted view and
@@ -161,14 +159,14 @@ export class AutoMovieDrawPlacement {
       placeAutoMovieDrawLayer(this.name, scene, placed, at);
     const trails: IAutoMovieInspectionTrail[] = [];
     if (request.trail.length !== 0) {
-      const times: number[] = planAutoMovieInspectionTrailTimes({
+      const times: number[] = AutoMovieRenderInspection.planTrailTimes({
         request,
         seconds,
         durationSeconds: scene.durationSeconds,
       });
       for (const pattern of request.trail)
         trails.push(
-          ...(await sampleAutoMovieInspectionTrails({
+          ...(await AutoMovieRenderInspection.sampleTrails({
             scene: scene.scene,
             pattern,
             times,
@@ -183,7 +181,7 @@ export class AutoMovieDrawPlacement {
     onPlaced?.();
     return [
       ...(scene.marks?.(seconds) ?? []),
-      ...markAutoMovieInspectionTrails(trails, seconds),
+      ...AutoMovieRenderInspection.markTrails(trails, seconds),
     ];
   }
 }

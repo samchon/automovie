@@ -1,7 +1,7 @@
 import type { IAutoMovieSubjectBox } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
+import type { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /**
@@ -65,13 +65,13 @@ export namespace readAutoMovieCollisionTopology {
     pose: (vertex: number, target: THREE.Vector3) => THREE.Vector3,
     error: number = 0,
     labels?: (vertex: number) => string | undefined,
-  ): collectAutoMovieCollisionParts.IPartSurface["read"] {
+  ): AutoMovieRenderInspectionGeometry.IPartSurface["read"] {
     let result:
-      | collectAutoMovieCollisionParts.ISurface
+      | AutoMovieRenderInspectionGeometry.ISurface
       | null
       | "budget"
       | undefined;
-    return (): collectAutoMovieCollisionParts.ISurface | null | "budget" => {
+    return (): AutoMovieRenderInspectionGeometry.ISurface | null | "budget" => {
       if (result !== undefined) return result;
       const count: number = topology.positions.count;
       if (count > budget.posedVertices) return (result = "budget");
@@ -182,7 +182,7 @@ function poseSurface(
   pose: (vertex: number, target: THREE.Vector3) => THREE.Vector3,
   error: number,
   labels: ((vertex: number) => string | undefined) | undefined,
-): collectAutoMovieCollisionParts.ISurface | null {
+): AutoMovieRenderInspectionGeometry.ISurface | null {
   const values: THREE.Vector3[] = Array.from(
     { length: topology.positions.count },
     (_: unknown, i: number): THREE.Vector3 => pose(i, new THREE.Vector3()),

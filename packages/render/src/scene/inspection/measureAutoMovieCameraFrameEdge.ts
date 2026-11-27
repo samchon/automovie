@@ -4,7 +4,7 @@ import { Box3, Camera, Frustum, Matrix4, Mesh, Plane, Vector3 } from "three";
 import { boundAutoMovieCameraSubject } from "./internal/boundAutoMovieCameraSubject.js";
 import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
 import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
-import { measureAutoMovieCameraFrameEdgeSurface } from "./measureAutoMovieCameraFrameEdgeSurface.js";
+import { AutoMovieRenderInspectionCamera } from "./AutoMovieRenderInspectionCamera.js";
 
 /** The delivery camera and a required subject's bounds and admitted meshes. */
 interface IProps {
@@ -55,7 +55,7 @@ const SIDES: readonly measureAutoMovieCameraFrameEdge.Side[] = [
  * part is never drawn, so it cannot be cut.
  *
  * When some side has an extent and the meshes are readable,
- * measureAutoMovieCameraFrameEdgeSurface confirms or clears the cut on the
+ * AutoMovieRenderInspectionCamera.measureFrameEdgeSurface confirms or clears the cut on the
  * drawn surface and measures the visible fraction.
  *
  * @param props Delivery camera, subject bounds and meshes, and the triangle
@@ -139,7 +139,7 @@ export function measureAutoMovieCameraFrameEdge(
             reason:
               "A drawable of the subject has vertices the CPU cannot reproduce.",
           }
-        : measureAutoMovieCameraFrameEdgeSurface({
+        : AutoMovieRenderInspectionCamera.measureFrameEdgeSurface({
             meshes,
             sides,
             near,
@@ -184,7 +184,7 @@ export namespace measureAutoMovieCameraFrameEdge {
          * The surface check of the cut; `clear` with no triangle when no
          * crossing has an extent.
          */
-        surface: measureAutoMovieCameraFrameEdgeSurface.IResult;
+        surface: AutoMovieRenderInspectionCamera.IFrameEdgeSurfaceResult;
       }
     | {
         /** The bounds or projection cannot be read. */

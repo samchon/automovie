@@ -6,7 +6,7 @@ import type {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
+import { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFinding.js";
 import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
 import { readAutoMovieCollisionMotion } from "./readAutoMovieCollisionMotion.js";
@@ -20,7 +20,7 @@ interface IInstant {
 /** One layer at one placed instant. */
 interface ILayerState {
   readonly layer: observeAutoMovieCollisionMotion.ILayer;
-  readonly collected: collectAutoMovieCollisionParts.IResult;
+  readonly collected: AutoMovieRenderInspectionGeometry.IResult;
   readonly parts: ReadonlyMap<string, Collision.IPart>;
   readonly motion: ReadonlyMap<string, readAutoMovieCollisionMotion.IPose>;
   readonly solidOf: findAutoMovieCollisionWitness.IProps["solidOf"];
@@ -184,7 +184,7 @@ const LIMIT_KINDS: readonly (keyof observeAutoMovieCollisionMotion.ILimits)[] =
 /** The span, placement, layers and limits of one motion observation. */
 export namespace observeAutoMovieCollisionMotion {
   /** A collision layer readable at any placed instant. */
-  export interface ILayer extends collectAutoMovieCollisionParts.ILayer {
+  export interface ILayer extends AutoMovieRenderInspectionGeometry.ILayer {
     /** Distinct layer identity, shared with the placed-frame rows. */
     readonly id: string;
     /** Layer-local seconds at this instant. */
@@ -253,8 +253,8 @@ function readInstant(
 ): IInstant {
   const states: Map<string, ILayerState> = new Map();
   for (const layer of layers) {
-    const collected: collectAutoMovieCollisionParts.IResult =
-      collectAutoMovieCollisionParts(layer, budget);
+    const collected: AutoMovieRenderInspectionGeometry.IResult =
+      AutoMovieRenderInspectionGeometry.collectCollisionParts(layer, budget);
     const parts: Map<string, Collision.IPart> = new Map(
       collected.parts.map(
         (part: Collision.IPart): [string, Collision.IPart] => [part.id, part],

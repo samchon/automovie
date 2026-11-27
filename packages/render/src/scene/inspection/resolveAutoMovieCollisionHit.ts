@@ -1,6 +1,6 @@
 import type { IAutoMovieSceneCollision as Collision } from "@automovie/interface";
 
-import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
+import type { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
 
 /**
@@ -44,7 +44,7 @@ export namespace resolveAutoMovieCollisionHit {
     /** The Engine search's observation of the pair. */
     readonly hit: Collision.IFinding;
     /** Lazy drawn surfaces by part. */
-    readonly surfaces: collectAutoMovieCollisionParts.IResult["surfaces"];
+    readonly surfaces: AutoMovieRenderInspectionGeometry.IResult["surfaces"];
     /** Memoized solid of a part. */
     readonly solidOf: findAutoMovieCollisionWitness.IProps["solidOf"];
     /** The layer's named windows. */

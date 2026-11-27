@@ -6,7 +6,7 @@ import type {
 import { decodeAutoMovieDeliveryAudio } from "./decodeAutoMovieDeliveryAudio";
 import { planAutoMovieDeliveryAudioDecode } from "./planAutoMovieDeliveryAudioDecode";
 import { readAutoMovieDeliveryAudioTrack } from "./readAutoMovieDeliveryAudioTrack";
-import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
+import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 
 /**
  * Audits audio from the same encoded artifact as the video decode. Uses

@@ -219,6 +219,8 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypeLoadingTower: "createLoadingTower",
   AutoMovieArchetypeObstacle: "createObstacle",
   AutoMovieArchetypeStreetFixture: "createStreetFixture",
+
+  AutoMovieArchetypeStageFittedCarrier: "createStageFittedCarrier",
 };
 
 /** The website's local resolver for the installed archetype package. */

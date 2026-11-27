@@ -31,8 +31,6 @@ export * from "./accumulatePhysicalMotorTorques";
 export * from "./admitPhysicalBody";
 
 
-export * from "./admitPhysicalMotionFrame";
-export * from "./admitPhysicalOutcomes";
 export * from "./admitPhysicalPlaybackMetadata";
 export * from "./admitPhysicalPointBounds";
 
@@ -43,7 +41,6 @@ export * from "./advancePhysicalBalance";
 export * from "./advancePhysicalOwnership";
 export * from "./physicalAngularMomentumIntegrator";
 export * from "./assertPhysicalReturnPath";
-export * from "./auditPhysicalOutcomes";
 
 export * from "./bindPhysicalWorld";
 export * from "./AutoMovieEnginePhysics";
@@ -57,7 +54,6 @@ export * from "./computePhysicalKinematicFrames";
 export * from "./configurePhysicalJointMotor";
 
 
-export * from "./decodePhysicalPlayback";
 
 
 

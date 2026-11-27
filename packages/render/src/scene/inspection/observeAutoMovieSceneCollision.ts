@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
+import { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFinding.js";
 import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
 import { observeAutoMovieSweptCollision } from "./observeAutoMovieSweptCollision.js";
@@ -27,7 +27,7 @@ type ILimits = {
 };
 
 /** One source-owned layer, after its exact placement and world-matrix update. */
-interface ILayer extends collectAutoMovieCollisionParts.ILayer {
+interface ILayer extends AutoMovieRenderInspectionGeometry.ILayer {
   /** Distinct layer identity, the first element of every coverage key. */
   id: string;
   /** Layer-local seconds of this placement. */
@@ -144,8 +144,8 @@ function observeLayer(
           },
     );
   };
-  const collected: collectAutoMovieCollisionParts.IResult =
-    collectAutoMovieCollisionParts(layer, budget);
+  const collected: AutoMovieRenderInspectionGeometry.IResult =
+    AutoMovieRenderInspectionGeometry.collectCollisionParts(layer, budget);
   const byId: Map<string, Collision.IPart> = new Map(
     collected.parts.map((part: Collision.IPart): [string, Collision.IPart] => [
       part.id,

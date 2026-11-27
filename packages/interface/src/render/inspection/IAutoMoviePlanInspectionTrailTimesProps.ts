@@ -2,7 +2,7 @@ import type { IAutoMovieInspectionRequest } from "./IAutoMovieInspectionRequest.
 
 /**
  * A subject-local drawn instant and already parsed trail reach/tick rate.
- * planAutoMovieInspectionTrailTimes samples around seconds on a grid through
+ * AutoMovieRenderInspection.planTrailTimes samples around seconds on a grid through
  * that instant and clips to the subject duration; the planner validates finite
  * positive duration/reach/ticks and a drawn instant inside the inclusive
  * subject interval.

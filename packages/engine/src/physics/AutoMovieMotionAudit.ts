@@ -12,7 +12,7 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 
-import { admitPhysicalMotionFrame } from "./admitPhysicalMotionFrame";
+import { admitPhysicalMotionFrame } from "./internal/motionAudit/admitPhysicalMotionFrame";
 import { measurePhysicalJointLimits } from "./internal/measurePhysicalJointLimits";
 import { measurePhysicalMotionConstraint as Constraint } from "./internal/measurePhysicalMotionConstraint";
 
@@ -24,6 +24,14 @@ import { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
  * screenplay second, knee threshold or hand-picked radius lives here.
  */
 export namespace AutoMovieMotionAudit {
+  /** Refuse a sampled frame that is off-clock or lacks a valid carrier. */
+  export function admitFrame(
+    frame: IAutoMoviePhysicalFrame,
+    bodies: readonly IAutoMovieMotionAudit.IBody[],
+    seconds: number,
+  ): void {
+    admitPhysicalMotionFrame(frame, bodies, seconds);
+  }
   /**
    * Sample all bodies, support windows, speeds, floor clearances and pair
    * contacts.
@@ -43,7 +51,7 @@ export namespace AutoMovieMotionAudit {
         input.start + index / input.rate,
       );
       const frame: IAutoMoviePhysicalFrame = input.sample(seconds);
-      admitPhysicalMotionFrame(frame, input.bodies, seconds);
+      AutoMovieMotionAudit.admitFrame(frame, input.bodies, seconds);
       for (const body of input.bodies) {
         for (const joint of motionAuditGeometry(body).joints) {
           const parent: IAutoMoviePhysicalSegmentState | undefined =

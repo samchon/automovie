@@ -6,7 +6,7 @@ import type {
 import { planAutoMovieDeliveryDecode } from "./planAutoMovieDeliveryDecode";
 import { readAutoMovieDeliveryDecode } from "./readAutoMovieDeliveryDecode";
 import { runAutoMovieDeliveryAudioDecode } from "./runAutoMovieDeliveryAudioDecode";
-import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
+import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 
 /**
  * Decodes one encoded delivery to obtain native timing and content evidence.

@@ -13,8 +13,8 @@ export * from "./capture/AutoMovieCliCaptureHost";
 export * from "./capture/IAutoMovieCliChromium";
 export * from "./production/AutoMovieCliProduction";
 
-export * from "./resolveAutoMovieFfmpeg";
-export * from "./runAutoMovieFfmpeg";
+export * from "./ffmpeg/AutoMovieCliFfmpeg";
+
 export * from "./serveAutoMovieDrawPage";
 export * from "./page/AutoMovieCliPage";
 export * from "./inspect/AutoMovieCliInspect";

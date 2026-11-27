@@ -3,8 +3,8 @@ import type {
   IAutoMoviePhysicalPlayback,
 } from "@automovie/interface";
 
-import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
-import { admitPhysicalPlaybackMetadata } from "./admitPhysicalPlaybackMetadata";
+import { AutoMoviePhysicsCache as Cache } from "../../AutoMoviePhysicsCache";
+import { admitPhysicalPlaybackMetadata } from "../../admitPhysicalPlaybackMetadata";
 
 /**
  * Admit one downloaded/archive byte sequence against the current authored input

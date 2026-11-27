@@ -9,7 +9,7 @@ import { AutoMovieCliCaptureHost } from "../../capture/AutoMovieCliCaptureHost";
 import { loadAutoMovieProductionModule } from "../../production/internal/loadAutoMovieProductionModule";
 import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";
 import { renderAutoMovieVideo } from "../../renderAutoMovieVideo";
-import { resolveAutoMovieFfmpeg } from "../../resolveAutoMovieFfmpeg";
+import { resolveAutoMovieFfmpeg } from "../../ffmpeg/internal/resolveAutoMovieFfmpeg";
 
 /**
  * Run `automovie render` in a production: draw one subject of a module's draw

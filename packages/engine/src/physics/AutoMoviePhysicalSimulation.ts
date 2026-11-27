@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieAuditPhysicalOutcomes,
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalCoupledTargetFit,
   IAutoMoviePhysicalSimulation,
@@ -15,6 +16,8 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import type { IPhysicalCoupledTargetRun } from "./internal/IPhysicalCoupledTargetRun";
 import type { IPhysicalCoupledTargetSchedule } from "./internal/IPhysicalCoupledTargetSchedule";
 import { admitPhysicalSimulation } from "./admitPhysicalSimulation";
+import { admitPhysicalOutcomes } from "./admitPhysicalOutcomes";
+import { auditPhysicalOutcomes } from "./auditPhysicalOutcomes";
 import { assertPhysicalReturnPath } from "./assertPhysicalReturnPath";
 import { bindPhysicalWorld } from "./bindPhysicalWorld";
 import { capturePhysicalSimulationCheckpoint } from "./capturePhysicalSimulationCheckpoint";
@@ -93,6 +96,20 @@ export class AutoMoviePhysicalSimulation {
     input: IAutoMoviePhysicalSimulationInput.IInput,
   ): string {
     return physicalInputDigest(this.admitted(input).owned);
+  }
+
+  /** Admit authored contact and fall promises before evaluating outcome promises. */
+  public static admitOutcomes(
+    input: IAutoMovieAuditPhysicalOutcomes.IInput,
+  ): void {
+    admitPhysicalOutcomes(input);
+  }
+
+  /** Audit authored outcomes against supplied contact and fall observations. */
+  public static auditOutcomes(
+    input: IAutoMovieAuditPhysicalOutcomes.IInput,
+  ): IAutoMovieAuditPhysicalOutcomes.IFinding[] {
+    return auditPhysicalOutcomes(input);
   }
 
   /**

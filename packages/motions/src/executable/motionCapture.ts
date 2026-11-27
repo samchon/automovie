@@ -8,7 +8,7 @@ import {
   AutoMovieCliCaptureHost,
   AutoMovieCliProduction,
   renderAutoMovieVideo,
-  resolveAutoMovieFfmpeg,
+  AutoMovieCliFfmpeg,
 } from "automovie";
 import path from "node:path";
 
@@ -54,7 +54,7 @@ type IMotionCaptureRequestInstant = { seconds: number };
 /**
  * Draw motion cases through the shared capture host and report their verdicts.
  *
- * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>…]` builds
+ * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>??` builds
  * each named case of `MOTION_CAPTURE_CASES` (`--list` prints them) and captures
  * it with `automovie capture`'s host: the page built from `subjects` draws the
  * case's instants (`at`) through its views into
@@ -123,7 +123,7 @@ export async function motionCapture(): Promise<void> {
   }
   // FFmpeg is found before the page is built, so a missing encoder costs no drawing.
   const ffmpeg: string | null = video
-    ? resolveAutoMovieFfmpeg({
+    ? AutoMovieCliFfmpeg.resolve({
         env: process.env,
         load: (id: "ffmpeg-static"): string | null =>
           AutoMovieCliProduction.loadModule<string | null>(ROOT, id),

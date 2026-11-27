@@ -3,7 +3,7 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 import { planAutoMovieDeliveryDecode } from "./planAutoMovieDeliveryDecode";
 import { readAutoMovieDeliveryDecode } from "./readAutoMovieDeliveryDecode";
 import { runAutoMovieDeliverySourceAudioDecode } from "./runAutoMovieDeliverySourceAudioDecode";
-import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
+import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 
 /**
  * Measures what the encoder was given, with the same detectors and thresholds

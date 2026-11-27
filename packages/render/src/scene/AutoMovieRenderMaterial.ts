@@ -16,6 +16,7 @@ import { applyPracticalSurfaceMaterials as applyPracticalSurfaceMaterialsImpleme
 export namespace AutoMovieRenderMaterial {
   /** One patch operation applied to the same caller-owned shader value. */
   export type IShaderPatchApplication<Shader> = {
+    /** Update the shader in place after any earlier patches have run. */
     apply: (shader: Shader) => void;
   };
 

@@ -118,7 +118,7 @@ export { AutoMovieArchetypeStandingLamp } from "./AutoMovieArchetypeStandingLamp
 export { AutoMovieArchetypeVase } from "./AutoMovieArchetypeVase";
 export { AutoMovieArchetypeWalker } from "./AutoMovieArchetypeWalker";
 export { AutoMovieArchetypeStageFencingProp } from "./AutoMovieArchetypeStageFencingProp";
-export * from "./createStageFittedCarrier";
+export { AutoMovieArchetypeStageFittedCarrier } from "./AutoMovieArchetypeStageFittedCarrier";
 export { AutoMovieArchetypeStageHammerProp } from "./AutoMovieArchetypeStageHammerProp";
 export { AutoMovieArchetypeStageLinkedProp } from "./AutoMovieArchetypeStageLinkedProp";
 export { AutoMovieArchetypeStageMaceProp } from "./AutoMovieArchetypeStageMaceProp";

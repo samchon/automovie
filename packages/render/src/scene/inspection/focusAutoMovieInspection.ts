@@ -7,14 +7,14 @@ import type * as THREE from "three";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { matchAutoMovieInspectionPath } from "./internal/matchAutoMovieInspectionPath.js";
-import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPaths.js";
+import { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 
 /**
  * Measure the world-space box a view's focus frames: the drawn objects and
  * marks a path pattern matches, or every drawn flagged mark, so a close-up on a
  * part or on a defect's region is one request.
  *
- * The boxes are those `measureAutoMovieInspectionPaths` measures, joined into
+ * The boxes are those `AutoMovieRenderInspectionGeometry.measurePaths` measures, joined into
  * one. It throws when a pattern matches nothing drawn, and when the flagged
  * focus finds no flagged mark, saying no mark is flagged.
  */
@@ -33,7 +33,7 @@ export function focusAutoMovieInspection(props: {
   const boxes: {
     min: { x: number; y: number; z: number };
     max: { x: number; y: number; z: number };
-  }[] = measureAutoMovieInspectionPaths({
+  }[] = AutoMovieRenderInspectionGeometry.measurePaths({
     objects: flagged ? [] : props.objects,
     marks: flagged
       ? props.marks.filter(

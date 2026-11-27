@@ -5,15 +5,15 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
+import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import type { IAutoMovieInspectionPath } from "../IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
 
 /**
  * Measure the world-space box of every chosen path of an inspected scene: of
  * the drawn objects at that path and of the marks at that path, together.
  *
- * An object's box is what `measureAutoMovieInspectionBounds` measures of it as
+ * An object's box is what `AutoMovieRenderInspectionGeometry.measureBounds` measures of it as
  * drawn now, its posed vertices and those of the objects beneath it that are
  * drawn, so an isolated object contributes nothing. A mark's box holds its
  * coordinates carried by its anchor's world matrix, through the anchor's first

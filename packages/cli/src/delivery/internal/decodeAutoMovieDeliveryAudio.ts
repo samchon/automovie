@@ -5,7 +5,7 @@ import type {
 
 import { createAutoMovieDeliveryAudioLog } from "./createAutoMovieDeliveryAudioLog";
 import { createAutoMovieDeliveryAudioScan } from "./createAutoMovieDeliveryAudioScan";
-import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
+import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 
 /**
  * Runs one FFmpeg audio decode that writes f32le PCM to stdout and an

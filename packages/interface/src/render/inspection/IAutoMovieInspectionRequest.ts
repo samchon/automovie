@@ -76,15 +76,15 @@ export interface IAutoMovieInspectionRequest {
 
   /**
    * Path patterns of the objects whose travel is drawn as a trail, sampled by
-   * `sampleAutoMovieInspectionTrails` and drawn by
-   * `markAutoMovieInspectionTrails` as the `trail` and `trail/now` kinds, which
+   * `AutoMovieRenderInspection.sampleTrails` and drawn by
+   * `AutoMovieRenderInspection.markTrails` as the `trail` and `trail/now` kinds, which
    * `marks` must also ask for. Empty samples none.
    */
   trail: string[];
 
   /**
    * Seconds sampled before and after the drawn second for a trail, a positive
-   * duration; `planAutoMovieInspectionTrailTimes` clips the window to the
+   * duration; `AutoMovieRenderInspection.planTrailTimes` clips the window to the
    * subject's running time.
    */
   reach: number;

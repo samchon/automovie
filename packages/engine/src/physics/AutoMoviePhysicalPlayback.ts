@@ -12,7 +12,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { decodePhysicalPlayback } from "./decodePhysicalPlayback";
+import { decodePhysicalPlayback } from "./internal/playback/decodePhysicalPlayback";
 import { encodePhysicalPlayback } from "./encodePhysicalPlayback";
 import { samplePhysicalOwnership } from "./samplePhysicalOwnership";
 
@@ -122,13 +122,29 @@ export class AutoMoviePhysicalPlayback {
     },
   ): Promise<IAutoMoviePhysicalPlayback> {
     const decoded: Awaited<IAutoMovieDecodePhysicalPlayback.IResult> =
-      await decodePhysicalPlayback(source, expectedIdentity, budget);
+      await AutoMoviePhysicalPlayback.decodeResult(
+        source,
+        expectedIdentity,
+        budget,
+      );
     return new AutoMoviePhysicalPlayback(
       decoded.bytes,
       decoded.header,
       decoded.offset,
     );
   }
+
+  /**
+   * Decode admitted archive metadata without constructing a playback reader.
+   */
+  public static decodeResult(
+    source: Uint8Array,
+    expectedIdentity: string,
+    budget: IAutoMovieDecodePhysicalPlayback.IBudget,
+  ): Promise<IAutoMovieDecodePhysicalPlayback.IResult> {
+    return decodePhysicalPlayback(source, expectedIdentity, budget);
+  }
+
   /**
    * Sample stored world-space poses and velocities at local film seconds.
    *

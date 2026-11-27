@@ -1,9 +1,9 @@
-import { measureAutoMovieCameraFrameEdgeSurface } from "@automovie/render";
+import { AutoMovieRenderInspectionCamera } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * `measureAutoMovieCameraFrameEdgeSurface` checks whether a drawn surface
+ * `AutoMovieRenderInspectionCamera.measureFrameEdgeSurface` checks whether a drawn surface
  * beyond the near plane lies outside a side of the frame.
  *
  * Scenarios:
@@ -31,7 +31,7 @@ export function test_render_scene_measure_camera_frame_edge_surface(): void {
     );
     cube.position.x = x;
     cube.updateMatrixWorld(true);
-    return measureAutoMovieCameraFrameEdgeSurface({
+    return AutoMovieRenderInspectionCamera.measureFrameEdgeSurface({
       meshes: [cube],
       sides: planes.slice(0, 4),
       near: planes[5]!,

@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 
 /** Optional consumers for a decoder that produces binary and text evidence. */
-interface IAutoMovieFfmpegOutput {
+export interface IAutoMovieFfmpegOutput {
   stdout?: (chunk: Buffer) => void;
   stderr?: (chunk: string) => void;
 }

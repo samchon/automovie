@@ -1,4 +1,6 @@
-import { type IAutoMovieMark, type IAutoMovieInspectionTrail, type IAutoMovieInspectionDiagnostics, type IAutoMovieInspectionLegendEntry } from "@automovie/interface";
+import { type IAutoMovieMark, type IAutoMovieInspectionTrail, type IAutoMovieInspectionDiagnostics, type IAutoMovieInspectionLegendEntry, type IAutoMovieInspectionLabelPlacement, type IAutoMoviePlanInspectionTrailTimesProps, type IAutoMovieVector3 } from "@automovie/interface";
+
+import type * as THREE from "three";
 import { markAutoMovieInspectionTrails as markAutoMovieInspectionTrailsImplementation } from "./internal/markAutoMovieInspectionTrails.js";
 import { type IAutoMovieInspectionHandle } from "./IAutoMovieInspectionHandle.js";
 import { type IApplyAutoMovieInspectionProps } from "./IApplyAutoMovieInspectionProps.js";
@@ -6,6 +8,10 @@ import { applyAutoMovieInspection as applyAutoMovieInspectionImplementation } fr
 import { compareAutoMovieInspectionFindings as compareAutoMovieInspectionFindingsImplementation } from "./internal/compareAutoMovieInspectionFindings.js";
 import { type IRenderAutoMovieInspectionDiagnosticsProps } from "./IRenderAutoMovieInspectionDiagnosticsProps.js";
 import { renderWithAutoMovieInspectionDiagnostics as renderWithAutoMovieInspectionDiagnosticsImplementation } from "./internal/renderWithAutoMovieInspectionDiagnostics.js";
+
+import { planAutoMovieInspectionTrailTimes as planAutoMovieInspectionTrailTimesImplementation } from "./internal/planAutoMovieInspectionTrailTimes.js";
+import { sampleAutoMovieInspectionTrails as sampleAutoMovieInspectionTrailsImplementation } from "./internal/sampleAutoMovieInspectionTrails.js";
+import { placeAutoMovieInspectionLabels as placeAutoMovieInspectionLabelsImplementation } from "./internal/placeAutoMovieInspectionLabels.js";
 
 /** Public operations for Auto Movie Render Inspection. */
 export namespace AutoMovieRenderInspection {
@@ -25,7 +31,7 @@ export namespace AutoMovieRenderInspection {
    * | `trail`     | `trail`                     | Chocolate `d2691e`   |
    * | `trail/now` | `trail at the drawn second` | Dodger blue `1e90ff` |
    *
-   * @param trails The trails, as `sampleAutoMovieInspectionTrails` returns them.
+   * @param trails The trails, as `AutoMovieRenderInspection.sampleTrails` returns them.
    * @param seconds The drawn film second.
    * @returns For each trail its line, when it moves, then its ticks, then its
    *   emphasised tick.
@@ -140,5 +146,56 @@ export namespace AutoMovieRenderInspection {
    */
   export function renderDiagnostics(props: IRenderAutoMovieInspectionDiagnosticsProps): IAutoMovieInspectionLegendEntry[] {
     return renderWithAutoMovieInspectionDiagnosticsImplementation(props);
+  }
+  /**
+   * Return ascending sample seconds around the drawn second, clipped to the
+   * running interval. The drawn second is included when in range. Runtime
+   * predicates remain duration > 0, closed-interval seconds, and reach/ticks
+   * > 0 only; no finite check is added.
+   */
+  export function planTrailTimes(
+    props: IAutoMoviePlanInspectionTrailTimesProps,
+  ): number[] {
+    return planAutoMovieInspectionTrailTimesImplementation(props);
+  }
+
+  /** Explicit input for sequential scene-trail sampling. */
+  export interface ISampleTrailsProps {
+    scene: THREE.Scene;
+    pattern: string;
+    times: readonly number[];
+    seek: (seconds: number) => Promise<void>;
+  }
+
+  /**
+   * Sample shallowest selected object paths in scene order, awaiting sequential
+   * seeks. The scene remains at the final sample. Empty times, unmatched paths,
+   * and seek failures reject. The current nonempty-times predicate does not
+   * reject nonfinite entries.
+   */
+  export function sampleTrails(
+    props: ISampleTrailsProps,
+  ): Promise<IAutoMovieInspectionTrail[]> {
+    return sampleAutoMovieInspectionTrailsImplementation(props);
+  }
+
+  /** Explicit input for projected inspection labels. */
+  export interface IPlaceLabelsProps {
+    boxes: readonly { path: string; min: IAutoMovieVector3; max: IAutoMovieVector3 }[];
+    camera: THREE.Camera;
+    width: number;
+    height: number;
+    scale: number;
+  }
+
+  /**
+   * Place labels in input order and report out-of-picture, behind-camera or
+   * overlapping labels in dropped. Runtime checks dimensions and scale with
+   * > 0 only, preserving acceptance of fractional and positive-infinite values.
+   */
+  export function placeLabels(
+    props: IPlaceLabelsProps,
+  ): IAutoMovieInspectionLabelPlacement {
+    return placeAutoMovieInspectionLabelsImplementation(props);
   }
 }

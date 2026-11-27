@@ -1,6 +1,6 @@
 import {
   preparePhysicalGeometry as Geometry,
-  auditPhysicalOutcomes,
+  AutoMoviePhysicalSimulation,
 } from "@automovie/engine";
 import type {
   IAutoMovieAuditPhysicalOutcomes,
@@ -101,7 +101,7 @@ export async function test_engine_physics_prepare_physical_geometry_layers(): Pr
       geometry.contact(box, floor, 0) === null,
   );
   const outcome: IAutoMovieAuditPhysicalOutcomes.IFinding[] =
-    auditPhysicalOutcomes({
+    AutoMoviePhysicalSimulation.auditOutcomes({
       actions: [
         {
           id: "planned-hit",

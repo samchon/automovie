@@ -48,16 +48,23 @@ export namespace AutoMovieViewerInspector {
 
   /** Keyboard values inspected by the inspector playback shortcut handler. */
   export interface IHandleKeyEvent {
+    /** Pressed key as reported by `KeyboardEvent.key`. */
     key: string;
+    /** Whether Control is held, which leaves the shortcut to the page. */
     ctrlKey: boolean;
+    /** Whether Meta is held, which leaves the shortcut to the page. */
     metaKey: boolean;
+    /** Whether Alt is held, which leaves the shortcut to the page. */
     altKey: boolean;
+    /** Target used to detect interactive controls, or null for a non-element. */
     target: { closest(selectors: string): unknown } | null;
   }
 
   /** Whether a key was consumed and the resulting seek second, if any. */
   export interface IHandleKeyResult {
+    /** True when the caller should prevent the event's default action. */
     handled: boolean;
+    /** The resulting playhead time after a seek or step, otherwise null. */
     seconds: number | null;
   }
   /** Host address dependencies used to write inspector request text. */

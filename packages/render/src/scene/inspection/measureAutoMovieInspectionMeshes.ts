@@ -5,7 +5,7 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionDefects } from "./measureAutoMovieInspectionDefects.js";
-import { measureAutoMovieInspectionEdges } from "./measureAutoMovieInspectionEdges.js";
+import { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
 
 /**
  * Find the meshes an inspection draws and measure on them the kinds it measures
@@ -54,7 +54,7 @@ export function measureAutoMovieInspectionMeshes(props: {
   );
   if (props.asks("edge"))
     for (const { path, mesh } of kept)
-      measured.push(measureAutoMovieInspectionEdges({ mesh, path }));
+      measured.push(AutoMovieRenderInspectionGeometry.measureEdges({ mesh, path }));
   const kinds: Set<IAutoMovieMeshDefect.Kind> =
     new Set<IAutoMovieMeshDefect.Kind>(
       props.defects.filter((kind: IAutoMovieMeshDefect.Kind): boolean =>

@@ -1,10 +1,10 @@
 import { TestValidator } from "@nestia/e2e";
-import { resolveAutoMovieFfmpeg } from "automovie";
+import { AutoMovieCliFfmpeg } from "automovie";
 
 import { throwsError } from "../internal/predicates";
 
 /** The production loader the resolver reads `ffmpeg-static` through. */
-type FfmpegLoad = Parameters<typeof resolveAutoMovieFfmpeg>[0]["load"];
+type FfmpegLoad = Parameters<typeof AutoMovieCliFfmpeg.resolve>[0]["load"];
 
 /** What the test's `ffmpeg-static` exports: a path, null, or nothing installed. */
 type FfmpegExport = ReturnType<FfmpegLoad> | undefined;
@@ -38,7 +38,7 @@ export function test_cli_capture_ffmpeg_missing(): void {
   // 1. The environment wins.
   TestValidator.equals(
     "FFMPEG_PATH",
-    resolveAutoMovieFfmpeg({
+    AutoMovieCliFfmpeg.resolve({
       env: { FFMPEG_PATH: "/opt/ffmpeg" },
       load: load("/static/ffmpeg"),
     }),
@@ -49,7 +49,7 @@ export function test_cli_capture_ffmpeg_missing(): void {
   // 2. The package's binary.
   TestValidator.equals(
     "ffmpeg-static",
-    resolveAutoMovieFfmpeg({ env: {}, load: load("/static/ffmpeg") }),
+    AutoMovieCliFfmpeg.resolve({ env: {}, load: load("/static/ffmpeg") }),
     "/static/ffmpeg",
   );
 
@@ -58,7 +58,7 @@ export function test_cli_capture_ffmpeg_missing(): void {
     "not installed: the loader's error names ffmpeg-static",
     throwsError(
       (): string =>
-        resolveAutoMovieFfmpeg({
+        AutoMovieCliFfmpeg.resolve({
           env: { FFMPEG_PATH: " " },
           load: load(undefined),
         }),
@@ -71,14 +71,14 @@ export function test_cli_capture_ffmpeg_missing(): void {
     "no binary for the platform: names FFMPEG_PATH",
     throwsError(
       (): string =>
-        resolveAutoMovieFfmpeg({ env: { FFMPEG_PATH: " " }, load: load(null) }),
+        AutoMovieCliFfmpeg.resolve({ env: { FFMPEG_PATH: " " }, load: load(null) }),
       "FFMPEG_PATH",
     ),
   );
   TestValidator.predicate(
     "no binary for the platform: names ffmpeg-static",
     throwsError(
-      (): string => resolveAutoMovieFfmpeg({ env: {}, load: load(null) }),
+      (): string => AutoMovieCliFfmpeg.resolve({ env: {}, load: load(null) }),
       "ffmpeg-static",
     ),
   );
