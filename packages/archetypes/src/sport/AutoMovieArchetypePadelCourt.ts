@@ -5,8 +5,10 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
-} from "../core";
+} from "../core/index";
 
+/** Constructs the padel court archetype from its recipe. */
+export namespace AutoMovieArchetypePadelCourt {
 /**
  * A padel court at the International Padel Federation's dimensions: the playing
  * area 20 m long along Z and 10 m wide along X, divided by a net 88 cm high at
@@ -22,20 +24,20 @@ import {
  * @param seed The seed; the court has no drawn dimension.
  * @returns The court.
  */
-export function createPadelCourt(
-  params: createPadelCourt.IParams = {},
+export function create(
+  params: AutoMovieArchetypePadelCourt.IParams = {},
   seed?: number,
-): AutoMovieArchetype<createPadelCourt.Affordance, never> {
+): AutoMovieArchetype<AutoMovieArchetypePadelCourt.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("padelCourt", {}, seed, {});
-  const builder: AutoMovieArchetypeBuilder<createPadelCourt.Affordance, never> =
+  const builder: AutoMovieArchetypeBuilder<AutoMovieArchetypePadelCourt.Affordance, never> =
     new AutoMovieArchetypeBuilder({
       material: "glass",
       id: params.id,
       name: "padel court",
       draw,
     });
-  const { LENGTH, WIDTH, NET, WALL, STEP } = createPadelCourt;
+  const { LENGTH, WIDTH, NET, WALL, STEP } = AutoMovieArchetypePadelCourt;
   const sheet: number = 0.012;
   const end: number = LENGTH / 2;
   builder.box(
@@ -88,9 +90,10 @@ export function createPadelCourt(
   // A built court's nominal assembly mass; it never moves.
   return builder.build(8000);
 }
+}
 
-/** Companion types and constants of {@link createPadelCourt}. */
-export namespace createPadelCourt {
+/** Companion types and constants of {@link AutoMovieArchetypePadelCourt.create}. */
+export namespace AutoMovieArchetypePadelCourt {
   /**
    * `net`, the net's top centre; `end` and `far`, the middles of the two back
    * walls' feet.

@@ -1,7 +1,7 @@
 import { minimumJerk } from "@automovie/engine";
 
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * How a quadruped's swinging foot and its head move through a stride: the foot
@@ -43,7 +43,7 @@ export namespace AutoMovieArchetypeQuadrupedMotion {
    * @returns The pitch.
    */
   export function nod(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     stride: AutoMovieArchetypeQuadrupedGait.IStride,
     phase: number,
     duty: number,

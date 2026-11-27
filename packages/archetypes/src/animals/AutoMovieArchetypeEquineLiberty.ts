@@ -14,7 +14,7 @@ import type { AutoMovieArchetypeQuadrupedLateralRestPlan } from "./AutoMovieArch
 import { AutoMovieArchetypeQuadrupedRest } from "./AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQuadrupedRestPlan";
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
-import { createQuadruped } from "./createQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /** A rest clip, sternal or lateral. */
 type Clip<Id extends string, D extends string> =
@@ -148,7 +148,7 @@ export namespace AutoMovieArchetypeEquineLiberty {
     rest: AutoMovieArchetypeEquineLibertyCue.Rest,
   ): AutoMovieArchetypeQuadrupedRestPlan.IParams {
     const carriers: ReturnType<typeof QuadrupedCarriage.of> =
-      QuadrupedCarriage.of(animal, createQuadruped.species(animal));
+      QuadrupedCarriage.of(animal, AutoMovieArchetypeQuadruped.species(animal));
     return {
       ...rest,
       floorY: -placement.translation.y,

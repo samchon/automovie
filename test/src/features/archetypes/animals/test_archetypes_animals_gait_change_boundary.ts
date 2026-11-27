@@ -1,7 +1,4 @@
-import {
-  type AutoMovieArchetypeQuadrupedBody as Body,
-  createQuadruped,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { QuadrupedChange } from "@automovie/archetypes/internal";
 import { AutoMovieGravity } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
@@ -24,7 +21,7 @@ const SPEED_ROUNDOFF: number = 32 * Number.EPSILON;
  *    gait exactly at the boundary from either side.
  */
 export function test_archetypes_animals_gait_change_boundary(): void {
-  const horse: createQuadruped.ISpecies = createQuadruped.SPECIES.horse;
+  const horse: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.SPECIES.horse;
   const dimensions: Partial<Record<Body.Dimension, number>> = {
     withersHeight: 1.38,
     mass: 170,
@@ -73,7 +70,7 @@ export function test_archetypes_animals_gait_change_boundary(): void {
       previous,
     );
 
-  const dog: createQuadruped.ISpecies = createQuadruped.SPECIES.dog;
+  const dog: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.SPECIES.dog;
   for (const previous of ["walk", "trot"] as const) {
     TestValidator.equals(
       `the canine 2.69 m/s boundary selects trot from ${previous}`,

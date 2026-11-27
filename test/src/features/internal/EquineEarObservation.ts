@@ -1,10 +1,4 @@
-import {
-  type AutoMovieArchetypeEquine,
-  type AutoMovieArchetypeQuadrupedGait,
-  type AutoMovieArchetypeRide,
-  createQuadruped,
-  rideQuadruped,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetypeEquine, type AutoMovieArchetypeQuadrupedGait, type AutoMovieArchetypeRide, rideQuadruped, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -25,7 +19,7 @@ import { nclose } from "./nclose";
  */
 export namespace EquineEarObservation {
   /** Actual producer output, without an alternate proxy skeleton. */
-  export type Model = ReturnType<typeof createQuadruped>;
+  export type Model = ReturnType<typeof AutoMovieArchetypeQuadruped.create>;
 
   /** Fixed independent donor ratios and existing body/mass figures. */
   export interface ICase {
@@ -183,12 +177,12 @@ export namespace EquineEarObservation {
     findings: string[],
   ): void {
     const table: AutoMovieArchetypeQuadrupedGait.ITable = structuredClone(
-      createQuadruped.species(model).table,
+      AutoMovieArchetypeQuadruped.species(model).table,
     );
     table.gaits.walk!.nod = { range: 10, timing: "support" };
     const ride: AutoMovieArchetypeRide.IRide<
-      createQuadruped.Affordance,
-      createQuadruped.Dimension
+      AutoMovieArchetypeQuadruped.Affordance,
+      AutoMovieArchetypeQuadruped.Dimension
     > = rideQuadruped(
       model,
       {

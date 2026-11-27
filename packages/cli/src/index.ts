@@ -4,7 +4,6 @@ export * from "./delivery/IAutoMovieCliDeliveryProbe";
 export * from "./delivery/IAutoMovieCliDeliveryReferenceDecode";
 export * from "./scaffold/AutoMovieCliScaffold";
 export type { AutoMovieCliProjectNameSelection } from "./scaffold/AutoMovieCliProjectNameSelection";
-export * from "./run";
 export * from "./capture/AutoMovieCliCapture";
 export type { AutoMovieCliCaptureTypes } from "./capture/AutoMovieCliCaptureTypes";
 export * from "./capture/AutoMovieCliCaptureBackend";

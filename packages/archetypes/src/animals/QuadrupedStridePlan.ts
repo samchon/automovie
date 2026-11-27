@@ -4,7 +4,7 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import { EquineFootwork } from "./EquineFootwork";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { admitQuadrupedPhase } from "./internal/admitQuadrupedPhase";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * The bounded stride-phase plan of a quadruped ride: the hoof phase against
@@ -89,7 +89,7 @@ export namespace QuadrupedStridePlan {
    * @throws {RangeError} When moved landings stop a hoof's landings increasing.
    */
   export function build(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     clock: QuadrupedRideClock.IClock,
     decide: Decide,
     initial: IStride,
@@ -240,7 +240,7 @@ export namespace QuadrupedStridePlan {
    *   involved.
    */
   function gaitChangeShift(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     was: IStride,
     will: IStride,
     before: AutoMovieArchetypeQuadrupedGait.ITiming,

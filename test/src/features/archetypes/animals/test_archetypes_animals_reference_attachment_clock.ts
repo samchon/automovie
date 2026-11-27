@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, AutoMovieArchetypeQuadrupedLocomotion, createQuadruped, AutoMovieArchetypeCamel, AutoMovieArchetypeDeer, AutoMovieArchetypeOx } from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, AutoMovieArchetypeQuadrupedLocomotion, AutoMovieArchetypeCamel, AutoMovieArchetypeDeer, AutoMovieArchetypeOx, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -108,7 +108,7 @@ export function test_archetypes_animals_reference_attachment_clock(): void {
     },
   ];
   for (const item of cases) {
-    const species: createQuadruped.ISpecies = createQuadruped.species(item.animal);
+    const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(item.animal);
     const source: Gait.ClockSource = item.table === undefined ? species : { ...species, table: item.table };
     const clock: Gait.ITiming = Gait.timing(source, item.gait, item.speed);
     TestValidator.predicate(
@@ -136,7 +136,7 @@ export function test_archetypes_animals_reference_attachment_clock(): void {
       });
   }
   for (const animal of [ox, camel, deer])
-    observeQuadrupedAttachment(animal, createQuadruped.species(animal), animal.archetype, findings, animal.dimensions.withersHeight!);
+    observeQuadrupedAttachment(animal, AutoMovieArchetypeQuadruped.species(animal), animal.archetype, findings, animal.dimensions.withersHeight!);
   TestValidator.equals(
     "actual reference-species attachment and solid support",
     findings,

@@ -34,7 +34,7 @@ import { QuadrupedSwingChord } from "./QuadrupedSwingChord";
 import { QuadrupedSwingGoal } from "./QuadrupedSwingGoal";
 import type { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
-import { createQuadruped } from "./createQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { planEquineFlight } from "./planEquineFlight";
 import { refuseQuadrupedReach } from "./refuseQuadrupedReach";
 import { trialEquineFlight } from "./trialEquineFlight";
@@ -153,8 +153,8 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     instants: readonly EquineFootwork.IInstant[];
   }
 
-  const source: createQuadruped.ISpecies = createQuadruped.species(animal);
-  const species: createQuadruped.ISpecies =
+  const source: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(animal);
+  const species: AutoMovieArchetypeQuadruped.ISpecies =
     table === undefined
       ? source
       : {

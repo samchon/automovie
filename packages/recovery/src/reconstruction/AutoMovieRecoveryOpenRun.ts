@@ -5,10 +5,10 @@ import type {
   IAutoMovieRecoveryOpenRunsPreparationOperation,
 } from "@automovie/interface";
 
-import { describeRecoveryOpenRun as describeOpenRunImplementation } from "../internal/describeRecoveryOpenRun";
-import { prepareRecoveryLocalContinuation as prepareLocalContinuationImplementation } from "../internal/prepareRecoveryLocalContinuation";
-import { prepareRecoveryOpenRuns as prepareOpenRunsImplementation } from "../internal/prepareRecoveryOpenRuns";
-import { reconstructRecoveryOpen as reconstructOpenImplementation } from "../internal/reconstructRecoveryOpen";
+import { describeRecoveryOpenRun as describeOpenRunImplementation } from "./internal/describeRecoveryOpenRun";
+import { prepareRecoveryLocalContinuation as prepareLocalContinuationImplementation } from "./internal/prepareRecoveryLocalContinuation";
+import { prepareRecoveryOpenRuns as prepareOpenRunsImplementation } from "./internal/prepareRecoveryOpenRuns";
+import { reconstructRecoveryOpen as reconstructOpenImplementation } from "./internal/reconstructRecoveryOpen";
 
 /** Admit, describe, and reconstruct source-free Recovery open runs. */
 export namespace AutoMovieRecoveryOpenRun {

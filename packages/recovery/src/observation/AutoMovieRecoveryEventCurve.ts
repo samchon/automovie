@@ -11,8 +11,8 @@ import type {
   IAutoMovieRecoveryEventCurveSource,
 } from "@automovie/interface";
 
-import { readRecoveryEventCurveControls } from "../internal/readRecoveryEventCurveControls";
-import { readRecoveryEventCurveParent } from "../internal/readRecoveryEventCurveParent";
+import { readRecoveryEventCurveControls } from "./internal/readRecoveryEventCurveControls";
+import { readRecoveryEventCurveParent } from "./internal/readRecoveryEventCurveParent";
 
 /**
  * Named cubic occurrences retain native coefficient owners and oriented

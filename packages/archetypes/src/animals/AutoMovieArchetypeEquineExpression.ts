@@ -9,7 +9,7 @@ import { EquineExpressionPose } from "./EquineExpressionPose";
 import { EquineHeadClearance } from "./EquineHeadClearance";
 import { EquineHeadCourse } from "./EquineHeadCourse";
 import { EquineHeadReach } from "./EquineHeadReach";
-import { createQuadruped } from "./createQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { EquineExpressionConstants } from "./EquineExpressionConstants";
 
 const { CHEW_HZ, CHEW_DEGREES, OPEN_DEGREES, YAWN_DEGREES, SLACK_DEGREES, CURL_DEGREES, SHAKE, CARRIAGES, SWISH, EARS, TAILS } = EquineExpressionConstants;
@@ -77,8 +77,8 @@ export namespace AutoMovieArchetypeEquineExpression {
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
     cues: readonly AutoMovieArchetypeEquineExpressionCue.Cue[],
   ): IRide<Id, D> {
-    const species: createQuadruped.ISpecies = createQuadruped.species(animal);
-    if (species.nodding !== createQuadruped.BRIDLED)
+    const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(animal);
+    if (species.nodding !== AutoMovieArchetypeQuadruped.BRIDLED)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: animal.archetype,

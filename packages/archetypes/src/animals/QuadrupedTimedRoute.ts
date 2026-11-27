@@ -2,7 +2,7 @@ import { AutoMovieArchetypeCourse } from "../core";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedTimedCues } from "./QuadrupedTimedCues";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
@@ -38,7 +38,7 @@ export namespace QuadrupedTimedRoute {
    *   refuses a malformed course.
    */
   export function of(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     route:
       | rideQuadruped.ICourse
       | AutoMovieArchetypeCourse.IPlan

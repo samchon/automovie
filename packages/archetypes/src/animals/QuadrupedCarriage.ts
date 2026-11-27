@@ -6,7 +6,7 @@ import type {
 import type { AutoMovieArchetype } from "../core";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedScapula } from "./QuadrupedScapula";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * Explicit rigid carriers for a quadruped's accessories and contacts. Species
@@ -35,7 +35,7 @@ export namespace QuadrupedCarriage {
    */
   export function of(
     animal: Pick<AutoMovieArchetype, "parts" | "affordances">,
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
   ): {
     parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
     contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;

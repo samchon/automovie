@@ -5,7 +5,7 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
-} from "../core";
+} from "../core/index";
 import { AutoMovieArchetypeJumpRope } from "./AutoMovieArchetypeJumpRope";
 
 /**
@@ -14,6 +14,8 @@ import { AutoMovieArchetypeJumpRope } from "./AutoMovieArchetypeJumpRope";
  */
 type Dimension = "handleLength" | "gripDiameter" | "mass";
 
+/** Constructs the jump rope handle archetype from its recipe. */
+export namespace AutoMovieArchetypeJumpRopeHandle {
 /**
  * Build one skipping-rope handle in its mounting frame.
  *
@@ -30,7 +32,7 @@ type Dimension = "handleLength" | "gripDiameter" | "mass";
  * @throws {AutoMovieArchetypeRefusal} For an unknown handle family or a grip
  *   diameter outside the rope's measured band.
  */
-export function createJumpRopeHandle(
+export function create(
   params: Pick<AutoMovieArchetypeJumpRope.IParams, "handle" | "id" | "gripDiameter"> = {},
   seed?: number,
 ): AutoMovieArchetype<"grip" | "cordSocket", Dimension> {
@@ -82,4 +84,5 @@ export function createJumpRopeHandle(
     extent: null,
   });
   return builder.build(mass);
+}
 }

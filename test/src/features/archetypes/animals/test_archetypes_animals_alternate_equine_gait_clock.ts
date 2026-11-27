@@ -1,10 +1,4 @@
-import {
-  AutoMovieArchetypeEquineGait,
-  AutoMovieArchetypeQuadrupedBody,
-  AutoMovieArchetypeQuadrupedGait as Gait,
-  AutoMovieArchetypeQuadrupedLocomotion,
-  createQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeEquineGait, AutoMovieArchetypeQuadrupedBody, AutoMovieArchetypeQuadrupedGait as Gait, AutoMovieArchetypeQuadrupedLocomotion, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -24,11 +18,11 @@ const CLOCK_TOLERANCE: number = 32 * Number.EPSILON;
  *    wrong speed, and an explicit gait cannot also enter automatic order.
  */
 export function test_archetypes_animals_alternate_equine_gait_clock(): void {
-  const horse: ReturnType<typeof createQuadruped> = createQuadruped(
+  const horse: ReturnType<typeof AutoMovieArchetypeQuadruped.create> = AutoMovieArchetypeQuadruped.create(
     { kind: "horse", breed: "icelandic", withersHeight: 1.38, tempo: 0 },
     11,
   );
-  const species: Gait.ClockSource = createQuadruped.species(horse);
+  const species: Gait.ClockSource = AutoMovieArchetypeQuadruped.species(horse);
   TestValidator.predicate(
     "the catalogue selects the two explicit Icelandic gaits",
     horse.provenance.models.breed === "icelandic" &&

@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeRefusal } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { QuadrupedChange } from "./QuadrupedChange";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * The timing of a quadruped's gaits: how long a stride lasts and how much of it
@@ -231,7 +231,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
 
   /** The species identity and gait table read by the clock and phase laws. */
   export type ClockSource = Pick<
-    createQuadruped.ISpecies,
+    AutoMovieArchetypeQuadruped.ISpecies,
     "archetype" | "table"
   >;
 

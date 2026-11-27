@@ -16,7 +16,7 @@ import { AutoMovieArchetypeEquineStance } from "./AutoMovieArchetypeEquineStance
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import { createQuadruped } from "./createQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { rideQuadruped } from "./rideQuadruped";
 
 /** A named instant of a ride. */
@@ -173,7 +173,7 @@ export namespace AutoMovieArchetypeEquineLunge {
           "consecutive reins change sides",
         );
     });
-    const species: createQuadruped.ISpecies = createQuadruped.species(animal);
+    const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(animal);
     const withers: number | undefined = animal.dimensions.withersHeight;
     const half: number = halfTrack(animal);
 

@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
-} from "../core";
+} from "../core/index";
 
 /** The serving vessels' dimensions, in metres and kilograms. */
 type Dimension = "height" | "diameter" | "mass";
@@ -44,7 +44,7 @@ const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
 /** The size and empty mass of each vessel, bracketed by the cited makers. */
 const BANDS: Readonly<
   Record<
-    createPourVessel.Kind,
+    AutoMovieArchetypePourVessel.Kind,
     Readonly<Record<Dimension, IAutoMovieArchetypeBand>>
   >
 > = {
@@ -66,6 +66,8 @@ const BANDS: Readonly<
  */
 const SIDES: number = 16;
 
+/** Constructs the pour vessel archetype from its recipe. */
+export namespace AutoMovieArchetypePourVessel {
 /**
  * Build a rigid, empty ceramic serving cup or pouring pitcher. Both stand at
  * the base centre with +Y up and a loop handle on the -Z side. The upward
@@ -84,15 +86,15 @@ const SIDES: number = 16;
  * @throws {AutoMovieArchetypeRefusal} For an unknown kind or out-of-band fixed
  *   dimension.
  */
-export function createPourVessel(
-  params: createPourVessel.IParams,
+export function create(
+  params: AutoMovieArchetypePourVessel.IParams,
   seed?: number,
 ): AutoMovieArchetype<Affordance, Dimension> {
-  const kind: createPourVessel.Kind = ArchetypeDraw.choice(
+  const kind: AutoMovieArchetypePourVessel.Kind = ArchetypeDraw.choice(
     "pourVessel",
     "kind",
     params.kind,
-    createPourVessel.KINDS,
+    AutoMovieArchetypePourVessel.KINDS,
   );
   const draw: AutoMovieArchetypeDrawSession<Dimension> =
     new AutoMovieArchetypeDrawSession("pourVessel", UNITS, seed, params);
@@ -218,6 +220,7 @@ export function createPourVessel(
   });
   return builder.build(mass);
 }
+}
 
 /**
  * Generate a horizontal ceramic annulus with an optional projecting tip and two
@@ -245,7 +248,7 @@ function section(
 }
 
 /** Authoring types for the two rigid serving vessels. */
-export namespace createPourVessel {
+export namespace AutoMovieArchetypePourVessel {
   /**
    * The serving vessel variants admitted by the factory and listed in the
    * catalogue.

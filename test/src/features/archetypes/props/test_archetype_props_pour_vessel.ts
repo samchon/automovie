@@ -1,4 +1,4 @@
-import { createPourVessel } from "@automovie/archetypes";
+import { AutoMovieArchetypePourVessel } from "@automovie/archetypes";
 import { Quaternion, physicalShapeSegmentDistance, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -35,14 +35,14 @@ import { nclose, vclose } from "../../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership The discovered entry uses public model records and engine queries in memory.
  */
 export function test_archetype_props_pour_vessel(): void {
-  const cup: ReturnType<typeof createPourVessel> = createPourVessel({
+  const cup: ReturnType<typeof AutoMovieArchetypePourVessel.create> = AutoMovieArchetypePourVessel.create({
     kind: "cup",
     id: "recipient",
     height: 0.055,
     diameter: 0.082,
     mass: 0.165,
   });
-  const pitcher: ReturnType<typeof createPourVessel> = createPourVessel({
+  const pitcher: ReturnType<typeof AutoMovieArchetypePourVessel.create> = AutoMovieArchetypePourVessel.create({
     kind: "pitcher",
     id: "source",
     height: 0.17,
@@ -182,18 +182,18 @@ export function test_archetype_props_pour_vessel(): void {
       ),
   );
 
-  const seeded: ReturnType<typeof createPourVessel> = createPourVessel(
+  const seeded: ReturnType<typeof AutoMovieArchetypePourVessel.create> = AutoMovieArchetypePourVessel.create(
     { kind: "cup" },
     1004,
   );
-  const other: ReturnType<typeof createPourVessel> = createPourVessel(
+  const other: ReturnType<typeof AutoMovieArchetypePourVessel.create> = AutoMovieArchetypePourVessel.create(
     { kind: "cup" },
     1005,
   );
   TestValidator.equals(
     "same kind and seed reproduce the generated vessel",
     JSON.stringify(seeded),
-    JSON.stringify(createPourVessel({ kind: "cup" }, 1004)),
+    JSON.stringify(AutoMovieArchetypePourVessel.create({ kind: "cup" }, 1004)),
   );
   const diameter: number = archetypeExtent(seeded, "x").size;
   const otherDiameter: number = archetypeExtent(other, "x").size;

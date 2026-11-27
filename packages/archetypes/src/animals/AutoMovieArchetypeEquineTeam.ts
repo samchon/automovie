@@ -18,7 +18,7 @@ import type { AutoMovieArchetypeEquineTeamPlan } from "./AutoMovieArchetypeEquin
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineHarness } from "./EquineHarness";
 import { EquineTeamCourse } from "./EquineTeamCourse";
-import { createQuadruped } from "./createQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { rideHorse } from "./rideHorse";
 
 /** Points a slack trace is laid through, ends included. */
@@ -416,7 +416,7 @@ export function AutoMovieArchetypeEquineTeam(
       (place: AutoMovieArchetypeEquineTeamPlan.IPlace, k: number): void => {
         const range: ReturnType<typeof AutoMovieArchetypeQuadrupedGait.range> =
           AutoMovieArchetypeQuadrupedGait.range(
-            createQuadruped.species(horses[k]!),
+            AutoMovieArchetypeQuadruped.species(horses[k]!),
             params.gait,
             horses[k]!.dimensions.withersHeight!,
           );

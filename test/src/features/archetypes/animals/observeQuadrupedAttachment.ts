@@ -1,11 +1,4 @@
-import {
-  type AutoMovieArchetype,
-  type AutoMovieArchetypeConvexCell,
-  AutoMovieArchetypeFrame,
-  AutoMovieArchetypeQuadrupedBody as Body,
-  AutoMovieArchetypeQuadrupedJoints,
-  type createQuadruped,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, type AutoMovieArchetypeConvexCell, AutoMovieArchetypeFrame, AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedJoints, type AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { QuadrupedRidePose as Pose } from "@automovie/archetypes/internal";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
@@ -20,7 +13,7 @@ const GEOMETRY_ROUNDOFF: number = 1e-9;
 /** Compare real posed parts against the given floor and independent rigid geometry. */
 export function observeQuadrupedAttachment<Id extends string, Dimension extends string>(
   animal: AutoMovieArchetype<Id, Dimension>,
-  species: createQuadruped.ISpecies,
+  species: AutoMovieArchetypeQuadruped.ISpecies,
   label: string,
   findings: string[],
   height: number,

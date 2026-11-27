@@ -12,7 +12,7 @@ import { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLi
 import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrupedSkeleton";
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
-import { createQuadruped } from "./createQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A whole-body pose of an equid on its own hooves: its trunk moved as one rigid
@@ -202,7 +202,7 @@ export namespace EquineBodyPose {
       ),
     };
     const carriers: ReturnType<typeof QuadrupedCarriage.of> =
-      QuadrupedCarriage.of(animal, createQuadruped.species(animal));
+      QuadrupedCarriage.of(animal, AutoMovieArchetypeQuadruped.species(animal));
 
     const chain = (
       limb: AutoMovieArchetypeQuadrupedBody.Limb,

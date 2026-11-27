@@ -2,7 +2,7 @@ import { AutoMovieGravity } from "@automovie/engine";
 
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * Where a quadruped changes gait with its speed: each gait is changed into from
@@ -38,7 +38,7 @@ export namespace QuadrupedChange {
    * @returns The change point, metres per second.
    */
   export function point(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     low: AutoMovieArchetypeQuadrupedGait.Gait,
     high: AutoMovieArchetypeQuadrupedGait.Gait,
     dimensions: Readonly<
@@ -94,7 +94,7 @@ export namespace QuadrupedChange {
    * @returns The gait.
    */
   export function called(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     speed: number,
     from: AutoMovieArchetypeQuadrupedGait.Gait,
     dimensions: Readonly<

@@ -6,8 +6,10 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
-} from "../core";
+} from "../core/index";
 
+/** Constructs the football flag archetype from its recipe. */
+export namespace AutoMovieArchetypeFootballFlag {
 /**
  * One flag of a flag football belt at the IFAF Flag Football Rules' dimensions:
  * a strip 15 to 16 inches long from its socket (the middle, 15.5 in), 1.8 to
@@ -22,14 +24,14 @@ import {
  * @param seed The seed; the flag has no drawn dimension.
  * @returns The flag.
  */
-export function createFootballFlag(
-  params: createFootballFlag.IParams = {},
+export function create(
+  params: AutoMovieArchetypeFootballFlag.IParams = {},
   seed?: number,
-): AutoMovieArchetype<createFootballFlag.Affordance, never> {
+): AutoMovieArchetype<AutoMovieArchetypeFootballFlag.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("footballFlag", {}, seed, {});
   const builder: AutoMovieArchetypeBuilder<
-    createFootballFlag.Affordance,
+    AutoMovieArchetypeFootballFlag.Affordance,
     never
   > = new AutoMovieArchetypeBuilder({
     material: "fabric",
@@ -37,7 +39,7 @@ export function createFootballFlag(
     name: "football flag",
     draw,
   });
-  const { LENGTH, WIDTH, THICKNESS } = createFootballFlag;
+  const { LENGTH, WIDTH, THICKNESS } = AutoMovieArchetypeFootballFlag;
   builder.box(
     "strip",
     Vector3.create(WIDTH, LENGTH, THICKNESS),
@@ -59,9 +61,10 @@ export function createFootballFlag(
   // A flag's nominal mass, kilograms; provisional.
   return builder.build(0.02);
 }
+}
 
-/** Companion types and constants of {@link createFootballFlag}. */
-export namespace createFootballFlag {
+/** Companion types and constants of {@link AutoMovieArchetypeFootballFlag.create}. */
+export namespace AutoMovieArchetypeFootballFlag {
   /**
    * `socket`, where it clips to the belt; `grip`, its middle; `tip`, its free
    * end.

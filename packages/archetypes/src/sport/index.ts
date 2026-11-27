@@ -51,7 +51,7 @@ export { AutoMovieArchetypeSphericalBall } from "./AutoMovieArchetypeSphericalBa
 export { AutoMovieArchetypeTennisNet } from "./AutoMovieArchetypeTennisNet";
 export { AutoMovieArchetypeVolleyballNet } from "./AutoMovieArchetypeVolleyballNet";
 export { AutoMovieArchetypeThrowingCircle } from "./AutoMovieArchetypeThrowingCircle";
-export * from "./createPadelCourt";
-export * from "./createSquashCourt";
-export * from "./createTableTennisTable";
-export * from "./createFootballFlag";
+export { AutoMovieArchetypePadelCourt } from "./AutoMovieArchetypePadelCourt";
+export { AutoMovieArchetypeSquashCourt } from "./AutoMovieArchetypeSquashCourt";
+export { AutoMovieArchetypeTableTennisTable } from "./AutoMovieArchetypeTableTennisTable";
+export { AutoMovieArchetypeFootballFlag } from "./AutoMovieArchetypeFootballFlag";

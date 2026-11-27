@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, type AutoMovieArchetypeEquine, createQuadruped, AutoMovieArchetypeMule, AutoMovieArchetypePony, AutoMovieArchetypeDonkey, AutoMovieArchetypeHorse } from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, type AutoMovieArchetypeEquine, AutoMovieArchetypeMule, AutoMovieArchetypePony, AutoMovieArchetypeDonkey, AutoMovieArchetypeHorse, AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -55,7 +55,7 @@ export function test_archetypes_animals_equid_attachment_clock(): void {
       const label: string = `${fixture.name}/${tack}`;
       try {
         const animal: ReturnType<ICase["model"]> = fixture.model(tack);
-        const species: createQuadruped.ISpecies = createQuadruped.species(animal);
+        const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(animal);
         TestValidator.predicate(
           `${label} retains its reference height`,
           nclose(animal.dimensions.withersHeight!, fixture.height, CLOCK_ROUNDOFF),

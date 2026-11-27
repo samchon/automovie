@@ -10,7 +10,7 @@ import type { AutoMovieArchetypeQuadrupedRestPlan } from "../../animals/AutoMovi
 import { QuadrupedCarriage } from "../../animals/QuadrupedCarriage";
 import { AutoMovieArchetypeDog } from "../../animals/AutoMovieArchetypeDog";
 import { AutoMovieArchetypeHorse } from "../../animals/AutoMovieArchetypeHorse";
-import { createQuadruped } from "../../animals/createQuadruped";
+import { AutoMovieArchetypeQuadruped } from "../../animals/AutoMovieArchetypeQuadruped";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import type { archetypeCaptureCatalog } from "../archetypeCaptureCatalog";
 
@@ -55,7 +55,7 @@ export function archetypeCaptureRest(): Readonly<
     windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
   };
   const dogCarriers: ReturnType<typeof QuadrupedCarriage.of> =
-    QuadrupedCarriage.of(dog, createQuadruped.species(dog));
+    QuadrupedCarriage.of(dog, AutoMovieArchetypeQuadruped.species(dog));
   const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
     AutoMovieArchetypeDog.Affordance,
     AutoMovieArchetypeQuadrupedBody.Dimension
@@ -74,7 +74,7 @@ export function archetypeCaptureRest(): Readonly<
   const front: IAutoMovieVector3 = axisEnd(horse, "trunk");
   const rear: IAutoMovieVector3 = axisEnd(horse, "hindquarters");
   const carriers: ReturnType<typeof QuadrupedCarriage.of> =
-    QuadrupedCarriage.of(horse, createQuadruped.species(horse));
+    QuadrupedCarriage.of(horse, AutoMovieArchetypeQuadruped.species(horse));
   const horseClip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
     AutoMovieArchetypeEquine.Affordance,
     AutoMovieArchetypeEquine.Dimension

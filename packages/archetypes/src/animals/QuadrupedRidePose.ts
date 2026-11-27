@@ -15,7 +15,7 @@ import { QuadrupedRideTerminal } from "./QuadrupedRideTerminal";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 import { chooseQuadrupedBodyRoot } from "./chooseQuadrupedBodyRoot";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { QuadrupedRidePoseTypes } from "./QuadrupedRidePoseTypes";
 import type { QuadrupedRidePoseGoals } from "./QuadrupedRidePoseGoals";
 
@@ -47,7 +47,7 @@ export namespace QuadrupedRidePose {
    */
   export function prepare<Id extends string, Dimension extends string>(
     animal: AutoMovieArchetype<Id, Dimension>,
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     source: ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>,
   ): IPrepared<Id, Dimension> {
     const bindings: ReturnType<typeof QuadrupedCarriage.of> =

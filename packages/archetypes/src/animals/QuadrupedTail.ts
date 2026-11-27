@@ -11,7 +11,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
 import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A quadruped's tail carried over the ground it meets: the tail is articulated
@@ -47,7 +47,7 @@ export namespace QuadrupedTail {
    */
   export function carry<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     model: AutoMovieArchetype<Id, D>,
     placement: IAutoMovieTransform,
     footing: AutoMovieArchetypeQuadrupedFooting.IPlan,

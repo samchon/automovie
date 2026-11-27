@@ -15,7 +15,7 @@ import {
 } from "../core";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
-import { createQuadruped } from "./createQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A resting adult horse's breathing rate, breaths per minute: the middle of the
@@ -159,7 +159,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
       options.efforts ?? [],
     );
     const carriers: ReturnType<typeof QuadrupedCarriage.of> =
-      QuadrupedCarriage.of(animal, createQuadruped.species(animal));
+      QuadrupedCarriage.of(animal, AutoMovieArchetypeQuadruped.species(animal));
     const landings: readonly number[] = ride.instants
       .filter((instant: Instant): boolean => instant.label === "leftForeOn")
       .map((instant: Instant): number => instant.seconds);

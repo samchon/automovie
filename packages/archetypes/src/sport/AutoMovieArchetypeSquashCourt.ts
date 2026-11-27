@@ -6,8 +6,10 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
-} from "../core";
+} from "../core/index";
 
+/** Constructs the squash court archetype from its recipe. */
+export namespace AutoMovieArchetypeSquashCourt {
 /**
  * A singles squash court at the World Squash Federation's dimensions: the floor
  * 9.75 m long along Z and 6.4 m wide along X, the front wall at +Z standing to
@@ -24,14 +26,14 @@ import {
  * @param seed The seed; the court has no drawn dimension.
  * @returns The court.
  */
-export function createSquashCourt(
-  params: createSquashCourt.IParams = {},
+export function create(
+  params: AutoMovieArchetypeSquashCourt.IParams = {},
   seed?: number,
-): AutoMovieArchetype<createSquashCourt.Affordance, never> {
+): AutoMovieArchetype<AutoMovieArchetypeSquashCourt.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("squashCourt", {}, seed, {});
   const builder: AutoMovieArchetypeBuilder<
-    createSquashCourt.Affordance,
+    AutoMovieArchetypeSquashCourt.Affordance,
     never
   > = new AutoMovieArchetypeBuilder({
     material: "concrete",
@@ -39,7 +41,7 @@ export function createSquashCourt(
     name: "squash court",
     draw,
   });
-  const { LENGTH, WIDTH, FRONT, BACK, TIN, SHORT } = createSquashCourt;
+  const { LENGTH, WIDTH, FRONT, BACK, TIN, SHORT } = AutoMovieArchetypeSquashCourt;
   const wall: number = 0.1;
   const front: number = LENGTH / 2;
   builder.box(
@@ -91,9 +93,10 @@ export function createSquashCourt(
   // A built court's nominal assembly mass; it never moves.
   return builder.build(20000);
 }
+}
 
-/** Companion types and constants of {@link createSquashCourt}. */
-export namespace createSquashCourt {
+/** Companion types and constants of {@link AutoMovieArchetypeSquashCourt.create}. */
+export namespace AutoMovieArchetypeSquashCourt {
   /**
    * `front` and `back`, the walls' centres; `tin`, the tin's top centre; `t`,
    * the short line's centre on the floor.

@@ -13,7 +13,7 @@ import { EquineFootwork } from "./EquineFootwork";
 import { QuadrupedCorner } from "./QuadrupedCorner";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedTail } from "./QuadrupedTail";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
@@ -75,7 +75,7 @@ export namespace EquineRideTerrain {
    */
   export function prepare<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     course: rideQuadruped.ICourse,
     plan: AutoMovieArchetypeCourse.IPlan,
     gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined,

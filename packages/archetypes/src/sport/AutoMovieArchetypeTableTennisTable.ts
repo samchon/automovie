@@ -5,8 +5,10 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
-} from "../core";
+} from "../core/index";
 
+/** Constructs the table tennis table archetype from its recipe. */
+export namespace AutoMovieArchetypeTableTennisTable {
 /**
  * A table tennis table at the ITTF Laws' dimensions: the playing surface 2.74 m
  * long along Z and 1.525 m wide along X, lying 76 cm above the floor (Law
@@ -22,14 +24,14 @@ import {
  * @param seed The seed; the table has no drawn dimension.
  * @returns The table.
  */
-export function createTableTennisTable(
-  params: createTableTennisTable.IParams = {},
+export function create(
+  params: AutoMovieArchetypeTableTennisTable.IParams = {},
   seed?: number,
-): AutoMovieArchetype<createTableTennisTable.Affordance, never> {
+): AutoMovieArchetype<AutoMovieArchetypeTableTennisTable.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("tableTennisTable", {}, seed, {});
   const builder: AutoMovieArchetypeBuilder<
-    createTableTennisTable.Affordance,
+    AutoMovieArchetypeTableTennisTable.Affordance,
     never
   > = new AutoMovieArchetypeBuilder({
     material: "wood",
@@ -37,7 +39,7 @@ export function createTableTennisTable(
     name: "table tennis table",
     draw,
   });
-  const { LENGTH, WIDTH, HEIGHT, NET } = createTableTennisTable;
+  const { LENGTH, WIDTH, HEIGHT, NET } = AutoMovieArchetypeTableTennisTable;
   const top: number = 0.025;
   const leg: number = 0.05;
   builder.box(
@@ -92,9 +94,10 @@ export function createTableTennisTable(
   // A competition table's assembly mass, nominal; it never moves.
   return builder.build(130);
 }
+}
 
-/** Companion types and constants of {@link createTableTennisTable}. */
-export namespace createTableTennisTable {
+/** Companion types and constants of {@link AutoMovieArchetypeTableTennisTable.create}. */
+export namespace AutoMovieArchetypeTableTennisTable {
   /**
    * `surface`, the playing surface's centre; `net`, the net's top centre; `end`
    * and `far`, the middles of the two end lines.

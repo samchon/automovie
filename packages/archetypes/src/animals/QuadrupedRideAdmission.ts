@@ -7,7 +7,7 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import type { AutoMovieArchetypeQuadrupedJoints } from "./AutoMovieArchetypeQuadrupedJoints";
 import { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
@@ -41,7 +41,7 @@ export namespace QuadrupedRideAdmission {
    *   yielding footing sinks a hoof as deep as its carpus or hock stands.
    */
   export function admit(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     course: rideQuadruped.ICourse,
     plan: AutoMovieArchetypeCourse.IPlan,
     gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined,

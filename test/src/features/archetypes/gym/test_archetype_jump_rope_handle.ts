@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeFrame, createJumpRopeHandle, type AutoMovieArchetypeJumpRope } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, type AutoMovieArchetypeJumpRope, AutoMovieArchetypeJumpRopeHandle } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +28,7 @@ export function test_archetype_jump_rope_handle(): void {
   const diameter: number = 0.022225;
   for (const handle of Object.keys(models) as AutoMovieArchetypeJumpRope.Handle[]) {
     const length: number = models[handle];
-    const model: ReturnType<typeof createJumpRopeHandle> = createJumpRopeHandle(
+    const model: ReturnType<typeof AutoMovieArchetypeJumpRopeHandle.create> = AutoMovieArchetypeJumpRopeHandle.create(
       {
         handle,
       },

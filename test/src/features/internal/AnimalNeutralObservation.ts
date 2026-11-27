@@ -1,7 +1,4 @@
-import {
-  AutoMovieArchetypeQuadrupedJoints,
-  type createQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedJoints, type AutoMovieArchetypeQuadruped } from "@automovie/archetypes";
 import { Quaternion, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -25,7 +22,7 @@ import { nclose } from "./nclose";
  */
 export namespace AnimalNeutralObservation {
   /** Actual public eight-kind model; no proxy body is substituted. */
-  export type Model = ReturnType<typeof createQuadruped>;
+  export type Model = ReturnType<typeof AutoMovieArchetypeQuadruped.create>;
 
   /** Actual public query returned for subsequent output-isolation checks. */
   export type Query = ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>;

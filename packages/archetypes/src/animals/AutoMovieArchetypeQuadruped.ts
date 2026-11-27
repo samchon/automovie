@@ -2,7 +2,7 @@ import {
   ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeRefusal,
-} from "../core";
+} from "../core/index";
 import { AnnularFitting } from "./AnnularFitting";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
@@ -32,6 +32,8 @@ import { buildDeerBody } from "./deer/internal/buildDeerBody";
 import { buildDogBody } from "./dog/internal/buildDogBody";
 import { buildOxBody } from "./ox/internal/buildOxBody";
 
+/** Constructs the quadruped archetype from its recipe. */
+export namespace AutoMovieArchetypeQuadruped {
 /**
  * A four-legged animal of a kind, with its kind's tack: every kind shares one
  * body of the horse's bone vocabulary (`AutoMovieArchetypeQuadrupedBody`) and
@@ -53,22 +55,23 @@ import { buildOxBody } from "./ox/internal/buildOxBody";
  * @throws {AutoMovieArchetypeRefusal} For a kind that is not one of `KINDS`,
  *   and as the kind's producer refuses.
  */
-export function createQuadruped(
-  params: createQuadruped.IParams,
+export function create(
+  params: AutoMovieArchetypeQuadruped.IParams,
   seed?: number,
-): AutoMovieArchetype<createQuadruped.Affordance, createQuadruped.Dimension> {
-  ArchetypeDraw.choice("quadruped", "kind", params.kind, createQuadruped.KINDS);
+): AutoMovieArchetype<AutoMovieArchetypeQuadruped.Affordance, AutoMovieArchetypeQuadruped.Dimension> {
+  ArchetypeDraw.choice("quadruped", "kind", params.kind, AutoMovieArchetypeQuadruped.KINDS);
   if (params.kind === "dog") return AutoMovieArchetypeDog.create(params, seed);
   if (params.kind === "cat") return AutoMovieArchetypeCat.create(params, seed);
   if (params.kind === "ox") return AutoMovieArchetypeOx.create(params, seed);
   if (params.kind === "camel") return AutoMovieArchetypeCamel.create(params, seed);
   if (params.kind === "deer") return AutoMovieArchetypeDeer.create(params, seed);
   if (params.kind === "horse") return AutoMovieArchetypeHorse.create(params, seed);
-  return createQuadruped.PRODUCERS[params.kind](params, seed);
+  return AutoMovieArchetypeQuadruped.PRODUCERS[params.kind](params, seed);
+}
 }
 
-/** Companion types and species of {@link createQuadruped}. */
-export namespace createQuadruped {
+/** Companion types and species of {@link AutoMovieArchetypeQuadruped.create}. */
+export namespace AutoMovieArchetypeQuadruped {
   /** The kinds. */
   export type Kind =
     | "horse"

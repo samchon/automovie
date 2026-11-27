@@ -33,7 +33,7 @@ export * from "./createLaptop";
 export { AutoMovieArchetypeLight } from "./AutoMovieArchetypeLight";
 export { AutoMovieArchetypeLongTool } from "./AutoMovieArchetypeLongTool";
 export { AutoMovieArchetypeMobilityAid } from "./AutoMovieArchetypeMobilityAid";
-export * from "./createPourVessel";
+export { AutoMovieArchetypePourVessel } from "./AutoMovieArchetypePourVessel";
 export * from "./createScenicContainer";
 export { AutoMovieArchetypeScenicParadeBanner } from "./AutoMovieArchetypeScenicParadeBanner";
 export { AutoMovieArchetypeScenicStandard } from "./AutoMovieArchetypeScenicStandard";

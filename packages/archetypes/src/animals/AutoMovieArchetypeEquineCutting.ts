@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeRefusal,
 } from "../core";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
 /**
  * A cutting horse's course from the cow it works: the horse mirrors the cow's
@@ -35,7 +35,7 @@ export namespace AutoMovieArchetypeEquineCutting {
    *   reversals closer than the reaction time.
    */
   export function plan(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     withers: number,
     cow: readonly AutoMovieArchetypeCourse.ISample[],
     cut: ICut,

@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeCourse } from "../core";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import type { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
-import type { createQuadruped } from "./createQuadruped";
+import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
@@ -64,7 +64,7 @@ export namespace QuadrupedRideClock {
    *   continuation supports the speed, or timing inputs are malformed.
    */
   export function create(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     course: rideQuadruped.ICourse,
     plan: AutoMovieArchetypeCourse.IPlan,
     tempo: number,
@@ -308,7 +308,7 @@ export namespace QuadrupedRideClock {
    *   collection rule applies, so the strict reader still refuses.
    */
   export function collectedSpeed(
-    species: createQuadruped.ISpecies,
+    species: AutoMovieArchetypeQuadruped.ISpecies,
     gait: AutoMovieArchetypeQuadrupedGait.Gait,
     speed: number,
     withers: number,

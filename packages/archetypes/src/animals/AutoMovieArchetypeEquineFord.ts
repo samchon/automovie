@@ -10,7 +10,7 @@ import { QuadrupedCarriage } from "./QuadrupedCarriage";
 import { QuadrupedFootingClearance } from "./QuadrupedFootingClearance";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
-import { createQuadruped } from "./createQuadruped";
+import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 import { EquineFordConstants } from "./EquineFordConstants";
 import { EquineFordBarReads } from "./EquineFordBarReads";
 
@@ -160,7 +160,7 @@ export function AutoMovieArchetypeEquineFord<
     params.recovery.speed ?? 0,
   );
 
-  const species: createQuadruped.ISpecies = createQuadruped.species(animal);
+  const species: AutoMovieArchetypeQuadruped.ISpecies = AutoMovieArchetypeQuadruped.species(animal);
   const world: QuadrupedWorldPose.IPrepared<Id, Dimension> = QuadrupedWorldPose(
     animal,
     QuadrupedCarriage.of(animal, species),

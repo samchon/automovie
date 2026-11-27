@@ -124,8 +124,8 @@ export * from "./prepareRecoveryOpenSlabGraph";
 
 
 
-export * from "./readRecoveryEventCurveControls";
-export * from "./readRecoveryEventCurveParent";
+
+
 export * from "./rebindRecoveryCurveAuthorities";
 export * from "./reconstructRecovery";
 
