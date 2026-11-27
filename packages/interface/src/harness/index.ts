@@ -13,6 +13,7 @@ export type { IAutoMovieBeatEndState } from "./IAutoMovieBeatEndState";
 export type { IAutoMovieBeatPayload } from "./IAutoMovieBeatPayload";
 export type { IAutoMovieBoneTarget } from "./IAutoMovieBoneTarget";
 export type { IAutoMovieCameraAction } from "./IAutoMovieCameraAction";
+export type { IAutoMovieCameraActionFocusPull } from "./IAutoMovieCameraActionFocusPull";
 export type { IAutoMovieCastMember } from "./IAutoMovieCastMember";
 export type { IAutoMovieClearanceBox } from "./IAutoMovieClearanceBox";
 export type { IAutoMovieDialogueLine } from "./IAutoMovieDialogueLine";

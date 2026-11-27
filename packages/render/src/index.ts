@@ -32,5 +32,3 @@ export * from "./audio/index.js";
 export * from "./delivery/AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";
 export * from "./delivery/AUTOMOVIE_MP4_SRGB_COLOUR.js";
 export * from "./delivery/AUTOMOVIE_MP4_UNITY_MATRIX.js";
-
-export { AutoMovieRenderFilm } from "./film/AutoMovieRenderFilm.js";

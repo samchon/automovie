@@ -1,6 +1,7 @@
 import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
 import type { AutoMovieCameraFraming } from "./AutoMovieCameraFraming";
 import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
+import type { IAutoMovieCameraActionFocusPull } from "./IAutoMovieCameraActionFocusPull";
 
 /**
  * The camera is an actor; this is how it moves. A list of camera actions
@@ -51,16 +52,7 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
    * The frame action's interval contains both marks. A downstream host can read
    * these lens marks independently of the camera path.
    */
-  focusPull?: {
-    /** Finite seconds from the frame action's start, at least zero. */
-    start: number;
-
-    /** Finite seconds from the first mark to the second, strictly positive. */
-    duration: number;
-
-    /** Positional lens subject at the second mark. */
-    to: IAutoMovieActionTarget;
-  };
+  focusPull?: IAutoMovieCameraActionFocusPull;
 
   /**
    * Lens intent in millimetres, full-frame equivalent (24 wide, 50 normal, 85

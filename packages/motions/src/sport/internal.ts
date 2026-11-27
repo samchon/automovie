@@ -54,4 +54,3 @@ export * from "./internal/stickBallPoint";
 export * from "./internal/throwInRelease";
 export * from "./internal/squatVault";
 export * from "./internal/AutoMovieMotionHumanBaseball";
-export * from "./internal/aquatic";

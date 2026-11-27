@@ -8,6 +8,11 @@ const { run } = require("./export-refactor-worktree.cjs");
 const root = path.resolve(__dirname, "..");
 const provenance = /(?:copyright|SPDX-License-Identifier|@license|modified\s+(?:by|on)|https?:\/\/|www\.)/iu;
 const narrativeTags = new Set(["remarks", "example", "deprecated", "throws", "see", "todo"]);
+const linkKinds = new Set([
+  ts.SyntaxKind.JSDocLink,
+  ts.SyntaxKind.JSDocLinkCode,
+  ts.SyntaxKind.JSDocLinkPlain,
+]);
 
 function declarationName(node) {
   return node.name && (ts.isIdentifier(node.name) || ts.isPrivateIdentifier(node.name))
@@ -51,10 +56,11 @@ function commentValue(value) {
   if (!Array.isArray(value)) return "";
   return value.map((item) => {
     if (typeof item === "string") return item;
-    const name = item.kind === ts.SyntaxKind.JSDocLink
+    const name = linkKinds.has(item.kind)
       ? item.name?.getText?.() ?? item.name?.text ?? ""
       : "";
-    return name + (item.text ?? "");
+    const text = item.text ?? "";
+    return name + (text.startsWith("|") ? " " : "") + text;
   }).join("");
 }
 
@@ -195,6 +201,11 @@ function selfTest() {
     " * @evidence internal",
     " */",
     "function explainableInternal(): void {}",
+    "/**",
+    " * The core planner runs {@linkcode Core.solve | solve(...)} and {@linkplain Scalar.normalize}, then {@link Core.finish}.",
+    " * @internal",
+    " */",
+    "function linkedInternal(): void {}",
     "/** @param width Refuse zero width before normalizing the line. @returns The value remains in metres. @evidence internal */",
     "function taggedInternal(width: number): number { return width; }",
     "/** @internal @evidence internal */",
@@ -213,6 +224,7 @@ function selfTest() {
   if (!output.includes("Public member contract.")) throw new Error("Public member docs were not preserved.");
   if (!output.includes("/*\n * A small internal wrapper.\n */") || output.includes("@evidence hidden")) throw new Error("Short internal rationale was not preserved as an ordinary comment.");
   if (!output.includes("/*\n * Preserve the prior key") || !output.includes("because a held interval") || !output.includes("downstream solver relies on that identity")) throw new Error("Internal rationale was not retained as an ordinary comment.");
+  if (!output.includes("The core planner runs Core.solve | solve(...) and Scalar.normalize, then Core.finish.") || !output.includes("/** @internal */")) throw new Error("Private link text or @internal marker was not retained.");
   if (!output.includes("Parameter width: Refuse zero width before normalizing the line.") || !output.includes("Returns: The value remains in metres.")) throw new Error("Private parameter/return rationale lost its identity or description.");
   if (!output.includes("https://example.test/source") || output.includes("@source")) throw new Error("Source link preservation failed.");
   if (!output.includes("/** @internal */")) throw new Error("@internal marker was not retained.");
