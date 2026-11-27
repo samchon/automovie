@@ -1,12 +1,18 @@
-import { AutoMovieGravity, Quaternion, AutoMovieEnginePhysics, AutoMovieAir } from "@automovie/engine";
-import type {
-  IAutoMovieInteractionEvent,
-  IAutoMovieMotionHumanObject,
-  IAutoMovieMotionHumanPropFracture,
-  IAutoMoviePhysicalShape,
-  IAutoMovieProjectile,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
+import {
+  AutoMovieAir,
+  AutoMovieEnginePhysics,
+  AutoMovieGravity,
+  Quaternion,
+} from "@automovie/engine";
+import {
+  AutoMovieInteractionEventKind,
+  type IAutoMovieInteractionEvent,
+  type IAutoMovieMotionHumanObject,
+  type IAutoMovieMotionHumanPropFracture,
+  type IAutoMoviePhysicalShape,
+  type IAutoMovieProjectile,
+  type IAutoMovieRigidTransform,
+  type IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
@@ -37,7 +43,7 @@ export function HumanPropFracture<
   const contact: IAutoMovieInteractionEvent = {
     ...hit,
     id: `${hit.id}:fracture`,
-    kind: "contact",
+    kind: AutoMovieInteractionEventKind.Contact,
     source: "impactOutput",
   };
   const detached: {
@@ -85,7 +91,10 @@ function flight(
   const shapes: readonly IAutoMoviePhysicalShape[] = model.shapes?.() ?? [];
   let height: number = Infinity;
   for (const shape of shapes)
-    height = Math.min(height, AutoMovieEnginePhysics.physicalShapeBounds(frame, shape).min.y);
+    height = Math.min(
+      height,
+      AutoMovieEnginePhysics.physicalShapeBounds(frame, shape).min.y,
+    );
   if (!(height >= 0 && height < Infinity))
     throw new RangeError(
       "A departing fragment needs finite colliders on or above the floor at the fracture.",
@@ -112,14 +121,19 @@ function flight(
     velocity.y < 0
       ? height / (impactSpeed / 2 - velocity.y / 2)
       : velocity.y / gravity + impactSpeed / gravity;
-  const landed: IAutoMovieVector3 = AutoMovieAir.projectileAt(projectile, stop).position;
+  const landed: IAutoMovieVector3 = AutoMovieAir.projectileAt(
+    projectile,
+    stop,
+  ).position;
   const rest: IAutoMovieVector3 = {
     ...landed,
     y: frame.position.y - height,
   };
   return (seconds: number): IAutoMovieRigidTransform => ({
     position:
-      seconds < stop ? AutoMovieAir.projectileAt(projectile, seconds).position : { ...rest },
+      seconds < stop
+        ? AutoMovieAir.projectileAt(projectile, seconds).position
+        : { ...rest },
     rotation: { ...frame.rotation },
   });
 }

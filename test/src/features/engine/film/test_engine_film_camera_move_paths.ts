@@ -1,5 +1,6 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
+  AutoMovieCameraFraming,
   IAutoMovieCamera,
   IAutoMovieCameraAction,
   type IAutoMovieFramedSubject,
@@ -35,7 +36,7 @@ const frame: (
   actor: "cam",
   start,
   duration,
-  framing: "full",
+  framing: AutoMovieCameraFraming.Full,
   move,
   on: { kind: "point", point: { x: 0, y: 0, z: 0 } },
 });

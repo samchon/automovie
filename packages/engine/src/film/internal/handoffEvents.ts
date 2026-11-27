@@ -1,4 +1,4 @@
-import { IAutoMovieInteractionEvent } from "@automovie/interface";
+import { AutoMovieInteractionEventKind, type IAutoMovieInteractionEvent } from "@automovie/interface";
 
 import { eventTimeKey } from "./eventTimeKey";
 
@@ -6,10 +6,10 @@ import { eventTimeKey } from "./eventTimeKey";
 const HANDOFF_KINDS: ReadonlyArray<
   readonly [IAutoMovieInteractionEvent["kind"], "start" | "end"]
 > = [
-  ["grab", "start"],
-  ["attach", "start"],
-  ["detach", "end"],
-  ["release", "end"],
+  [AutoMovieInteractionEventKind.Grab, "start"],
+  [AutoMovieInteractionEventKind.Attach, "start"],
+  [AutoMovieInteractionEventKind.Detach, "end"],
+  [AutoMovieInteractionEventKind.Release, "end"],
 ];
 
 /**

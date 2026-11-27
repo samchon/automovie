@@ -1,10 +1,11 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieCut,
-  IAutoMovieEditPlan,
-  IAutoMovieInteractionEvent,
-  IAutoMoviePlaybackEvent,
-  IAutoMovieShot,
+import {
+  AutoMovieInteractionEventKind,
+  type IAutoMovieCut,
+  type IAutoMovieEditPlan,
+  type IAutoMovieInteractionEvent,
+  type IAutoMoviePlaybackEvent,
+  type IAutoMovieShot,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,7 +23,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_film_event_trim_numeric_boundaries(): void {
   const anchor: IAutoMovieInteractionEvent = {
     id: "anchor",
-    kind: "attach",
+    kind: AutoMovieInteractionEventKind.Attach,
     source: "scriptedCue",
     time: 0.7999999999999999,
     actor: "performer",
@@ -90,10 +91,8 @@ export function test_engine_film_event_trim_numeric_boundaries(): void {
     source: IAutoMovieShot,
     time: number,
   ): void {
-    const events: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
-      result.sequence,
-      [source],
-    );
+    const events: IAutoMoviePlaybackEvent[] =
+      AutoMovieEngineFilm.sequenceEventTimeline(result.sequence, [source]);
     TestValidator.predicate(
       label,
       events.length === 1 &&

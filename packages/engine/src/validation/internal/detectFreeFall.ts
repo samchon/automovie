@@ -1,4 +1,5 @@
 import {
+  AutoMovieInteractionEventKind,
   IAutoMovieClip,
   type IAutoMovieDetectFreeFall,
   type IAutoMovieFreeFallResult,
@@ -30,7 +31,8 @@ const DEFAULT_FPS: number = 30;
 export function detectFreeFall(
   props: IAutoMovieDetectFreeFall.IProps,
 ): IAutoMovieFreeFallResult {
-  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+  const collector: IAutoMovieViolationCollector =
+    new AutoMovieEngineViolationCollector();
   const path: string = props.path ?? "$input";
   const margin: number =
     props.margin === undefined ? DEFAULT_MARGIN : props.margin;
@@ -69,7 +71,7 @@ export function detectFreeFall(
 
   const event: IAutoMovieInteractionEvent = {
     id: "fall:0",
-    kind: "fall",
+    kind: AutoMovieInteractionEventKind.Fall,
     source: "sampledProximity",
     time: 0,
     actor: node,

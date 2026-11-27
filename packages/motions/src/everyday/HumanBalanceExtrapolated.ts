@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";

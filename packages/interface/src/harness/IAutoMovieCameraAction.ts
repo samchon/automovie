@@ -1,4 +1,5 @@
 import type { IAutoMovieActionBase } from "./IAutoMovieActionBase";
+import type { AutoMovieCameraFraming } from "./AutoMovieCameraFraming";
 import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
 
 /**
@@ -19,7 +20,7 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
   verb: "frame";
 
   /** How tight the framing is. */
-  framing: "wide" | "full" | "medium" | "close";
+  framing: AutoMovieCameraFraming;
 
   /** How the camera behaves over this span. */
   move: "static" | "follow" | "orbit" | "push-in" | "truck" | "whip";

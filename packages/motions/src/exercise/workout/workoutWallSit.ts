@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPropReader, IAutoMovieMotionHumanWorkout, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";

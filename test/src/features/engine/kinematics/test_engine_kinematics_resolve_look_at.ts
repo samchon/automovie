@@ -162,14 +162,20 @@ export function test_engine_kinematics_resolve_look_at(): void {
   );
 
   // 7. the default eye rows hold a horizontal gaze and refuse a roll
+  const admitted = AutoMovieEngineValidation.validatePoseResult(left.pose, RIG);
+  const rolled = AutoMovieEngineValidation.validatePoseResult(
+    makePose([joint("leftEye", { abduction: 5 })]),
+    RIG,
+  );
   TestValidator.equals(
     "default ROM admits the gaze and refuses an eye roll",
     [
-      AutoMovieEngineValidation.validatePoseResult(left.pose, RIG).items.length,
-      AutoMovieEngineValidation.validatePoseResult(
-        makePose([joint("leftEye", { abduction: 5 })]),
-        RIG,
-      ).items.length > 0,
+      admitted.success
+        ? (admitted.warnings?.length ?? 0)
+        : admitted.violations.length,
+      rolled.success
+        ? (rolled.warnings?.length ?? 0) > 0
+        : rolled.violations.length > 0,
     ],
     [0, true],
   );

@@ -1,12 +1,13 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieCamera,
-  IAutoMovieCameraAction,
-  IAutoMovieClip,
-  IAutoMovieFormationDesign,
-  IAutoMovieModel,
-  IAutoMovieTransform,
-  IAutoMovieVector3,
+import {
+  AutoMovieCameraFraming,
+  type IAutoMovieCamera,
+  type IAutoMovieCameraAction,
+  type IAutoMovieClip,
+  type IAutoMovieFormationDesign,
+  type IAutoMovieModel,
+  type IAutoMovieTransform,
+  type IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IFilmFacadeGrade } from "./IFilmFacadeGrade";
@@ -113,7 +114,7 @@ export function createFilmCameraWidthFixture(props: {
     actor: "cam",
     start: 0,
     duration: "auto",
-    framing: "full",
+    framing: AutoMovieCameraFraming.Full,
     move: "static",
     on: { kind: "node", node: props.node },
   };

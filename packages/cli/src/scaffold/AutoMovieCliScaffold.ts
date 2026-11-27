@@ -1,4 +1,4 @@
-import type { AutoMovieTemplateScaffoldProps } from "@automovie/template";
+import type { IAutoMovieTemplateScaffoldProps } from "@automovie/template";
 
 import type { AutoMovieCommand } from "../AutoMovieCommand";
 import type { AutoMovieCliProjectNameSelection } from "./AutoMovieCliProjectNameSelection";
@@ -41,7 +41,7 @@ export namespace AutoMovieCliScaffold {
   /** Render the next steps printed after scaffold installation. */
   export function renderNextSteps(
     directory: string,
-    kind: AutoMovieTemplateScaffoldProps["kind"],
+    kind: IAutoMovieTemplateScaffoldProps["kind"],
   ): string {
     return renderAutoMovieScaffoldNextSteps(directory, kind);
   }

@@ -1,5 +1,8 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type { IAutoMovieCameraIntent } from "@automovie/interface";
+import {
+  AutoMovieCameraFraming,
+  type IAutoMovieCameraIntent,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
@@ -22,7 +25,7 @@ import { nclose } from "../../internal/predicates";
 export function test_engine_film_lens_pull(): void {
   const intent: IAutoMovieCameraIntent = {
     start: 0,
-    framing: "medium",
+    framing: AutoMovieCameraFraming.Medium,
     move: "static",
     focus: { x: 0, y: 0, z: -2 },
     focusPull: { start: 1, end: 2, to: { x: 0, y: 0, z: -4 } },

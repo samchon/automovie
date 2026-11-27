@@ -1,6 +1,8 @@
 import { evidence } from "@ttsc/evidence";
 import type { ITtscLintBoundariesElement, ITtscLintConfig } from "@ttsc/lint";
 
+import { packagePublicSourceFiles } from "./publicSourceFiles";
+
 /** The published workspaces, each imported only by name through its `src/index.ts`. */
 const PACKAGES: readonly string[] = [
   "archetypes",
@@ -252,4 +254,16 @@ const lint: ITtscLintConfig = {
   },
 } satisfies ITtscLintConfig;
 
-export default lint;
+/** Keep this requirement on package-public source files; private implementation modules are exempt. */
+const publicFiles: string[] | undefined = packagePublicSourceFiles();
+
+export default publicFiles === undefined
+  ? lint
+  : [
+      lint,
+      {
+        files: ["src/**/*.ts", "src/**/*.tsx"],
+        ignores: publicFiles,
+        rules: { "evidence/documented": "off" },
+      },
+    ] satisfies ITtscLintConfig[];

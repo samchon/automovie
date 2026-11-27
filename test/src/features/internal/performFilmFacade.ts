@@ -1,5 +1,9 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type { IAutoMovieClip, IAutoMovieModel } from "@automovie/interface";
+import {
+  AutoMovieCameraFraming,
+  type IAutoMovieClip,
+  type IAutoMovieModel,
+} from "@automovie/interface";
 
 import {
   makePerformanceWrite,
@@ -57,7 +61,7 @@ export function performFilmFacade(
           actor: "cam",
           start: 0,
           duration: "auto",
-          framing: "full",
+          framing: AutoMovieCameraFraming.Full,
           move: "static",
           on: { kind: "node", node: "west-facade" },
         },

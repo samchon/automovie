@@ -1,9 +1,10 @@
-import type {
-  IAutoMovieInteractionEvent,
-  IAutoMovieMotionHumanBlast,
-  IAutoMovieMotionHumanForce,
-  IAutoMovieMotionHumanImpulse,
-  IAutoMovieMotionHumanSustainedForce,
+import {
+  AutoMovieInteractionEventKind,
+  type IAutoMovieInteractionEvent,
+  type IAutoMovieMotionHumanBlast,
+  type IAutoMovieMotionHumanForce,
+  type IAutoMovieMotionHumanImpulse,
+  type IAutoMovieMotionHumanSustainedForce,
 } from "@automovie/interface";
 import { HumanBlast, HumanForce } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -97,7 +98,7 @@ function scenario_test_motions_perform_force_impulse(): void {
   for (const speed of [-2, 0, 2]) {
     const caught: IAutoMovieInteractionEvent = {
       id: "catch",
-      kind: "hit",
+      kind: AutoMovieInteractionEventKind.Hit,
       source: "collisionSolver",
       time: 0.5,
       actor: "ball",

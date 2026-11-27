@@ -1,6 +1,19 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieInteractionEvent, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPerformanceState, IAutoMovieMotionHumanPropFlight, IAutoMovieMotionHumanPropOutcome, IAutoMovieMotionHumanSegment, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import {
+  AutoMovieInteractionEventKind,
+  type AutoMovieHumanSide,
+  type AutoMovieHumanoidBone,
+  type AutoMovieHumanoidRegion,
+  type IAutoMovieHumanoidSurfaces,
+  type IAutoMovieInteractionEvent,
+  type IAutoMovieMotionHumanBody,
+  type IAutoMovieMotionHumanPerformanceState,
+  type IAutoMovieMotionHumanPropFlight,
+  type IAutoMovieMotionHumanPropOutcome,
+  type IAutoMovieMotionHumanSegment,
+  type IAutoMovieResolvedBone,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { StrikingWeapon } from "../striking/StrikingWeapon";
@@ -71,8 +84,7 @@ export namespace HumanPerformanceHits {
   ): readonly IAutoMovieInteractionEvent[] {
     // The hits the performance prepared, or, while the schedule is resolved,
     // those the placed performance gives now.
-    const all: readonly IAutoMovieInteractionEvent[] =
-      self.hits ?? solve(self);
+    const all: readonly IAutoMovieInteractionEvent[] = self.hits ?? solve(self);
     return subject === undefined
       ? all
       : all.filter(
@@ -138,7 +150,7 @@ export namespace HumanPerformanceHits {
         const mass: number | undefined = distalMass(striker, distal);
         return {
           id: `hit:${strike.subject}:${strike.weapon.id}:${strike.against}:${t.toFixed(6)}`,
-          kind: "hit",
+          kind: AutoMovieInteractionEventKind.Hit,
           source: "collisionSolver",
           time: t,
           actor: strike.subject,
@@ -180,7 +192,7 @@ export namespace HumanPerformanceHits {
           reach > 0 ? Vector3.scale(away, 1 / reach) : struck.normal;
         out.push({
           id: `blast:${blast.id}:${subject}`,
-          kind: "hit",
+          kind: AutoMovieInteractionEventKind.Hit,
           source: "impactOutput",
           time: t,
           actor: null,
@@ -237,7 +249,10 @@ export namespace HumanPerformanceHits {
                 );
           out.push({
             id: index === 0 ? id : `${id}:${index}`,
-            kind: struck.kind === "ground" ? "contact" : "hit",
+            kind:
+              struck.kind === "ground"
+                ? AutoMovieInteractionEventKind.Contact
+                : AutoMovieInteractionEventKind.Hit,
             source: "collisionSolver",
             time,
             actor: f.source.subject,
@@ -314,7 +329,10 @@ export namespace HumanPerformanceHits {
     const readers: Map<
       IAutoMovieMotionHumanSegment.IPerson,
       Partial<
-        Record<EntryItemEntry, ReturnType<typeof HumanPerformanceRead.prepareBones>>
+        Record<
+          EntryItemEntry,
+          ReturnType<typeof HumanPerformanceRead.prepareBones>
+        >
       >
     > = new Map();
     return (
@@ -375,10 +393,11 @@ export namespace HumanPerformanceHits {
     for (const [region, frame] of regionFrames(body)) {
       const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
       if (bone === undefined) continue;
-      const at: IAutoMovieVector3 = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
-        frame,
-        bone,
-      );
+      const at: IAutoMovieVector3 =
+        AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePoint(
+          frame,
+          bone,
+        );
       const distance: number = Vector3.distance(at, point);
       if (best === undefined || distance < nearest) {
         best = region;

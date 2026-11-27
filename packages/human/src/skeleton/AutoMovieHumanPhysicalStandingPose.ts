@@ -1,5 +1,10 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMath,
+  AutoMovieEnginePhysics,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieFitHumanPhysicalStandingPose, IAutoMoviePhysicalJoint, IAutoMoviePhysicalJointAxis, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMoviePhysicalShape, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPhysicalArmRoom } from "./internal/HumanPhysicalArmRoom";

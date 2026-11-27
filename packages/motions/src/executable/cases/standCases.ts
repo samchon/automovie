@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Quaternion } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanChain, IAutoMovieMotionHumanPerformance, IAutoMoviePose, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";

@@ -1,5 +1,5 @@
 import {
-  type AutoMovieInspectGrammarCutFraming,
+  type AutoMovieCameraFraming,
   type IAutoMovieGrammarCameraObservation,
   type IAutoMovieGrammarDiagnostic,
   type IAutoMovieGrammarSubjectObservation,
@@ -48,12 +48,12 @@ export function inspectGrammarCut(
   sizeOf: (
     shot: IAutoMovieNormalizedGrammarShot,
     boundary: "start" | "end",
-  ) => AutoMovieInspectGrammarCutFraming,
+  ) => AutoMovieCameraFraming | null,
   thresholds: IAutoMovieInspectGrammarCut.IThresholds,
 ): void {
   inspectAxis(diagnostics, previous, incoming);
   inspectEyeline(diagnostics, previous, incoming);
-  const incomingSize: AutoMovieInspectGrammarCutFraming = sizeOf(
+  const incomingSize: AutoMovieCameraFraming | null = sizeOf(
     incoming,
     "start",
   );
@@ -69,7 +69,7 @@ export function inspectGrammarCut(
       previous.subjectById.get(subjectId)!;
     const arriving: IAutoMovieGrammarSubjectObservation =
       incoming.subjectById.get(subjectId)!;
-    const previousSize: AutoMovieInspectGrammarCutFraming = sizeOf(
+    const previousSize: AutoMovieCameraFraming | null = sizeOf(
       previous,
       "end",
     );

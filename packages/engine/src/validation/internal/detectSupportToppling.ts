@@ -1,4 +1,5 @@
 import {
+  AutoMovieInteractionEventKind,
   type IAutoMovieDetectSupportToppling,
   type IAutoMovieHullEdge,
   IAutoMovieInteractionEvent,
@@ -20,7 +21,8 @@ const DEFAULT_MARGIN: number = 0.02;
 export function detectSupportToppling(
   props: IAutoMovieDetectSupportToppling.IProps,
 ): IAutoMovieSupportResult {
-  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+  const collector: IAutoMovieViolationCollector =
+    new AutoMovieEngineViolationCollector();
   const path: string = props.path ?? "$input";
   const margin: number =
     props.margin === undefined ? DEFAULT_MARGIN : props.margin;
@@ -64,7 +66,7 @@ export function detectSupportToppling(
   const overshoot: number = distance - margin;
   const event: IAutoMovieInteractionEvent = {
     id: "fall:0",
-    kind: "fall",
+    kind: AutoMovieInteractionEventKind.Fall,
     source: "sampledProximity",
     time: 0,
     actor: node,

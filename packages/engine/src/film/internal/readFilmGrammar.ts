@@ -1,6 +1,6 @@
 import {
   AutoMovieGrammarStyleIntent,
-  type AutoMovieInspectGrammarCutFraming,
+  type AutoMovieCameraFraming,
   IAutoMovieCameraIntent,
   type IAutoMovieGrammarDiagnostic,
   type IAutoMovieGrammarInput,
@@ -23,19 +23,13 @@ const DEFAULT_MINIMUM_CUT_ANGLE_DEGREES: number = 30;
 const DEFAULT_REESTABLISH_DISTANCE: number = 10;
 
 /** A shot's size at one boundary, as `measureGrammarShotSize` answers it. */
-type Framing = IAutoMovieCameraIntent["framing"] | null;
+type Framing = AutoMovieCameraFraming | null;
 
 /** Reads a shot's measured size at one boundary, measuring each pair once. */
-type ShotSizeOf = [
-  IAutoMovieGrammarDiagnostic[],
-  IAutoMovieNormalizedGrammarShot,
-  IAutoMovieNormalizedGrammarShot,
-  (
-    shot: IAutoMovieNormalizedGrammarShot,
-    boundary: "start" | "end",
-  ) => AutoMovieInspectGrammarCutFraming,
-  { minimumCutAngleDegrees: number; reestablishDistance: number },
-][3];
+type ShotSizeOf = (
+  shot: IAutoMovieNormalizedGrammarShot,
+  boundary: "start" | "end",
+) => Framing;
 
 /**
  * Reads an ordered edit mechanically and reports the film-grammar findings no

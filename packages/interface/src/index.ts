@@ -11,6 +11,8 @@ export type * from "./expression";
 export type * from "./fluid";
 export type * from "./geometry";
 export type * from "./harness";
+export { AutoMovieCameraFraming } from "./harness/AutoMovieCameraFraming";
+export { AutoMovieInteractionEventKind } from "./cinematics/AutoMovieInteractionEventKind";
 export type * from "./human";
 export type * from "./io";
 export type * from "./material";

@@ -8,14 +8,12 @@ Use PascalCase for top-level public names with the owning package in the prefix,
 
 Use camelCase for methods and utility functions, and PascalCase for React components. Prefix interfaces and other public object contracts with `I`.
 
-## Folders
+## Layout
 
 - Put public declarations in `packages/*/src/<topic>/<name>.ts`.
 - Put private code and types in `packages/*/src/<topic>/<folder>/<name>.ts`.
 
-## Owners
-
-Publish SDK operations in classes or non-callable namespaces. Use one namespace block per owner, with no nesting. Put related methods and types directly on their owner or in a separate named owner.
+Group SDK operations in classes or namespaces. Use one namespace block per owner. Put related methods and types directly on their owner or in a separate named owner.
 
 ## Declarations
 
@@ -29,10 +27,11 @@ Name object types. Give each object variant in a union a named interface with a 
 
 ## Comments
 
-Document public exports and members with JSDoc. Public exports are reachable through the package export map or a public barrel.
+Document public declarations and public members with JSDoc.
+[Documentation](../documentation/SKILL.md) applies to all JSDoc.
 
-Apply the [writing rules](../documentation/SKILL.md) to all JSDoc.
+Private declarations need neither JSDoc nor Evidence. Use ordinary comments
+to explain non-obvious logic and why it takes that approach. Record the
+assumptions and invariants future changes must preserve.
 
-Internal implementations and import-only exports require neither JSDoc nor Evidence.
-
-Use ordinary comments for necessary internal explanations and upstream provenance.
+Keep upstream references next to the code that uses them.

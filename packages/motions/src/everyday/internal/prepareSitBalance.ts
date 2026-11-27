@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanSit, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/AutoMovieMotionClock";

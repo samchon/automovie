@@ -1,6 +1,10 @@
-import { AutoMovieGravity, AutoMovieEngineFilm, AutoMovieAir } from "@automovie/engine";
 import {
-  AutoMovieInteractionEventKind,
+  AutoMovieAir,
+  AutoMovieEngineFilm,
+  AutoMovieGravity,
+} from "@automovie/engine";
+import {
+  type AutoMovieInteractionEventKind,
   IAutoMovieInteractionEvent,
   IAutoMovieLaunchAction,
   type IAutoMovieLaunchResult,
@@ -268,12 +272,14 @@ export function test_engine_film_launch(): void {
     quiet.events[1]!.reaction,
     null,
   );
-  const listedActor: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch({
-    action: launch({ actor: ["archer", "spotter"] }),
-    origin,
-    target,
-    targetNode: "foe",
-  })!;
+  const listedActor: IAutoMovieLaunchResult = AutoMovieEngineFilm.compileLaunch(
+    {
+      action: launch({ actor: ["archer", "spotter"] }),
+      origin,
+      target,
+      targetNode: "foe",
+    },
+  )!;
   TestValidator.equals(
     "actor-list launch events use the first actor",
     listedActor.events[0]!.actor,

@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEnginePhysics, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanLimbGoal, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBodyFitTypes, IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanPosture, IAutoMoviePhysicalShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { sitPlace } from "../../everyday/internal/sitPlace";

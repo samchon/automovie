@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { type AutoMovieEnginePhysicsContactTypes, type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Quaternion, Vector3, AutoMovieEnginePhysicalPlanarPolygon, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, type AutoMovieEnginePhysicsContactTypes, type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Quaternion, Vector3, AutoMovieEnginePhysicalPlanarPolygon, AutoMovieEngineMath } from "@automovie/engine";
 
 
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanColliders, IAutoMoviePhysicalShape, IAutoMoviePhysicalShapeBounds, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";

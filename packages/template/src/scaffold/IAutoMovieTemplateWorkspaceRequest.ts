@@ -2,7 +2,7 @@
  * Existing workspace data completed by
  * {@link AutoMovieTemplateScaffold.renderWorkspace}.
  */
-export interface AutoMovieTemplateWorkspaceRequest {
+export interface IAutoMovieTemplateWorkspaceRequest {
   /** Directory containing the workspace whose catalogs need completion. */
   directory: string;
 

@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanJacobian, IAutoMovieMotionHumanPosture, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPhysics } from "../../law/HumanPhysics";

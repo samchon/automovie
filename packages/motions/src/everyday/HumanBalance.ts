@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanBalance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";

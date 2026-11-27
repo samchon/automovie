@@ -1,4 +1,4 @@
-import { IAutoMovieBlocking } from "@automovie/interface";
+import { AutoMovieCameraFraming, IAutoMovieBlocking } from "@automovie/interface";
 
 /**
  * Create the existing two-second beat-1 blocking with knightA's t=1 strike anchor and medium static framing. The final partial spread replaces requested fields without inventing a successful performance or repairing contradictions.
@@ -19,7 +19,7 @@ export function makeBlockingWrite(
       { node: "knightB", beats: "holds ground, eyes locked on the challenger" },
     ],
     camera: {
-      framing: "medium",
+      framing: AutoMovieCameraFraming.Medium,
       move: "static",
       on: { kind: "node", node: "knightA" },
     },

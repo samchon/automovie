@@ -1,23 +1,6 @@
 import assert from "node:assert/strict";
-import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-
-interface ITransclusionModule {
-  transcludeMarkdownSection: {
-    sourcePath(markdown: string, scaffoldPath: string): string | null;
-    expand(
-      markdown: string,
-      scaffoldPath: string,
-      sourceMarkdown: string,
-    ): string;
-  };
-}
-
-interface IReferenceModule {
-  removeMarkdownReferences: {
-    strip(markdown: string): string;
-  };
-}
+import { removeMarkdownReferences } from "../../../../packages/template/src/scaffold/internal/removeMarkdownReferences";
+import { transcludeMarkdownSection } from "../../../../packages/template/src/scaffold/internal/transcludeMarkdownSection";
 
 /**
  * Section transclusion copies one real root heading and stops at real heading
@@ -37,27 +20,7 @@ interface IReferenceModule {
  * @evidence contracts/development/testing.md#execution-ownership This in-process test imports only the local helper modules and writes no files.
  * @evidence contracts/development/common.md#meaningful-documentation The comment names each boundary and failure behavior the assertions pin.
  */
-export async function test_template_section_transclusion(): Promise<void> {
-  const root: string = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "../../../..",
-  );
-  const transclusion: ITransclusionModule = (await import(
-    pathToFileURL(
-      path.join(
-        root,
-        "packages/template/src/scaffold/internal/transcludeMarkdownSection.ts",
-      ),
-    ).href
-  )) as ITransclusionModule;
-  const references: IReferenceModule = (await import(
-    pathToFileURL(
-      path.join(
-        root,
-        "packages/template/src/scaffold/internal/removeMarkdownReferences.ts",
-      ),
-    ).href
-  )) as IReferenceModule;
+export function test_template_section_transclusion(): void {
   const marker: string = "## $" + "{Continuing}";
   const scaffold: string = [
     "# Copy",
@@ -103,7 +66,7 @@ export async function test_template_section_transclusion(): Promise<void> {
   ].join("\n");
 
   assert.equal(
-    transclusion.transcludeMarkdownSection.expand(
+    transcludeMarkdownSection.expand(
       scaffold,
       ".agents/skills/example/SKILL.md",
       source,
@@ -112,7 +75,7 @@ export async function test_template_section_transclusion(): Promise<void> {
   );
   assert.throws(
     () =>
-      transclusion.transcludeMarkdownSection.expand(
+      transcludeMarkdownSection.expand(
         marker,
         ".agents/skills/example/SKILL.md",
         "# No section\n",
@@ -121,7 +84,7 @@ export async function test_template_section_transclusion(): Promise<void> {
   );
   assert.throws(
     () =>
-      transclusion.transcludeMarkdownSection.expand(
+      transcludeMarkdownSection.expand(
         marker,
         ".agents/skills/example/SKILL.md",
         "## Continuing\none\n## Continuing\ntwo",
@@ -130,7 +93,7 @@ export async function test_template_section_transclusion(): Promise<void> {
   );
   assert.throws(
     () =>
-      transclusion.transcludeMarkdownSection.sourcePath(
+      transcludeMarkdownSection.sourcePath(
         marker,
         "../outside.md",
       ),
@@ -158,7 +121,7 @@ export async function test_template_section_transclusion(): Promise<void> {
     "",
   ].join("\n");
   assert.equal(
-    references.removeMarkdownReferences.strip(notes),
+    removeMarkdownReferences.strip(notes),
     notesExpected,
   );
 }

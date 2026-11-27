@@ -1,4 +1,4 @@
-import type { AutoMovieTemplateScaffoldProps } from "@automovie/template";
+import type { IAutoMovieTemplateScaffoldProps } from "@automovie/template";
 
 /**
  * Explain the work between a freshly written installation and a runnable
@@ -19,7 +19,7 @@ import type { AutoMovieTemplateScaffoldProps } from "@automovie/template";
  */
 export function renderAutoMovieScaffoldNextSteps(
   directory: string,
-  kind: AutoMovieTemplateScaffoldProps["kind"],
+  kind: IAutoMovieTemplateScaffoldProps["kind"],
 ): string {
   if (kind === "workspace")
     return (

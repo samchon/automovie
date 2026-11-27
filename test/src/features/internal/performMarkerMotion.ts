@@ -1,12 +1,13 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieAttachJob,
-  IAutoMovieClip,
-  IAutoMoviePerformedShot,
-  IAutoMoviePropSpec,
-  IAutoMovieSceneNode,
-  IAutoMovieScript,
-  IAutoMovieSkeleton,
+import {
+  AutoMovieCameraFraming,
+  type IAutoMovieAttachJob,
+  type IAutoMovieClip,
+  type IAutoMoviePerformedShot,
+  type IAutoMoviePropSpec,
+  type IAutoMovieSceneNode,
+  type IAutoMovieScript,
+  type IAutoMovieSkeleton,
 } from "@automovie/interface";
 
 import { filmAttachSynthesizer } from "./filmAttachSynthesizer";
@@ -93,7 +94,7 @@ export function performMarkerMotion(
           actor: "camera",
           start: 0,
           duration: "auto",
-          framing: "full",
+          framing: AutoMovieCameraFraming.Full,
           move: "static",
           on: { kind: "node", node: "keeper" },
         },

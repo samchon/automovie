@@ -1,6 +1,6 @@
 import {
   AutoMovieTemplateScaffold,
-  type AutoMovieTemplateScaffoldProps,
+  type IAutoMovieTemplateScaffoldProps,
 } from "@automovie/template";
 import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
@@ -213,7 +213,7 @@ Options:
  */
 function write(
   directory: string,
-  props: AutoMovieTemplateScaffoldProps,
+  props: IAutoMovieTemplateScaffoldProps,
   force: boolean,
   workspaceFile?: string,
 ): void {

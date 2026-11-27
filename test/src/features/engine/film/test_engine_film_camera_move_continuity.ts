@@ -1,5 +1,6 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
+  AutoMovieCameraFraming,
   IAutoMovieCamera,
   IAutoMovieCameraAction,
   IAutoMovieClip,
@@ -55,7 +56,7 @@ const frame: (
   move: IAutoMovieCameraAction["move"],
   start: number,
   duration: number | "auto" = "auto",
-  framing: IAutoMovieCameraAction["framing"] = "medium",
+  framing: IAutoMovieCameraAction["framing"] = AutoMovieCameraFraming.Medium,
 ): IAutoMovieCameraAction => ({
   verb: "frame",
   actor: "cam",

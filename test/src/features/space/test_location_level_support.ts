@@ -1,18 +1,19 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieActorContext,
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
-  IAutoMovieDefinedShotContract,
-  IAutoMovieGait,
-  IAutoMovieMotion,
-  IAutoMovieShotProgram,
-  IAutoMovieSkeleton,
-  IAutoMovieStage,
-  IAutoMovieStageActor,
-  IAutoMovieStageSupportWindow,
-  IAutoMovieSurface,
-  IAutoMovieVector3,
+import {
+  AutoMovieCameraFraming,
+  type IAutoMovieActorContext,
+  type IAutoMovieBeatEndActorState,
+  type IAutoMovieBeatEndState,
+  type IAutoMovieDefinedShotContract,
+  type IAutoMovieGait,
+  type IAutoMovieMotion,
+  type IAutoMovieShotProgram,
+  type IAutoMovieSkeleton,
+  type IAutoMovieStage,
+  type IAutoMovieStageActor,
+  type IAutoMovieStageSupportWindow,
+  type IAutoMovieSurface,
+  type IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -175,7 +176,7 @@ function compileSupport(
             }),
           ),
           camera: {
-            framing: "full",
+            framing: AutoMovieCameraFraming.Full,
             move: "static",
             on: { kind: "node", node: "knightA" },
           },
@@ -207,7 +208,7 @@ function compileSupport(
               actor: "cam-main",
               start: 0,
               duration: "auto",
-              framing: "full",
+              framing: AutoMovieCameraFraming.Full,
               move: "static",
               on: { kind: "node", node: "knightA" },
             },

@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Quaternion, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieMotionHumanAuditMeasure, IAutoMovieMotionHumanAuditMotion, IAutoMovieMotionHumanBody, IAutoMovieResolveCenterOfMass, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanContactWindow } from "../law/HumanContactWindow";

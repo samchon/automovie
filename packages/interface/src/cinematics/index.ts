@@ -1,7 +1,7 @@
+export type { IAutoMovieCameraFocusPull } from "./IAutoMovieCameraFocusPull";
 export type { AutoMovieGrammarDiagnosticCode } from "./AutoMovieGrammarDiagnosticCode";
 export type { AutoMovieGuidePass } from "./AutoMovieGuidePass";
-export type { AutoMovieInspectGrammarCutFraming } from "./AutoMovieInspectGrammarCutFraming";
-export type { AutoMovieInteractionEventKind } from "./AutoMovieInteractionEventKind";
+export { AutoMovieInteractionEventKind } from "./AutoMovieInteractionEventKind";
 export type { AutoMovieInteractionEventSource } from "./AutoMovieInteractionEventSource";
 export type { IAutoMovieCameraClearanceEvaluation } from "./IAutoMovieCameraClearanceEvaluation";
 export type { IAutoMovieCameraClearanceObstacleState } from "./IAutoMovieCameraClearanceObstacleState";

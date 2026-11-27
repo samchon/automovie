@@ -10,24 +10,25 @@
  * its end; the exported collision and support detectors emit `contact` and
  * `fall`.
  */
-export type AutoMovieInteractionEventKind =
+export const enum AutoMovieInteractionEventKind {
   /** Two bodies meet: a solved projectile contact or a sampled collision. */
-  | "contact"
+  Contact = "contact",
 
   /** A landed projectile strikes the node it was aimed at. */
-  | "hit"
+  Hit = "hit",
 
   /** An `attachTo` child is taken by its parent at the action start. */
-  | "grab"
+  Grab = "grab",
 
   /** An `attachTo` child is let go by its parent at the action end. */
-  | "release"
+  Release = "release",
 
   /** The child starts riding the parent's bone at the action start. */
-  | "attach"
+  Attach = "attach",
 
   /** The child stops riding the parent's bone at the action end. */
-  | "detach"
+  Detach = "detach",
 
   /** A body loses support: an unbalancing hit, a free fall or a topple. */
-  | "fall";
+  Fall = "fall",
+}

@@ -240,7 +240,9 @@ export function test_engine_geometry_query_reach(): void {
       "left",
       target,
     );
-    return pose !== null && AutoMovieEngineValidation.validatePoseResult(pose, skeleton).items.length === 0;
+    if (pose === null) return false;
+    const validation = AutoMovieEngineValidation.validatePoseResult(pose, skeleton);
+    return validation.success && (validation.warnings?.length ?? 0) === 0;
   };
 
   const reachable: ReturnType<typeof measure> = measure("hero", near);

@@ -1,15 +1,16 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieCut,
-  IAutoMovieEditPlan,
-  IAutoMovieInteractionEvent,
-  IAutoMoviePlaybackEntry,
-  IAutoMoviePlaybackEvent,
-  IAutoMoviePlaybackSample,
-  IAutoMovieSequenceEntry,
-  IAutoMovieSequenceRenderFrame,
-  IAutoMovieSequenceRenderPlan,
-  IAutoMovieShot,
+import {
+  AutoMovieInteractionEventKind,
+  type IAutoMovieCut,
+  type IAutoMovieEditPlan,
+  type IAutoMovieInteractionEvent,
+  type IAutoMoviePlaybackEntry,
+  type IAutoMoviePlaybackEvent,
+  type IAutoMoviePlaybackSample,
+  type IAutoMovieSequenceEntry,
+  type IAutoMovieSequenceRenderFrame,
+  type IAutoMovieSequenceRenderPlan,
+  type IAutoMovieShot,
 } from "@automovie/interface";
 import { AutoMovieRenderSequence } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -30,7 +31,7 @@ import { nclose, throwsError } from "../../internal/predicates";
 export function test_engine_film_playback_rate(): void {
   const handoff: IAutoMovieInteractionEvent = {
     id: "handoff",
-    kind: "attach",
+    kind: AutoMovieInteractionEventKind.Attach,
     source: "scriptedCue",
     time: 1.5,
     actor: "performer",
@@ -110,23 +111,18 @@ export function test_engine_film_playback_rate(): void {
       nclose(frame.blend?.shotTimeSeconds ?? NaN, 2) &&
       nclose(frame.blend?.alpha ?? NaN, 0.5),
   );
-  const scrubbed: IAutoMoviePlaybackSample | null = AutoMovieEngineFilm.resolveSequencePlayback(
-    cut.sequence,
-    [shot],
-    0.75,
-  );
+  const scrubbed: IAutoMoviePlaybackSample | null =
+    AutoMovieEngineFilm.resolveSequencePlayback(cut.sequence, [shot], 0.75);
   TestValidator.predicate(
     "random access samples the same dissolve",
     nclose(scrubbed?.time ?? NaN, 0.625) &&
       nclose(scrubbed?.blend?.time ?? NaN, 2) &&
       nclose(scrubbed?.blend?.alpha ?? NaN, 0.5),
   );
-  const replays: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
-    cut.sequence,
-    [shot],
-  ).filter(
-    (event: IAutoMoviePlaybackEvent): boolean => event.id === handoff.id,
-  );
+  const replays: IAutoMoviePlaybackEvent[] =
+    AutoMovieEngineFilm.sequenceEventTimeline(cut.sequence, [shot]).filter(
+      (event: IAutoMoviePlaybackEvent): boolean => event.id === handoff.id,
+    );
   TestValidator.equals(
     "one handoff per retained play",
     replays.map((event: IAutoMoviePlaybackEvent): number => event.entry),

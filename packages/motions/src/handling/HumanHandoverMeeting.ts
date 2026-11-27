@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { AutoMovieEngineCompositionPose } from "@automovie/engine";
+import { AutoMovieEngineKinematics, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type { AutoMovieHumanSide, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHandover, IAutoMovieMotionHumanProp, IAutoMovieMotionMeetingKind, IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingTiming, IAutoMovieResolveMutualGoal, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";

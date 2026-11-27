@@ -1,3 +1,4 @@
+export { AutoMovieCameraFraming } from "./AutoMovieCameraFraming";
 export type { AutoMovieGestureKind } from "./AutoMovieGestureKind";
 export type { AutoMoviePropRelationKind } from "./AutoMoviePropRelationKind";
 export type { IAutoMovieActionBase } from "./IAutoMovieActionBase";

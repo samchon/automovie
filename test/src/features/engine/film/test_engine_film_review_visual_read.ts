@@ -1,13 +1,14 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieCamera,
-  IAutoMovieClip,
-  IAutoMovieInteractionEvent,
-  IAutoMovieMotion,
-  IAutoMovieReviewNote,
-  IAutoMovieScene,
-  IAutoMovieSceneNode,
-  IAutoMovieShot,
+import {
+  AutoMovieInteractionEventKind,
+  type IAutoMovieCamera,
+  type IAutoMovieClip,
+  type IAutoMovieInteractionEvent,
+  type IAutoMovieMotion,
+  type IAutoMovieReviewNote,
+  type IAutoMovieScene,
+  type IAutoMovieSceneNode,
+  type IAutoMovieShot,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -85,7 +86,7 @@ const hitEvent: (
   over: Partial<IAutoMovieInteractionEvent> = {},
 ): IAutoMovieInteractionEvent => ({
   id: "e",
-  kind: "hit",
+  kind: AutoMovieInteractionEventKind.Hit,
   source: "impactOutput",
   time: 0,
   actor: null,
@@ -365,14 +366,20 @@ export function test_engine_film_review_visual_read(): void {
   TestValidator.equals(
     "a contact-kind event off the body also reads as a miss",
     contact(heroAtOrigin, [
-      hitEvent({ kind: "contact", point: { x: 5, y: 0, z: 0 } }),
+      hitEvent({
+        kind: AutoMovieInteractionEventKind.Contact,
+        point: { x: 5, y: 0, z: 0 },
+      }),
     ]).length,
     1,
   );
   TestValidator.equals(
     "a non-impact event (grab) is not a contact check",
     contact(heroAtOrigin, [
-      hitEvent({ kind: "grab", point: { x: 5, y: 0, z: 0 } }),
+      hitEvent({
+        kind: AutoMovieInteractionEventKind.Grab,
+        point: { x: 5, y: 0, z: 0 },
+      }),
     ]).length,
     0,
   );

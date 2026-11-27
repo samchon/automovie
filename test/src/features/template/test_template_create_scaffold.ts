@@ -1,6 +1,6 @@
 import {
   AutoMovieTemplateScaffold,
-  type AutoMovieTemplateScaffoldProps,
+  type IAutoMovieTemplateScaffoldProps,
 } from "@automovie/template";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
@@ -59,7 +59,7 @@ export function test_template_create_scaffold(): void {
     ) as IManifest
   ).version;
   const create = (
-    kind: AutoMovieTemplateScaffoldProps["kind"],
+    kind: IAutoMovieTemplateScaffoldProps["kind"],
   ): Record<string, string> =>
     AutoMovieTemplateScaffold.create({ kind, name: kind });
   const production: Record<string, string> = create("production");

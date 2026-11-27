@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import type { AutoMovieTemplateScaffoldProps } from "../AutoMovieTemplateScaffoldProps";
+import type { IAutoMovieTemplateScaffoldProps } from "../IAutoMovieTemplateScaffoldProps";
 import { assertProjectName } from "./assertProjectName";
 import { listFiles } from "./listFiles";
 import { removeMarkdownReferences } from "./removeMarkdownReferences";
@@ -46,9 +46,9 @@ import { transcludeMarkdownSection } from "./transcludeMarkdownSection";
  *   two sources produce the same path.
  */
 export const create: (
-  props: AutoMovieTemplateScaffoldProps,
+  props: IAutoMovieTemplateScaffoldProps,
 ) => Record<string, string> = (
-  props: AutoMovieTemplateScaffoldProps,
+  props: IAutoMovieTemplateScaffoldProps,
 ): Record<string, string> => {
   const name: string = assertProjectName(props.name);
   const skills: string =

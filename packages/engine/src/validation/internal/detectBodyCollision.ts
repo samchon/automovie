@@ -1,5 +1,6 @@
 import {
   AutoMovieHumanoidBone,
+  AutoMovieInteractionEventKind,
   IAutoMovieBody,
   type IAutoMovieBodyCollisionResult,
   IAutoMovieBone,
@@ -53,7 +54,8 @@ interface IPenetration {
 export function detectBodyCollision(
   props: IAutoMovieDetectBodyCollision.IProps,
 ): IAutoMovieBodyCollisionResult {
-  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+  const collector: IAutoMovieViolationCollector =
+    new AutoMovieEngineViolationCollector();
   const path: string = props.path ?? "$input";
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;
@@ -139,7 +141,7 @@ export function detectBodyCollision(
       i: number,
     ): {
       id: string;
-      kind: "contact";
+      kind: AutoMovieInteractionEventKind.Contact;
       source: "sampledProximity";
       time: number;
       actor: string;
@@ -150,7 +152,7 @@ export function detectBodyCollision(
       reaction: null;
     } => ({
       id: `contact:${i}`,
-      kind: "contact",
+      kind: AutoMovieInteractionEventKind.Contact,
       source: "sampledProximity",
       time: pen.time,
       actor: props.a.node,

@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanFoot, IAutoMovieMotionHumanGuard, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanStrikingStance, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanPerception } from "../law/HumanPerception";

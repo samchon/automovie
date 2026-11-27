@@ -1,13 +1,14 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieConstraintViolation,
-  IAutoMovieCut,
-  IAutoMovieEditPlan,
-  IAutoMovieInteractionEvent,
-  IAutoMoviePlaybackEvent,
-  IAutoMovieSequenceEntry,
-  IAutoMovieShot,
-  IAutoMovieTrim,
+import {
+  AutoMovieInteractionEventKind,
+  type IAutoMovieConstraintViolation,
+  type IAutoMovieCut,
+  type IAutoMovieEditPlan,
+  type IAutoMovieInteractionEvent,
+  type IAutoMoviePlaybackEvent,
+  type IAutoMovieSequenceEntry,
+  type IAutoMovieShot,
+  type IAutoMovieTrim,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,7 +39,7 @@ import { nclose } from "../../internal/predicates";
 export function test_engine_film_cut_sequence_event_trim(): void {
   const start: IAutoMovieInteractionEvent = {
     id: "start",
-    kind: "attach",
+    kind: AutoMovieInteractionEventKind.Attach,
     source: "scriptedCue",
     time: 0.5,
     actor: "performer",
@@ -111,10 +112,10 @@ export function test_engine_film_cut_sequence_event_trim(): void {
     normalized,
     expected,
   );
-  const seamPlays: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
-    cut.sequence,
-    [shot],
-  ).filter((event): boolean => event.id === seam.id);
+  const seamPlays: IAutoMoviePlaybackEvent[] =
+    AutoMovieEngineFilm.sequenceEventTimeline(cut.sequence, [shot]).filter(
+      (event): boolean => event.id === seam.id,
+    );
   TestValidator.predicate(
     "the incoming play alone owns the seam at output 0.5",
     seamPlays.length === 1 &&
@@ -218,7 +219,9 @@ export function test_engine_film_cut_sequence_event_trim(): void {
   TestValidator.predicate(
     "the selected end maps exactly to the output end",
     boundary.sequence.shots[0]!.exactSourceEnd === short.duration &&
-      AutoMovieEngineFilm.sequenceEventTimeline(boundary.sequence, [short]).some(
+      AutoMovieEngineFilm.sequenceEventTimeline(boundary.sequence, [
+        short,
+      ]).some(
         (event): boolean =>
           event.id === end.id && event.globalTime === boundary.runtime,
       ),
@@ -291,10 +294,8 @@ export function test_engine_film_cut_sequence_event_trim(): void {
       [exactShot],
     );
     if (!result.success) throw new Error(label + " span must be admitted");
-    const events: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
-      result.sequence,
-      [exactShot],
-    );
+    const events: IAutoMoviePlaybackEvent[] =
+      AutoMovieEngineFilm.sequenceEventTimeline(result.sequence, [exactShot]);
     TestValidator.equals(
       label + " keeps only the three inside events",
       events.map((event): string => event.id),
@@ -394,10 +395,8 @@ export function test_engine_film_cut_sequence_event_trim(): void {
       [seamShot],
     );
     if (!result.success) throw new Error(label + " must be admitted");
-    const events: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
-      result.sequence,
-      [seamShot],
-    );
+    const events: IAutoMoviePlaybackEvent[] =
+      AutoMovieEngineFilm.sequenceEventTimeline(result.sequence, [seamShot]);
     TestValidator.equals(
       label + " partitions the events at the source seam",
       events.map((event): [string, number] => [event.id, event.entry]),
@@ -437,9 +436,9 @@ export function test_engine_film_cut_sequence_event_trim(): void {
     throw new Error("the decimal hard cut must be admitted");
   TestValidator.equals(
     "decimal boundary uses the incoming source time",
-    AutoMovieEngineFilm.sequenceEventTimeline(decimal.sequence, [decimalShot]).map(
-      (event): [string, number] => [event.id, event.entry],
-    ),
+    AutoMovieEngineFilm.sequenceEventTimeline(decimal.sequence, [
+      decimalShot,
+    ]).map((event): [string, number] => [event.id, event.entry]),
     [
       [before.id, 0],
       [seam.id, 1],

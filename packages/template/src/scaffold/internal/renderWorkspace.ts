@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { type Document, isMap, parseDocument, stringify, visit } from "yaml";
 
-import type { AutoMovieTemplateWorkspaceRequest } from "../AutoMovieTemplateWorkspaceRequest";
+import type { IAutoMovieTemplateWorkspaceRequest } from "../IAutoMovieTemplateWorkspaceRequest";
 
 /**
  * Render pnpm settings for a new production or workspace. Given an existing
@@ -19,7 +19,7 @@ import type { AutoMovieTemplateWorkspaceRequest } from "../AutoMovieTemplateWork
  * @throws If the shipped settings or workspace YAML cannot be read as required.
  */
 export function renderWorkspace(
-  workspace: "production" | "workspace" | AutoMovieTemplateWorkspaceRequest,
+  workspace: "production" | "workspace" | IAutoMovieTemplateWorkspaceRequest,
 ): string {
   const settings: IScaffoldSettings = JSON.parse(
     fs.readFileSync(

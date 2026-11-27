@@ -1,7 +1,8 @@
 import { AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieCameraIntent,
-  IAutoMovieFilmOptics,
+import {
+  AutoMovieCameraFraming,
+  type IAutoMovieCameraIntent,
+  type IAutoMovieFilmOptics,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +35,7 @@ export function test_engine_film_camera_lens_resolve(): void {
     fNumber?: number,
   ): IAutoMovieCameraIntent => ({
     start,
-    framing: "medium",
+    framing: AutoMovieCameraFraming.Medium,
     move: "static",
     focus: depth === null ? null : { x: 0, y: 0, z: -depth },
     focalLength: null,

@@ -1,14 +1,15 @@
 import { AutoMovieEngineMotionSampling, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
-import type {
-  IAutoMovieActorContext,
-  IAutoMovieBeatEndActorState,
-  IAutoMovieBeatEndState,
-  IAutoMovieSceneNode,
-  IAutoMovieShotProgram,
-  IAutoMovieSkeleton,
-  IAutoMovieStageActor,
-  IAutoMovieStageCamera,
-  IAutoMovieVector3,
+import {
+  AutoMovieCameraFraming,
+  type IAutoMovieActorContext,
+  type IAutoMovieBeatEndActorState,
+  type IAutoMovieBeatEndState,
+  type IAutoMovieSceneNode,
+  type IAutoMovieShotProgram,
+  type IAutoMovieSkeleton,
+  type IAutoMovieStageActor,
+  type IAutoMovieStageCamera,
+  type IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -133,7 +134,7 @@ export function assertFilmVelocityAndOpeningContinuity(
           actor: "cam-main",
           start: 0,
           duration: "auto",
-          framing: "full",
+          framing: AutoMovieCameraFraming.Full,
           move: "static",
           on: { kind: "node", node: "knightA" },
         },

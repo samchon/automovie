@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, AutoMovieHumanoidSocket, IAutoMovieHumanoidSurfaces, IAutoMovieJointPose, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanHandShape, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanColliders } from "./HumanColliders";

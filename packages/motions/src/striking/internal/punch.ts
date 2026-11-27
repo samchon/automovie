@@ -1,5 +1,4 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Vector3 } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieMotionHumanActionName, IAutoMovieHumanoidSurfaces, IAutoMovieMotionEvent, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionLaw, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPunch, IAutoMovieMotionHumanStrikingRecord, IAutoMovieMotionHumanStrikingSkill, IAutoMovieMotionHumanVariation, IAutoMovieMotionWeaponContact, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";

@@ -1,5 +1,5 @@
-import type { AutoMovieTemplateScaffoldProps } from "./AutoMovieTemplateScaffoldProps";
-import type { AutoMovieTemplateWorkspaceRequest } from "./AutoMovieTemplateWorkspaceRequest";
+import type { IAutoMovieTemplateScaffoldProps } from "./IAutoMovieTemplateScaffoldProps";
+import type { IAutoMovieTemplateWorkspaceRequest } from "./IAutoMovieTemplateWorkspaceRequest";
 import { assertProjectName as assertProjectNameInternal } from "./internal/assertProjectName";
 import { create as createInternal } from "./internal/create";
 import { renderWorkspace as renderWorkspaceInternal } from "./internal/renderWorkspace";
@@ -8,14 +8,17 @@ import { renderWorkspace as renderWorkspaceInternal } from "./internal/renderWor
 export namespace AutoMovieTemplateScaffold {
   /** Create an installation's files as a path-to-content map. */
   export function create(
-    props: AutoMovieTemplateScaffoldProps,
+    props: IAutoMovieTemplateScaffoldProps,
   ): Record<string, string> {
     return createInternal(props);
   }
 
   /** Render workspace settings, or fill missing catalogs in existing YAML. */
   export function renderWorkspace(
-    workspace: "production" | "workspace" | AutoMovieTemplateWorkspaceRequest,
+    workspace:
+      | "production"
+      | "workspace"
+      | IAutoMovieTemplateWorkspaceRequest,
   ): string {
     return renderWorkspaceInternal(workspace);
   }

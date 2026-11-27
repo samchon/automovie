@@ -1,13 +1,14 @@
 import { AutoMovieEngineCompositionContact } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieInteractionEvent,
-  IAutoMovieMotionHumanHitTrack,
-  IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionWeaponPath,
-  IAutoMovieResolveContactEvents,
-  IAutoMovieScheduleCue,
-  IAutoMovieVector3,
+import {
+  AutoMovieInteractionEventKind,
+  type AutoMovieHumanoidBone,
+  type IAutoMovieInteractionEvent,
+  type IAutoMovieMotionHumanHitTrack,
+  type IAutoMovieMotionHumanPerformanceState,
+  type IAutoMovieMotionWeaponPath,
+  type IAutoMovieResolveContactEvents,
+  type IAutoMovieScheduleCue,
+  type IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
@@ -223,7 +224,7 @@ export namespace HumanHitTrack {
             )!;
             out.push({
               id: `hit:${person.performer.subject}:${w.id}:${on}:${e.seconds.toFixed(6)}`,
-              kind: "hit",
+              kind: AutoMovieInteractionEventKind.Hit,
               source: "collisionSolver",
               time: e.seconds,
               actor: person.performer.subject,

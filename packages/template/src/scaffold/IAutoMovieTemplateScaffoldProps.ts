@@ -1,5 +1,5 @@
 /** Inputs accepted by {@link AutoMovieTemplateScaffold.create}. */
-export interface AutoMovieTemplateScaffoldProps {
+export interface IAutoMovieTemplateScaffoldProps {
   /**
    * The installation created. `production` creates a single project,
    * `workspace` creates a shared pnpm workspace, and `workspace-production`

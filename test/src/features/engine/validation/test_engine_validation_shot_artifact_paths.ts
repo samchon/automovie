@@ -1,16 +1,18 @@
 import { AutoMovieEngineValidation } from "@automovie/engine";
-import type {
-  IAutoMovieCamera,
-  IAutoMovieCameraIntent,
-  IAutoMovieClip,
-  IAutoMovieConstraintViolation,
-  IAutoMovieInteractionEvent,
-  IAutoMovieScene,
-  IAutoMovieShot,
-  IAutoMovieShotCoverage,
-  IAutoMovieTrack,
-  IAutoMovieTransform,
-  IAutoMovieValidation,
+import {
+  AutoMovieCameraFraming,
+  AutoMovieInteractionEventKind,
+  type IAutoMovieCamera,
+  type IAutoMovieCameraIntent,
+  type IAutoMovieClip,
+  type IAutoMovieConstraintViolation,
+  type IAutoMovieInteractionEvent,
+  type IAutoMovieScene,
+  type IAutoMovieShot,
+  type IAutoMovieShotCoverage,
+  type IAutoMovieTrack,
+  type IAutoMovieTransform,
+  type IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -85,7 +87,7 @@ const event: (
   overrides: Partial<IAutoMovieInteractionEvent> = {},
 ): IAutoMovieInteractionEvent => ({
   id: "contact-1",
-  kind: "contact",
+  kind: AutoMovieInteractionEventKind.Contact,
   source: "collisionSolver",
   time: 1,
   actor: null,
@@ -104,7 +106,7 @@ const intent: (
   overrides: Partial<IAutoMovieCameraIntent> = {},
 ): IAutoMovieCameraIntent => ({
   start: 0,
-  framing: "medium",
+  framing: AutoMovieCameraFraming.Medium,
   move: "static",
   focus: null,
   focalLength: null,
@@ -408,7 +410,11 @@ export function test_engine_validation_shot_artifact_paths(): void {
         entry.title,
         (): boolean => {
           const reported: string[] = pathsOf(
-            AutoMovieEngineValidation.validateShotArtifact(entry.shot, scene(), new Set(["walk"])),
+            AutoMovieEngineValidation.validateShotArtifact(
+              entry.shot,
+              scene(),
+              new Set(["walk"]),
+            ),
           );
           // A prefix, because a uniqueness violation locates the entry it
           // found second (`$input.objectMotions[1].id`) while the field
