@@ -1,54 +1,48 @@
 # Conventions
 
+These conventions apply to `packages/`.
+
 ## Names
 
-Publish SDK operations in classes or non-callable namespaces.
+Use PascalCase for top-level public names with the owning package in the prefix, as in `AutoMovieEngine`. Only `@automovie/interface` omits the package name.
 
-Use one namespace level. Put related methods and types directly on the owner or in a separate named owner.
+Use camelCase for methods and utility functions, and PascalCase for React components.
 
-Use PascalCase for top-level public names and include the owning package in the prefix, as in `AutoMovieEngine`. Only `@automovie/interface` omits the package name.
-
-Use camelCase for methods and utility functions.
-
-## React components
-
-Name React component functions in PascalCase. Declare props as
-`Component.IProps` in the component's type-only namespace.
-
-```tsx
-import type { ReactElement } from "react";
-
-export function SomeComponent(props: SomeComponent.IProps): ReactElement {
-  return <span>{props.label}</span>;
-}
-
-export namespace SomeComponent {
-  export interface IProps {
-    label: string;
-  }
-}
-```
+Prefix interfaces and other public object contracts with `I`.
 
 ## Folders
 
-Put public API files in `src/<topic>/`. Put implementations in their owning
-subfolder. A species folder such as `src/animals/dog/` already provides that
-boundary. Group shared types and constants under their owning topic.
+- Put public declarations in `packages/*/src/<topic>/<name>.ts`.
+- Put private code and types in `packages/*/src/<topic>/<folder>/<name>.ts`.
 
-Outside barrels, export one symbol named after its file. Export internal declarations only for cross-module imports and keep them out of public entry points.
+## Exports
 
-Use `export *` in public barrels when the owner file exports only the symbol named after that file.
+Outside barrels, export one symbol named after its file.
 
-## Coding style
+Export private declarations only for cross-module imports. Keep them out of public entry points.
 
-Put exports above private declarations in files and namespaces.
+Use `export *` in public barrels for matching single-export files.
 
-Annotate variable, parameter and return types explicitly. Declare named functions with `function` and write each signature once. Infer the function type only for rare curried arrows, with explicit parameter and final return types.
+## Owners
 
-Use named object types and prefix public object contracts with `I`. Give each object variant in a union a named interface with a literal discriminant. Use `type` for a new tag.
+Publish SDK operations in classes or non-callable namespaces. Use one namespace block per owner, with no nesting. Put related methods and types directly on their owner or in a separate named owner.
 
-## JSDoc
+## Declarations
 
-Document public exports and members with JSDoc. Apply the [writing rules](../documentation/SKILL.md) to all JSDoc.
+- Put exports above private declarations.
+- Annotate variable, parameter, and return types.
+- Declare named functions with `function` and write each signature once.
 
-Cite upstream sources in the JSDoc of the implementation that uses them.
+Rare curried arrows may infer the function type. Annotate their parameters and final return type.
+
+Name object types. Give each object variant in a union a named interface with a literal discriminant. Use `type` for a new tag.
+
+## Comments
+
+Document public exports and members with JSDoc. Public exports are reachable through the package export map or a public barrel.
+
+Apply the [writing rules](../documentation/SKILL.md) to all JSDoc.
+
+Internal implementations and import-only exports require neither JSDoc nor Evidence.
+
+Use ordinary comments for necessary internal explanations and upstream provenance.
